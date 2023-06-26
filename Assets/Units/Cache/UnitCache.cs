@@ -1,0 +1,70 @@
+using MarsTS.Players;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace MarsTS.Units.Cache {
+
+	public class UnitCache : MonoBehaviour {
+
+		private static UnitCache instance;
+
+		private Dictionary<Type, Dictionary<int, Unit>> instanceMap;
+
+		public static int Count {
+			get {
+				int output = 0;
+
+				foreach (Dictionary<int, Unit> map in instance.instanceMap.Values) {
+					output += map.Count;
+				}
+
+				return output;
+			}
+		}
+
+		[SerializeField]
+		private Unit[] startingUnits;
+
+		private void Awake () {
+			instance = this;
+			instanceMap = new Dictionary<Type, Dictionary<int, Unit>>();
+
+			foreach (Unit unit in startingUnits) {
+				int id = RegisterUnit(unit);
+				unit.Init(id, Player.Main);
+			}
+		}
+
+		public static Unit CreateInstance (GameObject prefab, Player owner, Vector3 position) {
+			GameObject newInstance = Instantiate(prefab, position, Quaternion.Euler(0, 0, 0));
+
+			if (newInstance.TryGetComponent(out Unit unit) ) {
+				int id = instance.RegisterUnit(unit);
+				unit.Init(id, owner);
+				return unit;
+			}
+			else {
+				Destroy(newInstance);
+				throw new ArgumentException("Prefab " + prefab.name + " not a Unit! Cannot construct, destroying prefab");
+			}
+		}
+
+		//Returns -1 for an unsuccessful register
+		private int RegisterUnit (Unit unit) {
+			Dictionary<int, Unit> map = instance.GetMap(unit.GetType());
+			int index = Count + 1;
+			return map.TryAdd(index, unit) ? index : -1;
+		}
+
+		private Dictionary<int, Unit> GetMap (Type instanceType) {
+			Dictionary<int, Unit> map = instanceMap.GetValueOrDefault(instanceType, new Dictionary<int, Unit>());
+			if (!instanceMap.ContainsKey(instanceType)) instanceMap.Add(instanceType, map);
+			return map;
+		}
+
+		private void OnDestroy () {
+			instance = null;
+		}
+	}
+}

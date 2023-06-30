@@ -123,38 +123,37 @@ namespace MarsTS.Players {
 
 		//If exclusive is true this will deselect every other selected unit
 		private void SelectUnit (params Unit[] selection) {
-			SelectEvent _event = new SelectEvent (this, true);
-			//SelectEvent clearEvent = new SelectEvent(this, false);
-
-			if (!Include) selected.Clear();
+			if (!Include) ClearSelection();
 			foreach (Unit target in selection) {
 				Roster units = GetRoster(target.Type());
 
 				if (!units.TryAdd(target)) {
 					units.Remove(target.Id());
 					target.Select(false);
-					//clearEvent.AddUnits(target);
+					if (units.Count == 0) selected.Remove(units.Type);
 				}
 				else {
 					target.Select(true);
-					_event.AddUnits(target);
 				}
 			}
 
-			EventBus.Post(_event);
-			//EventBus.Post(clearEvent);
+			EventBus.Post(new SelectEvent(this, true, Selected));
 		}
 
 		private void ClearSelection () {
-			foreach (KeyValuePair<string, Roster> typeMap in selected) {
-				foreach (Unit unit in typeMap.Value.List()) {
+			foreach (Roster units in selected.Values) {
+				foreach (Unit unit in units.List()) {
 					unit.Select(false);
 				}
+
+				units.Clear();
 			}
+
+			selected.Clear();
 		}
 
 		private Roster GetRoster (string type) {
-			Roster map = selected.GetValueOrDefault(type, new Roster());
+			Roster map = selected.GetValueOrDefault(type, new Roster(type));
 			if (!selected.ContainsKey(type)) selected.Add(type, map);
 			return map;
 		}
@@ -182,10 +181,10 @@ namespace MarsTS.Players {
 		}
 
 		public void DeliverCommand (Commandlet packet, bool inclusive) {
-			foreach (KeyValuePair<Type, Dictionary<int, Unit>> entry in Player.Selected) {
-				foreach (KeyValuePair<int, Unit> instanceEntry in entry.Value) {
-					if (inclusive) instanceEntry.Value.Enqueue(packet);
-					else instanceEntry.Value.Execute(packet);
+			foreach (KeyValuePair<string, Roster> entry in Selected) {
+				foreach (ISelectable unit in entry.Value.List()) {
+					if (inclusive) unit.Enqueue(packet);
+					else unit.Execute(packet);
 				}
 			}
 		}

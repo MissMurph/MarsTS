@@ -50,6 +50,17 @@ namespace MarsTS.Units.Cache {
 			}
 		}
 
+		public static Unit Get (string name) {
+			string[] split = name.Split(':');
+			string type = split[0];
+			string id = split[1];
+
+			if (instance.instanceMap.TryGetValue(type, out Dictionary<int, Unit> idMap) && idMap.TryGetValue(int.Parse(id), out Unit found)) {
+				return found;
+			}
+			else throw new ArgumentException("Registered instance " + name + " not found!");
+		}
+
 		//Returns -1 for an unsuccessful register
 		private int RegisterUnit (Unit unit) {
 			Dictionary<int, Unit> map = GetMap(unit.Type());

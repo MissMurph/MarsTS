@@ -10,7 +10,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.HID;
 using static UnityEditor.PlayerSettings;
+using static UnityEngine.UI.GridLayoutGroup;
 
 namespace MarsTS.Players {
 
@@ -42,6 +44,8 @@ namespace MarsTS.Players {
 
 		[SerializeField]
 		private RectTransform selectionSquare;
+		[SerializeField]
+		private GameObject selectionPrefab;
 		bool mouseHeld = false;
 		private Vector2 drawStart;
 		private Vector2 drawMouse;
@@ -75,24 +79,34 @@ namespace MarsTS.Players {
 			}
 		}
 
-		private void StartSelectionDraw () {
-			drawStart = cursorPos;
-			selectionSquare.gameObject.SetActive(true);
-			mouseHeld = true;
-		}
-
 		private void EndSelectionDraw () {
 			Vector3[] screenCorners = new Vector3[4];
-			Vector3[] worldCorners = new Vector3[4];
 
 			selectionSquare.GetWorldCorners(screenCorners);
 
-			for (int i = 0; i < screenCorners.Length; i++) {
-				worldCorners[i] = view.ScreenToWorldPoint(screenCorners[i]);
-				Debug.Log(worldCorners[i]);
+			Vector3[] orderedCorners = new Vector3[4];
+
+			Vector3[] rayVerts = new Vector3[4];
+			Vector3[] dirVerts = new Vector3[4];
+
+			orderedCorners[0] = screenCorners[1];
+			orderedCorners[1] = screenCorners[2];
+			orderedCorners[2] = screenCorners[0];
+			orderedCorners[3] = screenCorners[3];
+
+			for (int i = 0; i < orderedCorners.Length; i++) {
+				Ray ray = view.ScreenPointToRay(orderedCorners[i]);
+
+				if (Physics.Raycast(ray, out RaycastHit hit, 50000f)) {
+					rayVerts[i] = hit.point;
+					dirVerts[i] = ray.origin - hit.point;
+					Debug.DrawLine(view.ScreenToWorldPoint(orderedCorners[i]), hit.point, Color.red, 1.0f);
+				}
 			}
 
-
+			MeshCollider collider = Instantiate(selectionPrefab).GetComponent<MeshCollider>();
+			collider.sharedMesh = SelectionMesh(rayVerts, dirVerts);
+			Destroy(collider.gameObject, 0.2f);
 
 			mouseHeld = false;
 			selectionSquare.gameObject.SetActive(false);
@@ -111,13 +125,15 @@ namespace MarsTS.Players {
 		public void Select (InputAction.CallbackContext context) {switch (context.phase) {
 				//Press Down
 				case InputActionPhase.Started: {
+					drawStart = MousePos;
 					break;
 				}
 
 				//Hold Threshold
 				//We want to start drawing the box here
 				case InputActionPhase.Performed: {
-					StartSelectionDraw();
+					selectionSquare.gameObject.SetActive(true);
+					mouseHeld = true;
 					break;
 				}
 
@@ -125,6 +141,7 @@ namespace MarsTS.Players {
 				//If we've reached the held threshold, then we want to select everything within the drawn box
 				//Otherwise its a normal click
 				case InputActionPhase.Canceled: {
+					if (!Include) ClearSelection();
 					if (mouseHeld) EndSelectionDraw();
 					else {
 						Ray ray = ViewPort.ScreenPointToRay(cursorPos);
@@ -132,10 +149,10 @@ namespace MarsTS.Players {
 						if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)) {
 							Unit hitUnit = hit.collider.gameObject.GetComponentInParent<ISelectable>().Get();
 							SelectUnit(hitUnit);
-
-							
 						}
 					}
+
+					EventBus.Post(new SelectEvent(this, true, Selected));
 					mouseHeld = false;
 					break;
 				}
@@ -143,8 +160,7 @@ namespace MarsTS.Players {
 		}
 
 		//If exclusive is true this will deselect every other selected unit
-		private void SelectUnit (params Unit[] selection) {
-			if (!Include) ClearSelection();
+		public void SelectUnit (params Unit[] selection) {
 			foreach (Unit target in selection) {
 				Roster units = GetRoster(target.Type());
 
@@ -157,8 +173,6 @@ namespace MarsTS.Players {
 					target.Select(true);
 				}
 			}
-
-			EventBus.Post(new SelectEvent(this, true, Selected));
 		}
 
 		private void ClearSelection () {

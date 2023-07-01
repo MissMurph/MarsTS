@@ -87,10 +87,10 @@ namespace MarsTS.Units {
 		}
 
 		public void Init (int _id, Player _owner) {
-			if (Owner is not null) {
+			if (Owner is null) {
 				Owner = _owner;
 				id = _id;
-				gameObject.name = UnitType + ":" + InstanceID.ToString();
+				name = UnitType + ":" + InstanceID.ToString();
 			}
 		}
 

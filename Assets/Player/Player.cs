@@ -43,6 +43,8 @@ namespace MarsTS.Players {
 		[SerializeField]
 		private RectTransform selectionSquare;
 		bool mouseHeld = false;
+		private Vector2 drawStart;
+		private Vector2 drawMouse;
 
 		private void Awake () {
 			instance = this;
@@ -57,23 +59,42 @@ namespace MarsTS.Players {
 
 		private void Update () {
 			transform.position = transform.position + (cameraSpeed * Time.deltaTime * new Vector3(moveDirection.x, 0, moveDirection.y));
-			if (mouseHeld) selectionSquare.offsetMax = new Vector2(cursorPos.x - Screen.width, cursorPos.y - Screen.height); ;
+			if (mouseHeld) {
+				drawMouse = cursorPos;
+
+				Vector2 topLeft;
+				Vector2 bottomRight;
+
+				topLeft.x = drawMouse.x >= drawStart.x ? drawStart.x : drawMouse.x;
+				topLeft.y = drawMouse.y >= drawStart.y ? drawMouse.y : drawStart.y;
+				bottomRight.x = drawMouse.x >= drawStart.x ? drawMouse.x : drawStart.x;
+				bottomRight.y = drawMouse.y >= drawStart.y ? drawStart.y : drawMouse.y;
+
+				selectionSquare.offsetMin = new Vector2(topLeft.x, bottomRight.y);
+				selectionSquare.offsetMax = new Vector2(bottomRight.x - Screen.width, topLeft.y - Screen.height);
+			}
 		}
 
 		private void StartSelectionDraw () {
-			mouseHeld = true;
-			selectionSquare.offsetMin = cursorPos;
-			//selectionSquare.offsetMax = new Vector2(100, 100);
+			drawStart = cursorPos;
 			selectionSquare.gameObject.SetActive(true);
+			mouseHeld = true;
 		}
 
 		private void EndSelectionDraw () {
-			Vector3[] corners = new Vector3[4];
-			selectionSquare.offsetMax = new Vector2(cursorPos.x - Screen.width, cursorPos.y - Screen.height);
-			//selectionSquare.GetWorldCorners(corners);
-			/*foreach (Vector3 pos in corners) {
-				Debug.Log(pos);
-			}*/
+			Vector3[] screenCorners = new Vector3[4];
+			Vector3[] worldCorners = new Vector3[4];
+
+			selectionSquare.GetWorldCorners(screenCorners);
+
+			for (int i = 0; i < screenCorners.Length; i++) {
+				worldCorners[i] = view.ScreenToWorldPoint(screenCorners[i]);
+				Debug.Log(worldCorners[i]);
+			}
+
+
+
+			mouseHeld = false;
 			selectionSquare.gameObject.SetActive(false);
 		}
 
@@ -192,6 +213,29 @@ namespace MarsTS.Players {
 		public void Alternate (InputAction.CallbackContext context) {
 			if (context.performed) alternate = true;
 			if (context.canceled) alternate = false;
+		}
+
+		private Mesh SelectionMesh (Vector3[] corners, Vector3[] vecs) {
+			Vector3[] verts = new Vector3[8];
+			int[] tris = { 0, 1, 2, 2, 1, 3, 4, 6, 0, 0, 6, 2, 6, 7, 2, 2, 7, 3, 7, 5, 3, 3, 5, 1, 5, 0, 1, 1, 4, 0, 4, 5, 6, 6, 5, 7 }; //map the tris of our cube
+
+			for (int i = 0; i < 4; i++) {
+				verts[i] = corners[i];
+			}
+
+			for (int j = 4; j < 8; j++) {
+				verts[j] = corners[j - 4] + vecs[j - 4];
+			}
+
+			Mesh selectionMesh = new Mesh();
+			selectionMesh.vertices = verts;
+			selectionMesh.triangles = tris;
+
+			return selectionMesh;
+		}
+
+		private void OnTriggerEnter (Collider other) {
+			Debug.Log(other.name);
 		}
 
 		private void OnDestroy () {

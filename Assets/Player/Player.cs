@@ -36,6 +36,9 @@ namespace MarsTS.Players {
 		public static bool Include { get { return instance.alternate; } }
 		private bool alternate;
 
+		public static Agent EventAgent { get { return instance.eventAgent; } }
+		private Agent eventAgent;
+
 		[SerializeField]
 		private float cameraSpeed;
 
@@ -54,6 +57,7 @@ namespace MarsTS.Players {
 			instance = this;
 			view = GetComponent<Camera>();
 			inputController = GetComponent<InputHandler>();
+			eventAgent = GetComponent<Agent>();
 			alternate = false;
 		}
 
@@ -130,6 +134,7 @@ namespace MarsTS.Players {
 			switch (context.phase) {
 				//Press Down
 				case InputActionPhase.Started: {
+					if (Input.HoveringUI) return;
 					drawStart = MousePos;
 					mouseHeld = true;
 					break;
@@ -139,19 +144,24 @@ namespace MarsTS.Players {
 				//If we've reached the held threshold, then we want to select everything within the drawn box
 				//Otherwise its a normal click
 				case InputActionPhase.Canceled: {
+					if (selectionSquare.gameObject.activeInHierarchy) {
+						if (!Include) ClearSelection();
+						EndSelectionDraw();
+						mouseHeld = false;
+						return;
+					}
+					
+					if (Input.HoveringUI) return;
 					if (!Include) ClearSelection();
-					if (selectionSquare.gameObject.activeInHierarchy) EndSelectionDraw();
-					else if (Input.HoveringUI) return;
-					else {
-						Ray ray = ViewPort.ScreenPointToRay(cursorPos);
 
-						if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)) {
-							Unit hitUnit = hit.collider.gameObject.GetComponentInParent<ISelectable>().Get();
-							SelectUnit(hitUnit);
-						}
+					Ray ray = ViewPort.ScreenPointToRay(cursorPos);
+
+					if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)) {
+						Unit hitUnit = hit.collider.gameObject.GetComponentInParent<ISelectable>().Get();
+						SelectUnit(hitUnit);
 					}
 
-					EventBus.Post(new SelectEvent(this, true, Selected));
+					EventBus.Global(new SelectEvent(true, Selected));
 					mouseHeld = false;
 					break;
 				}

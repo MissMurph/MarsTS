@@ -46,10 +46,12 @@ namespace MarsTS.Units {
 		[SerializeField]
 		private GameObject selectionCircle;
 
-		[SerializeField]
-		private Attacks.Attack primaryAttack;
-
 		private Action<bool> pathCompleteCallback;
+
+		private Dictionary<string, Attacks.Attack> registeredAttacks = new Dictionary<string, Attacks.Attack>();
+
+		[SerializeField]
+		private Attacks.Attack[] attacksToRegister;
 
 		const float minPathUpdateTime = .2f;
 		const float pathUpdateMoveThreshold = .5f;

@@ -46,7 +46,7 @@ namespace MarsTS.Players {
 		private RectTransform selectionSquare;
 		[SerializeField]
 		private GameObject selectionPrefab;
-		bool mouseHeld = false;
+		private bool mouseHeld = false;
 		private Vector2 drawStart;
 		private Vector2 drawMouse;
 
@@ -63,8 +63,11 @@ namespace MarsTS.Players {
 
 		private void Update () {
 			transform.position = transform.position + (cameraSpeed * Time.deltaTime * new Vector3(moveDirection.x, 0, moveDirection.y));
+
 			if (mouseHeld) {
 				drawMouse = cursorPos;
+
+				if (!selectionSquare.gameObject.activeInHierarchy && Vector2.Distance(drawStart, drawMouse) > 2f) selectionSquare.gameObject.SetActive(true);
 
 				Vector2 topLeft;
 				Vector2 bottomRight;
@@ -80,35 +83,36 @@ namespace MarsTS.Players {
 		}
 
 		private void EndSelectionDraw () {
-			Vector3[] screenCorners = new Vector3[4];
+			if (Vector2.Distance(drawStart, drawMouse) > 2f) {
+				Vector3[] screenCorners = new Vector3[4];
 
-			selectionSquare.GetWorldCorners(screenCorners);
+				selectionSquare.GetWorldCorners(screenCorners);
 
-			Vector3[] orderedCorners = new Vector3[4];
+				Vector3[] orderedCorners = new Vector3[4];
 
-			Vector3[] rayVerts = new Vector3[4];
-			Vector3[] dirVerts = new Vector3[4];
+				Vector3[] rayVerts = new Vector3[4];
+				Vector3[] dirVerts = new Vector3[4];
 
-			orderedCorners[0] = screenCorners[1];
-			orderedCorners[1] = screenCorners[2];
-			orderedCorners[2] = screenCorners[0];
-			orderedCorners[3] = screenCorners[3];
+				orderedCorners[0] = screenCorners[1];
+				orderedCorners[1] = screenCorners[2];
+				orderedCorners[2] = screenCorners[0];
+				orderedCorners[3] = screenCorners[3];
 
-			for (int i = 0; i < orderedCorners.Length; i++) {
-				Ray ray = view.ScreenPointToRay(orderedCorners[i]);
+				for (int i = 0; i < orderedCorners.Length; i++) {
+					Ray ray = view.ScreenPointToRay(orderedCorners[i]);
 
-				if (Physics.Raycast(ray, out RaycastHit hit, 50000f)) {
-					rayVerts[i] = hit.point;
-					dirVerts[i] = ray.origin - hit.point;
-					Debug.DrawLine(view.ScreenToWorldPoint(orderedCorners[i]), hit.point, Color.red, 1.0f);
+					if (Physics.Raycast(ray, out RaycastHit hit, 50000f)) {
+						rayVerts[i] = hit.point;
+						dirVerts[i] = ray.origin - hit.point;
+						//Debug.DrawLine(view.ScreenToWorldPoint(orderedCorners[i]), hit.point, Color.red, 1.0f);
+					}
 				}
+
+				MeshCollider collider = Instantiate(selectionPrefab).GetComponent<MeshCollider>();
+				collider.sharedMesh = SelectionMesh(rayVerts, dirVerts);
+				Destroy(collider.gameObject, 0.2f);
 			}
 
-			MeshCollider collider = Instantiate(selectionPrefab).GetComponent<MeshCollider>();
-			collider.sharedMesh = SelectionMesh(rayVerts, dirVerts);
-			Destroy(collider.gameObject, 0.2f);
-
-			mouseHeld = false;
 			selectionSquare.gameObject.SetActive(false);
 		}
 
@@ -122,17 +126,11 @@ namespace MarsTS.Players {
 			cursorPos = context.ReadValue<Vector2>();
 		}
 
-		public void Select (InputAction.CallbackContext context) {switch (context.phase) {
+		public void Select (InputAction.CallbackContext context) {
+			switch (context.phase) {
 				//Press Down
 				case InputActionPhase.Started: {
 					drawStart = MousePos;
-					break;
-				}
-
-				//Hold Threshold
-				//We want to start drawing the box here
-				case InputActionPhase.Performed: {
-					selectionSquare.gameObject.SetActive(true);
 					mouseHeld = true;
 					break;
 				}
@@ -142,7 +140,8 @@ namespace MarsTS.Players {
 				//Otherwise its a normal click
 				case InputActionPhase.Canceled: {
 					if (!Include) ClearSelection();
-					if (mouseHeld) EndSelectionDraw();
+					if (selectionSquare.gameObject.activeInHierarchy) EndSelectionDraw();
+					else if (Input.HoveringUI) return;
 					else {
 						Ray ray = ViewPort.ScreenPointToRay(cursorPos);
 
@@ -194,7 +193,7 @@ namespace MarsTS.Players {
 		}
 
 		public void Command (InputAction.CallbackContext context) {
-			if (context.canceled) {
+			if (context.canceled && !Input.HoveringUI) {
 				Ray ray = ViewPort.ScreenPointToRay(cursorPos);
 
 				Physics.Raycast(ray, out RaycastHit walkableHit, 1000f, GameWorld.WalkableMask);

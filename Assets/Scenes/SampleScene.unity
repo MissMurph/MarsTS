@@ -2309,7 +2309,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 963194233}
         m_TargetAssemblyTypeName: MarsTS.Players.Input.InputHandler, Assembly-CSharp
-        m_MethodName: PointerInput
+        m_MethodName: Input
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2325,7 +2325,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 963194233}
         m_TargetAssemblyTypeName: MarsTS.Players.Input.InputHandler, Assembly-CSharp
-        m_MethodName: PointerInput
+        m_MethodName: Input
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2337,22 +2337,6 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 43546096-a802-4921-be95-4ba0b2932437
     m_ActionName: Player/Command[/Mouse/rightButton]
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 963194233}
-        m_TargetAssemblyTypeName: MarsTS.Players.Input.InputHandler, Assembly-CSharp
-        m_MethodName: Input
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 3f0b6413-8207-4323-8161-8c252276be2b
-    m_ActionName: Player/Alternate[/Keyboard/shift]
   - m_PersistentCalls:
       m_Calls: []
     m_ActionId: 05f12ac3-b9be-4f56-8ab4-1fe917bba7aa
@@ -2409,6 +2393,10 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: da4d2c44-815c-4677-8b05-72a50a4d77bd
     m_ActionName: Player/Next[/Keyboard/tab]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e9c0dc21-64ba-4972-8180-87ad0d4c56a8
+    m_ActionName: Player/Alternate[/Keyboard/shift]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Keyboard&Mouse
   m_DefaultActionMap: Player
@@ -2459,7 +2447,7 @@ MonoBehaviour:
   - {fileID: 6603340749522181669, guid: 3e10c2cbffc59ef478f413bcb35287d1, type: 3}
   - {fileID: -5964147133448918641, guid: 3e10c2cbffc59ef478f413bcb35287d1, type: 3}
   - {fileID: 4317722316541950376, guid: 3e10c2cbffc59ef478f413bcb35287d1, type: 3}
-  - {fileID: -8457023965338642126, guid: 3e10c2cbffc59ef478f413bcb35287d1, type: 3}
+  - {fileID: 3411207782813446081, guid: 3e10c2cbffc59ef478f413bcb35287d1, type: 3}
   defaultsToBind:
   - action: {fileID: 6474933055585147570, guid: 3e10c2cbffc59ef478f413bcb35287d1,
       type: 3}
@@ -2529,7 +2517,7 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
-  - action: {fileID: -8457023965338642126, guid: 3e10c2cbffc59ef478f413bcb35287d1,
+  - action: {fileID: 3411207782813446081, guid: 3e10c2cbffc59ef478f413bcb35287d1,
       type: 3}
     target:
       m_PersistentCalls:
@@ -2679,8 +2667,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 414, y: 30}
-  m_SizeDelta: {x: -828, y: 60}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1176459601
 GameObject:

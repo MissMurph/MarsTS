@@ -1,3 +1,4 @@
+using MarsTS.Events;
 using MarsTS.Units;
 using MarsTS.Units.Cache;
 using System.Collections;
@@ -16,6 +17,7 @@ namespace MarsTS.Players {
 
 		private void OnDestroy () {
 			Player.Main.SelectUnit(hitTransforms.ToArray());
+			EventBus.Post(new SelectEvent(Player.Main, true, Player.Selected));
 		}
 	}
 }

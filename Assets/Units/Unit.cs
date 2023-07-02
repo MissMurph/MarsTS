@@ -14,9 +14,15 @@ namespace MarsTS.Units {
 	public class Unit : MonoBehaviour, ISelectable {
 		public Player Owner { get; private set; } = null;
 
-		public int id;
+		public int InstanceID { get { return id; } }
 
-		public string UnitType { get; protected set; }
+		[SerializeField]
+		private int id;
+
+		public string UnitType { get { return type; } }
+
+		[SerializeField]
+		private string type;
 
 		//protected List<Node> path = new List<Node>();
 
@@ -50,6 +56,7 @@ namespace MarsTS.Units {
 
 		private void Awake () {
 			selectionCircle.SetActive(false);
+			//type = gameObject.name;
 		}
 
 		private void Start () {
@@ -80,9 +87,10 @@ namespace MarsTS.Units {
 		}
 
 		public void Init (int _id, Player _owner) {
-			if (Owner is not null) {
+			if (Owner is null) {
 				Owner = _owner;
 				id = _id;
+				name = UnitType + ":" + InstanceID.ToString();
 			}
 		}
 
@@ -212,11 +220,11 @@ namespace MarsTS.Units {
 		}
 
 		public int Id () {
-			return id;
+			return InstanceID;
 		}
 
 		public string Type () {
-			return "unit";
+			return UnitType;
 		}
 	}
 }

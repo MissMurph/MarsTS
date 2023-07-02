@@ -30,7 +30,7 @@ namespace MarsTS.Players.Input {
 		[SerializeField]
 		private GraphicRaycaster uiCheckComponent;
 
-		private bool isHoveringUi {
+		public bool HoveringUI {
 			get {
 				Vector2 mousePos = Player.MousePos;
 
@@ -113,21 +113,17 @@ namespace MarsTS.Players.Input {
 		//Do not use this
 		public void Input (InputAction.CallbackContext context) {
 			if (active.TryGetValue(context.action.name, out ListenerBinding current)) {
-				if (current.Action.name.Equals("Select") || current.Action.name.Equals("Order")) {
-					if (isHoveringUi) return;
-				}
-
 				current.Function.Invoke(context);
 			}
 		}
 
-		public void PointerInput (InputAction.CallbackContext context) {
+		/*public void PointerInput (InputAction.CallbackContext context) {
 			if (active.TryGetValue(context.action.name, out ListenerBinding current)) {
-				if (isHoveringUi) return;
+				if ((context.phase == InputActionPhase.Started || context.phase == InputActionPhase.Performed) && isHoveringUi) return;
 
 				current.Function.Invoke(context);
 			}
-		}
+		}*/
 
 		[Serializable]
 		public class DefaultEntry : ListenerBinding {

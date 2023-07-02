@@ -49,7 +49,7 @@ namespace MarsTS.Players.Teams {
 				team.Id = teamMap.Count;
 				teamMap[team.Id] = team;
 
-				foreach (Player member in team.Members) {
+				foreach (Faction member in team.Members) {
 					playerMap[member] = team.Id;
 				}
 			}

@@ -10,7 +10,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.HID;
 using static UnityEditor.PlayerSettings;
+using static UnityEngine.UI.GridLayoutGroup;
 
 namespace MarsTS.Players {
 
@@ -42,7 +44,11 @@ namespace MarsTS.Players {
 
 		[SerializeField]
 		private RectTransform selectionSquare;
-		bool mouseHeld = false;
+		[SerializeField]
+		private GameObject selectionPrefab;
+		private bool mouseHeld = false;
+		private Vector2 drawStart;
+		private Vector2 drawMouse;
 
 		private void Awake () {
 			instance = this;
@@ -57,23 +63,56 @@ namespace MarsTS.Players {
 
 		private void Update () {
 			transform.position = transform.position + (cameraSpeed * Time.deltaTime * new Vector3(moveDirection.x, 0, moveDirection.y));
-			if (mouseHeld) selectionSquare.offsetMax = new Vector2(cursorPos.x - Screen.width, cursorPos.y - Screen.height); ;
-		}
 
-		private void StartSelectionDraw () {
-			mouseHeld = true;
-			selectionSquare.offsetMin = cursorPos;
-			//selectionSquare.offsetMax = new Vector2(100, 100);
-			selectionSquare.gameObject.SetActive(true);
+			if (mouseHeld) {
+				drawMouse = cursorPos;
+
+				if (!selectionSquare.gameObject.activeInHierarchy && Vector2.Distance(drawStart, drawMouse) > 2f) selectionSquare.gameObject.SetActive(true);
+
+				Vector2 topLeft;
+				Vector2 bottomRight;
+
+				topLeft.x = drawMouse.x >= drawStart.x ? drawStart.x : drawMouse.x;
+				topLeft.y = drawMouse.y >= drawStart.y ? drawMouse.y : drawStart.y;
+				bottomRight.x = drawMouse.x >= drawStart.x ? drawMouse.x : drawStart.x;
+				bottomRight.y = drawMouse.y >= drawStart.y ? drawStart.y : drawMouse.y;
+
+				selectionSquare.offsetMin = new Vector2(topLeft.x, bottomRight.y);
+				selectionSquare.offsetMax = new Vector2(bottomRight.x - Screen.width, topLeft.y - Screen.height);
+			}
 		}
 
 		private void EndSelectionDraw () {
-			Vector3[] corners = new Vector3[4];
-			selectionSquare.offsetMax = new Vector2(cursorPos.x - Screen.width, cursorPos.y - Screen.height);
-			//selectionSquare.GetWorldCorners(corners);
-			/*foreach (Vector3 pos in corners) {
-				Debug.Log(pos);
-			}*/
+			if (Vector2.Distance(drawStart, drawMouse) > 2f) {
+				Vector3[] screenCorners = new Vector3[4];
+
+				selectionSquare.GetWorldCorners(screenCorners);
+
+				Vector3[] orderedCorners = new Vector3[4];
+
+				Vector3[] rayVerts = new Vector3[4];
+				Vector3[] dirVerts = new Vector3[4];
+
+				orderedCorners[0] = screenCorners[1];
+				orderedCorners[1] = screenCorners[2];
+				orderedCorners[2] = screenCorners[0];
+				orderedCorners[3] = screenCorners[3];
+
+				for (int i = 0; i < orderedCorners.Length; i++) {
+					Ray ray = view.ScreenPointToRay(orderedCorners[i]);
+
+					if (Physics.Raycast(ray, out RaycastHit hit, 50000f)) {
+						rayVerts[i] = hit.point;
+						dirVerts[i] = ray.origin - hit.point;
+						//Debug.DrawLine(view.ScreenToWorldPoint(orderedCorners[i]), hit.point, Color.red, 1.0f);
+					}
+				}
+
+				MeshCollider collider = Instantiate(selectionPrefab).GetComponent<MeshCollider>();
+				collider.sharedMesh = SelectionMesh(rayVerts, dirVerts);
+				Destroy(collider.gameObject, 0.2f);
+			}
+
 			selectionSquare.gameObject.SetActive(false);
 		}
 
@@ -87,16 +126,12 @@ namespace MarsTS.Players {
 			cursorPos = context.ReadValue<Vector2>();
 		}
 
-		public void Select (InputAction.CallbackContext context) {switch (context.phase) {
+		public void Select (InputAction.CallbackContext context) {
+			switch (context.phase) {
 				//Press Down
 				case InputActionPhase.Started: {
-					break;
-				}
-
-				//Hold Threshold
-				//We want to start drawing the box here
-				case InputActionPhase.Performed: {
-					StartSelectionDraw();
+					drawStart = MousePos;
+					mouseHeld = true;
 					break;
 				}
 
@@ -104,17 +139,19 @@ namespace MarsTS.Players {
 				//If we've reached the held threshold, then we want to select everything within the drawn box
 				//Otherwise its a normal click
 				case InputActionPhase.Canceled: {
-					if (mouseHeld) EndSelectionDraw();
+					if (!Include) ClearSelection();
+					if (selectionSquare.gameObject.activeInHierarchy) EndSelectionDraw();
+					else if (Input.HoveringUI) return;
 					else {
 						Ray ray = ViewPort.ScreenPointToRay(cursorPos);
 
 						if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)) {
 							Unit hitUnit = hit.collider.gameObject.GetComponentInParent<ISelectable>().Get();
 							SelectUnit(hitUnit);
-
-							
 						}
 					}
+
+					EventBus.Post(new SelectEvent(this, true, Selected));
 					mouseHeld = false;
 					break;
 				}
@@ -122,45 +159,41 @@ namespace MarsTS.Players {
 		}
 
 		//If exclusive is true this will deselect every other selected unit
-		private void SelectUnit (params Unit[] selection) {
-			SelectEvent _event = new SelectEvent (this, true);
-			//SelectEvent clearEvent = new SelectEvent(this, false);
-
-			if (!Include) selected.Clear();
+		public void SelectUnit (params Unit[] selection) {
 			foreach (Unit target in selection) {
 				Roster units = GetRoster(target.Type());
 
 				if (!units.TryAdd(target)) {
 					units.Remove(target.Id());
 					target.Select(false);
-					//clearEvent.AddUnits(target);
+					if (units.Count == 0) selected.Remove(units.Type);
 				}
 				else {
 					target.Select(true);
-					_event.AddUnits(target);
 				}
 			}
-
-			EventBus.Post(_event);
-			//EventBus.Post(clearEvent);
 		}
 
 		private void ClearSelection () {
-			foreach (KeyValuePair<string, Roster> typeMap in selected) {
-				foreach (Unit unit in typeMap.Value.List()) {
+			foreach (Roster units in selected.Values) {
+				foreach (Unit unit in units.List()) {
 					unit.Select(false);
 				}
+
+				units.Clear();
 			}
+
+			selected.Clear();
 		}
 
 		private Roster GetRoster (string type) {
-			Roster map = selected.GetValueOrDefault(type, new Roster());
+			Roster map = selected.GetValueOrDefault(type, new Roster(type));
 			if (!selected.ContainsKey(type)) selected.Add(type, map);
 			return map;
 		}
 
 		public void Command (InputAction.CallbackContext context) {
-			if (context.canceled) {
+			if (context.canceled && !Input.HoveringUI) {
 				Ray ray = ViewPort.ScreenPointToRay(cursorPos);
 
 				Physics.Raycast(ray, out RaycastHit walkableHit, 1000f, GameWorld.WalkableMask);
@@ -182,10 +215,10 @@ namespace MarsTS.Players {
 		}
 
 		public void DeliverCommand (Commandlet packet, bool inclusive) {
-			foreach (KeyValuePair<Type, Dictionary<int, Unit>> entry in Player.Selected) {
-				foreach (KeyValuePair<int, Unit> instanceEntry in entry.Value) {
-					if (inclusive) instanceEntry.Value.Enqueue(packet);
-					else instanceEntry.Value.Execute(packet);
+			foreach (KeyValuePair<string, Roster> entry in Selected) {
+				foreach (ISelectable unit in entry.Value.List()) {
+					if (inclusive) unit.Enqueue(packet);
+					else unit.Execute(packet);
 				}
 			}
 		}
@@ -193,6 +226,29 @@ namespace MarsTS.Players {
 		public void Alternate (InputAction.CallbackContext context) {
 			if (context.performed) alternate = true;
 			if (context.canceled) alternate = false;
+		}
+
+		private Mesh SelectionMesh (Vector3[] corners, Vector3[] vecs) {
+			Vector3[] verts = new Vector3[8];
+			int[] tris = { 0, 1, 2, 2, 1, 3, 4, 6, 0, 0, 6, 2, 6, 7, 2, 2, 7, 3, 7, 5, 3, 3, 5, 1, 5, 0, 1, 1, 4, 0, 4, 5, 6, 6, 5, 7 }; //map the tris of our cube
+
+			for (int i = 0; i < 4; i++) {
+				verts[i] = corners[i];
+			}
+
+			for (int j = 4; j < 8; j++) {
+				verts[j] = corners[j - 4] + vecs[j - 4];
+			}
+
+			Mesh selectionMesh = new Mesh();
+			selectionMesh.vertices = verts;
+			selectionMesh.triangles = tris;
+
+			return selectionMesh;
+		}
+
+		private void OnTriggerEnter (Collider other) {
+			Debug.Log(other.name);
 		}
 
 		private void OnDestroy () {

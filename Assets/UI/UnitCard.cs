@@ -7,20 +7,39 @@ using UnityEngine;
 namespace MarsTS.UI {
 
 	public class UnitCard : MonoBehaviour {
-		private Unit currentUnit;
+
+		[SerializeField]
 		private TextMeshProUGUI nameText;
+
 		[SerializeField]
 		private TextMeshProUGUI counterText;
+
 		[SerializeField]
 		private GameObject counterPane;
 
-		private void Awake () {
-			nameText = GetComponentInChildren<TextMeshProUGUI>();
+		[SerializeField]
+		private GameObject selectionBorder;
+
+		public bool Selected {
+			get {
+				return selected;
+			}
+
+			set {
+				selected = value;
+				selectionBorder.SetActive(selected);
+			}
 		}
 
-		public void UpdateUnit (ISelectable unit, int count) {
-			currentUnit = unit.Get();
-			nameText.text = currentUnit.name;
+		private bool selected;
+
+		private void Awake () {
+			Selected = false;
+			counterPane.SetActive(false);
+		}
+
+		public void UpdateUnit (string name, int count) {
+			nameText.text = name;
 
 			if (count > 1) {
 				counterPane.SetActive(true);

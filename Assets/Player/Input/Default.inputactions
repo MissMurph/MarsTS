@@ -25,15 +25,15 @@
                 },
                 {
                     "name": "Select",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "2b7a81a1-09ee-4277-bf52-ac0185019f13",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": "Hold(duration=0.3,pressPoint=0.5)",
-                    "initialStateCheck": false
+                    "interactions": "",
+                    "initialStateCheck": true
                 },
                 {
-                    "name": "Command",
+                    "name": "Order",
                     "type": "Button",
                     "id": "43546096-a802-4921-be95-4ba0b2932437",
                     "expectedControlType": "Button",
@@ -42,13 +42,22 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Alternate",
+                    "name": "Next",
                     "type": "Button",
-                    "id": "3f0b6413-8207-4323-8161-8c252276be2b",
+                    "id": "da4d2c44-815c-4677-8b05-72a50a4d77bd",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": true
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Alternate",
+                    "type": "Button",
+                    "id": "e9c0dc21-64ba-4972-8180-87ad0d4c56a8",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -164,11 +173,11 @@
                 },
                 {
                     "name": "",
-                    "id": "05f6913d-c316-48b2-a6bb-e225f14c7960",
+                    "id": "36987636-63fb-41ea-b69a-dd4424ad7e1a",
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Keyboard&Mouse",
+                    "groups": "Keyboard&Mouse",
                     "action": "Select",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -180,13 +189,24 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
-                    "action": "Command",
+                    "action": "Order",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "dcaad65f-57b4-48e3-af0c-c25424116b2e",
+                    "id": "e3459927-3aa7-44e5-a7c6-ba328c8957e8",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Next",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5d2a4095-6ddb-4109-afd7-ab4cda6fe3b3",
                     "path": "<Keyboard>/shift",
                     "interactions": "",
                     "processors": "",

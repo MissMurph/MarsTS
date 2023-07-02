@@ -4,33 +4,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class EventBus : MonoBehaviour {
+namespace MarsTS.Events {
 
-	private static EventBus instance;
+	public class EventBus : MonoBehaviour {
 
-	private Dictionary<Type, UnityEventBase> registeredListeners;
+		private static EventBus instance;
 
-	private void Awake () {
-		instance = this;
-		registeredListeners = new Dictionary<Type, UnityEventBase>();
-	}
+		private Dictionary<Type, UnityEventBase> registeredListeners;
 
-	public static T Post<T> (T postedEvent) {
-		if (instance.registeredListeners.TryGetValue(typeof(T), out UnityEventBase value)) {
-			UnityEvent<T> superType = (UnityEvent<T>)value;
-			superType.Invoke(postedEvent);
+		private void Awake () {
+			instance = this;
+			registeredListeners = new Dictionary<Type, UnityEventBase>();
 		}
 
-		return postedEvent;
-	}
+		public static T Post<T> (T postedEvent) {
+			if (instance.registeredListeners.TryGetValue(typeof(T), out UnityEventBase value)) {
+				UnityEvent<T> superType = (UnityEvent<T>)value;
+				superType.Invoke(postedEvent);
+			}
 
-	public static void AddListener<T> (UnityAction<T> func) where T : AbstractEvent {
-		UnityEvent<T> _event = (instance.registeredListeners.GetValueOrDefault(typeof(T), new UnityEvent<T>())) as UnityEvent<T>;
-		if (!instance.registeredListeners.ContainsKey(typeof(T))) instance.registeredListeners.Add(typeof(T), _event);
-		_event.AddListener(func);
-	}
+			return postedEvent;
+		}
 
-	private void OnDestroy () {
-		instance = null;
+		public static void AddListener<T> (UnityAction<T> func) where T : AbstractEvent {
+			UnityEvent<T> _event = (instance.registeredListeners.GetValueOrDefault(typeof(T), new UnityEvent<T>())) as UnityEvent<T>;
+			if (!instance.registeredListeners.ContainsKey(typeof(T))) instance.registeredListeners.Add(typeof(T), _event);
+			_event.AddListener(func);
+		}
+
+		private void OnDestroy () {
+			instance = null;
+		}
 	}
 }

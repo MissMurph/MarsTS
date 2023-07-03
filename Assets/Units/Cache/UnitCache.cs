@@ -23,6 +23,18 @@ namespace MarsTS.Units.Cache {
 			}
 		}
 
+		public Unit this[string name] {
+			get {
+				string[] split = name.Split(':');
+				string type = split[0];
+				string id = split[1];
+
+				Dictionary<int, Unit> map = instance.GetMap(type);
+
+				return map[int.Parse(id)];
+			}
+		}
+
 		[SerializeField]
 		private Unit[] startingUnits;
 
@@ -50,15 +62,27 @@ namespace MarsTS.Units.Cache {
 			}
 		}
 
-		public static Unit Get (string name) {
+		public static bool TryGet (string name, out Unit unit) {
 			string[] split = name.Split(':');
+
+			if (!(split.Length > 1)) {
+				Debug.LogWarning("Registered instance " + name + " not found!");
+				unit = null;
+				return false;
+			}
+
 			string type = split[0];
 			string id = split[1];
 
 			if (instance.instanceMap.TryGetValue(type, out Dictionary<int, Unit> idMap) && idMap.TryGetValue(int.Parse(id), out Unit found)) {
-				return found;
+				unit = found;
+				return true;
 			}
-			else throw new ArgumentException("Registered instance " + name + " not found!");
+			else {
+				Debug.LogWarning("Registered instance " + name + " not found!");
+				unit = null;
+				return false;
+			}
 		}
 
 		//Returns -1 for an unsuccessful register

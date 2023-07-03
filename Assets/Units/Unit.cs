@@ -1,5 +1,4 @@
 ﻿using MarsTS.Units.Commands;
-using MarsTS.Units.Attacks;
 using MarsTS.Players;
 using System;
 using System.Collections;
@@ -32,10 +31,9 @@ namespace MarsTS.Units {
 
 		public string[] boundCommands;
 
-		private Coroutine movementCoroutine;
-		private Coroutine attackingCoroutine;
+		protected Coroutine movementCoroutine;
 
-		private Transform target;
+		protected Transform target;
 		private Vector3 targetOldPos;
 		[SerializeField]
 		private float moveSpeed;
@@ -48,15 +46,10 @@ namespace MarsTS.Units {
 
 		private Action<bool> pathCompleteCallback;
 
-		private Dictionary<string, Attacks.Attack> registeredAttacks = new Dictionary<string, Attacks.Attack>();
-
-		[SerializeField]
-		private Attacks.Attack[] attacksToRegister;
-
 		const float minPathUpdateTime = .2f;
 		const float pathUpdateMoveThreshold = .5f;
 
-		private void Awake () {
+		protected virtual void Awake () {
 			selectionCircle.SetActive(false);
 			//type = gameObject.name;
 		}
@@ -65,7 +58,7 @@ namespace MarsTS.Units {
 			StartCoroutine(UpdatePath());
 		}
 
-		private void Update () {
+		protected virtual void Update () {
 			if (CurrentCommand is null && CommandQueue.TryDequeue(out Commandlet order)) {
 
 				CurrentCommand = order;
@@ -74,7 +67,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		private void ProcessOrder (Commandlet order) {
+		protected virtual void ProcessOrder (Commandlet order) {
 			switch (order.Name) {
 				case "move":
 				Move(order);
@@ -82,8 +75,7 @@ namespace MarsTS.Units {
 				case "stop":
 				Stop();
 				break;
-				case "attack":
-				Attack(order);
+				default:
 				break;
 			}
 		}
@@ -104,25 +96,25 @@ namespace MarsTS.Units {
 			}
 		}
 
-		private void SetTarget (Vector3 _target, Action<bool> callback) {
+		protected void SetTarget (Vector3 _target, Action<bool> callback) {
 			PathRequestManager.RequestPath(transform.position, _target, OnPathFound);
 			pathCompleteCallback = callback;
 		}
 
-		private void SetTarget (Transform _target, Action<bool> callback) {
+		protected void SetTarget (Transform _target, Action<bool> callback) {
 			SetTarget(_target.position, callback);
 			pathCompleteCallback = callback;
 			target = _target;
 		}
 
-		private void Stop () {
+		protected virtual void Stop () {
 			if (movementCoroutine != null) StopCoroutine(movementCoroutine);
-			if (attackingCoroutine != null) StopCoroutine(attackingCoroutine);
+			pathCompleteCallback = null;
 			path = null;
 			target = null;
 		}
 
-		private void Move (Commandlet order) {
+		protected virtual void Move (Commandlet order) {
 			if (order.TargetType.Equals(typeof(Vector3))) {
 				Commandlet<Vector3> deserialized = order as Commandlet<Vector3>;
 
@@ -130,11 +122,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		private void Attack (Commandlet order) {
-
-		}
-
-		IEnumerator UpdatePath () {
+		protected IEnumerator UpdatePath () {
 			if (Time.timeSinceLevelLoad < .3f) {
 				yield return new WaitForSeconds(.3f);
 			}
@@ -151,7 +139,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		IEnumerator FollowPath () {
+		protected IEnumerator FollowPath () {
 			targetIndex = 0;
 			Vector3 currentWaypoint = path[0];
 
@@ -173,12 +161,6 @@ namespace MarsTS.Units {
 
 				yield return null;
 			}
-		}
-
-		//True is success, false is fail/cancel
-		private void CommandComplete (bool result) {
-			Stop();
-			CurrentCommand = null;
 		}
 
 		public void OnDrawGizmos () {

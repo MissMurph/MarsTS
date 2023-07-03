@@ -12,7 +12,7 @@ namespace MarsTS.Players {
 		public List<Unit> hitTransforms = new List<Unit>();
 
 		private void OnTriggerEnter (Collider other) {
-			hitTransforms.Add(UnitCache.Get(other.transform.parent.name));
+			if (UnitCache.TryGet(other.transform.parent.name, out Unit target)) hitTransforms.Add(target);
 		}
 
 		private void OnDestroy () {

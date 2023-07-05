@@ -11,12 +11,14 @@ using UnityEngine.InputSystem;
 namespace MarsTS.Units.Commands {
 
 	public class Attack : Command<ISelectable> {
+
 		public override string Name { get { return "attack"; } }
 
 		public ISelectable Target { get; private set; }
 
 		public override void StartSelection () {
 			Player.Input.Hook("Select", OnClick);
+			Cursor.SetCursor(Pointer.texture, Pointer.target, CursorMode.Auto);
 		}
 
 		private void OnClick (InputAction.CallbackContext context) {
@@ -30,6 +32,7 @@ namespace MarsTS.Units.Commands {
 				}
 
 				Player.Input.Release("Select");
+				Player.UI.ResetCursor();
 			}
 		}
 	}

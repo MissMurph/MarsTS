@@ -27,23 +27,6 @@ namespace MarsTS.Players.Input {
 		private Dictionary<string, DefaultEntry> defaults;
 		private Dictionary<string, ListenerBinding> active;
 
-		[SerializeField]
-		private GraphicRaycaster uiCheckComponent;
-
-		public bool HoveringUI {
-			get {
-				Vector2 mousePos = Player.MousePos;
-
-				PointerEventData pointData = new PointerEventData(null);
-				pointData.position = mousePos;
-				List<RaycastResult> results = new List<RaycastResult>();
-
-				uiCheckComponent.Raycast(pointData, results);
-
-				return results.Count > 0;
-			}
-		}
-
 		private void Awake () {
 			inputs = new Dictionary<string, InputAction>();
 			defaults = new Dictionary<string, DefaultEntry>();

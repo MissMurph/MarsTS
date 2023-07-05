@@ -11,7 +11,18 @@ using MarsTS.World.Pathfinding;
 namespace MarsTS.Units {
 
 	public class Unit : MonoBehaviour, ISelectable {
-		public Player Owner { get; private set; } = null;
+
+		public Faction Owner {
+			get {
+				return owner;
+			}
+			set {
+				owner = value;
+			}
+		}
+
+		[SerializeField]
+		private Faction owner;
 
 		public int InstanceID { get { return id; } }
 

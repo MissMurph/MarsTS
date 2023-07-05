@@ -19,7 +19,7 @@ namespace MarsTS.Players {
             ownedUnits = new Dictionary<string, Roster>();
 		}
 
-		public Relationship GetRelationship (Player other) {
+		public Relationship GetRelationship (Faction other) {
 			if (PlayerCache.Team(other).Id == 0) return Relationship.Neutral;
 			if (PlayerCache.Team(other).Id.Equals(Allegiance.Id)) return Relationship.Ally;
 			return Relationship.Hostile;

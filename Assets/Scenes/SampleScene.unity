@@ -881,6 +881,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6aa16f30eb771c4188200cb8e298a7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IconColor: {r: 0, g: 0, b: 0, a: 0}
+  Pointer:
+    name: 
+    texture: {fileID: 0}
+    target: {x: 0, y: 0}
 --- !u!1 &385113914
 GameObject:
   m_ObjectHideFlags: 0
@@ -2416,9 +2421,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraSpeed: 20
-  selectionSquare: {fileID: 385113915}
-  selectionPrefab: {fileID: 2056597762958161745, guid: e8a4d932e774da840854c4bba08ade5b,
-    type: 3}
 --- !u!114 &963194231
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2431,6 +2433,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 975d92c1d6bb22946afa824ac623ddeb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  selectionSquare: {fileID: 385113915}
+  selectionPrefab: {fileID: 2056597762958161745, guid: e8a4d932e774da840854c4bba08ade5b,
+    type: 3}
+  defaultCursor:
+    name: 
+    texture: {fileID: 2800000, guid: a3bfbbca1e7371f40b1187da4d248fcc, type: 3}
+    target: {x: 0, y: 0}
 --- !u!114 &963194233
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2491,6 +2500,18 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 963194230}
           m_TargetAssemblyTypeName: MarsTS.Players.Player, Assembly-CSharp
+          m_MethodName: Select
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 963194231}
+          m_TargetAssemblyTypeName: MarsTS.UI.UIController, Assembly-CSharp
           m_MethodName: Select
           m_Mode: 0
           m_Arguments:
@@ -3046,6 +3067,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c053f7d19e762ec48b4fc45252b94b00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IconColor: {r: 0, g: 0.31992722, b: 1, a: 0}
+  Pointer:
+    name: 
+    texture: {fileID: 2800000, guid: 48bcdb65ce6311c4ebd090cf85d7c6c0, type: 3}
+    target: {x: 16, y: 16}
 --- !u!1 &1205408134
 GameObject:
   m_ObjectHideFlags: 0
@@ -3960,6 +3986,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19b74eff717294746928006226fe18aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IconColor: {r: 0, g: 0, b: 0, a: 0}
+  Pointer:
+    name: 
+    texture: {fileID: 2800000, guid: 48bcdb65ce6311c4ebd090cf85d7c6c0, type: 3}
+    target: {x: 16, y: 16}
 --- !u!1 &1793005409
 GameObject:
   m_ObjectHideFlags: 0

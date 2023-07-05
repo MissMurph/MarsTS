@@ -15,6 +15,7 @@ namespace MarsTS.Units.Commands {
 
 		public override void StartSelection () {
 			Player.Input.Hook("Select", OnClick);
+			Cursor.SetCursor(Pointer.texture, Pointer.target, CursorMode.Auto);
 		}
 
 		private void OnClick (InputAction.CallbackContext context) {
@@ -28,6 +29,7 @@ namespace MarsTS.Units.Commands {
 				}
 
 				Player.Input.Release("Select");
+				Player.UI.ResetCursor();
 			}
 		}
 	}

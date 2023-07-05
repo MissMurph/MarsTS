@@ -1,3 +1,4 @@
+using MarsTS.Players;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using UnityEngine.InputSystem;
 namespace MarsTS.Units.Commands {
 
 	public abstract class Command<T> : Command {
+
 		public Commandlet Construct (T _target) {
 			return new Commandlet<T>(Name, _target);
 		}
@@ -16,9 +18,13 @@ namespace MarsTS.Units.Commands {
 	}
 
 	public abstract class Command : MonoBehaviour {
+
 		public abstract string Name { get; }
 		public abstract Type TargetType { get; }
 		public abstract void StartSelection ();
+
+		public Color IconColor;
+		public CursorSprite Pointer;
 	}
 
 	public class Commandlet<T> : Commandlet {

@@ -10,11 +10,9 @@ namespace MarsTS.Events {
 	public class SelectEvent : AbstractEvent {
 
 		public Dictionary<string, Roster> Selected { get; private set; }
-		public bool SelectStatus { get; private set; }
 
-		public SelectEvent (bool selectStatus, Dictionary<string, Roster> selection) : base("select", Player.EventAgent) {
+		public SelectEvent (Dictionary<string, Roster> selection) : base("select", Player.EventAgent) {
 			Selected = selection;
-			SelectStatus = selectStatus;
 		}
 	}
 }

@@ -17,7 +17,6 @@ namespace MarsTS.Players {
 
 		private void OnDestroy () {
 			Player.Main.SelectUnit(hitTransforms.ToArray());
-			EventBus.Global(new SelectEvent(true, Player.Selected));
 		}
 	}
 }

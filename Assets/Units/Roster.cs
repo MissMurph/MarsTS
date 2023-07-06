@@ -39,8 +39,8 @@ namespace MarsTS.Units {
         }
 
         public bool TryAdd (ISelectable unit) {
-            if (!unit.Type().Equals(Type)) {
-				Debug.LogWarning("Unit type " + unit.Type() + " doesn't match roster's registered type of " + Type + "!");
+            if (!unit.Name().Equals(Type)) {
+				Debug.LogWarning("Unit type " + unit.Name() + " doesn't match roster's registered type of " + Type + "!");
                 return false;
 			}
 

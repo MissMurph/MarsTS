@@ -1,3 +1,4 @@
+using MarsTS.Players;
 using MarsTS.Units.Cache;
 using System.Collections;
 using System.Collections.Generic;
@@ -40,8 +41,11 @@ namespace MarsTS.Units {
 
 		public Unit target;
 
+		private Unit parent;
+
 		private void Awake () {
 			inRangeUnits = new Dictionary<int, Unit>();
+			parent = GetComponentInParent<Unit>();
 		}
 
 		private void Start () {
@@ -52,6 +56,15 @@ namespace MarsTS.Units {
 		private void Update () {
 			if (currentCooldown >= 0f) {
 				currentCooldown -= Time.deltaTime;
+			}
+
+			if (target == null) {
+				foreach (Unit unit in inRangeUnits.Values) {
+					if (unit.Relationship(parent.Owner) == Relationship.Hostile) {
+						target = unit;
+						break;
+					}
+				}
 			}
 
 			if (target != null && inRangeUnits.ContainsKey(target.InstanceID) && currentCooldown <= 0) {

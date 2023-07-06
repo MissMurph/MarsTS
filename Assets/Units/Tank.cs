@@ -39,7 +39,7 @@ namespace MarsTS.Units {
 			if (attackTarget == null) return;
 
 			if (Vector3.Distance(transform.position, attackTarget.transform.position) >= registeredTurrets["turret_main"].Range
-				&& target != attackTarget.transform) {
+				&& !ReferenceEquals(target, attackTarget.transform)) {
 				SetTarget(attackTarget.transform, (result) => { /*	we dont want to do anything here	*/});
 			}
 			else if (target == attackTarget.transform) {

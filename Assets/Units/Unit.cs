@@ -24,6 +24,8 @@ namespace MarsTS.Units {
 		[SerializeField]
 		private Faction owner;
 
+		private bool initialized = false;
+
 		public int InstanceID { get { return id; } }
 
 		[SerializeField]
@@ -92,10 +94,30 @@ namespace MarsTS.Units {
 		}
 
 		public void Init (int _id, Player _owner) {
-			if (Owner is null) {
-				Owner = _owner;
+			if (!initialized) {
+				if (Owner == null) Owner = _owner;
 				id = _id;
 				name = UnitType + ":" + InstanceID.ToString();
+				initialized = true;
+
+				Color circleColour;
+
+				switch (Owner.GetRelationship(Player.Main)) {
+					case Players.Relationship.Owned:
+						circleColour = Color.green;
+						break;
+					case Players.Relationship.Friendly:
+						circleColour = Color.cyan;
+						break;
+					case Players.Relationship.Hostile:
+						circleColour = Color.red;
+						break;
+					default:
+						circleColour = Color.yellow;
+						break;
+				}
+
+				selectionCircle.GetComponent<MeshRenderer>().material.color = circleColour;
 			}
 		}
 
@@ -218,8 +240,12 @@ namespace MarsTS.Units {
 			return InstanceID;
 		}
 
-		public string Type () {
+		public string Name () {
 			return UnitType;
+		}
+
+		public Relationship Relationship (Faction other) {
+			return owner.GetRelationship(other);
 		}
 	}
 }

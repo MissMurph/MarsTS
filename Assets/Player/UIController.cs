@@ -1,6 +1,7 @@
 using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Units;
+using MarsTS.Units.Cache;
 using MarsTS.Units.Commands;
 using MarsTS.World;
 using System;
@@ -35,6 +36,8 @@ namespace MarsTS.UI {
 
 		[SerializeField]
 		private CursorSprite defaultCursor;
+
+		private CursorSprite activeCursor;
 
 		[SerializeField]
 		private CursorSprite defaultCursorSprite;
@@ -105,7 +108,14 @@ namespace MarsTS.UI {
 		}
 
 		public void ResetCursor () {
+			activeCursor = null;
 			Cursor.SetCursor(defaultCursor.texture, defaultCursor.target, CursorMode.Auto);
+		}
+
+		public void SetCursor (CursorSprite cursor) {
+			activeCursor = cursor;
+
+			Cursor.SetCursor(cursor.texture, cursor.target, CursorMode.Auto);
 		}
 
 		public void Select (InputAction.CallbackContext context) {
@@ -119,29 +129,66 @@ namespace MarsTS.UI {
 				}
 
 				case InputActionPhase.Canceled: {
-					if (selectionSquare.gameObject.activeInHierarchy) {
+					if (selectionSquare.gameObject.activeSelf) {
 						if (!Player.Include) Player.Main.ClearSelection();
 						EndSelectionDraw();
-						mouseHeld = false;
+						
 					}
 
+					mouseHeld = false;
 					break;
 				}
 			}
 		}
 
 		public void Look (InputAction.CallbackContext context) {
-			if (Hovering) return;
+			if (Hovering) {
+				Cursor.SetCursor(defaultCursor.texture, defaultCursor.target, CursorMode.Auto);
+				return;
+			}
 
 			Vector2 mousePos = context.ReadValue<Vector2>();
 
 			Ray ray = Player.ViewPort.ScreenPointToRay(mousePos);
 
+			//This is a temp method to get the cursor to reflect command. As more commands are added this'll be re-factored
+			//to be modular
 			if (Physics.Raycast(ray, out RaycastHit selectable, 1000f, GameWorld.SelectableMask)) {
-				//Cursor.SetCursor();
-			}
-			else if (Physics.Raycast(ray, out RaycastHit ground, 1000f, GameWorld.WalkableMask)) {
+				if (UnitCache.TryGet(selectable.collider.transform.parent.gameObject.name, out Unit target)) {
+					Relationship allegiance = target.Relationship(Player.Main);
 
+					switch (allegiance) {
+						case Relationship.Friendly: {
+							//We don't want to do anything here just yet
+							break;
+						}
+
+						case Relationship.Hostile: {
+							if (activeCursor == null) {
+								CursorSprite sprite = Commands.Get("attack").Pointer;
+								Cursor.SetCursor(sprite.texture, sprite.target, CursorMode.Auto);
+							}
+							
+							return;
+						}
+
+						default: {
+							//We don't want to do anything here just yet
+							break;
+						}
+					}
+				}
+			}
+
+			/*if (Physics.Raycast(ray, out RaycastHit ground, 1000f, GameWorld.WalkableMask)) {
+
+			}*/
+
+			if (activeCursor != null) {
+				Cursor.SetCursor(activeCursor.texture, activeCursor.target, CursorMode.Auto);
+			}
+			else {
+				Cursor.SetCursor(defaultCursor.texture, defaultCursor.target, CursorMode.Auto);
 			}
 		}
 

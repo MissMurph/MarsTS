@@ -66,7 +66,7 @@ namespace MarsTS.Units.Cache {
 			string[] split = name.Split(':');
 
 			if (!(split.Length > 1)) {
-				Debug.LogWarning("Registered instance " + name + " not found!");
+				//Debug.LogWarning("Registered instance " + name + " not found!");
 				unit = null;
 				return false;
 			}
@@ -79,7 +79,7 @@ namespace MarsTS.Units.Cache {
 				return true;
 			}
 			else {
-				Debug.LogWarning("Registered instance " + name + " not found!");
+				//Debug.LogWarning("Registered instance " + name + " not found!");
 				unit = null;
 				return false;
 			}
@@ -87,7 +87,7 @@ namespace MarsTS.Units.Cache {
 
 		//Returns -1 for an unsuccessful register
 		private int RegisterUnit (Unit unit) {
-			Dictionary<int, Unit> map = GetMap(unit.Type());
+			Dictionary<int, Unit> map = GetMap(unit.Name());
 			int index = Count + 1;
 			return map.TryAdd(index, unit) ? index : -1;
 		}

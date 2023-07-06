@@ -21,7 +21,7 @@ namespace MarsTS.Players {
 
 		public Relationship GetRelationship (Faction other) {
 			if (PlayerCache.Team(other).Id == 0) return Relationship.Neutral;
-			if (PlayerCache.Team(other).Id.Equals(Allegiance.Id)) return Relationship.Ally;
+			if (PlayerCache.Team(other).Id.Equals(Allegiance.Id)) return Relationship.Friendly;
 			return Relationship.Hostile;
 		}
 	}

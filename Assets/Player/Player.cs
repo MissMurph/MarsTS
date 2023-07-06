@@ -88,7 +88,7 @@ namespace MarsTS.Players {
 		//If exclusive is true this will deselect every other selected unit
 		public void SelectUnit (params Unit[] selection) {
 			foreach (Unit target in selection) {
-				Roster units = GetRoster(target.Type());
+				Roster units = GetRoster(target.Name());
 
 				if (!units.TryAdd(target)) {
 					units.Remove(target.Id());

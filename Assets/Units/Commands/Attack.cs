@@ -17,11 +17,12 @@ namespace MarsTS.Units.Commands {
 		public ISelectable Target { get; private set; }
 
 		public override void StartSelection () {
-			Player.Input.Hook("Select", OnClick);
-			Cursor.SetCursor(Pointer.texture, Pointer.target, CursorMode.Auto);
+			Player.Input.Hook("Select", OnSelect);
+			Player.Input.Hook("Order", OnOrder);
+			Player.UI.SetCursor(Pointer);
 		}
 
-		private void OnClick (InputAction.CallbackContext context) {
+		private void OnSelect (InputAction.CallbackContext context) {
 			//On Mouse Up
 			if (context.canceled) {
 				Vector2 cursorPos = Player.MousePos;
@@ -31,6 +32,14 @@ namespace MarsTS.Units.Commands {
 					Player.Main.DeliverCommand(Construct(target), Player.Include);
 				}
 
+				Player.Input.Release("Select");
+				Player.UI.ResetCursor();
+			}
+		}
+
+		private void OnOrder (InputAction.CallbackContext context) {
+			//On Mouse Up
+			if (context.canceled) {
 				Player.Input.Release("Select");
 				Player.UI.ResetCursor();
 			}

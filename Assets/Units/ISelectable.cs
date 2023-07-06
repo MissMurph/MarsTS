@@ -1,3 +1,4 @@
+using MarsTS.Players;
 using MarsTS.Units.Commands;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,6 +12,6 @@ namespace MarsTS.Units {
 		string[] Commands ();
 		void Select (bool status);
 		int Id ();
-		string Type ();
+		string Name ();
 	}
 }

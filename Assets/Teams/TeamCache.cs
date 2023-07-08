@@ -4,17 +4,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.Players.Teams {
+namespace MarsTS.Teams {
+	public class TeamCache : MonoBehaviour {
 
-	public class PlayerCache : MonoBehaviour {
-
-		private static PlayerCache instance;
+		internal static TeamCache instance;
 
 		[SerializeField]
 		private Team[] startingTeams;
 
 		[SerializeField]
 		private Faction[] startingObservers;
+
+		[SerializeField]
+		internal Material ownedMaterial;
+		[SerializeField]
+		internal Material friendlyMaterial;
+		[SerializeField]
+		internal Material neutralMaterial;
+		[SerializeField]
+		internal Material enemyMaterial;
 
 		//This will output all Player teams, not the Observer team
 		public static List<Team> Teams {
@@ -68,5 +76,25 @@ namespace MarsTS.Players.Teams {
 	public class Team {
 		public int Id { get; internal set; }
 		public List<Faction> Members;
+	}
+
+	static class RelationshipExtensions {
+		public static Material Material (this Relationship relationship) {
+			switch (relationship) {
+				case Relationship.Owned: return TeamCache.instance.ownedMaterial;
+				case Relationship.Friendly: return TeamCache.instance.friendlyMaterial;
+				case Relationship.Hostile: return TeamCache.instance.enemyMaterial;
+				default: return TeamCache.instance.neutralMaterial;
+			}
+		}
+
+		public static Color Colour (this Relationship relationship) {
+			switch (relationship) {
+				case Relationship.Owned: return Color.green;
+				case Relationship.Friendly: return Color.blue;
+				case Relationship.Hostile: return Color.red;
+				default: return Color.yellow;
+			}
+		}
 	}
 }

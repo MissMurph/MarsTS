@@ -977,7 +977,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IconColor: {r: 0, g: 0, b: 0, a: 0}
   Pointer:
-    name: 
     texture: {fileID: 0}
     target: {x: 0, y: 0}
 --- !u!1 &385113914
@@ -2531,11 +2530,9 @@ MonoBehaviour:
   selectionPrefab: {fileID: 2056597762958161745, guid: e8a4d932e774da840854c4bba08ade5b,
     type: 3}
   defaultCursor:
-    name: 
     texture: {fileID: 2800000, guid: a3bfbbca1e7371f40b1187da4d248fcc, type: 3}
     target: {x: 0, y: 0}
   defaultCursorSprite:
-    name: 
     texture: {fileID: 0}
     target: {x: 0, y: 0}
   canvasRaycaster: {fileID: 1681768851}
@@ -2966,6 +2963,10 @@ MonoBehaviour:
     - {fileID: 203840619}
   startingObservers:
   - {fileID: 1400832405}
+  ownedMaterial: {fileID: 2100000, guid: 11e904164813afe42a20ad297bc8e62d, type: 2}
+  friendlyMaterial: {fileID: 2100000, guid: 5ca06b84168aea6489997864ddb82748, type: 2}
+  neutralMaterial: {fileID: 2100000, guid: 334e230e1fdbfbd4b8ce508557644b80, type: 2}
+  enemyMaterial: {fileID: 2100000, guid: c3b90e1f22159cb4b8bceeb2c02f61a1, type: 2}
 --- !u!114 &1176459610
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3181,7 +3182,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IconColor: {r: 0, g: 0.31992722, b: 1, a: 0}
   Pointer:
-    name: 
     texture: {fileID: 2800000, guid: 48bcdb65ce6311c4ebd090cf85d7c6c0, type: 3}
     target: {x: 16, y: 16}
 --- !u!1 &1205408134
@@ -4105,7 +4105,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IconColor: {r: 0, g: 0, b: 0, a: 0}
   Pointer:
-    name: 
     texture: {fileID: 2800000, guid: 48bcdb65ce6311c4ebd090cf85d7c6c0, type: 3}
     target: {x: 16, y: 16}
 --- !u!1 &1793005409

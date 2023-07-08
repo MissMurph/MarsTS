@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.Players {
+namespace MarsTS.Teams {
 
 	public enum Relationship {
 		Owned = 0,

@@ -1,4 +1,5 @@
 using MarsTS.Players;
+using MarsTS.Teams;
 using MarsTS.Units.Cache;
 using System.Collections;
 using System.Collections.Generic;
@@ -28,6 +29,9 @@ namespace MarsTS.Units {
 
 		[SerializeField]
 		private GameObject barrel;
+
+		[SerializeField]
+		private float turnRate;
 
 		[SerializeField]
 		private int damage;

@@ -7,6 +7,7 @@ using System.Linq;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 using MarsTS.World.Pathfinding;
+using MarsTS.Teams;
 
 namespace MarsTS.Units {
 
@@ -55,6 +56,9 @@ namespace MarsTS.Units {
 		private float angle;
 
 		[SerializeField]
+		private float turnSpeed;
+
+		[SerializeField]
 		private GameObject selectionCircle;
 
 		private Action<bool> pathCompleteCallback;
@@ -81,6 +85,8 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void ProcessOrder (Commandlet order) {
+			if (!ReferenceEquals(order.Commander, owner)) return;
+
 			switch (order.Name) {
 				case "move":
 				Move(order);
@@ -100,24 +106,7 @@ namespace MarsTS.Units {
 				name = UnitType + ":" + InstanceID.ToString();
 				initialized = true;
 
-				Color circleColour;
-
-				switch (Owner.GetRelationship(Player.Main)) {
-					case Players.Relationship.Owned:
-						circleColour = Color.green;
-						break;
-					case Players.Relationship.Friendly:
-						circleColour = Color.cyan;
-						break;
-					case Players.Relationship.Hostile:
-						circleColour = Color.red;
-						break;
-					default:
-						circleColour = Color.yellow;
-						break;
-				}
-
-				selectionCircle.GetComponent<MeshRenderer>().material.color = circleColour;
+				selectionCircle.GetComponent<MeshRenderer>().material = Relationship(Player.Main).Material();
 			}
 		}
 

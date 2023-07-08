@@ -1,4 +1,5 @@
 using MarsTS.Events;
+using MarsTS.Teams;
 using MarsTS.Units;
 using MarsTS.Units.Cache;
 using System.Collections;
@@ -9,14 +10,30 @@ namespace MarsTS.Players {
 
     public class SelectionCollider : MonoBehaviour {
 
-		public List<Unit> hitTransforms = new List<Unit>();
+		public List<Unit> hitUnits = new List<Unit>();
 
 		private void OnTriggerEnter (Collider other) {
-			if (UnitCache.TryGet(other.transform.parent.name, out Unit target)) hitTransforms.Add(target);
+			if (UnitCache.TryGet(other.transform.parent.name, out Unit target)) hitUnits.Add(target);
 		}
 
 		private void OnDestroy () {
-			Player.Main.SelectUnit(hitTransforms.ToArray());
+			Dictionary<Faction, List<Unit>> factionMap = new Dictionary<Faction, List<Unit>>();
+
+			foreach (Unit hit in hitUnits) {
+				List<Unit> rollup = factionMap.GetValueOrDefault(hit.Owner, new List<Unit>());
+				if (!factionMap.ContainsKey(hit.Owner)) factionMap[hit.Owner] = rollup;
+				rollup.Add(hit);
+			}
+
+			List<Unit> outPut = new();
+
+			foreach (Faction player in factionMap.Keys) {
+				if (factionMap[player].Count > outPut.Count) outPut = factionMap[player];
+			}
+
+			if (factionMap.ContainsKey(Player.Main)) outPut = factionMap[Player.Main];
+
+			Player.Main.SelectUnit(outPut.ToArray());
 		}
 	}
 }

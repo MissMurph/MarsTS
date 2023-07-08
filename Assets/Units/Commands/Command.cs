@@ -1,4 +1,5 @@
 using MarsTS.Players;
+using MarsTS.Teams;
 using MarsTS.UI;
 using System;
 using System.Collections;
@@ -11,8 +12,10 @@ namespace MarsTS.Units.Commands {
 
 	public abstract class Command<T> : Command {
 
+		//For now, since we have no networked players, we can always assume it'll be the main player
+		//How this logic shapes depends on how networking will work
 		public Commandlet Construct (T _target) {
-			return new Commandlet<T>(Name, _target);
+			return new Commandlet<T>(Name, _target, Player.Main);
 		}
 		
 		public override Type TargetType { get { return typeof(T); } }
@@ -33,9 +36,10 @@ namespace MarsTS.Units.Commands {
 		public T Target;
 		public override Type TargetType { get { return typeof(T); } }
 
-		public Commandlet (string name, T target) {
+		public Commandlet (string name, T target, Faction commander) {
 			Target = target;
 			Name = name;
+			Commander = commander;
 		}
 	}
 
@@ -43,6 +47,7 @@ namespace MarsTS.Units.Commands {
 
 		public abstract Type TargetType { get; }
 		public string Name { get; protected set; }
+		public Faction Commander { get; protected set; }
 
 		public Commandlet<T> Get<T> () {
 			if (typeof(T).Equals(TargetType)) return this as Commandlet<T>;

@@ -35,16 +35,14 @@ namespace MarsTS.Units.Cache {
 			}
 		}
 
-		[SerializeField]
-		private Unit[] startingUnits;
-
 		private void Awake () {
 			instance = this;
 			instanceMap = new Dictionary<string, Dictionary<int, Unit>>();
 
-			foreach (Unit unit in startingUnits) {
-				int id = RegisterUnit(unit);
-				unit.Init(id, Player.Main);
+			foreach (GameObject unit in GameObject.FindGameObjectsWithTag("Unit")) {
+				Unit component = unit.GetComponent<Unit>();
+				int id = RegisterUnit(component);
+				component.Init(id, Player.Main);
 			}
 		}
 

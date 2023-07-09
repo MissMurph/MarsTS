@@ -9,12 +9,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5910861939871708019}
-  - component: {fileID: 5910861939871708018}
   - component: {fileID: 5910861939871708015}
   - component: {fileID: 6608059711961514356}
+  - component: {fileID: 1150365005811226064}
   m_Layer: 6
   m_Name: scoutcar
-  m_TagString: Untagged
+  m_TagString: Unit
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -36,26 +36,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5910861939871708018
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5910861939855668350}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0cf4123d7cbee044bbf57736098668b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  owner: {fileID: 0}
-  id: 0
-  type: scoutcar
-  boundCommands:
-  - move
-  - stop
-  moveSpeed: 15
-  selectionCircle: {fileID: 5910861940303851826}
 --- !u!54 &5910861939871708015
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -68,8 +48,8 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 1
-  m_Interpolate: 0
+  m_IsKinematic: 0
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!114 &6608059711961514356
@@ -84,6 +64,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80e809a2901f3c24a914b37a7eb11e9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1150365005811226064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5910861939855668350}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f0c8f50c533da340b120f5bd5eb7589, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  owner: {fileID: 0}
+  id: 0
+  type: scoutcar
+  boundCommands:
+  - move
+  - stop
+  selectionCircle: {fileID: 5910861940303851826}
+  topSpeed: 15
+  reverseSpeed: 5
+  acceleration: 3
+  turnSpeed: 50
+  targetAngle: 0
+  targetDirection: {x: 0, y: 0, z: 0}
+  currentAngle: 0
 --- !u!1 &5910861940303851826
 GameObject:
   m_ObjectHideFlags: 0
@@ -110,7 +116,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5910861940303851826}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.25, y: 1, z: 0.25}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -241,7 +247,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6071522641809554951}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.5, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -338,8 +344,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6071522642798697155}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5, y: -0.125, z: 0}
-  m_LocalScale: {x: 1, y: 0.75, z: 0.5}
+  m_LocalPosition: {x: 0, y: -0.125, z: 0.5}
+  m_LocalScale: {x: 0.5, y: 0.75, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5910861940876086823}

@@ -45,29 +45,27 @@ namespace MarsTS.Units {
 
 		public string[] boundCommands;
 
-		protected Coroutine movementCoroutine;
-
 		protected Transform target;
 		private Vector3 targetOldPos;
-		[SerializeField]
-		private float moveSpeed;
-		private Vector3[] path;
-		private int targetIndex;
-		private float angle;
 
-		[SerializeField]
-		private float turnSpeed;
+		protected Path currentPath = Path.Empty();
+		private float angle;
+		protected int pathIndex;
+
+		//[SerializeField]
+		//private float turnSpeed;
 
 		[SerializeField]
 		private GameObject selectionCircle;
 
-		private Action<bool> pathCompleteCallback;
+		protected Rigidbody body;
 
 		const float minPathUpdateTime = .2f;
 		const float pathUpdateMoveThreshold = .5f;
 
 		protected virtual void Awake () {
 			selectionCircle.SetActive(false);
+			body = GetComponent<Rigidbody>();
 			//type = gameObject.name;
 		}
 
@@ -76,6 +74,12 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void Update () {
+			UpdateCommands();
+
+
+		}
+
+		protected void UpdateCommands () {
 			if (CurrentCommand is null && CommandQueue.TryDequeue(out Commandlet order)) {
 
 				CurrentCommand = order;
@@ -110,29 +114,26 @@ namespace MarsTS.Units {
 			}
 		}
 
-		private void OnPathFound (Vector3[] newPath, bool pathSuccessful) {
+		private void OnPathFound (Path newPath, bool pathSuccessful) {
 			if (pathSuccessful) {
-				path = newPath;
-				if (movementCoroutine != null) StopCoroutine(movementCoroutine);
-				movementCoroutine = StartCoroutine(FollowPath());
+				currentPath = newPath;
+				//if (movementCoroutine != null) StopCoroutine(movementCoroutine);
+				//movementCoroutine = StartCoroutine(FollowPath());
 			}
 		}
 
-		protected void SetTarget (Vector3 _target, Action<bool> callback) {
+		protected void SetTarget (Vector3 _target) {
 			PathRequestManager.RequestPath(transform.position, _target, OnPathFound);
-			pathCompleteCallback = callback;
 		}
 
-		protected void SetTarget (Transform _target, Action<bool> callback) {
-			SetTarget(_target.position, callback);
-			pathCompleteCallback = callback;
+		protected void SetTarget (Transform _target) {
+			SetTarget(_target.position);
 			target = _target;
 		}
 
 		protected virtual void Stop () {
-			if (movementCoroutine != null) StopCoroutine(movementCoroutine);
-			pathCompleteCallback = null;
-			path = null;
+			//if (movementCoroutine != null) StopCoroutine(movementCoroutine);
+			currentPath = Path.Empty();
 			target = null;
 		}
 
@@ -140,7 +141,7 @@ namespace MarsTS.Units {
 			if (order.TargetType.Equals(typeof(Vector3))) {
 				Commandlet<Vector3> deserialized = order as Commandlet<Vector3>;
 
-				SetTarget(deserialized.Target, (result) => CurrentCommand = null);
+				SetTarget(deserialized.Target);
 			}
 		}
 
@@ -161,41 +162,17 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected IEnumerator FollowPath () {
-			targetIndex = 0;
-			Vector3 currentWaypoint = path[0];
-
-			while (true) {
-				if (transform.localPosition == currentWaypoint) {
-					targetIndex++;
-
-					if (targetIndex >= path.Length) {
-						pathCompleteCallback.Invoke(true);
-						target = null;
-						path = null;
-						yield break;
-					}
-
-					currentWaypoint = path[targetIndex];
-				}
-
-				transform.localPosition = Vector3.MoveTowards(transform.localPosition, currentWaypoint, moveSpeed * Time.deltaTime);
-
-				yield return null;
-			}
-		}
-
 		public void OnDrawGizmos () {
-			if (path != null) {
-				for (int i = targetIndex; i < path.Length; i++) {
+			if (!currentPath.IsEmpty) {
+				for (int i = pathIndex; i < currentPath.Length; i++) {
 					Gizmos.color = Color.black;
-					Gizmos.DrawCube(path[i], Vector3.one / 2);
+					Gizmos.DrawCube(currentPath[i], Vector3.one / 2);
 
-					if (i == targetIndex) {
-						Gizmos.DrawLine(transform.position, path[i]);
+					if (i == pathIndex) {
+						Gizmos.DrawLine(transform.position, currentPath[i]);
 					}
 					else {
-						Gizmos.DrawLine(path[i - 1], path[i]);
+						Gizmos.DrawLine(currentPath[i - 1], currentPath[i]);
 					}
 				}
 			}

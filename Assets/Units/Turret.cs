@@ -75,7 +75,7 @@ namespace MarsTS.Units {
 				Debug.Log("attacking!");
 				Vector3 direction = (target.transform.position - transform.position).normalized;
 				Physics.Raycast(barrel.transform.position, direction, range.radius);
-				Debug.DrawLine(barrel.transform.position, barrel.transform.position + (direction * range.radius), Color.cyan, 100f);
+				Debug.DrawLine(barrel.transform.position, barrel.transform.position + (direction * range.radius), Color.cyan, 0.1f);
 				currentCooldown = cooldown;
 			}
 		}

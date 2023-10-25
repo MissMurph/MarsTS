@@ -48,7 +48,7 @@ namespace MarsTS.Units {
 		protected Transform target;
 		private Vector3 targetOldPos;
 
-		protected Path currentPath = Path.Empty();
+		protected Path currentPath = Path.Empty;
 		private float angle;
 		protected int pathIndex;
 
@@ -60,8 +60,11 @@ namespace MarsTS.Units {
 
 		protected Rigidbody body;
 
-		const float minPathUpdateTime = .2f;
+		const float minPathUpdateTime = .5f;
 		const float pathUpdateMoveThreshold = .5f;
+
+		[SerializeField]
+		private float waypointCompletionDistance;
 
 		protected virtual void Awake () {
 			selectionCircle.SetActive(false);
@@ -69,14 +72,25 @@ namespace MarsTS.Units {
 			//type = gameObject.name;
 		}
 
-		private void Start () {
+		protected virtual void Start () {
 			StartCoroutine(UpdatePath());
 		}
 
 		protected virtual void Update () {
 			UpdateCommands();
 
+			if (!currentPath.IsEmpty) {
+				Vector3 targetWaypoint = currentPath[pathIndex];
+				float distance = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).magnitude;
 
+				if (distance <= waypointCompletionDistance) {
+					pathIndex++;
+				}
+
+				if (pathIndex >= currentPath.Length) {
+					currentPath = Path.Empty;
+				}
+			}
 		}
 
 		protected void UpdateCommands () {
@@ -89,8 +103,6 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void ProcessOrder (Commandlet order) {
-			if (!ReferenceEquals(order.Commander, owner)) return;
-
 			switch (order.Name) {
 				case "move":
 				Move(order);
@@ -117,6 +129,7 @@ namespace MarsTS.Units {
 		private void OnPathFound (Path newPath, bool pathSuccessful) {
 			if (pathSuccessful) {
 				currentPath = newPath;
+				pathIndex = 0;
 				//if (movementCoroutine != null) StopCoroutine(movementCoroutine);
 				//movementCoroutine = StartCoroutine(FollowPath());
 			}
@@ -133,7 +146,7 @@ namespace MarsTS.Units {
 
 		protected virtual void Stop () {
 			//if (movementCoroutine != null) StopCoroutine(movementCoroutine);
-			currentPath = Path.Empty();
+			currentPath = Path.Empty;
 			target = null;
 		}
 
@@ -146,18 +159,22 @@ namespace MarsTS.Units {
 		}
 
 		protected IEnumerator UpdatePath () {
-			if (Time.timeSinceLevelLoad < .3f) {
-				yield return new WaitForSeconds(.3f);
+			if (Time.timeSinceLevelLoad < .5f) {
+				yield return new WaitForSeconds(.5f);
 			}
 
-			float sqrMoveThreshold = pathUpdateMoveThreshold * pathUpdateMoveThreshold;
+			//float sqrMoveThreshold = pathUpdateMoveThreshold * pathUpdateMoveThreshold;
 
 			while (true) {
 				yield return new WaitForSeconds(minPathUpdateTime);
 
-				if (target != null && (target.position - targetOldPos).sqrMagnitude > sqrMoveThreshold) {
+				//if (target != null && (target.position - targetOldPos).sqrMagnitude > sqrMoveThreshold) {
+				if (target != null) {
 					PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
-					targetOldPos = target.position;
+					//targetOldPos = target.position;
+				}
+				else if (!currentPath.IsEmpty) {
+					PathRequestManager.RequestPath(transform.position, currentPath.End, OnPathFound);
 				}
 			}
 		}
@@ -179,10 +196,12 @@ namespace MarsTS.Units {
 		}
 
 		public void Enqueue (Commandlet order) {
+			if (!Relationship(Player.Main).Equals(Teams.Relationship.Owned)) return;
 			CommandQueue.Enqueue(order);
 		}
 
 		public void Execute (Commandlet order) {
+			if (!Relationship(Player.Main).Equals(Teams.Relationship.Owned)) return;
 			CommandQueue.Clear();
 			Stop();
 			CurrentCommand = null;

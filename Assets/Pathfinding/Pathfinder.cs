@@ -73,13 +73,23 @@ namespace MarsTS.World.Pathfinding {
 			return waypoints;
 		}
 
+		//There's something wrong with this, it keeps losing the last node in the path
+		//NO LONGER
 		private Vector3[] SimplifyPath (List<Node> path) {
-			List<Vector3> waypoints = new List<Vector3>();
+			//We have to add the start position otherwise it's not returned
+			List<Vector3> waypoints = new List<Vector3> {
+				path[0].Position
+			};
 
 			Vector2 directionOld = Vector2.zero;
 
 			for (int i = 1; i < path.Count; i++) {
 				Vector2 directionNew = new Vector2(path[i - 1].GridPos.x - path[i].GridPos.x, path[i - 1].GridPos.y - path[i].GridPos.y);
+
+				//Since this is the first node from the target the direction starts as the old direction we check against
+				if (i == 1) {
+					directionOld = directionNew;
+				}
 
 				if (directionNew != directionOld) {
 					waypoints.Add(path[i].Position);

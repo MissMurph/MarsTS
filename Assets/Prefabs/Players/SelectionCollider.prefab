@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2056597762958161758}
   - component: {fileID: 2056597762958161759}
   - component: {fileID: 2056597762958161744}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SelectionCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -59,4 +59,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 926271131999e6b4987cf19049d6e2b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitTransforms: []
+  hitUnits: []

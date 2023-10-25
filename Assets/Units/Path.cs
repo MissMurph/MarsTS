@@ -7,6 +7,20 @@ namespace MarsTS.Units {
 	public class Path {
 		public Vector3[] Waypoints { get; private set; }
 
+		public static Path Empty {
+			get {
+				if (emptyPath == null) {
+					emptyPath = new Path() {
+						Waypoints = new Vector3[0]
+					};
+				}
+
+				return emptyPath;
+			}
+		}
+
+		private static Path emptyPath;
+
 		public int Length {
 			get {
 				return Waypoints.Length;
@@ -32,10 +46,10 @@ namespace MarsTS.Units {
 			}
 		}
 
-		public static Path Empty () {
-			return new Path() {
-				Waypoints = new Vector3[0]
-			};
+		public Vector3 End {
+			get {
+				return Waypoints[Length - 1];
+			}
 		}
 	}
 }

@@ -1,5 +1,7 @@
+using MarsTS.Units.Commands;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 
 namespace MarsTS.Units {
@@ -12,44 +14,88 @@ namespace MarsTS.Units {
 		private float reverseSpeed;
 		[SerializeField]
 		private float acceleration;
-
+		[SerializeField]
 		private float currentSpeed;
 
+		[SerializeField]
+		private float velocity;
 		
 		[SerializeField]
 		private float turnSpeed;
 
-		[SerializeField]
-		private float targetAngle;
-
-		[SerializeField]
-		private Vector3 targetDirection;
-
 		private float CurrentAngle {
 			get {
 				float angle = transform.rotation.eulerAngles.y;
-				currentAngle = angle;
 				return angle;
 			}
 		}
 
-		public float currentAngle;
+		[Header("Braking")]
+
+		[SerializeField]
+		private float brakeWindowTime;
+
+		[SerializeField]
+		private float brakeForce;
+
+		[Header("Turret")]
+
+		protected Dictionary<string, Turret> registeredTurrets = new Dictionary<string, Turret>();
+
+		[SerializeField]
+		protected Turret[] turretsToRegister;
+
+		protected Unit AttackTarget {
+			get {
+				return attackTarget;
+			}
+			set {
+				attackTarget = value;
+				registeredTurrets["turret_main"].target = attackTarget;
+			}
+		}
+
+		protected Unit attackTarget;
+
+		protected override void Awake () {
+			base.Awake();
+			foreach (Turret turret in turretsToRegister) {
+				registeredTurrets.TryAdd(turret.name, turret);
+			}
+		}
 
 		protected override void Update () {
 			base.Update();
 
-			
+			if (attackTarget == null) return;
+
+			if (Vector3.Distance(transform.position, attackTarget.transform.position) >= registeredTurrets["turret_main"].Range
+				&& !ReferenceEquals(target, attackTarget.transform)) {
+				SetTarget(attackTarget.transform);
+			}
+			else if (target == attackTarget.transform) {
+				Stop();
+			}
 		}
 
 		protected virtual void FixedUpdate () {
+			velocity = body.velocity.magnitude;
+
 			if (!currentPath.IsEmpty) {
 				Vector3 targetWaypoint = currentPath[pathIndex];
-				targetDirection = new Vector3 (targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
-				currentSpeed += acceleration * Time.fixedDeltaTime;
-				currentSpeed = Mathf.Min(currentSpeed, topSpeed);
 
-				targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
-				
+				//Vector3 difference = ;
+
+				Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
+
+				//float distance = difference.magnitude;
+
+
+				//currentSpeed += acceleration * Time.fixedDeltaTime;
+				//currentSpeed = Mathf.Min(currentSpeed, topSpeed);
+
+				float targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
+
 
 				/*float distToMin = Mathf.Abs(targetAngle);
 				float distToMax = 180f - distToMin;
@@ -71,13 +117,55 @@ namespace MarsTS.Units {
 					finalDist = totalMaxDiff;
 				}*/
 
-				float newAngle = Mathf.MoveTowardsAngle(CurrentAngle, targetAngle, turnSpeed * Time.fixedDeltaTime);
-
 				//if (CurrentAngle > 0) posOrNeg *= -1;
 
+				float newAngle = Mathf.MoveTowardsAngle(CurrentAngle, targetAngle, turnSpeed * Time.fixedDeltaTime);
+
+				Vector3 currentVelocity = body.velocity;
+
+				float brakeThreshold = currentVelocity.magnitude * brakeWindowTime;
+
 				body.MoveRotation(Quaternion.Euler(transform.rotation.x, newAngle, transform.rotation.z));
-				body.AddRelativeForce(Vector3.forward * topSpeed * Time.fixedDeltaTime, ForceMode.Force);
+
+				Vector3 adjustedVelocity = transform.forward * currentVelocity.magnitude;
+
+				
+
+				//Mathf.Lerp(currentSpeed, 0, distance * brakeWindowTime / brakeThreshold);
+
+				float accelCap = 1f - (velocity / topSpeed);
+
+				body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
+
+				//Relative so it can take into account the forward vector of the car
+				body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
+
+
 				//body.AddRelativeForce(Vector3.forward * topSpeed * Time.fixedDeltaTime, ForceMode.Force);
+
+				
+			}
+			else if (body.velocity.magnitude >= 0.5f) {
+				body.AddRelativeForce(-body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
+			}
+		}
+
+		protected override void ProcessOrder (Commandlet order) {
+			switch (order.Name) {
+				case "attack":
+				Attack(order);
+				break;
+				default:
+				base.ProcessOrder(order);
+				break;
+			}
+		}
+
+		protected void Attack (Commandlet order) {
+			if (order.TargetType.Equals(typeof(ISelectable))) {
+				Commandlet<ISelectable> deserialized = order as Commandlet<ISelectable>;
+
+				AttackTarget = deserialized.Target.Get();
 			}
 		}
 	}

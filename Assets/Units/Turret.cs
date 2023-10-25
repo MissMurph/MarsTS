@@ -20,15 +20,15 @@ namespace MarsTS.Units {
 
 		public float Falloff {
 			get {
-				return falloff.radius;
+				return falloff;
 			}
 		}
 
 		[SerializeField]
-		private SphereCollider falloff;
+		private float falloff;
 
 		[SerializeField]
-		private GameObject barrel;
+		protected GameObject barrel;
 
 		[SerializeField]
 		private float turnRate;
@@ -38,14 +38,14 @@ namespace MarsTS.Units {
 
 		//Seconds between firing
 		[SerializeField]
-		private float cooldown;
-		private float currentCooldown;
+		protected float cooldown;
+		protected float currentCooldown;
 
 		private Dictionary<int, Unit> inRangeUnits;
 
 		public Unit target;
 
-		private Unit parent;
+		protected Unit parent;
 
 		private void Awake () {
 			inRangeUnits = new Dictionary<int, Unit>();
@@ -54,7 +54,6 @@ namespace MarsTS.Units {
 
 		private void Start () {
 			range.gameObject.SetActive(true);
-			falloff.gameObject.SetActive(true);
 		}
 
 		private void Update () {
@@ -72,12 +71,17 @@ namespace MarsTS.Units {
 			}
 
 			if (target != null && inRangeUnits.ContainsKey(target.InstanceID) && currentCooldown <= 0) {
-				Debug.Log("attacking!");
-				Vector3 direction = (target.transform.position - transform.position).normalized;
-				Physics.Raycast(barrel.transform.position, direction, range.radius);
-				Debug.DrawLine(barrel.transform.position, barrel.transform.position + (direction * range.radius), Color.cyan, 0.1f);
-				currentCooldown = cooldown;
+				Fire();
 			}
+		}
+
+		protected virtual void Fire () {
+			Vector3 direction = (target.transform.position - transform.position).normalized;
+
+			Physics.Raycast(barrel.transform.position, direction, range.radius);
+			Debug.DrawLine(barrel.transform.position, barrel.transform.position + (direction * range.radius), Color.cyan, 0.1f);
+
+			currentCooldown = cooldown;
 		}
 
 		private void FixedUpdate () {
@@ -88,14 +92,15 @@ namespace MarsTS.Units {
 		}
 
 		private void OnTriggerEnter (Collider other) {
-			if (UnitCache.TryGet(other.transform.root.name, out Unit target)) {
-				inRangeUnits.TryAdd(target.InstanceID, target);
+			if (UnitCache.TryGet(other.transform.root.name, out Unit unit)) {
+				inRangeUnits.TryAdd(unit.InstanceID, unit);
 			}
 		}
 
 		private void OnTriggerExit (Collider other) {
-			if (UnitCache.TryGet(other.transform.root.name, out Unit target)) {
-				inRangeUnits.Remove(target.InstanceID);
+			if (UnitCache.TryGet(other.transform.root.name, out Unit unit)) {
+				inRangeUnits.Remove(unit.InstanceID);
+				if (target != null && target.InstanceID == unit.InstanceID) target = null;
 			}
 		}
 	}

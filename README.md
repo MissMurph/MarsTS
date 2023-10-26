@@ -29,39 +29,39 @@
  ![Screenshot of the Pathfinding's Multi-Threading code](/FolioImages/PathFinding_MultiThreading.png)
  
  ## Progress:
- - [] RTS Camera Controls
+ - [ ] RTS Camera Controls
     - [x] WASD Movement
-    - [] Zooming
-    - [] Rotation
-    - [] Smoothing
+    - [ ] Zooming
+    - [ ] Rotation
+    - [ ] Smoothing
  - [x] Unit Selection & Teams
     - [x] Unit Relationships
     - [x] Exclusive Team Selection
     - [x] Selection UI
         - [x] Multiple Unit Types
         - [x] Command Window
- - [] Unit Combat
+ - [ ] Unit Combat
     - [x] Projectile Implementation
     - [x] Hitscan Implementation
     - [] Abilities
  - [x] Unit Movement
     - [x] Physics-Based
     - [x] Car Implementation
-        - [] Jumps
+        - [ ] Jumps
     - [x] Tank Implementation
- - [] UI
+ - [ ] UI
    - [x] Selection UI
    - [x] Command Panel
-   - [] Unit Health
-   - [] Waypoint Renderer
-   - [] Unit Icons
- - [] Building
-    - [] Constructor Unit
-    - [] Resource Silo
-    - [] Factory
- - [] Resource Gathering
-    - [] Harvester Unit
-    - [] Mineral Deposits
-    - [] Oil Deposits
-    - [] Pumpjack Building
- - [] Unit Production
+   - [ ] Unit Health
+   - [ ] Waypoint Renderer
+   - [ ] Unit Icons
+ - [ ] Building
+    - [ ] Constructor Unit
+    - [ ] Resource Silo
+    - [ ] Factory
+ - [ ] Resource Gathering
+    - [ ] Harvester Unit
+    - [ ] Mineral Deposits
+    - [ ] Oil Deposits
+    - [ ] Pumpjack Building
+ - [ ] Unit Production

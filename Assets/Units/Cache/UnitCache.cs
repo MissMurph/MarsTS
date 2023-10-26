@@ -23,16 +23,26 @@ namespace MarsTS.Units.Cache {
 			}
 		}
 
-		[SerializeField]
-		private Unit[] startingUnits;
+		public Unit this[string name] {
+			get {
+				string[] split = name.Split(':');
+				string type = split[0];
+				string id = split[1];
+
+				Dictionary<int, Unit> map = instance.GetMap(type);
+
+				return map[int.Parse(id)];
+			}
+		}
 
 		private void Awake () {
 			instance = this;
 			instanceMap = new Dictionary<string, Dictionary<int, Unit>>();
 
-			foreach (Unit unit in startingUnits) {
-				int id = RegisterUnit(unit);
-				unit.Init(id, Player.Main);
+			foreach (GameObject unit in GameObject.FindGameObjectsWithTag("Unit")) {
+				Unit component = unit.GetComponent<Unit>();
+				int id = RegisterUnit(component);
+				component.Init(id, Player.Main);
 			}
 		}
 
@@ -50,20 +60,32 @@ namespace MarsTS.Units.Cache {
 			}
 		}
 
-		public static Unit Get (string name) {
+		public static bool TryGet (string name, out Unit unit) {
 			string[] split = name.Split(':');
+
+			if (!(split.Length > 1)) {
+				//Debug.LogWarning("Registered instance " + name + " not found!");
+				unit = null;
+				return false;
+			}
+
 			string type = split[0];
 			string id = split[1];
 
 			if (instance.instanceMap.TryGetValue(type, out Dictionary<int, Unit> idMap) && idMap.TryGetValue(int.Parse(id), out Unit found)) {
-				return found;
+				unit = found;
+				return true;
 			}
-			else throw new ArgumentException("Registered instance " + name + " not found!");
+			else {
+				//Debug.LogWarning("Registered instance " + name + " not found!");
+				unit = null;
+				return false;
+			}
 		}
 
 		//Returns -1 for an unsuccessful register
 		private int RegisterUnit (Unit unit) {
-			Dictionary<int, Unit> map = GetMap(unit.Type());
+			Dictionary<int, Unit> map = GetMap(unit.Name());
 			int index = Count + 1;
 			return map.TryAdd(index, unit) ? index : -1;
 		}

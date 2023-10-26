@@ -1,5 +1,4 @@
 ﻿using MarsTS.Units.Commands;
-using MarsTS.Units.Attacks;
 using MarsTS.Players;
 using System;
 using System.Collections;
@@ -8,11 +7,25 @@ using System.Linq;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 using MarsTS.World.Pathfinding;
+using MarsTS.Teams;
 
 namespace MarsTS.Units {
 
 	public class Unit : MonoBehaviour, ISelectable {
-		public Player Owner { get; private set; } = null;
+
+		public Faction Owner {
+			get {
+				return owner;
+			}
+			set {
+				owner = value;
+			}
+		}
+
+		[SerializeField]
+		private Faction owner;
+
+		private bool initialized = false;
 
 		public int InstanceID { get { return id; } }
 
@@ -32,38 +45,55 @@ namespace MarsTS.Units {
 
 		public string[] boundCommands;
 
-		private Coroutine movementCoroutine;
-		private Coroutine attackingCoroutine;
-
-		private Transform target;
+		protected Transform target;
 		private Vector3 targetOldPos;
-		[SerializeField]
-		private float moveSpeed;
-		private Vector3[] path;
-		private int targetIndex;
+
+		protected Path currentPath = Path.Empty;
 		private float angle;
+		protected int pathIndex;
+
+		//[SerializeField]
+		//private float turnSpeed;
 
 		[SerializeField]
 		private GameObject selectionCircle;
 
-		[SerializeField]
-		private Attacks.Attack primaryAttack;
+		protected Rigidbody body;
 
-		private Action<bool> pathCompleteCallback;
-
-		const float minPathUpdateTime = .2f;
+		const float minPathUpdateTime = .5f;
 		const float pathUpdateMoveThreshold = .5f;
 
-		private void Awake () {
+		[SerializeField]
+		private float waypointCompletionDistance;
+
+		protected virtual void Awake () {
 			selectionCircle.SetActive(false);
+			body = GetComponent<Rigidbody>();
 			//type = gameObject.name;
 		}
 
-		private void Start () {
+		protected virtual void Start () {
 			StartCoroutine(UpdatePath());
 		}
 
-		private void Update () {
+		protected virtual void Update () {
+			UpdateCommands();
+
+			if (!currentPath.IsEmpty) {
+				Vector3 targetWaypoint = currentPath[pathIndex];
+				float distance = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).magnitude;
+
+				if (distance <= waypointCompletionDistance) {
+					pathIndex++;
+				}
+
+				if (pathIndex >= currentPath.Length) {
+					currentPath = Path.Empty;
+				}
+			}
+		}
+
+		protected void UpdateCommands () {
 			if (CurrentCommand is null && CommandQueue.TryDequeue(out Commandlet order)) {
 
 				CurrentCommand = order;
@@ -72,7 +102,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		private void ProcessOrder (Commandlet order) {
+		protected virtual void ProcessOrder (Commandlet order) {
 			switch (order.Name) {
 				case "move":
 				Move(order);
@@ -80,126 +110,98 @@ namespace MarsTS.Units {
 				case "stop":
 				Stop();
 				break;
-				case "attack":
-				Attack(order);
+				default:
 				break;
 			}
 		}
 
 		public void Init (int _id, Player _owner) {
-			if (Owner is null) {
-				Owner = _owner;
+			if (!initialized) {
+				if (Owner == null) Owner = _owner;
 				id = _id;
 				name = UnitType + ":" + InstanceID.ToString();
+				initialized = true;
+
+				selectionCircle.GetComponent<MeshRenderer>().material = Relationship(Player.Main).Material();
 			}
 		}
 
-		private void OnPathFound (Vector3[] newPath, bool pathSuccessful) {
+		private void OnPathFound (Path newPath, bool pathSuccessful) {
 			if (pathSuccessful) {
-				path = newPath;
-				if (movementCoroutine != null) StopCoroutine(movementCoroutine);
-				movementCoroutine = StartCoroutine(FollowPath());
+				currentPath = newPath;
+				pathIndex = 0;
+				//if (movementCoroutine != null) StopCoroutine(movementCoroutine);
+				//movementCoroutine = StartCoroutine(FollowPath());
 			}
 		}
 
-		private void SetTarget (Vector3 _target, Action<bool> callback) {
+		protected void SetTarget (Vector3 _target) {
 			PathRequestManager.RequestPath(transform.position, _target, OnPathFound);
-			pathCompleteCallback = callback;
 		}
 
-		private void SetTarget (Transform _target, Action<bool> callback) {
-			SetTarget(_target.position, callback);
-			pathCompleteCallback = callback;
+		protected void SetTarget (Transform _target) {
+			SetTarget(_target.position);
 			target = _target;
 		}
 
-		private void Stop () {
-			if (movementCoroutine != null) StopCoroutine(movementCoroutine);
-			if (attackingCoroutine != null) StopCoroutine(attackingCoroutine);
-			path = null;
+		protected virtual void Stop () {
+			//if (movementCoroutine != null) StopCoroutine(movementCoroutine);
+			currentPath = Path.Empty;
 			target = null;
 		}
 
-		private void Move (Commandlet order) {
+		protected virtual void Move (Commandlet order) {
 			if (order.TargetType.Equals(typeof(Vector3))) {
 				Commandlet<Vector3> deserialized = order as Commandlet<Vector3>;
 
-				SetTarget(deserialized.Target, (result) => CurrentCommand = null);
+				SetTarget(deserialized.Target);
 			}
 		}
 
-		private void Attack (Commandlet order) {
-
-		}
-
-		IEnumerator UpdatePath () {
-			if (Time.timeSinceLevelLoad < .3f) {
-				yield return new WaitForSeconds(.3f);
+		protected IEnumerator UpdatePath () {
+			if (Time.timeSinceLevelLoad < .5f) {
+				yield return new WaitForSeconds(.5f);
 			}
 
-			float sqrMoveThreshold = pathUpdateMoveThreshold * pathUpdateMoveThreshold;
+			//float sqrMoveThreshold = pathUpdateMoveThreshold * pathUpdateMoveThreshold;
 
 			while (true) {
 				yield return new WaitForSeconds(minPathUpdateTime);
 
-				if (target != null && (target.position - targetOldPos).sqrMagnitude > sqrMoveThreshold) {
+				//if (target != null && (target.position - targetOldPos).sqrMagnitude > sqrMoveThreshold) {
+				if (target != null) {
 					PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
-					targetOldPos = target.position;
+					//targetOldPos = target.position;
+				}
+				else if (!currentPath.IsEmpty) {
+					PathRequestManager.RequestPath(transform.position, currentPath.End, OnPathFound);
 				}
 			}
-		}
-
-		IEnumerator FollowPath () {
-			targetIndex = 0;
-			Vector3 currentWaypoint = path[0];
-
-			while (true) {
-				if (transform.localPosition == currentWaypoint) {
-					targetIndex++;
-
-					if (targetIndex >= path.Length) {
-						pathCompleteCallback.Invoke(true);
-						target = null;
-						path = null;
-						yield break;
-					}
-
-					currentWaypoint = path[targetIndex];
-				}
-
-				transform.localPosition = Vector3.MoveTowards(transform.localPosition, currentWaypoint, moveSpeed * Time.deltaTime);
-
-				yield return null;
-			}
-		}
-
-		//True is success, false is fail/cancel
-		private void CommandComplete (bool result) {
-			Stop();
-			CurrentCommand = null;
 		}
 
 		public void OnDrawGizmos () {
-			if (path != null) {
-				for (int i = targetIndex; i < path.Length; i++) {
+			if (!currentPath.IsEmpty) {
+				for (int i = pathIndex; i < currentPath.Length; i++) {
 					Gizmos.color = Color.black;
-					Gizmos.DrawCube(path[i], Vector3.one / 2);
+					Gizmos.DrawCube(currentPath[i], Vector3.one / 2);
 
-					if (i == targetIndex) {
-						Gizmos.DrawLine(transform.position, path[i]);
+					if (i == pathIndex) {
+						Gizmos.DrawLine(transform.position, currentPath[i]);
 					}
 					else {
-						Gizmos.DrawLine(path[i - 1], path[i]);
+						Gizmos.DrawLine(currentPath[i - 1], currentPath[i]);
 					}
 				}
 			}
 		}
 
 		public void Enqueue (Commandlet order) {
+			if (!Relationship(Player.Main).Equals(Teams.Relationship.Owned)) return;
 			CommandQueue.Enqueue(order);
 		}
 
 		public void Execute (Commandlet order) {
+			if (!Relationship(Player.Main).Equals(Teams.Relationship.Owned)) return;
 			CommandQueue.Clear();
 			Stop();
 			CurrentCommand = null;
@@ -223,8 +225,12 @@ namespace MarsTS.Units {
 			return InstanceID;
 		}
 
-		public string Type () {
+		public string Name () {
 			return UnitType;
+		}
+
+		public Relationship Relationship (Faction other) {
+			return owner.GetRelationship(other);
 		}
 	}
 }

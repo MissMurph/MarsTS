@@ -113,7 +113,7 @@ namespace MarsTS.World {
 				for (int y = 0; y < GridSize.y; y++) {
 					Vector3 worldPos = BottomLeft + new Vector3(x * nodeSize + (nodeSize / 2), 0, y * nodeSize + (nodeSize / 2));
 
-					bool walkable = !Physics.Raycast(worldPos + (Vector3.up * 10f), Vector3.down, 100f, UnwalkableMask);
+					bool walkable = !Physics.Raycast(worldPos + (Vector3.up * 100f), Vector3.down, 500f, UnwalkableMask);
 
 					int penalty = 0;
 

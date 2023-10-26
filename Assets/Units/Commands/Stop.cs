@@ -13,7 +13,8 @@ namespace MarsTS.Units.Commands {
 
 		public override Type TargetType { get { return typeof(bool); } }
 
-		public override void StartSelection () {Player.Main.DeliverCommand(new Commandlet<bool>(Name, true), Player.Include);
+		public override void StartSelection () {
+			Player.Main.DeliverCommand(new Commandlet<bool>(Name, true, Player.Main), Player.Include);
 		}
 	}
 }

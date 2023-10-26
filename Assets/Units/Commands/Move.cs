@@ -15,6 +15,8 @@ namespace MarsTS.Units.Commands {
 
 		public override void StartSelection () {
 			Player.Input.Hook("Select", OnClick);
+			Player.Input.Hook("Order", OnOrder);
+			Player.UI.SetCursor(Pointer);
 		}
 
 		private void OnClick (InputAction.CallbackContext context) {
@@ -28,6 +30,15 @@ namespace MarsTS.Units.Commands {
 				}
 
 				Player.Input.Release("Select");
+				Player.UI.ResetCursor();
+			}
+		}
+
+		private void OnOrder (InputAction.CallbackContext context) {
+			//On Mouse Up
+			if (context.canceled) {
+				Player.Input.Release("Select");
+				Player.UI.ResetCursor();
 			}
 		}
 	}

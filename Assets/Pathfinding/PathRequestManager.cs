@@ -1,3 +1,4 @@
+using MarsTS.Units;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -32,7 +33,7 @@ namespace MarsTS.World.Pathfinding {
 			}
 		}
 
-		public static void RequestPath (Vector3 origin, Vector3 target, Action<Vector3[], bool> callback) {
+		public static void RequestPath (Vector3 origin, Vector3 target, Action<Path, bool> callback) {
 			ThreadStart threadStart = delegate {
 				instance.localFinder.FindPath(new PathRequest(origin, target, callback), instance.FinishedProcessingPath);
 			};
@@ -52,12 +53,12 @@ namespace MarsTS.World.Pathfinding {
 	}
 
 	public struct PathResult {
-		public Vector3[] path;
+		public Path path;
 		public bool success;
-		public Action<Vector3[], bool> callback;
+		public Action<Path, bool> callback;
 
-		public PathResult (Vector3[] _path, bool _success, Action<Vector3[], bool> _callback) {
-			path = _path;
+		public PathResult (Vector3[] _path, bool _success, Action<Path, bool> _callback) {
+			path = new Path(_path);
 			success = _success;
 			callback = _callback;
 		}
@@ -67,9 +68,9 @@ namespace MarsTS.World.Pathfinding {
 		public Vector3 pathStart;
 		public Vector3 pathEnd;
 
-		public Action<Vector3[], bool> callback;
+		public Action<Path, bool> callback;
 
-		public PathRequest (Vector3 _origin, Vector3 _target, Action<Vector3[], bool> _callback) {
+		public PathRequest (Vector3 _origin, Vector3 _target, Action<Path, bool> _callback) {
 			pathStart = _origin;
 			pathEnd = _target;
 			callback = _callback;

@@ -5,31 +5,61 @@ using UnityEngine;
 namespace MarsTS.Units {
 
     public class Roster {
-        public string Type;
-        private Dictionary<int, ISelectable> map = new Dictionary<int, ISelectable>();
 
-        public int Count {
+        public string Type { get; private set; }
+        public List<string> Commands { get; private set; }
+
+		private Dictionary<int, ISelectable> instances;
+
+		public int Count {
             get {
-                return map.Count;
+                return instances.Count;
             }
         }
 
+        public Roster (string type, params ISelectable[] units) {
+            Type = type;
+
+			instances = new Dictionary<int, ISelectable>();
+			Commands = new List<string>();
+
+            Commands.AddRange(UnitRegistry.Unit(Type).Commands());
+
+            foreach (ISelectable unit in units) {
+                TryAdd(unit);
+            }
+		}
+
         public ISelectable Get (int id) {
-            return map.TryGetValue(id, out ISelectable unit) ? unit : null;
+            return instances.TryGetValue(id, out ISelectable unit) ? unit : null;
         }
 
         public List<ISelectable> List () {
-            return new List<ISelectable>(map.Values);
+            return new List<ISelectable>(instances.Values);
         }
 
         public bool TryAdd (ISelectable unit) {
-            return !unit.Type().Equals(Type) && map.TryAdd(unit.Id(), unit);
+            if (!unit.Name().Equals(Type)) {
+				Debug.LogWarning("Unit type " + unit.Name() + " doesn't match roster's registered type of " + Type + "!");
+                return false;
+			}
+
+            if (!instances.TryAdd(unit.Id(), unit)) {
+                //Debug.LogWarning("Unit " + unit.Id() + " already added to Roster of " + Type + " type!");
+                return false;
+            }
+
+            return true;
         }
 
         public void Remove (params int[] ids) {
             foreach (int id in ids) {
-                map.Remove(id);
+                instances.Remove(id);
             }
+        }
+
+        public void Clear () {
+            instances.Clear();
         }
     }
 }

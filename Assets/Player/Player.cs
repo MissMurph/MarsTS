@@ -1,6 +1,7 @@
 ﻿using MarsTS.Events;
 using MarsTS.Players.Input;
-using MarsTS.Players.Teams;
+using MarsTS.Teams;
+using MarsTS.UI;
 using MarsTS.Units;
 using MarsTS.Units.Commands;
 using MarsTS.World;
@@ -10,7 +11,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.HID;
 using static UnityEditor.PlayerSettings;
+using static UnityEngine.UI.GridLayoutGroup;
 
 namespace MarsTS.Players {
 
@@ -34,47 +37,28 @@ namespace MarsTS.Players {
 		public static bool Include { get { return instance.alternate; } }
 		private bool alternate;
 
+		public static Agent EventAgent { get { return instance.eventAgent; } }
+		private Agent eventAgent;
+
+		public static UIController UI { get { return instance.uiController; } }
+		private UIController uiController;
+
 		[SerializeField]
 		private float cameraSpeed;
 
 		private Vector2 moveDirection;
-		
-
-		[SerializeField]
-		private RectTransform selectionSquare;
-		bool mouseHeld = false;
 
 		private void Awake () {
 			instance = this;
 			view = GetComponent<Camera>();
 			inputController = GetComponent<InputHandler>();
+			eventAgent = GetComponent<Agent>();
+			uiController = GetComponent<UIController>();
 			alternate = false;
-		}
-
-		private void Start () {
-			
 		}
 
 		private void Update () {
 			transform.position = transform.position + (cameraSpeed * Time.deltaTime * new Vector3(moveDirection.x, 0, moveDirection.y));
-			if (mouseHeld) selectionSquare.offsetMax = new Vector2(cursorPos.x - Screen.width, cursorPos.y - Screen.height); ;
-		}
-
-		private void StartSelectionDraw () {
-			mouseHeld = true;
-			selectionSquare.offsetMin = cursorPos;
-			//selectionSquare.offsetMax = new Vector2(100, 100);
-			selectionSquare.gameObject.SetActive(true);
-		}
-
-		private void EndSelectionDraw () {
-			Vector3[] corners = new Vector3[4];
-			selectionSquare.offsetMax = new Vector2(cursorPos.x - Screen.width, cursorPos.y - Screen.height);
-			//selectionSquare.GetWorldCorners(corners);
-			/*foreach (Vector3 pos in corners) {
-				Debug.Log(pos);
-			}*/
-			selectionSquare.gameObject.SetActive(false);
 		}
 
 		/*	Input Functions	*/
@@ -87,80 +71,60 @@ namespace MarsTS.Players {
 			cursorPos = context.ReadValue<Vector2>();
 		}
 
-		public void Select (InputAction.CallbackContext context) {switch (context.phase) {
-				//Press Down
-				case InputActionPhase.Started: {
-					break;
-				}
+		public void Select (InputAction.CallbackContext context) {
+			if (context.phase == InputActionPhase.Canceled) {
+				if (UI.Hovering) return;
+				if (!Include) ClearSelection();
 
-				//Hold Threshold
-				//We want to start drawing the box here
-				case InputActionPhase.Performed: {
-					StartSelectionDraw();
-					break;
-				}
+				Ray ray = ViewPort.ScreenPointToRay(cursorPos);
 
-				//Release
-				//If we've reached the held threshold, then we want to select everything within the drawn box
-				//Otherwise its a normal click
-				case InputActionPhase.Canceled: {
-					if (mouseHeld) EndSelectionDraw();
-					else {
-						Ray ray = ViewPort.ScreenPointToRay(cursorPos);
-
-						if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)) {
-							Unit hitUnit = hit.collider.gameObject.GetComponentInParent<ISelectable>().Get();
-							SelectUnit(hitUnit);
-
-							
-						}
-					}
-					mouseHeld = false;
-					break;
+				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)) {
+					Unit hitUnit = hit.collider.gameObject.GetComponentInParent<ISelectable>().Get();
+					SelectUnit(hitUnit);
 				}
 			}
 		}
 
-		//If exclusive is true this will deselect every other selected unit
-		private void SelectUnit (params Unit[] selection) {
-			SelectEvent _event = new SelectEvent (this, true);
-			//SelectEvent clearEvent = new SelectEvent(this, false);
-
-			if (!Include) selected.Clear();
+		public void SelectUnit (params Unit[] selection) {
 			foreach (Unit target in selection) {
-				Roster units = GetRoster(target.Type());
+				//if (target.) ;
+
+				Roster units = GetRoster(target.Name());
 
 				if (!units.TryAdd(target)) {
 					units.Remove(target.Id());
 					target.Select(false);
-					//clearEvent.AddUnits(target);
+					if (units.Count == 0) selected.Remove(units.Type);
 				}
 				else {
 					target.Select(true);
-					_event.AddUnits(target);
 				}
 			}
 
-			EventBus.Post(_event);
-			//EventBus.Post(clearEvent);
+			EventBus.Global(new SelectEvent(Selected));
 		}
 
-		private void ClearSelection () {
-			foreach (KeyValuePair<string, Roster> typeMap in selected) {
-				foreach (Unit unit in typeMap.Value.List()) {
+		public void ClearSelection () {
+			foreach (Roster units in selected.Values) {
+				foreach (Unit unit in units.List()) {
 					unit.Select(false);
 				}
+
+				units.Clear();
 			}
+
+			selected.Clear();
+			EventBus.Global(new SelectEvent(Selected));
 		}
 
 		private Roster GetRoster (string type) {
-			Roster map = selected.GetValueOrDefault(type, new Roster());
+			Roster map = selected.GetValueOrDefault(type, new Roster(type));
 			if (!selected.ContainsKey(type)) selected.Add(type, map);
 			return map;
 		}
 
 		public void Command (InputAction.CallbackContext context) {
-			if (context.canceled) {
+			if (context.canceled && !UI.Hovering) {
 				Ray ray = ViewPort.ScreenPointToRay(cursorPos);
 
 				Physics.Raycast(ray, out RaycastHit walkableHit, 1000f, GameWorld.WalkableMask);
@@ -182,10 +146,10 @@ namespace MarsTS.Players {
 		}
 
 		public void DeliverCommand (Commandlet packet, bool inclusive) {
-			foreach (KeyValuePair<Type, Dictionary<int, Unit>> entry in Player.Selected) {
-				foreach (KeyValuePair<int, Unit> instanceEntry in entry.Value) {
-					if (inclusive) instanceEntry.Value.Enqueue(packet);
-					else instanceEntry.Value.Execute(packet);
+			foreach (KeyValuePair<string, Roster> entry in Selected) {
+				foreach (ISelectable unit in entry.Value.List()) {
+					if (inclusive) unit.Enqueue(packet);
+					else unit.Execute(packet);
 				}
 			}
 		}
@@ -193,6 +157,10 @@ namespace MarsTS.Players {
 		public void Alternate (InputAction.CallbackContext context) {
 			if (context.performed) alternate = true;
 			if (context.canceled) alternate = false;
+		}
+
+		private void OnTriggerEnter (Collider other) {
+			Debug.Log(other.name);
 		}
 
 		private void OnDestroy () {

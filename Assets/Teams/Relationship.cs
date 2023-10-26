@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.Players {
+namespace MarsTS.Teams {
 
 	public enum Relationship {
-		Ally = 0,
-		Neutral = 1,
-		Hostile = 2
+		Owned = 0,
+		Friendly = 1,
+		Neutral = 2,
+		Hostile = 3
 	}
 }

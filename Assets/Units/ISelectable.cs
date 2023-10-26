@@ -1,10 +1,10 @@
+using MarsTS.Players;
 using MarsTS.Units.Commands;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace MarsTS.Units {
-
 	public interface ISelectable {
 		void Enqueue (Commandlet order);
 		void Execute (Commandlet order);
@@ -12,6 +12,6 @@ namespace MarsTS.Units {
 		string[] Commands ();
 		void Select (bool status);
 		int Id ();
-		string Type ();
+		string Name ();
 	}
 }

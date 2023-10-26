@@ -1,16 +1,15 @@
-using MarsTS.Players.Teams;
 using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.Players {
+namespace MarsTS.Teams {
 
     public class Faction : MonoBehaviour {
 
         private Dictionary<string, Roster> ownedUnits;
 
-        public Team Allegiance { get { return PlayerCache.Team(this); } }
+        public Team Allegiance { get { return TeamCache.Team(this); } }
 
         private int minerals;
         private int oil;
@@ -19,9 +18,10 @@ namespace MarsTS.Players {
             ownedUnits = new Dictionary<string, Roster>();
 		}
 
-		public Relationship GetRelationship (Player other) {
-			if (PlayerCache.Team(other).Id == 0) return Relationship.Neutral;
-			if (PlayerCache.Team(other).Id.Equals(Allegiance.Id)) return Relationship.Ally;
+		public Relationship GetRelationship (Faction other) {
+			if (other.name == gameObject.name) return Relationship.Owned;
+			if (TeamCache.Team(other).Id == 0) return Relationship.Neutral;
+			if (TeamCache.Team(other).Id == Allegiance.Id) return Relationship.Friendly;
 			return Relationship.Hostile;
 		}
 	}

@@ -18,6 +18,14 @@ namespace MarsTS.UI {
 
 	public class UIController : MonoBehaviour {
 
+		private static UIController instance;
+
+		public static CommandPanel Command {
+			get {
+				return instance.commandPanel;
+			}
+		}
+
 		private CommandPanel commandPanel;
 		private UnitPane unitPane;
 
@@ -80,6 +88,7 @@ namespace MarsTS.UI {
 		}
 
 		private void Awake () {
+			instance = this;
 			commandProfiles = new();
 			ResetCursor();
 		}
@@ -274,6 +283,10 @@ namespace MarsTS.UI {
 					primaryIndex = newIndex;
 				}
 			}
+		}
+
+		private void OnDestroy () {
+			instance = null;
 		}
 	}
 }

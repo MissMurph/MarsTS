@@ -17,7 +17,7 @@ namespace MarsTS.Units {
 		}
 
 		[SerializeField]
-		private SphereCollider range;
+		protected SphereCollider range;
 
 		public float Falloff {
 			get {
@@ -42,7 +42,7 @@ namespace MarsTS.Units {
 		protected float cooldown;
 		protected float currentCooldown;
 
-		private Dictionary<int, Unit> inRangeUnits;
+		protected Dictionary<int, Unit> inRangeUnits;
 
 		public ISelectable target;
 
@@ -60,7 +60,7 @@ namespace MarsTS.Units {
 			range.gameObject.SetActive(true);
 		}
 
-		private void Update () {
+		protected virtual void Update () {
 			if (currentCooldown >= 0f) {
 				currentCooldown -= Time.deltaTime;
 			}

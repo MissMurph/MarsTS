@@ -62,8 +62,9 @@ namespace MarsTS.Units {
 		}
 
 		public Queue<Commandlet> CommandQueue = new Queue<Commandlet>();
-
-		public string[] boundCommands;
+		
+		[SerializeField]
+		private string[] boundCommands;
 
 		protected Transform target;
 		private Vector3 targetOldPos;
@@ -85,6 +86,9 @@ namespace MarsTS.Units {
 
 		[SerializeField]
 		private float waypointCompletionDistance;
+
+		[SerializeField]
+		private CommandPage defaultPage;
 
 		protected virtual void Awake () {
 			selectionCircle.SetActive(false);
@@ -174,19 +178,18 @@ namespace MarsTS.Units {
 				yield return new WaitForSeconds(.5f);
 			}
 
-			//float sqrMoveThreshold = pathUpdateMoveThreshold * pathUpdateMoveThreshold;
+			float sqrMoveThreshold = pathUpdateMoveThreshold * pathUpdateMoveThreshold;
 
 			while (true) {
 				yield return new WaitForSeconds(minPathUpdateTime);
 
-				//if (target != null && (target.position - targetOldPos).sqrMagnitude > sqrMoveThreshold) {
-				if (target != null) {
+				if (target != null && (target.position - targetOldPos).sqrMagnitude > sqrMoveThreshold) {
 					PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
-					//targetOldPos = target.position;
+					targetOldPos = target.position;
 				}
-				else if (!currentPath.IsEmpty) {
+				/*else if (!currentPath.IsEmpty) {
 					PathRequestManager.RequestPath(transform.position, currentPath.End, OnPathFound);
-				}
+				}*/
 			}
 		}
 

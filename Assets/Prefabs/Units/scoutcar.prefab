@@ -461,15 +461,15 @@ MonoBehaviour:
   - stop
   - attack
   selectionCircle: {fileID: 5910861940303851826}
-  waypointCompletionDistance: 0
+  waypointCompletionDistance: 1
   topSpeed: 15
   reverseSpeed: 5
   acceleration: 1000
   currentSpeed: 0
   velocity: 0
   turnSpeed: 40
-  brakeWindowTime: 0
-  brakeForce: 0
+  brakeWindowTime: 2
+  brakeForce: 25
   turretsToRegister:
   - {fileID: 7050632724546659591}
 --- !u!114 &6945863160223434669
@@ -511,7 +511,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5910861940303851826}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.4, z: 0}
   m_LocalScale: {x: 0.25, y: 1, z: 0.25}
   m_ConstrainProportionsScale: 0
   m_Children: []

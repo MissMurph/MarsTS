@@ -39,5 +39,9 @@ namespace MarsTS.UI {
 				registeredText[i].text = boundCommands[i];
 			}
 		}
+
+		public void LoadCommandPage (CommandPage page) {
+
+		}
 	}
 }

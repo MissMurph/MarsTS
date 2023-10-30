@@ -8,10 +8,11 @@ using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 using MarsTS.World.Pathfinding;
 using MarsTS.Teams;
+using MarsTS.Entities;
 
 namespace MarsTS.Units {
 
-	public class Unit : MonoBehaviour, ISelectable {
+	public class Unit : MonoBehaviour, ISelectable, ITaggable<Unit> {
 
 		public Faction Owner {
 			get {
@@ -25,12 +26,7 @@ namespace MarsTS.Units {
 		[SerializeField]
 		private Faction owner;
 
-		private bool initialized = false;
-
-		public int InstanceID { get { return id; } }
-
-		[SerializeField]
-		private int id;
+		private Entity entityComponent;
 
 		public string UnitType { get { return type; } }
 
@@ -40,6 +36,30 @@ namespace MarsTS.Units {
 		//protected List<Node> path = new List<Node>();
 
 		public Commandlet CurrentCommand { get; protected set; }
+
+		public string Key {
+			get {
+				return "unit";
+			}
+		}
+
+		public Type Type {
+			get {
+				return typeof(Unit);
+			}
+		}
+
+		public GameObject GameObject {
+			get {
+				return gameObject; 
+			}
+		}
+
+		public int ID {
+			get {
+				return entityComponent.ID;
+			}
+		}
 
 		public Queue<Commandlet> CommandQueue = new Queue<Commandlet>();
 
@@ -69,11 +89,13 @@ namespace MarsTS.Units {
 		protected virtual void Awake () {
 			selectionCircle.SetActive(false);
 			body = GetComponent<Rigidbody>();
-			//type = gameObject.name;
+			entityComponent = GetComponent<Entity>();
 		}
 
 		protected virtual void Start () {
 			StartCoroutine(UpdatePath());
+
+			selectionCircle.GetComponent<MeshRenderer>().material = GetRelationship(Player.Main).Material();
 		}
 
 		protected virtual void Update () {
@@ -112,17 +134,6 @@ namespace MarsTS.Units {
 				break;
 				default:
 				break;
-			}
-		}
-
-		public void Init (int _id, Player _owner) {
-			if (!initialized) {
-				if (Owner == null) Owner = _owner;
-				id = _id;
-				name = UnitType + ":" + InstanceID.ToString();
-				initialized = true;
-
-				selectionCircle.GetComponent<MeshRenderer>().material = Relationship(Player.Main).Material();
 			}
 		}
 
@@ -196,12 +207,12 @@ namespace MarsTS.Units {
 		}
 
 		public void Enqueue (Commandlet order) {
-			if (!Relationship(Player.Main).Equals(Teams.Relationship.Owned)) return;
+			if (!GetRelationship(Player.Main).Equals(Teams.Relationship.Owned)) return;
 			CommandQueue.Enqueue(order);
 		}
 
 		public void Execute (Commandlet order) {
-			if (!Relationship(Player.Main).Equals(Teams.Relationship.Owned)) return;
+			if (!GetRelationship(Player.Main).Equals(Teams.Relationship.Owned)) return;
 			CommandQueue.Clear();
 			Stop();
 			CurrentCommand = null;
@@ -221,15 +232,11 @@ namespace MarsTS.Units {
 			else selectionCircle.SetActive(false);
 		}
 
-		public int Id () {
-			return InstanceID;
-		}
-
 		public string Name () {
 			return UnitType;
 		}
 
-		public Relationship Relationship (Faction other) {
+		public Relationship GetRelationship (Faction other) {
 			return owner.GetRelationship(other);
 		}
 	}

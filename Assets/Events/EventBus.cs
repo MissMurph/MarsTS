@@ -12,11 +12,11 @@ namespace MarsTS.Events {
 
 		private Dictionary<Type, UnityEventBase> globalListeners;
 
-		private Dictionary<int, Agent> registeredAgents;
+		private Dictionary<int, EventAgent> registeredAgents;
 
 		private Dictionary<string, int> nameAtlas;
 
-		private Dictionary<int, List<UnityAction>> localListeners;
+		//private Dictionary<int, List<UnityAction>> localListeners;
 
 		private int currentId;
 
@@ -24,14 +24,14 @@ namespace MarsTS.Events {
 			instance = this;
 			currentId = 0;
 			globalListeners = new Dictionary<Type, UnityEventBase>();
-			registeredAgents = new Dictionary<int, Agent>();
+			registeredAgents = new Dictionary<int, EventAgent>();
 			nameAtlas = new Dictionary<string, int>();
-			localListeners = new Dictionary<int, List<UnityAction>>();
+			//localListeners = new Dictionary<int, List<UnityAction>>();
 		}
 
 		//Fires events to all listeners registered for this event type
 		public static T Global<T> (T postedEvent) where T : AbstractEvent {
-			if (!instance.registeredAgents.ContainsKey(postedEvent.Source.Id)) throw new ArgumentException("Event " + postedEvent.Name + " fired from unregistered agent " + postedEvent.Source.Id + " on object " + postedEvent.Source.name);
+			if (!instance.registeredAgents.ContainsKey(postedEvent.Source.ID)) throw new ArgumentException("Event " + postedEvent.Name + " fired from unregistered agent " + postedEvent.Source.ID + " on object " + postedEvent.Source.name);
 			if (instance.globalListeners.TryGetValue(typeof(T), out UnityEventBase value)) {
 				UnityEvent<T> superType = (UnityEvent<T>)value;
 				superType.Invoke(postedEvent);
@@ -41,9 +41,9 @@ namespace MarsTS.Events {
 		}
 
 		//Fires events to all listeners of this event type registered to this event's source Agent ID
-		public static T Local<T> (T postedEvent) where T : AbstractEvent {
+		/*public static T Local<T> (T postedEvent) where T : AbstractEvent {
 			if (!instance.registeredAgents.ContainsKey(postedEvent.Source.Id)) throw new ArgumentException("Event " + postedEvent.Name + " fired from unregistered agent " + postedEvent.Source.Id + " on object " + postedEvent.Source.name);
-			if (instance.localListeners.TryGetValue(postedEvent.Source.Id, out List<UnityAction> listeners)) {
+			if (instance.registeredAgents.TryGetValue(postedEvent.Source.Id, out List<UnityAction> listeners)) {
 				foreach (UnityAction listener in listeners) {
 					if (listener.GetType().Equals(typeof(UnityAction<T>))) {
 						(listener as UnityAction<T>).Invoke(postedEvent);
@@ -52,7 +52,7 @@ namespace MarsTS.Events {
 			}
 
 			return postedEvent;
-		}
+		}*/
 
 		//Global Subscription
 		public static void AddListener<T> (UnityAction<T> func) where T : AbstractEvent {
@@ -63,23 +63,26 @@ namespace MarsTS.Events {
 
 		//Local Subscription
 		public static void AddListener<T> (UnityAction<T> func, int agentID) where T : AbstractEvent {
-			List<UnityAction> listenerMap = instance.localListeners.GetValueOrDefault(agentID, new List<UnityAction>());
-			if (!instance.localListeners.ContainsKey(agentID)) instance.localListeners.Add(agentID, listenerMap);
-			listenerMap.Add(func as UnityAction);
+			if (instance.registeredAgents.TryGetValue(agentID, out EventAgent agent)) {
+				agent.AddListener(func);
+				return;
+			}
+			else throw new ArgumentException("Agent " + agentID + " not registered with Event Bus, cannot Subscribe to local events!");
 		}
 
-		public static void RegisterAgent (Action<int> idCallback, Agent source) {
-			if (source.Id != 0) throw new ArgumentException("Agent " + source.Id + " already registered with Event Bus " + instance.name);
+		public static int RegisterAgent (EventAgent source) {
+			if (source.ID != 0) throw new ArgumentException("Agent " + source.ID + " already registered with Event Bus " + instance.name);
 
 			int id = instance.currentId++;
-			idCallback(id);
 
 			instance.registeredAgents[id] = source;
-			if (!instance.localListeners.ContainsKey(id)) instance.localListeners[id] = new List<UnityAction>();
+			//if (!instance.localListeners.ContainsKey(id)) instance.localListeners[id] = new List<UnityAction>();
 			instance.nameAtlas[source.name] = id;
+
+			return id;
 		}
 
-		public static Agent Agent (string name) {
+		public static EventAgent Agent (string name) {
 			if (instance.nameAtlas.TryGetValue(name, out int id)) {
 				return instance.registeredAgents[id];
 			}

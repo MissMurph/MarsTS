@@ -1,7 +1,7 @@
+using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Teams;
 using MarsTS.Units;
-using MarsTS.Units.Cache;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,7 +13,7 @@ namespace MarsTS.Players {
 		public List<Unit> hitUnits = new List<Unit>();
 
 		private void OnTriggerEnter (Collider other) {
-			if (UnitCache.TryGet(other.transform.parent.name, out Unit target)) hitUnits.Add(target);
+			if (EntityCache.TryGet(other.transform.parent.name, out Unit target)) hitUnits.Add(target);
 		}
 
 		private void OnDestroy () {

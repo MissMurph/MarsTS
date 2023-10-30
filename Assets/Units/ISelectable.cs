@@ -1,4 +1,5 @@
 using MarsTS.Players;
+using MarsTS.Teams;
 using MarsTS.Units.Commands;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,10 +9,11 @@ namespace MarsTS.Units {
 	public interface ISelectable {
 		void Enqueue (Commandlet order);
 		void Execute (Commandlet order);
-		Unit Get ();
+		GameObject GameObject { get; }
 		string[] Commands ();
 		void Select (bool status);
-		int Id ();
+		int ID { get; }
 		string Name ();
+		Relationship GetRelationship (Faction player);
 	}
 }

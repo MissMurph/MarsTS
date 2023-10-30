@@ -1,5 +1,5 @@
+using MarsTS.Entities;
 using MarsTS.Players;
-using MarsTS.Units.Cache;
 using MarsTS.World;
 using System;
 using System.Collections;
@@ -28,7 +28,7 @@ namespace MarsTS.Units.Commands {
 				Vector2 cursorPos = Player.MousePos;
 				Ray ray = Player.ViewPort.ScreenPointToRay(cursorPos);
 
-				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask) && UnitCache.TryGet(hit.collider.transform.parent.name, out Unit target)) {
+				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask) && EntityCache.TryGet(hit.collider.transform.parent.name + ":unit", out Unit target)) {
 					Player.Main.DeliverCommand(Construct(target), Player.Include);
 				}
 

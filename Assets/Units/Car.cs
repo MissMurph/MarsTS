@@ -45,7 +45,7 @@ namespace MarsTS.Units {
 		[SerializeField]
 		protected Turret[] turretsToRegister;
 
-		protected Unit AttackTarget {
+		protected ISelectable AttackTarget {
 			get {
 				return attackTarget;
 			}
@@ -55,7 +55,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected Unit attackTarget;
+		protected ISelectable attackTarget;
 
 		protected override void Awake () {
 			base.Awake();
@@ -69,11 +69,11 @@ namespace MarsTS.Units {
 
 			if (attackTarget == null) return;
 
-			if (Vector3.Distance(transform.position, attackTarget.transform.position) >= registeredTurrets["turret_main"].Range
-				&& !ReferenceEquals(target, attackTarget.transform)) {
-				SetTarget(attackTarget.transform);
+			if (Vector3.Distance(transform.position, attackTarget.GameObject.transform.position) >= registeredTurrets["turret_main"].Range
+				&& !ReferenceEquals(target, attackTarget.GameObject.transform)) {
+				SetTarget(attackTarget.GameObject.transform);
 			}
-			else if (target == attackTarget.transform) {
+			else if (target == attackTarget.GameObject.transform) {
 				Stop();
 			}
 		}
@@ -165,7 +165,7 @@ namespace MarsTS.Units {
 			if (order.TargetType.Equals(typeof(ISelectable))) {
 				Commandlet<ISelectable> deserialized = order as Commandlet<ISelectable>;
 
-				AttackTarget = deserialized.Target.Get();
+				AttackTarget = deserialized.Target;
 			}
 		}
 	}

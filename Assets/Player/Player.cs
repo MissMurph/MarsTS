@@ -37,8 +37,8 @@ namespace MarsTS.Players {
 		public static bool Include { get { return instance.alternate; } }
 		private bool alternate;
 
-		public static Agent EventAgent { get { return instance.eventAgent; } }
-		private Agent eventAgent;
+		public static EventAgent EventAgent { get { return instance.eventAgent; } }
+		private EventAgent eventAgent;
 
 		public static UIController UI { get { return instance.uiController; } }
 		private UIController uiController;
@@ -52,7 +52,7 @@ namespace MarsTS.Players {
 			instance = this;
 			view = GetComponent<Camera>();
 			inputController = GetComponent<InputHandler>();
-			eventAgent = GetComponent<Agent>();
+			eventAgent = GetComponent<EventAgent>();
 			uiController = GetComponent<UIController>();
 			alternate = false;
 		}
@@ -79,20 +79,18 @@ namespace MarsTS.Players {
 				Ray ray = ViewPort.ScreenPointToRay(cursorPos);
 
 				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)) {
-					Unit hitUnit = hit.collider.gameObject.GetComponentInParent<ISelectable>().Get();
+					ISelectable hitUnit = hit.collider.gameObject.GetComponentInParent<ISelectable>();
 					SelectUnit(hitUnit);
 				}
 			}
 		}
 
-		public void SelectUnit (params Unit[] selection) {
-			foreach (Unit target in selection) {
-				//if (target.) ;
-
+		public void SelectUnit (params ISelectable[] selection) {
+			foreach (ISelectable target in selection) {
 				Roster units = GetRoster(target.Name());
 
 				if (!units.TryAdd(target)) {
-					units.Remove(target.Id());
+					units.Remove(target.ID);
 					target.Select(false);
 					if (units.Count == 0) selected.Remove(units.Type);
 				}
@@ -131,7 +129,7 @@ namespace MarsTS.Players {
 				Physics.Raycast(ray, out RaycastHit selectableHit, 1000f, GameWorld.SelectableMask);
 
 				if (selectableHit.collider != null && selectableHit.collider.gameObject.TryGetComponent(out ISelectable unit)) {
-					if (GetRelationship(unit.Get().Owner).Equals(Relationship.Hostile)) {
+					if (unit.GetRelationship(this) == Relationship.Hostile) {
 						DeliverCommand(Commands.Get<Attack>("attack").Construct(unit), Include);
 						return;
 					}

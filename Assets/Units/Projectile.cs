@@ -1,4 +1,4 @@
-using MarsTS.Units.Cache;
+using MarsTS.Entities;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,7 +26,7 @@ namespace MarsTS.Units {
 		}
 
 		private void OnTriggerEnter (Collider other) {
-			if (initialized && UnitCache.TryGet(other.transform.root.name, out Unit unit) && unit.Relationship(parent.Owner) != Teams.Relationship.Owned) {
+			if (initialized && EntityCache.TryGet(other.transform.root.name, out Unit unit) && unit.GetRelationship(parent.Owner) != Teams.Relationship.Owned) {
 				Destroy(gameObject);
 			}
 		}

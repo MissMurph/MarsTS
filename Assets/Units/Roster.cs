@@ -38,13 +38,13 @@ namespace MarsTS.Units {
             return new List<ISelectable>(instances.Values);
         }
 
-        public bool TryAdd (ISelectable unit) {
-            if (!unit.Name().Equals(Type)) {
-				Debug.LogWarning("Unit type " + unit.Name() + " doesn't match roster's registered type of " + Type + "!");
+        public bool TryAdd (ISelectable entity) {
+            if (!entity.Name().Equals(Type)) {
+				Debug.LogWarning("Unit type " + entity.Name() + " doesn't match roster's registered type of " + Type + "!");
                 return false;
 			}
 
-            if (!instances.TryAdd(unit.Id(), unit)) {
+            if (!instances.TryAdd(entity.ID, entity)) {
                 //Debug.LogWarning("Unit " + unit.Id() + " already added to Roster of " + Type + " type!");
                 return false;
             }

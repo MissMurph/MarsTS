@@ -1,8 +1,8 @@
+using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.Units;
-using MarsTS.Units.Cache;
 using MarsTS.Units.Commands;
 using MarsTS.World;
 using System;
@@ -155,8 +155,8 @@ namespace MarsTS.UI {
 			//This is a temp method to get the cursor to reflect command. As more commands are added this'll be re-factored
 			//to be modular
 			if (Physics.Raycast(ray, out RaycastHit selectable, 1000f, GameWorld.SelectableMask)) {
-				if (UnitCache.TryGet(selectable.collider.transform.parent.gameObject.name, out Unit target)) {
-					Relationship allegiance = target.Relationship(Player.Main);
+				if (EntityCache.TryGet(selectable.collider.transform.parent.gameObject.name, out Unit target)) {
+					Relationship allegiance = target.GetRelationship(Player.Main);
 
 					switch (allegiance) {
 						case Relationship.Friendly: {
@@ -194,7 +194,7 @@ namespace MarsTS.UI {
 		}
 
 		private void EndSelectionDraw () {
-			if (Vector2.Distance(drawStart, drawMouse) > 2f) {
+			if (Vector2.Distance(drawStart, drawMouse) > 5f) {
 				Vector3[] screenCorners = new Vector3[4];
 
 				selectionSquare.GetWorldCorners(screenCorners);

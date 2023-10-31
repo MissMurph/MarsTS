@@ -20,7 +20,7 @@ namespace MarsTS.Units {
 
 			bullet.transform.LookAt(target.GameObject.transform.position);
 
-			bullet.Init(parent);
+			bullet.Init(parent, (success, unit) => { if (success) unit.Attack(damage); });
 
 			currentCooldown = cooldown;
 		}

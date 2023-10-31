@@ -124,7 +124,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3050993960075558379}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -161,7 +161,7 @@ GameObject:
   - component: {fileID: 3050993960261844236}
   - component: {fileID: 3050993960261844239}
   - component: {fileID: 3050993960261844238}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Tracks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -351,6 +351,7 @@ MonoBehaviour:
   turnRate: 0
   damage: 0
   cooldown: 0.5
+  repairAmount: 10
 --- !u!136 &3050993960314109542
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -377,7 +378,7 @@ GameObject:
   - component: {fileID: 3050993961609898113}
   - component: {fileID: 3050993961609898112}
   - component: {fileID: 3050993961609898115}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Tracks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -651,6 +652,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42d71795928875740a99442b4191f9f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHealth: 150
+  currentHealth: 0
   owner: {fileID: 0}
   type: constructor
   boundCommands:
@@ -661,7 +664,7 @@ MonoBehaviour:
   selectionCircle: {fileID: 1012618784}
   waypointCompletionDistance: 1
   topSpeed: 10
-  acceleration: 400
+  acceleration: 425
   turnSpeed: 40
   angleTolerance: 10
   turretsToRegister:
@@ -768,7 +771,7 @@ GameObject:
   - component: {fileID: 3050993962111133898}
   - component: {fileID: 3050993962111133941}
   - component: {fileID: 3050993962111133940}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -14,6 +14,18 @@ namespace MarsTS.Units {
 
 	public class Unit : MonoBehaviour, ISelectable, ITaggable<Unit> {
 
+		public int Health {
+			get {
+				return currentHealth;
+			}
+		}
+
+		[SerializeField]
+		private int maxHealth;
+
+		[SerializeField]
+		private int currentHealth;
+
 		public Faction Owner {
 			get {
 				return owner;
@@ -24,9 +36,9 @@ namespace MarsTS.Units {
 		}
 
 		[SerializeField]
-		private Faction owner;
+		protected Faction owner;
 
-		private Entity entityComponent;
+		protected Entity entityComponent;
 
 		public string UnitType { get { return type; } }
 
@@ -39,7 +51,7 @@ namespace MarsTS.Units {
 
 		public string Key {
 			get {
-				return "unit";
+				return "selectable";
 			}
 		}
 
@@ -87,13 +99,13 @@ namespace MarsTS.Units {
 		[SerializeField]
 		private float waypointCompletionDistance;
 
-		[SerializeField]
-		private CommandPage defaultPage;
+		
 
 		protected virtual void Awake () {
 			selectionCircle.SetActive(false);
 			body = GetComponent<Rigidbody>();
 			entityComponent = GetComponent<Entity>();
+			currentHealth = maxHealth;
 		}
 
 		protected virtual void Start () {
@@ -241,6 +253,15 @@ namespace MarsTS.Units {
 
 		public Relationship GetRelationship (Faction other) {
 			return owner.GetRelationship(other);
+		}
+
+		public bool SetOwner (Faction player) {
+			owner = player;
+			return true;
+		}
+
+		public void Attack (int damage) {
+			currentHealth -= damage;
 		}
 	}
 }

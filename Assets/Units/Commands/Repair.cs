@@ -1,20 +1,19 @@
 using MarsTS.Entities;
 using MarsTS.Players;
 using MarsTS.World;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 namespace MarsTS.Units.Commands {
 
-	public class Attack : Command<ISelectable> {
-
-		public override string Name { get { return "attack"; } }
-
-		public ISelectable Target { get; private set; }
+	public class Repair : Command<ISelectable> {
+		public override string Name {
+			get {
+				return "repair";
+			}
+		}
 
 		public override void StartSelection () {
 			Player.Input.Hook("Select", OnSelect);

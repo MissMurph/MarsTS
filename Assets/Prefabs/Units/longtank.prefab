@@ -344,7 +344,7 @@ GameObject:
   - component: {fileID: 1214473942957689302}
   - component: {fileID: 1214473942957689301}
   - component: {fileID: 1214473942957689300}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -521,6 +521,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11d8260000c29334d825c08fdc87a6d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHealth: 150
+  currentHealth: 0
   owner: {fileID: 0}
   type: longtank
   boundCommands:

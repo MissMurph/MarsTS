@@ -164,7 +164,7 @@ namespace MarsTS.UI {
 			//This is a temp method to get the cursor to reflect command. As more commands are added this'll be re-factored
 			//to be modular
 			if (Physics.Raycast(ray, out RaycastHit selectable, 1000f, GameWorld.SelectableMask)) {
-				if (EntityCache.TryGet(selectable.collider.transform.parent.gameObject.name, out Unit target)) {
+				if (EntityCache.TryGet(selectable.collider.transform.parent.gameObject.name, out ISelectable target)) {
 					Relationship allegiance = target.GetRelationship(Player.Main);
 
 					switch (allegiance) {

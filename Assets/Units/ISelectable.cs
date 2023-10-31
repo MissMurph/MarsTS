@@ -15,5 +15,8 @@ namespace MarsTS.Units {
 		int ID { get; }
 		string Name ();
 		Relationship GetRelationship (Faction player);
+		bool SetOwner (Faction player);
+		int Health { get; }
+		void Attack (int damage);
 	}
 }

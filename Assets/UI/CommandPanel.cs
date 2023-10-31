@@ -41,7 +41,16 @@ namespace MarsTS.UI {
 		}
 
 		public void LoadCommandPage (CommandPage page) {
+			string[,] commands = page.Build();
 
+			for (int y = 0; y < 3; y++) {
+				for (int x = 0; x < 3; x++) {
+					int i = ((y + 1) * (x + 1)) - 1;
+
+					boundCommands[i] = commands[y, x];
+					registeredText[i].text = commands[y, x];
+				}
+			}
 		}
 	}
 }

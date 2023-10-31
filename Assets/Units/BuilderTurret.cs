@@ -8,6 +8,9 @@ namespace MarsTS.Units {
 
     public class BuilderTurret : Turret {
 
+		[SerializeField]
+		private int repairAmount;
+
         protected override void Update () {
 			if (currentCooldown >= 0f) {
 				currentCooldown -= Time.deltaTime;
@@ -28,6 +31,7 @@ namespace MarsTS.Units {
 
 		protected override void Fire () {
 			//When health is a thing this will have the repairing logic
+			target.Attack(-repairAmount);
 		}
     }
 }

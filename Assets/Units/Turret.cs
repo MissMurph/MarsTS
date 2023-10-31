@@ -35,14 +35,14 @@ namespace MarsTS.Units {
 		private float turnRate;
 
 		[SerializeField]
-		private int damage;
+		protected int damage;
 
 		//Seconds between firing
 		[SerializeField]
 		protected float cooldown;
 		protected float currentCooldown;
 
-		protected Dictionary<int, Unit> inRangeUnits;
+		protected Dictionary<int, ISelectable> inRangeUnits;
 
 		public ISelectable target;
 
@@ -50,7 +50,7 @@ namespace MarsTS.Units {
 		protected EventAgent eventAgent;
 
 		private void Awake () {
-			inRangeUnits = new Dictionary<int, Unit>();
+			inRangeUnits = new Dictionary<int, ISelectable>();
 			parent = GetComponentInParent<Unit>();
 			eventAgent = GetComponentInParent<EventAgent>();
 			eventAgent.AddListener<EntityInitEvent>(OnEntityInit);
@@ -66,7 +66,7 @@ namespace MarsTS.Units {
 			}
 
 			if (target == null) {
-				foreach (Unit unit in inRangeUnits.Values) {
+				foreach (ISelectable unit in inRangeUnits.Values) {
 					if (unit.GetRelationship(parent.Owner) == Relationship.Hostile) {
 						target = unit;
 						break;
@@ -85,6 +85,8 @@ namespace MarsTS.Units {
 			Physics.Raycast(barrel.transform.position, direction, range.radius);
 			Debug.DrawLine(barrel.transform.position, barrel.transform.position + (direction * range.radius), Color.cyan, 0.1f);
 
+			target.Attack(damage);
+
 			currentCooldown = cooldown;
 		}
 
@@ -96,13 +98,13 @@ namespace MarsTS.Units {
 		}
 
 		private void OnTriggerEnter (Collider other) {
-			if (EntityCache.TryGet(other.transform.root.name, out Unit unit)) {
+			if (EntityCache.TryGet(other.transform.root.name, out ISelectable unit)) {
 				inRangeUnits.TryAdd(unit.ID, unit);
 			}
 		}
 
 		private void OnTriggerExit (Collider other) {
-			if (EntityCache.TryGet(other.transform.root.name, out Unit unit)) {
+			if (EntityCache.TryGet(other.transform.root.name, out ISelectable unit)) {
 				inRangeUnits.Remove(unit.ID);
 				if (target != null && target.ID == unit.ID) target = null;
 			}

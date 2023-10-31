@@ -46,6 +46,17 @@ namespace MarsTS.Buildings {
 			}
 		}
 
+		public int Health {
+			get {
+				return currentHealth;
+			}
+		}
+
+		[SerializeField]
+		private int maxHealth;
+
+		private int currentHealth;
+
 		[Header("Entity Fields")]
 
 		[SerializeField]
@@ -61,6 +72,12 @@ namespace MarsTS.Buildings {
 
 		[SerializeField]
 		private float constructionWork;
+
+
+		//This will be measured in seconds
+		//Each constructor adds half as much as the last?
+		[SerializeField]
+		private float buildTime;
 
 		private float currentWork;
 
@@ -84,6 +101,10 @@ namespace MarsTS.Buildings {
 		protected virtual void Awake () {
 			selectionCircle.SetActive(false);
 			entityComponent = GetComponent<Entity>();
+			currentHealth = 1;
+
+			Transform model = transform.Find("Model");
+			model.localScale = Vector3.zero;
 		}
 
 		public string[] Commands () {
@@ -113,6 +134,15 @@ namespace MarsTS.Buildings {
 		public void Select (bool status) {
 			if (status) selectionCircle.SetActive(true);
 			else selectionCircle.SetActive(false);
+		}
+
+		public bool SetOwner (Faction player) {
+			owner = player;
+			return true;
+		}
+
+		public void Attack (int damage) {
+			currentHealth -= damage;
 		}
 	}
 }

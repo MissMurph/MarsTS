@@ -37,17 +37,17 @@ namespace MarsTS.Units {
 		[SerializeField]
 		protected Turret[] turretsToRegister;
 
-		protected ISelectable AttackTarget {
+		protected ISelectable RepairTarget {
 			get {
-				return attackTarget;
+				return repairTarget;
 			}
 			set {
-				attackTarget = value;
-				registeredTurrets["turret_main"].target = attackTarget;
+				repairTarget = value;
+				registeredTurrets["turret_main"].target = repairTarget;
 			}
 		}
 
-		protected ISelectable attackTarget;
+		protected ISelectable repairTarget;
 
 		protected override void Awake () {
 			base.Awake();
@@ -59,13 +59,13 @@ namespace MarsTS.Units {
 		protected override void Update () {
 			base.Update();
 
-			if (attackTarget == null) return;
+			if (repairTarget == null) return;
 
-			if (Vector3.Distance(transform.position, attackTarget.GameObject.transform.position) >= registeredTurrets["turret_main"].Range
-				&& !ReferenceEquals(target, attackTarget.GameObject.transform)) {
-				SetTarget(attackTarget.GameObject.transform);
+			if (Vector3.Distance(transform.position, repairTarget.GameObject.transform.position) >= registeredTurrets["turret_main"].Range
+				&& !ReferenceEquals(target, repairTarget.GameObject.transform)) {
+				SetTarget(repairTarget.GameObject.transform);
 			}
-			else if (target == attackTarget.GameObject.transform) {
+			else if (target == repairTarget.GameObject.transform) {
 				Stop();
 			}
 		}
@@ -100,13 +100,13 @@ namespace MarsTS.Units {
 		}
 
 		protected override void ProcessOrder (Commandlet order) {
-			AttackTarget = null;
+			RepairTarget = null;
 			switch (order.Name) {
 				case "construct":
 				
 				break;
 				case "repair":
-
+				Repair(order);
 				break;
 				//This is brilliant
 				default:
@@ -115,11 +115,11 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected void Attack (Commandlet order) {
-			if (order.TargetType.Equals(typeof(ISelectable))) {
+		protected void Repair (Commandlet order) {
+			if (order.TargetType is ISelectable unit && (unit.GetRelationship(owner) == Teams.Relationship.Owned || unit.GetRelationship(owner) == Teams.Relationship.Friendly)) {
 				Commandlet<ISelectable> deserialized = order as Commandlet<ISelectable>;
 
-				AttackTarget = deserialized.Target;
+				RepairTarget = deserialized.Target;
 			}
 		}
 	}

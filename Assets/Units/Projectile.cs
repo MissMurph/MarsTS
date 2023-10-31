@@ -1,6 +1,8 @@
 using MarsTS.Entities;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 namespace MarsTS.Units {
@@ -14,9 +16,12 @@ namespace MarsTS.Units {
 
 		private Unit parent;
 
-		public void Init (Unit _parent) {
+		private Action<bool, ISelectable> hitCallback;
+
+		public void Init (Unit _parent, Action<bool, ISelectable> callback) {
 			parent = _parent;
 			initialized = true;
+			hitCallback = callback;
 		}
 
 		private void Update () {
@@ -26,7 +31,8 @@ namespace MarsTS.Units {
 		}
 
 		private void OnTriggerEnter (Collider other) {
-			if (initialized && EntityCache.TryGet(other.transform.root.name, out Unit unit) && unit.GetRelationship(parent.Owner) != Teams.Relationship.Owned) {
+			if (initialized && EntityCache.TryGet(other.transform.root.name, out ISelectable unit) && unit.GetRelationship(parent.Owner) != Teams.Relationship.Owned) {
+				hitCallback(true, unit);
 				Destroy(gameObject);
 			}
 		}

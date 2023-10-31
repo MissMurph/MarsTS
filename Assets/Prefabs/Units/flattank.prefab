@@ -57,7 +57,7 @@ GameObject:
   - component: {fileID: 452040235000559378}
   - component: {fileID: 452040235000559379}
   - component: {fileID: 452040235000559381}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -206,6 +206,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11d8260000c29334d825c08fdc87a6d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHealth: 250
+  currentHealth: 0
   owner: {fileID: 0}
   type: flattank
   boundCommands:

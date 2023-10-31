@@ -97,7 +97,7 @@ namespace MarsTS.Entities {
 			}
 
 			if (TryGet(split[0] + ":" + split[1], out Entity entityComponent)) {
-				if (split.Length > 2 && entityComponent.TryGet<T>(split[2], out T superType)) {
+				if (split.Length > 2 && entityComponent.TryGet(split[2], out T superType)) {
 					output = superType;
 					return true;
 				}

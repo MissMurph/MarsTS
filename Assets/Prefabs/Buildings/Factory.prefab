@@ -126,10 +126,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f5879be3678688468207af840c161ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHealth: 500
   type: factory
   boundCommands: []
   selectionCircle: {fileID: 5738845267461323256}
   constructionWork: 50
+  buildTime: 0
   ghost: {fileID: 1114144885270547136, guid: b002af5474e33924792b89eed21b5aec, type: 3}
 --- !u!114 &5738845266810977013
 MonoBehaviour:

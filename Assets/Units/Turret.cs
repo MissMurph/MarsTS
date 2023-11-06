@@ -109,5 +109,9 @@ namespace MarsTS.Units {
 				if (target != null && target.ID == unit.ID) target = null;
 			}
 		}
+
+		private void OnTriggerStay (Collider other) {
+			
+		}
 	}
 }

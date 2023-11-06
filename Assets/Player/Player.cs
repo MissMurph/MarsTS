@@ -50,7 +50,7 @@ namespace MarsTS.Players {
 
 		private void Awake () {
 			instance = this;
-			view = GetComponent<Camera>();
+			view = GetComponentInChildren<Camera>();
 			inputController = GetComponent<InputHandler>();
 			eventAgent = GetComponent<EventAgent>();
 			uiController = GetComponent<UIController>();

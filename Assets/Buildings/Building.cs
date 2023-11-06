@@ -52,10 +52,16 @@ namespace MarsTS.Buildings {
 			}
 		}
 
+		private int currentHealth;
+
+		public int MaxHealth {
+			get {
+				return maxHealth;
+			}
+		}
+
 		[SerializeField]
 		private int maxHealth;
-
-		private int currentHealth;
 
 		[Header("Entity Fields")]
 
@@ -143,6 +149,10 @@ namespace MarsTS.Buildings {
 
 		public void Attack (int damage) {
 			currentHealth -= damage;
+
+			if (currentHealth <= 0) {
+				Destroy(gameObject);
+			}
 		}
 	}
 }

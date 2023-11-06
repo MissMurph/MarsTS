@@ -17,6 +17,7 @@ namespace MarsTS.Units {
 		Relationship GetRelationship (Faction player);
 		bool SetOwner (Faction player);
 		int Health { get; }
+		int MaxHealth { get; }
 		void Attack (int damage);
 	}
 }

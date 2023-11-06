@@ -9,6 +9,7 @@ using static UnityEngine.GraphicsBuffer;
 using MarsTS.World.Pathfinding;
 using MarsTS.Teams;
 using MarsTS.Entities;
+using MarsTS.Events;
 
 namespace MarsTS.Units {
 
@@ -17,6 +18,12 @@ namespace MarsTS.Units {
 		public int Health {
 			get {
 				return currentHealth;
+			}
+		}
+
+		public int MaxHealth {
+			get {
+				return maxHealth;
 			}
 		}
 
@@ -88,7 +95,6 @@ namespace MarsTS.Units {
 		//[SerializeField]
 		//private float turnSpeed;
 
-		[SerializeField]
 		private GameObject selectionCircle;
 
 		protected Rigidbody body;
@@ -99,19 +105,21 @@ namespace MarsTS.Units {
 		[SerializeField]
 		private float waypointCompletionDistance;
 
-		
+		private EventAgent eventAgent;
 
 		protected virtual void Awake () {
+			selectionCircle = transform.Find("SelectionCircle").gameObject;
 			selectionCircle.SetActive(false);
 			body = GetComponent<Rigidbody>();
 			entityComponent = GetComponent<Entity>();
+			eventAgent = GetComponent<EventAgent>();
 			currentHealth = maxHealth;
 		}
 
 		protected virtual void Start () {
 			StartCoroutine(UpdatePath());
 
-			selectionCircle.GetComponent<MeshRenderer>().material = GetRelationship(Player.Main).Material();
+			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 		}
 
 		protected virtual void Update () {
@@ -262,6 +270,12 @@ namespace MarsTS.Units {
 
 		public void Attack (int damage) {
 			currentHealth -= damage;
+
+			eventAgent.Local(new EntityHurtEvent(eventAgent, this));
+
+			if (currentHealth <= 0) {
+				Destroy(gameObject);
+			}
 		}
 	}
 }

@@ -1,3 +1,4 @@
+using MarsTS.Teams;
 using MarsTS.Units.Commands;
 using System.Collections;
 using System.Collections.Generic;
@@ -61,7 +62,8 @@ namespace MarsTS.Units {
 
 			if (repairTarget == null) return;
 
-			if (Vector3.Distance(transform.position, repairTarget.GameObject.transform.position) >= registeredTurrets["turret_main"].Range
+			if (currentPath == Path.Empty
+				&& Vector3.Distance(transform.position, repairTarget.GameObject.transform.position) >= registeredTurrets["turret_main"].Range
 				&& !ReferenceEquals(target, repairTarget.GameObject.transform)) {
 				SetTarget(repairTarget.GameObject.transform);
 			}
@@ -116,10 +118,15 @@ namespace MarsTS.Units {
 		}
 
 		protected void Repair (Commandlet order) {
-			if (order.TargetType is ISelectable unit && (unit.GetRelationship(owner) == Teams.Relationship.Owned || unit.GetRelationship(owner) == Teams.Relationship.Friendly)) {
+			if (order.TargetType.Equals(typeof(ISelectable))) {
 				Commandlet<ISelectable> deserialized = order as Commandlet<ISelectable>;
+				ISelectable unit = deserialized.Target;
 
-				RepairTarget = deserialized.Target;
+				if ((unit.GetRelationship(owner) == Teams.Relationship.Owned || unit.GetRelationship(owner) == Teams.Relationship.Friendly)) {
+					
+
+					RepairTarget = unit;
+				}
 			}
 		}
 	}

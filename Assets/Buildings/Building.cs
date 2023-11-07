@@ -1,4 +1,5 @@
 using MarsTS.Entities;
+using MarsTS.Events;
 using MarsTS.Teams;
 using MarsTS.Units;
 using MarsTS.Units.Commands;
@@ -38,13 +39,10 @@ namespace MarsTS.Buildings {
 			}
 		}
 
+		[SerializeField]
 		private Faction owner;
 
-		public string BuildingType {
-			get {
-				return type;
-			}
-		}
+		public string BuildingType => type;
 
 		public int Health {
 			get {
@@ -77,15 +75,22 @@ namespace MarsTS.Buildings {
 		[Header("Building Fields")]
 
 		[SerializeField]
-		private float constructionWork;
+		private int constructionWork;
 
+		public int ConstructionProgress {
+			get {
+				return currentWork;
+			}
+		}
 
-		//This will be measured in seconds
-		//Each constructor adds half as much as the last?
+		public int ConstructionRequired {
+			get {
+				return constructionWork;
+			}
+		}
+
 		[SerializeField]
-		private float buildTime;
-
-		private float currentWork;
+		private int currentWork;
 
 		private bool isConstructed;
 
@@ -104,13 +109,23 @@ namespace MarsTS.Buildings {
 			}
 		}
 
+		private EventAgent eventAgent;
+
+		Transform model;
+
 		protected virtual void Awake () {
 			selectionCircle.SetActive(false);
 			entityComponent = GetComponent<Entity>();
 			currentHealth = 1;
 
-			Transform model = transform.Find("Model");
-			model.localScale = Vector3.zero;
+			eventAgent = GetComponent<EventAgent>();
+
+			model = transform.Find("Model");
+
+			if (currentWork > 0) {
+				model.localScale = Vector3.one * (currentWork / constructionWork);
+			}
+			else model.localScale = Vector3.zero;
 		}
 
 		public string[] Commands () {
@@ -148,6 +163,17 @@ namespace MarsTS.Buildings {
 		}
 
 		public void Attack (int damage) {
+			if (currentWork < constructionWork && damage < 0) {
+				currentWork -= damage;
+				float progress = currentWork / constructionWork;
+				currentHealth = (int)(maxHealth * progress);
+				//eventAgent.Local(new BuildingConstructStepEvent(eventAgent, this));
+
+				model.localScale = Vector3.one * (currentWork / constructionWork);
+
+				eventAgent.Local(new EntityHurtEvent(eventAgent, this));
+			}
+
 			currentHealth -= damage;
 
 			if (currentHealth <= 0) {

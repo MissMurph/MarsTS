@@ -20,10 +20,10 @@ namespace MarsTS.UI {
 			barRenderer = GetComponent<MeshRenderer>();
 			GetComponentInParent<EventAgent>().AddListener<EntityHurtEvent>(OnEntityHurt);
 
-			barRenderer.enabled = false;
+			//barRenderer.enabled = false;
 
-			size = unitCollider.bounds.size;
-			transform.localPosition = new Vector3(0, size.y + 1f, 0);
+			//size = unitCollider.bounds.size;
+			//transform.localPosition = new Vector3(0, size.y + 1f, 0);
 
 			matBlock = new MaterialPropertyBlock();
 		}

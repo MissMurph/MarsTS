@@ -17,7 +17,7 @@ namespace MarsTS.Units {
 			}
 
 			if (target == null) {
-				foreach (Unit unit in inRangeUnits.Values) {
+				foreach (ISelectable unit in inRangeUnits.Values) {
 					if (unit.GetRelationship(parent.Owner) == Relationship.Owned || unit.GetRelationship(parent.Owner) == Relationship.Friendly) {
 						target = unit;
 						break;

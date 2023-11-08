@@ -62,13 +62,12 @@ namespace MarsTS.Units {
 
 			if (repairTarget == null) return;
 
-			if (currentPath == Path.Empty
-				&& Vector3.Distance(transform.position, repairTarget.GameObject.transform.position) >= registeredTurrets["turret_main"].Range
-				&& !ReferenceEquals(target, repairTarget.GameObject.transform)) {
-				SetTarget(repairTarget.GameObject.transform);
+			if (Vector3.Distance(repairTarget.GameObject.transform.position, transform.position) <= registeredTurrets["turret_main"].Range) {
+				target = null;
+				currentPath = Path.Empty;
 			}
-			else if (target == repairTarget.GameObject.transform) {
-				Stop();
+			else if (!ReferenceEquals(target, repairTarget.GameObject.transform)) {
+				SetTarget(repairTarget.GameObject.transform);
 			}
 		}
 

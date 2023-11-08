@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using static UnityEditor.Rendering.CameraUI;
 
 namespace MarsTS.Entities {
 
@@ -66,6 +67,14 @@ namespace MarsTS.Entities {
 
 			output = default;
 			return false;
+		}
+
+		public T Get<T> (string key) {
+			if (taggedComponents.TryGetValue(key, out ITaggable component) && component is T superType) {
+				return superType;
+			}
+
+			return default;
 		}
 	}
 }

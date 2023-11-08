@@ -24,9 +24,10 @@ namespace MarsTS.Units {
 			instances = new Dictionary<int, ISelectable>();
 			Commands = new List<string>();
 
-            Commands.AddRange(UnitRegistry.Unit(Type).Commands());
+            //Commands.AddRange(UnitRegistry.Unit(Type).Commands());
+			//Commands.AddRange(units[0].Commands());
 
-            foreach (ISelectable unit in units) {
+			foreach (ISelectable unit in units) {
                 TryAdd(unit);
             }
 		}

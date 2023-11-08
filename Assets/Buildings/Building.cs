@@ -165,11 +165,11 @@ namespace MarsTS.Buildings {
 		public void Attack (int damage) {
 			if (currentWork < constructionWork && damage < 0) {
 				currentWork -= damage;
-				float progress = currentWork / constructionWork;
+				float progress = (float)currentWork / constructionWork;
 				currentHealth = (int)(maxHealth * progress);
 				//eventAgent.Local(new BuildingConstructStepEvent(eventAgent, this));
 
-				model.localScale = Vector3.one * (currentWork / constructionWork);
+				model.localScale = Vector3.one * progress;
 
 				eventAgent.Local(new EntityHurtEvent(eventAgent, this));
 			}

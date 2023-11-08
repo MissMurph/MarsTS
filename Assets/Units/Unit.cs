@@ -274,8 +274,13 @@ namespace MarsTS.Units {
 			eventAgent.Local(new EntityHurtEvent(eventAgent, this));
 
 			if (currentHealth <= 0) {
-				Destroy(gameObject);
+				eventAgent.Global(new EntityDeathEvent(eventAgent, this));
+				Destroy(gameObject, 0.1f);
 			}
+		}
+
+		private void OnDestroy () {
+			
 		}
 	}
 }

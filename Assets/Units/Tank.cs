@@ -1,3 +1,5 @@
+using MarsTS.Entities;
+using MarsTS.Events;
 using MarsTS.Units.Commands;
 using System.Collections;
 using System.Collections.Generic;
@@ -42,8 +44,19 @@ namespace MarsTS.Units {
 				return attackTarget;
 			}
 			set {
+				if (attackTarget != null) {
+					EntityCache.TryGet(attackTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
+					oldAgent.RemoveListener<EntityDeathEvent>((_event) => AttackTarget = null);
+				}
+
 				attackTarget = value;
 				registeredTurrets["turret_main"].target = attackTarget;
+
+				if (value != null) {
+					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
+
+					agent.AddListener<EntityDeathEvent>((_event) => AttackTarget = null);
+				}
 			}
 		}
 
@@ -61,12 +74,12 @@ namespace MarsTS.Units {
 
 			if (attackTarget == null) return;
 
-			if (Vector3.Distance(transform.position, attackTarget.GameObject.transform.position) >= registeredTurrets["turret_main"].Range
-				&& !ReferenceEquals(target, attackTarget.GameObject.transform)) {
-				SetTarget(attackTarget.GameObject.transform);
+			if (Vector3.Distance(attackTarget.GameObject.transform.position, transform.position) <= registeredTurrets["turret_main"].Range) {
+				target = null;
+				currentPath = Path.Empty;
 			}
-			else if (target == attackTarget.GameObject.transform) {
-				Stop();
+			else if (!ReferenceEquals(target, attackTarget.GameObject.transform)) {
+				SetTarget(attackTarget.GameObject.transform);
 			}
 		}
 
@@ -118,6 +131,12 @@ namespace MarsTS.Units {
 
 				AttackTarget = deserialized.Target;
 			}
+		}
+
+		protected override void Stop () {
+			base.Stop();
+
+
 		}
 	}
 }

@@ -27,6 +27,8 @@ namespace MarsTS.Events {
 			registeredAgents = new Dictionary<int, EventAgent>();
 			nameAtlas = new Dictionary<string, int>();
 			//localListeners = new Dictionary<int, List<UnityAction>>();
+
+			AddListener<EntityDeathEvent>(OnEntityDeath);
 		}
 
 		//Fires events to all listeners registered for this event type
@@ -87,6 +89,10 @@ namespace MarsTS.Events {
 				return instance.registeredAgents[id];
 			}
 			else throw new ArgumentException("Agent " + name + " not registered with Event Bus");
+		}
+
+		private static void OnEntityDeath (EntityDeathEvent _event) {
+			instance.registeredAgents.Remove(_event.Source.ID);
 		}
 
 		private void OnDestroy () {

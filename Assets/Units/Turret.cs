@@ -54,6 +54,10 @@ namespace MarsTS.Units {
 			parent = GetComponentInParent<Unit>();
 			eventAgent = GetComponentInParent<EventAgent>();
 			eventAgent.AddListener<EntityInitEvent>(OnEntityInit);
+
+			foreach (Collider collider in parent.transform.Find("Model").GetComponentsInChildren<Collider>()) {
+				Physics.IgnoreCollision(range, collider);
+			}
 		}
 
 		private void OnEntityInit (EntityInitEvent _event) {
@@ -98,20 +102,22 @@ namespace MarsTS.Units {
 		}
 
 		private void OnTriggerEnter (Collider other) {
-			if (EntityCache.TryGet(other.transform.root.name, out ISelectable unit)) {
+			if (EntityCache.TryGet(other.transform.root.name, out Entity entityComp) && entityComp.TryGet(out ISelectable unit)) {
+				entityComp.Get<EventAgent>("eventAgent").AddListener<EntityDeathEvent>((_event) => OutOfRange(_event.Unit));
 				inRangeUnits.TryAdd(unit.ID, unit);
+
 			}
 		}
 
 		private void OnTriggerExit (Collider other) {
 			if (EntityCache.TryGet(other.transform.root.name, out ISelectable unit)) {
-				inRangeUnits.Remove(unit.ID);
-				if (target != null && target.ID == unit.ID) target = null;
+				OutOfRange(unit);
 			}
 		}
 
-		private void OnTriggerStay (Collider other) {
-			
+		private void OutOfRange (ISelectable unit) {
+			inRangeUnits.Remove(unit.ID);
+			if (target != null && target.ID == unit.ID) target = null;
 		}
 	}
 }

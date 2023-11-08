@@ -1,3 +1,4 @@
+using MarsTS.Entities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using UnityEngine.Events;
 
 namespace MarsTS.Events {
 
-	public class EventAgent : MonoBehaviour {
+	public class EventAgent : MonoBehaviour, ITaggable<EventAgent> {
 
 		private Dictionary<Type, UnityEventBase> listeners = new Dictionary<Type, UnityEventBase>();
 
@@ -14,6 +15,18 @@ namespace MarsTS.Events {
 		public int ID {
 			get {
 				return id;
+			}
+		}
+
+		public string Key {
+			get {
+				return "eventAgent";
+			}
+		}
+
+		public Type Type {
+			get {
+				return typeof(EventAgent);
 			}
 		}
 
@@ -29,12 +42,34 @@ namespace MarsTS.Events {
 			_event.AddListener(func);
 		}
 
+		public void RemoveListener<T> (UnityAction<T> func) where T : AbstractEvent {
+			if (!listeners.ContainsKey(typeof(T))) return;
+
+			UnityEvent<T> _event = (listeners.GetValueOrDefault(typeof(T), new UnityEvent<T>())) as UnityEvent<T>;
+
+			_event.RemoveListener(func);
+		}
+
 		public T Local<T>(T postedEvent) where T : AbstractEvent {
 			if (listeners.TryGetValue(typeof(T), out UnityEventBase value) && value is UnityEvent<T> superTypeEvent) {
 				superTypeEvent.Invoke(postedEvent);
 			}
 
 			return postedEvent;
+		}
+
+		public T Global<T> (T postedEvent) where T : AbstractEvent {
+			if (listeners.TryGetValue(typeof(T), out UnityEventBase value) && value is UnityEvent<T> superTypeEvent) {
+				superTypeEvent.Invoke(postedEvent);
+			}
+
+			EventBus.Global(postedEvent);
+
+			return postedEvent;
+		}
+
+		public EventAgent Get () {
+			return this;
 		}
 	}
 }

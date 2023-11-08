@@ -215,7 +215,6 @@ MonoBehaviour:
   - move
   - stop
   - attack
-  selectionCircle: {fileID: 0}
   waypointCompletionDistance: 3
   topSpeed: 50
   acceleration: 500
@@ -280,7 +279,7 @@ Transform:
   m_GameObject: {fileID: 712073241917357164}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7006709379209580931}
@@ -628,7 +627,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 25
+  m_Radius: 20
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7305482146639708227
 GameObject:

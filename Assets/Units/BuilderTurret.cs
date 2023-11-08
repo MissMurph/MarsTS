@@ -32,6 +32,7 @@ namespace MarsTS.Units {
 		protected override void Fire () {
 			//When health is a thing this will have the repairing logic
 			target.Attack(-repairAmount);
+			currentCooldown = cooldown;
 		}
     }
 }

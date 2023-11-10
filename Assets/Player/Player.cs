@@ -87,12 +87,12 @@ namespace MarsTS.Players {
 
 		public void SelectUnit (params ISelectable[] selection) {
 			foreach (ISelectable target in selection) {
-				Roster units = GetRoster(target.Name());
+				Roster units = GetRoster(target.RegistryKey);
 
 				if (!units.TryAdd(target)) {
 					units.Remove(target.ID);
 					target.Select(false);
-					if (units.Count == 0) selected.Remove(units.Type);
+					if (units.Count == 0) selected.Remove(units.RegistryKey);
 				}
 				else {
 					target.Select(true);
@@ -115,9 +115,9 @@ namespace MarsTS.Players {
 			EventBus.Global(new SelectEvent(Selected));
 		}
 
-		private Roster GetRoster (string type) {
-			Roster map = selected.GetValueOrDefault(type, new Roster(type));
-			if (!selected.ContainsKey(type)) selected.Add(type, map);
+		private Roster GetRoster (string key) {
+			Roster map = selected.GetValueOrDefault(key, new Roster());
+			if (!selected.ContainsKey(key)) selected.Add(key, map);
 			return map;
 		}
 

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace MarsTS.Prefabs {
 
-    public abstract class PrefabRegistry<T> : PrefabRegistry where T : MonoBehaviour {
+    public abstract class PrefabRegistry<T> : PrefabRegistry {
 		
 		protected Dictionary<string, T> registeredClasses;
 
@@ -15,10 +15,13 @@ namespace MarsTS.Prefabs {
 			}
 		}
 
-		protected override void Awake () {
-			base.Awake();
-
+		protected virtual void Awake () {
 			registeredClasses = new Dictionary<string, T>();
+			registeredPrefabs = new Dictionary<string, GameObject>();
+
+			foreach (GameObject prefab in prefabsToRegister) {
+				Register(prefab.name, prefab);
+			}
 		}
 
 		protected override void Register (string key, GameObject prefab) {
@@ -31,9 +34,16 @@ namespace MarsTS.Prefabs {
 				registeredClasses.Add(key, component);
 			}
 		}
+
+		public abstract T GetRegistryEntry (string key);
 	}
 
 	public abstract class PrefabRegistry : MonoBehaviour {
+
+		public abstract string Key {
+			get;
+		}
+
 		protected Dictionary<string, GameObject> registeredPrefabs;
 
 		[SerializeField]
@@ -43,14 +53,8 @@ namespace MarsTS.Prefabs {
 			get;
 		}
 
-		protected virtual void Awake () {
-			registeredPrefabs = new Dictionary<string, GameObject>();
-
-			foreach (GameObject prefab in prefabsToRegister) {
-				Register(prefab.name, prefab);
-			}
-		}
-
 		protected abstract void Register (string key, GameObject prefab);
+
+		public abstract GameObject GetPrefab (string key);
 	}
 }

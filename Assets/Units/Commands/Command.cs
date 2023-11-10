@@ -12,8 +12,6 @@ namespace MarsTS.Units.Commands {
 
 	public abstract class Command<T> : Command {
 
-		//For now, since we have no networked players, we can always assume it'll be the main player
-		//How this logic shapes depends on how networking will work
 		public Commandlet Construct (T _target) {
 			return new Commandlet<T>(Name, _target, Player.Main);
 		}

@@ -1,4 +1,5 @@
 using MarsTS.Players;
+using MarsTS.Prefabs;
 using MarsTS.Teams;
 using MarsTS.Units.Commands;
 using System.Collections;
@@ -13,11 +14,12 @@ namespace MarsTS.Units {
 		string[] Commands ();
 		void Select (bool status);
 		int ID { get; }
-		string Name ();
+		string UnitType { get; }
 		Relationship GetRelationship (Faction player);
 		bool SetOwner (Faction player);
 		int Health { get; }
 		int MaxHealth { get; }
 		void Attack (int damage);
+		string RegistryKey { get; }
 	}
 }

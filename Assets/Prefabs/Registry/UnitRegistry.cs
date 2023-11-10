@@ -11,6 +11,8 @@ namespace MarsTS.Prefabs {
 
 		private static UnitRegistry instance;
 
+		public override string Key => "unit";
+
 		protected override void Awake () {
 			base.Awake();
 
@@ -18,17 +20,25 @@ namespace MarsTS.Prefabs {
 		}
 
 		public static GameObject Prefab (string key) {
-			if (instance.registeredPrefabs.TryGetValue(key, out GameObject prefab)) {
+			return instance.GetPrefab(key);
+		}
+
+		public override GameObject GetPrefab (string key) {
+			if (registeredPrefabs.TryGetValue(key, out GameObject prefab)) {
 				return prefab;
 			}
 			else throw new ArgumentException("Unit " + key + " not registered!");
 		}
 
-		public static Unit Unit (string key) {
-			if (instance.registeredClasses.TryGetValue(key, out Unit component)) {
-				return component;
+		public override Unit GetRegistryEntry (string key) {
+			if (registeredClasses.TryGetValue(key, out Unit component)) {
+				return component.Get();
 			}
 			else throw new ArgumentException("Unit " + key + " not registered!");
+		}
+
+		public static Unit Unit (string key) {
+			return instance.GetRegistryEntry(key);
 		}
 
 		private void OnDestroy () {

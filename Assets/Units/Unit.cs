@@ -10,10 +10,11 @@ using MarsTS.World.Pathfinding;
 using MarsTS.Teams;
 using MarsTS.Entities;
 using MarsTS.Events;
+using MarsTS.Prefabs;
 
 namespace MarsTS.Units {
 
-	public class Unit : MonoBehaviour, ISelectable, ITaggable<Unit> {
+	public class Unit : MonoBehaviour, ISelectable, ITaggable<Unit>, IRegistryObject<Unit> {
 
 		public int Health {
 			get {
@@ -47,8 +48,6 @@ namespace MarsTS.Units {
 
 		protected Entity entityComponent;
 
-		public string UnitType { get { return type; } }
-
 		[SerializeField]
 		private string type;
 
@@ -77,6 +76,24 @@ namespace MarsTS.Units {
 		public int ID {
 			get {
 				return entityComponent.ID;
+			}
+		}
+
+		public string RegistryType {
+			get {
+				return "unit";
+			}
+		}
+
+		public string RegistryKey {
+			get {
+				return RegistryType + ":" + UnitType;
+			}
+		}
+
+		public string UnitType {
+			get {
+				return type;
 			}
 		}
 
@@ -255,10 +272,6 @@ namespace MarsTS.Units {
 			else selectionCircle.SetActive(false);
 		}
 
-		public string Name () {
-			return UnitType;
-		}
-
 		public Relationship GetRelationship (Faction other) {
 			return owner.GetRelationship(other);
 		}
@@ -279,8 +292,8 @@ namespace MarsTS.Units {
 			}
 		}
 
-		private void OnDestroy () {
-			
+		public IRegistryObject<Unit> GetRegistryEntry () {
+			throw new NotImplementedException();
 		}
 	}
 }

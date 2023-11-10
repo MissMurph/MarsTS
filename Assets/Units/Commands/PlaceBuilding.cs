@@ -11,7 +11,7 @@ namespace MarsTS.Units.Commands {
 
 	public class PlaceBuilding : Command<ISelectable> {
 
-		public override string Name { get { return "construct/" + building.BuildingType; } }
+		public override string Name { get { return "construct/" + building.UnitType; } }
 
 		[SerializeField]
 		private Building building;

@@ -10,24 +10,34 @@ namespace MarsTS.Prefabs {
 
 		private static BuildingRegistry instance;
 
+		public override string Key => "building";
+
 		protected override void Awake () {
 			base.Awake();
 
 			instance = this;
 		}
 
-		public static GameObject Prefab (string key) {
-			if (instance.registeredPrefabs.TryGetValue(key, out GameObject prefab)) {
+		public override GameObject GetPrefab (string key) {
+			if (registeredPrefabs.TryGetValue(key, out GameObject prefab)) {
 				return prefab;
 			}
 			else throw new ArgumentException("Building " + key + " not registered!");
 		}
 
-		public static Building Building (string key) {
-			if (instance.registeredClasses.TryGetValue(key, out Building component)) {
-				return component;
+		public static GameObject Prefab (string key) {
+			return instance.GetPrefab(key);
+		}
+
+		public override Building GetRegistryEntry (string key) {
+			if (registeredClasses.TryGetValue(key, out Building entry)) {
+				return entry.Get();
 			}
 			else throw new ArgumentException("Building " + key + " not registered!");
+		}
+
+		public static Building Building (string key) {
+			return instance.GetRegistryEntry(key);
 		}
 
 		private void OnDestroy () {

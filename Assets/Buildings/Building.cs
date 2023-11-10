@@ -1,5 +1,6 @@
 using MarsTS.Entities;
 using MarsTS.Events;
+using MarsTS.Prefabs;
 using MarsTS.Teams;
 using MarsTS.Units;
 using MarsTS.Units.Commands;
@@ -11,7 +12,7 @@ using static UnityEngine.UI.GridLayoutGroup;
 
 namespace MarsTS.Buildings {
 
-	public class Building : MonoBehaviour, ISelectable, ITaggable<Building> {
+	public class Building : MonoBehaviour, ISelectable, ITaggable<Building>, IRegistryObject<Building> {
 
 		public GameObject GameObject {
 			get { 
@@ -41,8 +42,6 @@ namespace MarsTS.Buildings {
 
 		[SerializeField]
 		private Faction owner;
-
-		public string BuildingType => type;
 
 		public int Health {
 			get {
@@ -109,6 +108,12 @@ namespace MarsTS.Buildings {
 			}
 		}
 
+		public string RegistryType => "building";
+
+		public string RegistryKey => RegistryType + ":" + UnitType;
+
+		public string UnitType => type;
+
 		private EventAgent eventAgent;
 
 		Transform model;
@@ -148,10 +153,6 @@ namespace MarsTS.Buildings {
 			return owner.GetRelationship(other);
 		}
 
-		public string Name () {
-			return BuildingType;
-		}
-
 		public void Select (bool status) {
 			if (status) selectionCircle.SetActive(true);
 			else selectionCircle.SetActive(false);
@@ -179,6 +180,10 @@ namespace MarsTS.Buildings {
 			if (currentHealth <= 0) {
 				Destroy(gameObject);
 			}
+		}
+
+		public IRegistryObject<Building> GetRegistryEntry () {
+			throw new NotImplementedException();
 		}
 	}
 }

@@ -14,8 +14,6 @@ namespace MarsTS.Units.Commands {
 
 		public override string Name { get { return "attack"; } }
 
-		public ISelectable Target { get; private set; }
-
 		public override void StartSelection () {
 			Player.Input.Hook("Select", OnSelect);
 			Player.Input.Hook("Order", OnOrder);

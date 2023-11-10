@@ -233,7 +233,7 @@ GameObject:
   - component: {fileID: 5738845266810977013}
   - component: {fileID: 5738845266810976778}
   m_Layer: 0
-  m_Name: Factory
+  m_Name: factory
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -273,7 +273,8 @@ MonoBehaviour:
   owner: {fileID: 0}
   maxHealth: 500
   type: factory
-  boundCommands: []
+  boundCommands:
+  - cancel_construction
   selectionCircle: {fileID: 5738845267461323256}
   constructionWork: 50
   currentWork: 0

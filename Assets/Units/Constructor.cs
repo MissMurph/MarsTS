@@ -1,3 +1,5 @@
+using MarsTS.Entities;
+using MarsTS.Events;
 using MarsTS.Teams;
 using MarsTS.Units.Commands;
 using System.Collections;
@@ -43,8 +45,22 @@ namespace MarsTS.Units {
 				return repairTarget;
 			}
 			set {
+				//repairTarget = value;
+				//registeredTurrets["turret_main"].target = repairTarget;
+
+				if (repairTarget != null) {
+					EntityCache.TryGet(repairTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
+					oldAgent.RemoveListener<EntityDeathEvent>((_event) => repairTarget = null);
+				}
+
 				repairTarget = value;
 				registeredTurrets["turret_main"].target = repairTarget;
+
+				if (value != null) {
+					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
+
+					agent.AddListener<EntityDeathEvent>((_event) => repairTarget = null);
+				}
 			}
 		}
 

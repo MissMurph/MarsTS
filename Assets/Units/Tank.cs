@@ -116,12 +116,12 @@ namespace MarsTS.Units {
 			AttackTarget = null;
 			switch (order.Name) {
 				case "attack":
-				Attack(order);
-				break;
+					Attack(order);
+					break;
 				//This is brilliant
 				default:
-				base.ProcessOrder(order);
-				break;
+					base.ProcessOrder(order);
+					break;
 			}
 		}
 

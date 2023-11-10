@@ -273,9 +273,9 @@ MonoBehaviour:
   owner: {fileID: 0}
   maxHealth: 500
   type: factory
-  boundCommands:
-  - cancel_construction
   selectionCircle: {fileID: 5738845267461323256}
+  boundCommands:
+  - produce/constructor
   constructionWork: 50
   currentWork: 0
   ghost: {fileID: 1114144885270547136, guid: b002af5474e33924792b89eed21b5aec, type: 3}

@@ -12,7 +12,7 @@ namespace MarsTS.Units.Commands {
 
 	public abstract class Command<T> : Command {
 
-		public Commandlet Construct (T _target) {
+		public virtual Commandlet Construct (T _target) {
 			return new Commandlet<T>(Name, _target, Player.Main);
 		}
 		

@@ -247,12 +247,12 @@ namespace MarsTS.Units {
 		}
 
 		public void Enqueue (Commandlet order) {
-			if (!GetRelationship(Player.Main).Equals(Teams.Relationship.Owned)) return;
+			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 			CommandQueue.Enqueue(order);
 		}
 
 		public void Execute (Commandlet order) {
-			if (!GetRelationship(Player.Main).Equals(Teams.Relationship.Owned)) return;
+			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 			CommandQueue.Clear();
 			Stop();
 			CurrentCommand = null;

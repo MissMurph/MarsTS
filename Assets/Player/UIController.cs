@@ -97,6 +97,7 @@ namespace MarsTS.UI {
 			commandPanel = GameObject.Find("Command Zone").GetComponent<CommandPanel>();
 			unitPane = GameObject.Find("Unit Pane").GetComponent<UnitPane>();
 			EventBus.AddListener<SelectEvent>(OnSelection);
+			EventBus.AddListener<CommandsUpdatedEvent>(OnCommandUpdate);
 		}
 
 		private void Update () {
@@ -273,6 +274,12 @@ namespace MarsTS.UI {
 			if (profileIndex.Length > 0) PrimarySelected = profileIndex[0];
 			else PrimarySelected = null;
 			primaryIndex = 0;
+		}
+
+		private void OnCommandUpdate (CommandsUpdatedEvent _event) {
+			if (PrimarySelected == _event.Unit.RegistryKey) {
+				commandPanel.UpdateCommands(_event.NewCommands);
+			}
 		}
 
 		public void Next (InputAction.CallbackContext context) {

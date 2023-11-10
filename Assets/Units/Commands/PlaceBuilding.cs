@@ -1,5 +1,6 @@
 using MarsTS.Buildings;
 using MarsTS.Entities;
+using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.World;
 using System.Collections;
@@ -43,9 +44,11 @@ namespace MarsTS.Units.Commands {
 					Building newBuilding = Instantiate(building, hit.point, Quaternion.Euler(Vector3.zero)).GetComponent<Building>();
 					newBuilding.SetOwner(Player.Main);
 
-					Destroy(ghostTransform.gameObject);
+					newBuilding.GetComponent<EventAgent>().AddListener<EntityInitEvent>((_event) => {
+						Player.Main.DeliverCommand(Commands.Get<Repair>("repair").Construct(newBuilding), Player.Include);
+					});
 
-					Player.Main.DeliverCommand(Commands.Get<Repair>("repair").Construct(newBuilding), Player.Include);
+					Destroy(ghostTransform.gameObject);
 
 					Player.Input.Release("Select");
 					Player.Input.Release("Order");

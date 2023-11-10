@@ -1,5 +1,6 @@
 using MarsTS.Entities;
 using MarsTS.Events;
+using MarsTS.Players;
 using MarsTS.Prefabs;
 using MarsTS.Teams;
 using MarsTS.Units;
@@ -43,13 +44,7 @@ namespace MarsTS.Buildings {
 		[SerializeField]
 		private Faction owner;
 
-		public int Health {
-			get {
-				return currentHealth;
-			}
-		}
-
-		private int currentHealth;
+		public int Health { get; protected set; }
 
 		public int MaxHealth {
 			get {
@@ -66,10 +61,15 @@ namespace MarsTS.Buildings {
 		private string type;
 
 		[SerializeField]
-		private string[] boundCommands;
+		private GameObject selectionCircle;
+
+		/*	Commands	*/
+		public Queue<Commandlet> CommandQueue = new Queue<Commandlet>();
+
+		public Commandlet CurrentCommand { get; protected set; }
 
 		[SerializeField]
-		private GameObject selectionCircle;
+		private string[] boundCommands;
 
 		[Header("Building Fields")]
 
@@ -91,11 +91,9 @@ namespace MarsTS.Buildings {
 		[SerializeField]
 		private int currentWork;
 
-		private bool isConstructed;
-
-		public bool Ready {
+		public bool Constructed {
 			get {
-				return isConstructed;
+				return currentWork >= constructionWork;
 			}
 		}
 
@@ -120,10 +118,10 @@ namespace MarsTS.Buildings {
 
 		protected virtual void Awake () {
 			selectionCircle.SetActive(false);
-			entityComponent = GetComponent<Entity>();
-			currentHealth = 1;
+			Health = 1;
 
 			eventAgent = GetComponent<EventAgent>();
+			entityComponent = GetComponent<Entity>();
 
 			model = transform.Find("Model");
 
@@ -133,16 +131,53 @@ namespace MarsTS.Buildings {
 			else model.localScale = Vector3.zero;
 		}
 
+		protected virtual void Update () {
+			UpdateCommands();
+		}
+
+		protected void UpdateCommands () {
+			if (CurrentCommand is null && CommandQueue.TryDequeue(out Commandlet order)) {
+
+				CurrentCommand = order;
+
+				ProcessOrder(order);
+			}
+		}
+
+		protected virtual void CancelConstruction () {
+			if (!Constructed) {
+				eventAgent.Global(new EntityDeathEvent(eventAgent, this));
+				Destroy(gameObject, 0.1f);
+			}
+		}
+
 		public string[] Commands () {
-			return boundCommands;
+			if (!Constructed) {
+				return new string[] { "cancelConstruction" };
+			}
+			else return boundCommands;
 		}
 
 		public void Enqueue (Commandlet order) {
-			throw new System.NotImplementedException();
+			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
+			CommandQueue.Enqueue(order);
 		}
 
 		public void Execute (Commandlet order) {
-			throw new System.NotImplementedException();
+			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
+			CommandQueue.Clear();
+			CurrentCommand = null;
+			CommandQueue.Enqueue(order);
+		}
+
+		protected virtual void ProcessOrder (Commandlet order) {
+			switch (order.Name) {
+				case "cancelConstruction":
+				CancelConstruction();
+				break;
+				default:
+				break;
+			}
 		}
 
 		public Building Get () {
@@ -167,18 +202,21 @@ namespace MarsTS.Buildings {
 			if (currentWork < constructionWork && damage < 0) {
 				currentWork -= damage;
 				float progress = (float)currentWork / constructionWork;
-				currentHealth = (int)(maxHealth * progress);
-				//eventAgent.Local(new BuildingConstructStepEvent(eventAgent, this));
+				Health = (int)(maxHealth * progress);
 
 				model.localScale = Vector3.one * progress;
 
-				eventAgent.Local(new EntityHurtEvent(eventAgent, this));
+				eventAgent.Global(new EntityHurtEvent(eventAgent, this));
+
+				if (progress >= 1f) eventAgent.Global(new CommandsUpdatedEvent(eventAgent, this, boundCommands));
+				return;
 			}
 
-			currentHealth -= damage;
+			Health -= damage;
 
-			if (currentHealth <= 0) {
-				Destroy(gameObject);
+			if (Health <= 0) {
+				eventAgent.Global(new EntityDeathEvent(eventAgent, this));
+				Destroy(gameObject, 0.1f);
 			}
 		}
 

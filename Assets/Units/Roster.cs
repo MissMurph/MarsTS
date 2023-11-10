@@ -79,6 +79,10 @@ namespace MarsTS.Units {
             }
         }
 
+        public bool Contains (int id) {
+            return instances.ContainsKey(id);
+        }
+
         public void Clear () {
             instances.Clear();
         }

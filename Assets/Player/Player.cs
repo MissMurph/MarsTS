@@ -57,6 +57,10 @@ namespace MarsTS.Players {
 			alternate = false;
 		}
 
+		private void Start () {
+			EventBus.AddListener<EntityDeathEvent>(OnEntityDeath);
+		}
+
 		private void Update () {
 			transform.position = transform.position + (cameraSpeed * Time.deltaTime * new Vector3(moveDirection.x, 0, moveDirection.y));
 		}
@@ -104,7 +108,7 @@ namespace MarsTS.Players {
 
 		public void ClearSelection () {
 			foreach (Roster units in selected.Values) {
-				foreach (Unit unit in units.List()) {
+				foreach (ISelectable unit in units.List()) {
 					unit.Select(false);
 				}
 
@@ -157,8 +161,16 @@ namespace MarsTS.Players {
 			if (context.canceled) alternate = false;
 		}
 
-		private void OnTriggerEnter (Collider other) {
-			Debug.Log(other.name);
+		private void OnEntityDeath (EntityDeathEvent _event) {
+			string key = _event.Unit.RegistryKey;
+
+			if (Selected.TryGetValue(key, out Roster unitRoster) && unitRoster.Contains(_event.Unit.ID)) {
+				unitRoster.Remove(_event.Unit.ID);
+
+				//This isn't the best method to update selection, as when units die we don't want the 
+				//primary selected to be jumping around a lot, will have to come up with something better
+				EventBus.Global(new SelectEvent(Selected));
+			}
 		}
 
 		private void OnDestroy () {

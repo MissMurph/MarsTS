@@ -1,5 +1,4 @@
-﻿using MarsTS.Units.Commands;
-using MarsTS.Players;
+﻿using MarsTS.Players;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,6 +10,7 @@ using MarsTS.Teams;
 using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Prefabs;
+using MarsTS.Commands;
 
 namespace MarsTS.Units {
 
@@ -50,8 +50,6 @@ namespace MarsTS.Units {
 
 		[SerializeField]
 		private string type;
-
-		//protected List<Node> path = new List<Node>();
 
 		public Commandlet CurrentCommand { get; protected set; }
 
@@ -109,9 +107,6 @@ namespace MarsTS.Units {
 		private float angle;
 		protected int pathIndex;
 
-		//[SerializeField]
-		//private float turnSpeed;
-
 		private GameObject selectionCircle;
 
 		protected Rigidbody body;
@@ -122,14 +117,14 @@ namespace MarsTS.Units {
 		[SerializeField]
 		private float waypointCompletionDistance;
 
-		private EventAgent eventAgent;
+		private EventAgent bus;
 
 		protected virtual void Awake () {
 			selectionCircle = transform.Find("SelectionCircle").gameObject;
 			selectionCircle.SetActive(false);
 			body = GetComponent<Rigidbody>();
 			entityComponent = GetComponent<Entity>();
-			eventAgent = GetComponent<EventAgent>();
+			bus = GetComponent<EventAgent>();
 			currentHealth = maxHealth;
 		}
 
@@ -182,8 +177,6 @@ namespace MarsTS.Units {
 			if (pathSuccessful) {
 				currentPath = newPath;
 				pathIndex = 0;
-				//if (movementCoroutine != null) StopCoroutine(movementCoroutine);
-				//movementCoroutine = StartCoroutine(FollowPath());
 			}
 		}
 
@@ -197,7 +190,6 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void Stop () {
-			//if (movementCoroutine != null) StopCoroutine(movementCoroutine);
 			currentPath = Path.Empty;
 			target = null;
 		}
@@ -268,8 +260,20 @@ namespace MarsTS.Units {
 		}
 
 		public void Select (bool status) {
-			if (status) selectionCircle.SetActive(true);
-			else selectionCircle.SetActive(false);
+			selectionCircle.SetActive(status);
+			bus.Local(new UnitSelectEvent(bus, status));
+		}
+
+		public void Hover (bool status) {
+			//These are seperated due to the Player Selection Check
+			if (status) {
+				selectionCircle.SetActive(true);
+				bus.Local(new UnitHoverEvent(bus, status));
+			}
+			else if (!Player.Main.HasSelected(this)) {
+				selectionCircle.SetActive(false);
+				bus.Local(new UnitHoverEvent(bus, status));
+			}
 		}
 
 		public Relationship GetRelationship (Faction other) {
@@ -284,10 +288,10 @@ namespace MarsTS.Units {
 		public void Attack (int damage) {
 			currentHealth -= damage;
 
-			eventAgent.Local(new EntityHurtEvent(eventAgent, this));
+			bus.Local(new EntityHurtEvent(bus, this));
 
 			if (currentHealth <= 0) {
-				eventAgent.Global(new EntityDeathEvent(eventAgent, this));
+				bus.Global(new EntityDeathEvent(bus, this));
 				Destroy(gameObject, 0.1f);
 			}
 		}

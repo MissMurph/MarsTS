@@ -7,11 +7,11 @@ using System;
 
 namespace MarsTS.Events {
 
-	public class SelectEvent : AbstractEvent {
+	public class PlayerSelectEvent : AbstractEvent {
 
 		public Dictionary<string, Roster> Selected { get; private set; }
 
-		public SelectEvent (Dictionary<string, Roster> selection) : base("select", Player.EventAgent) {
+		public PlayerSelectEvent (Dictionary<string, Roster> selection) : base("playerSelect", Player.EventAgent) {
 			Selected = selection;
 		}
 	}

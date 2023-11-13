@@ -1,52 +1,44 @@
 using MarsTS.Events;
+using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace MarsTS.UI {
 
-    public class HealthBar : MonoBehaviour {
+    public class HealthBar : UnitBar {
 
-        [SerializeField]
-        private Collider unitCollider;
+		private bool hurt;
 
-		private MeshRenderer barRenderer;
+		private void Start () {
+			hurt = false;
 
-		private Vector3 size;
+			barRenderer.enabled = false;
 
-		private MaterialPropertyBlock matBlock;
+			EventAgent bus = GetComponentInParent<EventAgent>();
 
-		private void Awake () {
-			barRenderer = GetComponent<MeshRenderer>();
-			GetComponentInParent<EventAgent>().AddListener<EntityHurtEvent>(OnEntityHurt);
+			ISelectable parent = GetComponentInParent<ISelectable>();
 
-			//barRenderer.enabled = false;
+			FillLevel = (float)parent.Health / parent.MaxHealth;
 
-			//size = unitCollider.bounds.size;
-			//transform.localPosition = new Vector3(0, size.y + 1f, 0);
+			bus.AddListener<EntityHurtEvent>((_event) => {
+				FillLevel = (float)_event.Unit.Health / _event.Unit.MaxHealth;
 
-			matBlock = new MaterialPropertyBlock();
-		}
+				if (FillLevel <= 1f) {
+					hurt = true;
+					barRenderer.enabled = true;
+				}
+			});
 
-		private void Update () {
-			Transform camera = Camera.main.transform;
-			Vector3 direction = transform.position - camera.position;
+			bus.AddListener<UnitHoverEvent>((_event) => {
+				if (_event.Status) barRenderer.enabled = true;
+				else if (!hurt) barRenderer.enabled = false;
+			});
 
-			direction.Normalize();
-
-			Vector3 up = Vector3.Cross(direction, camera.right);
-
-			transform.rotation = Quaternion.LookRotation(direction, up);
-		}
-
-		private void OnEntityHurt (EntityHurtEvent _event) {
-			if (!barRenderer.enabled) barRenderer.enabled = true;
-
-			barRenderer.GetPropertyBlock(matBlock);
-
-			matBlock.SetFloat("_Fill", (float)_event.Unit.Health / _event.Unit.MaxHealth);
-
-			barRenderer.SetPropertyBlock(matBlock);
+			bus.AddListener<UnitSelectEvent>((_event) => {
+				if (_event.Status) barRenderer.enabled = true;
+				else if (!hurt) barRenderer.enabled = false;
+			});
 		}
 	}
 }

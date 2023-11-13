@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.Units.Commands {
+namespace MarsTS.Commands {
 
-    public class Commands : MonoBehaviour {
+    public class CommandRegistry : MonoBehaviour {
 
-		private static Commands instance;
+		private static CommandRegistry instance;
 
         public Command[] toRegister;
 

@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-namespace MarsTS.Units.Commands {
+namespace MarsTS.Commands {
 
 	public class Stop : Command {
 		public override string Name { get { return "stop"; } }

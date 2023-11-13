@@ -1,9 +1,10 @@
-﻿using MarsTS.Events;
+﻿using MarsTS.Commands;
+using MarsTS.Entities;
+using MarsTS.Events;
 using MarsTS.Players.Input;
 using MarsTS.Teams;
 using MarsTS.UI;
 using MarsTS.Units;
-using MarsTS.Units.Commands;
 using MarsTS.World;
 using System;
 using System.Collections;
@@ -13,6 +14,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.HID;
 using static UnityEditor.PlayerSettings;
+using static UnityEngine.GraphicsBuffer;
 using static UnityEngine.UI.GridLayoutGroup;
 
 namespace MarsTS.Players {
@@ -48,6 +50,8 @@ namespace MarsTS.Players {
 
 		private Vector2 moveDirection;
 
+		private ISelectable currentHover;
+
 		private void Awake () {
 			instance = this;
 			view = GetComponentInChildren<Camera>();
@@ -63,6 +67,20 @@ namespace MarsTS.Players {
 
 		private void Update () {
 			transform.position = transform.position + (cameraSpeed * Time.deltaTime * new Vector3(moveDirection.x, 0, moveDirection.y));
+
+			Ray ray = ViewPort.ScreenPointToRay(cursorPos);
+
+			if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)) {
+				if (EntityCache.TryGet(hit.transform.root.name, out ISelectable unit) && currentHover != unit) {
+					if (currentHover != null) currentHover.Hover(false);
+					currentHover = unit;
+					unit.Hover(true);
+				}
+			}
+			else if (currentHover != null) {
+				currentHover.Hover(false);
+				currentHover = null;
+			}
 		}
 
 		/*	Input Functions	*/
@@ -89,6 +107,12 @@ namespace MarsTS.Players {
 			}
 		}
 
+		public bool HasSelected (ISelectable unit) {
+			Roster units = GetRoster(unit.RegistryKey);
+
+			return units.Contains(unit.ID);
+		}
+
 		public void SelectUnit (params ISelectable[] selection) {
 			foreach (ISelectable target in selection) {
 				Roster units = GetRoster(target.RegistryKey);
@@ -103,7 +127,7 @@ namespace MarsTS.Players {
 				}
 			}
 
-			EventBus.Global(new SelectEvent(Selected));
+			EventBus.Global(new PlayerSelectEvent(Selected));
 		}
 
 		public void ClearSelection () {
@@ -116,7 +140,7 @@ namespace MarsTS.Players {
 			}
 
 			selected.Clear();
-			EventBus.Global(new SelectEvent(Selected));
+			EventBus.Global(new PlayerSelectEvent(Selected));
 		}
 
 		private Roster GetRoster (string key) {
@@ -134,14 +158,14 @@ namespace MarsTS.Players {
 
 				if (selectableHit.collider != null && selectableHit.collider.gameObject.TryGetComponent(out ISelectable unit)) {
 					if (unit.GetRelationship(this) == Relationship.Hostile) {
-						DeliverCommand(Commands.Get<Attack>("attack").Construct(unit), Include);
+						DeliverCommand(CommandRegistry.Get<Attack>("attack").Construct(unit), Include);
 						return;
 					}
 				}
 				else if (walkableHit.collider != null) {
 					Vector3 hitPos = walkableHit.point;
 
-					DeliverCommand(Commands.Get<Move>("move").Construct(hitPos), Include);
+					DeliverCommand(CommandRegistry.Get<Move>("move").Construct(hitPos), Include);
 					return;
 				}
 			}
@@ -169,7 +193,7 @@ namespace MarsTS.Players {
 
 				//This isn't the best method to update selection, as when units die we don't want the 
 				//primary selected to be jumping around a lot, will have to come up with something better
-				EventBus.Global(new SelectEvent(Selected));
+				EventBus.Global(new PlayerSelectEvent(Selected));
 			}
 		}
 

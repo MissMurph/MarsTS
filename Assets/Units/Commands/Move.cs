@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-namespace MarsTS.Units.Commands {
+namespace MarsTS.Commands {
 
 	public class Move : Command<Vector3> {
 		public override string Name { get { return "move"; } }

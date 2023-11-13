@@ -1,7 +1,7 @@
+using MarsTS.Commands;
 using MarsTS.Players;
 using MarsTS.Prefabs;
 using MarsTS.Teams;
-using MarsTS.Units.Commands;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +13,7 @@ namespace MarsTS.Units {
 		GameObject GameObject { get; }
 		string[] Commands ();
 		void Select (bool status);
+		void Hover (bool status);
 		int ID { get; }
 		string UnitType { get; }
 		Relationship GetRelationship (Faction player);

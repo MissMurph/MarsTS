@@ -12,9 +12,33 @@ namespace MarsTS.Players {
     public class SelectionCollider : MonoBehaviour {
 
 		public List<ISelectable> hitUnits = new List<ISelectable>();
+		private List<ISelectable> hitUnitsLastFrame = new List<ISelectable>();
+		private List<ISelectable> newlyHitUnits = new List<ISelectable>();
 
-		private void OnTriggerEnter (Collider other) {
-			if (EntityCache.TryGet(other.transform.parent.name, out ISelectable target)) hitUnits.Add(target);
+		private void FixedUpdate () {
+			newlyHitUnits = new List<ISelectable>();
+		}
+
+		private void OnTriggerStay (Collider other) {
+			if (EntityCache.TryGet(other.transform.parent.name, out ISelectable target)) {
+				newlyHitUnits.Add(target);
+				target.Hover(true);
+			}
+		}
+
+		private void Update () {
+			foreach (ISelectable unit in hitUnitsLastFrame) {
+				if (!newlyHitUnits.Contains(unit)) 
+					unit.Hover(false);
+
+			}
+
+			//Debug.Log("Last Frame: " + hitUnitsLastFrame.Count + " This Frame: " + newlyHitUnits.Count);
+
+			hitUnitsLastFrame = newlyHitUnits;
+			hitUnits = newlyHitUnits;
+
+			
 		}
 
 		private void OnDestroy () {

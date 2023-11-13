@@ -4,7 +4,7 @@ using MarsTS.Players;
 using MarsTS.Prefabs;
 using MarsTS.Teams;
 using MarsTS.Units;
-using MarsTS.Units.Commands;
+using MarsTS.Commands;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ using static UnityEngine.UI.GridLayoutGroup;
 
 namespace MarsTS.Buildings {
 
-	public class Building : MonoBehaviour, ISelectable, ITaggable<Building>, IRegistryObject<Building> {
+	public abstract class Building : MonoBehaviour, ISelectable, ITaggable<Building>, IRegistryObject<Building> {
 
 		public GameObject GameObject {
 			get { 
@@ -42,7 +42,7 @@ namespace MarsTS.Buildings {
 		}
 
 		[SerializeField]
-		private Faction owner;
+		protected Faction owner;
 
 		public int Health { get; protected set; }
 
@@ -60,13 +60,7 @@ namespace MarsTS.Buildings {
 		[SerializeField]
 		private string type;
 
-		[SerializeField]
 		private GameObject selectionCircle;
-
-		/*	Commands	*/
-		public Queue<Commandlet> CommandQueue = new Queue<Commandlet>();
-
-		public Commandlet CurrentCommand { get; protected set; }
 
 		[SerializeField]
 		private string[] boundCommands;
@@ -112,15 +106,16 @@ namespace MarsTS.Buildings {
 
 		public string UnitType => type;
 
-		private EventAgent eventAgent;
+		protected EventAgent bus;
 
-		Transform model;
+		protected Transform model;
 
 		protected virtual void Awake () {
+			selectionCircle = transform.Find("SelectionCircle").gameObject;
 			selectionCircle.SetActive(false);
 			Health = 1;
 
-			eventAgent = GetComponent<EventAgent>();
+			bus = GetComponent<EventAgent>();
 			entityComponent = GetComponent<Entity>();
 
 			model = transform.Find("Model");
@@ -131,22 +126,9 @@ namespace MarsTS.Buildings {
 			else model.localScale = Vector3.zero;
 		}
 
-		protected virtual void Update () {
-			UpdateCommands();
-		}
-
-		protected void UpdateCommands () {
-			if (CurrentCommand is null && CommandQueue.TryDequeue(out Commandlet order)) {
-
-				CurrentCommand = order;
-
-				ProcessOrder(order);
-			}
-		}
-
 		protected virtual void CancelConstruction () {
 			if (!Constructed) {
-				eventAgent.Global(new EntityDeathEvent(eventAgent, this));
+				bus.Global(new EntityDeathEvent(bus, this));
 				Destroy(gameObject, 0.1f);
 			}
 		}
@@ -158,17 +140,9 @@ namespace MarsTS.Buildings {
 			else return boundCommands;
 		}
 
-		public void Enqueue (Commandlet order) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
-			CommandQueue.Enqueue(order);
-		}
+		public abstract void Enqueue (Commandlet order);
 
-		public void Execute (Commandlet order) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
-			CommandQueue.Clear();
-			CurrentCommand = null;
-			CommandQueue.Enqueue(order);
-		}
+		public abstract void Execute (Commandlet order);
 
 		protected virtual void ProcessOrder (Commandlet order) {
 			switch (order.Name) {
@@ -189,8 +163,20 @@ namespace MarsTS.Buildings {
 		}
 
 		public void Select (bool status) {
-			if (status) selectionCircle.SetActive(true);
-			else selectionCircle.SetActive(false);
+			selectionCircle.SetActive(status);
+			bus.Local(new UnitSelectEvent(bus, status));
+		}
+
+		public void Hover (bool status) {
+			//These are seperated due to the Player Selection Check
+			if (status) {
+				selectionCircle.SetActive(true);
+				bus.Local(new UnitHoverEvent(bus, status));
+			}
+			else if (!Player.Main.HasSelected(this)) {
+				selectionCircle.SetActive(false);
+				bus.Local(new UnitHoverEvent(bus, status));
+			}
 		}
 
 		public bool SetOwner (Faction player) {
@@ -206,16 +192,16 @@ namespace MarsTS.Buildings {
 
 				model.localScale = Vector3.one * progress;
 
-				eventAgent.Global(new EntityHurtEvent(eventAgent, this));
+				bus.Global(new EntityHurtEvent(bus, this));
 
-				if (progress >= 1f) eventAgent.Global(new CommandsUpdatedEvent(eventAgent, this, boundCommands));
+				if (progress >= 1f) bus.Global(new CommandsUpdatedEvent(bus, this, boundCommands));
 				return;
 			}
 
 			Health -= damage;
 
 			if (Health <= 0) {
-				eventAgent.Global(new EntityDeathEvent(eventAgent, this));
+				bus.Global(new EntityDeathEvent(bus, this));
 				Destroy(gameObject, 0.1f);
 			}
 		}

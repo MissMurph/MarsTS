@@ -3,7 +3,7 @@ using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.Units;
-using MarsTS.Units.Commands;
+using MarsTS.Commands;
 using MarsTS.World;
 using System;
 using System.Collections;
@@ -73,6 +73,8 @@ namespace MarsTS.UI {
 		[SerializeField]
 		private GraphicRaycaster canvasRaycaster;
 
+		private MeshCollider boxCollider;
+
 		public bool Hovering {
 			get {
 				Vector2 mousePos = Player.MousePos;
@@ -96,7 +98,7 @@ namespace MarsTS.UI {
 		private void Start () {
 			commandPanel = GameObject.Find("Command Zone").GetComponent<CommandPanel>();
 			unitPane = GameObject.Find("Unit Pane").GetComponent<UnitPane>();
-			EventBus.AddListener<SelectEvent>(OnSelection);
+			EventBus.AddListener<PlayerSelectEvent>(OnSelection);
 			EventBus.AddListener<CommandsUpdatedEvent>(OnCommandUpdate);
 		}
 
@@ -104,7 +106,11 @@ namespace MarsTS.UI {
 			if (mouseHeld) {
 				drawMouse = Player.MousePos;
 
-				if (!selectionSquare.gameObject.activeInHierarchy && Vector2.Distance(drawStart, drawMouse) > 2f) selectionSquare.gameObject.SetActive(true);
+				if (!selectionSquare.gameObject.activeInHierarchy && Vector2.Distance(drawStart, drawMouse) > 2f) {
+					selectionSquare.gameObject.SetActive(true);
+					boxCollider = Instantiate(selectionPrefab).GetComponent<MeshCollider>();
+				}
+
 				Vector2 topLeft;
 				Vector2 bottomRight;
 
@@ -115,6 +121,8 @@ namespace MarsTS.UI {
 
 				selectionSquare.offsetMin = new Vector2(topLeft.x, bottomRight.y);
 				selectionSquare.offsetMax = new Vector2(bottomRight.x - Screen.width, topLeft.y - Screen.height);
+
+				UpdateSelectionDraw();
 			}
 		}
 
@@ -142,8 +150,8 @@ namespace MarsTS.UI {
 				case InputActionPhase.Canceled: {
 					if (selectionSquare.gameObject.activeSelf) {
 						if (!Player.Include) Player.Main.ClearSelection();
-						EndSelectionDraw();
-						
+						Destroy(boxCollider.gameObject, 0.2f);
+						selectionSquare.gameObject.SetActive(false);
 					}
 
 					mouseHeld = false;
@@ -176,7 +184,7 @@ namespace MarsTS.UI {
 
 						case Relationship.Hostile: {
 							if (activeCursor == null) {
-								CursorSprite sprite = Commands.Get("attack").Pointer;
+								CursorSprite sprite = CommandRegistry.Get("attack").Pointer;
 								Cursor.SetCursor(sprite.texture, sprite.target, CursorMode.Auto);
 							}
 							
@@ -203,7 +211,7 @@ namespace MarsTS.UI {
 			}
 		}
 
-		private void EndSelectionDraw () {
+		private void UpdateSelectionDraw () {
 			if (Vector2.Distance(drawStart, drawMouse) > 5f) {
 				Vector3[] screenCorners = new Vector3[4];
 
@@ -229,12 +237,9 @@ namespace MarsTS.UI {
 					}
 				}
 
-				MeshCollider collider = Instantiate(selectionPrefab).GetComponent<MeshCollider>();
-				collider.sharedMesh = SelectionMesh(rayVerts, dirVerts);
-				Destroy(collider.gameObject, 0.2f);
+				boxCollider.sharedMesh = null;
+				boxCollider.sharedMesh = SelectionMesh(rayVerts, dirVerts);
 			}
-
-			selectionSquare.gameObject.SetActive(false);
 		}
 
 		private Mesh SelectionMesh (Vector3[] corners, Vector3[] vecs) {
@@ -256,7 +261,7 @@ namespace MarsTS.UI {
 			return selectionMesh;
 		}
 
-		private void OnSelection (SelectEvent _event) {
+		private void OnSelection (PlayerSelectEvent _event) {
 			commandProfiles.Clear();
 			profileIndex = new string[_event.Selected.Count];
 			int index = 0;

@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-namespace MarsTS.Units.Commands {
+namespace MarsTS.Commands {
 
 	public abstract class Command<T> : Command {
 

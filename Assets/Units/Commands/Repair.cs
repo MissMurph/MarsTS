@@ -1,12 +1,13 @@
 using MarsTS.Entities;
 using MarsTS.Players;
+using MarsTS.Units;
 using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace MarsTS.Units.Commands {
+namespace MarsTS.Commands {
 
 	public class Repair : Command<ISelectable> {
 		public override string Name {

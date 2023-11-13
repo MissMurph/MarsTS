@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
-namespace MarsTS.Units.Commands {
+namespace MarsTS.Commands {
 
 	public class CancelConstruction : Command<bool> {
 

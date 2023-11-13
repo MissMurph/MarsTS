@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.Units.Commands {
+namespace MarsTS.Commands {
 
     [System.Serializable]
     public class CommandPage {

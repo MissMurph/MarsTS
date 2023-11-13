@@ -1,5 +1,6 @@
 using MarsTS.Entities;
 using MarsTS.Players;
+using MarsTS.Units;
 using MarsTS.World;
 using System;
 using System.Collections;
@@ -8,7 +9,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-namespace MarsTS.Units.Commands {
+namespace MarsTS.Commands {
 
 	public class Attack : Command<ISelectable> {
 

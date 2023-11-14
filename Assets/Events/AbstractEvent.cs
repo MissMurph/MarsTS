@@ -7,7 +7,7 @@ namespace MarsTS.Events {
 	public class AbstractEvent {
 		public string Name { get; private set; }
 
-		public Agent Source {
+		public EventAgent Source {
 			get {
 				return source;
 			}
@@ -16,13 +16,13 @@ namespace MarsTS.Events {
 			}
 		}
 
-		private Agent source = null;
+		private EventAgent source = null;
 
 		public Phase Phase { get; set; }
 
 		public bool Canceled { get; set; }
 
-		public AbstractEvent (string name, Agent _source) {
+		public AbstractEvent (string name, EventAgent _source) {
 			Name = name;
 			Phase = Phase.Pre;
 			Canceled = false;

@@ -1,4 +1,5 @@
 using MarsTS.Players;
+using MarsTS.Prefabs;
 using MarsTS.Units;
 using System;
 using System.Collections;
@@ -29,7 +30,10 @@ namespace MarsTS.UI {
 				rect.anchorMax = new Vector2(0, 0);
 				rect.position = new Vector3(45 + (80 * cardMap.Count), 180, 0);
 
-				component.UpdateUnit(UnitRegistry.Prefab(typeEntry.Key).name, typeEntry.Value);
+				//component.UpdateUnit(UnitRegistry.Prefab(typeEntry.Key).name, typeEntry.Value);
+
+				component.UpdateUnit(Registry.Prefab(typeEntry.Key).name, typeEntry.Value);
+
 				cardMap.Add(typeEntry.Key, component);
 			}
         }
@@ -38,7 +42,7 @@ namespace MarsTS.UI {
 			Dictionary<string, int> translation = new();
 
 			foreach (Roster units in rosters.Values) {
-				translation.Add(units.Type, units.Count);
+				translation.Add(units.RegistryKey, units.Count);
 			}
 
 			UpdateUnits(translation);

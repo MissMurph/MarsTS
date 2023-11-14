@@ -1,5 +1,4 @@
-﻿using MarsTS.Units.Commands;
-using MarsTS.Players;
+﻿using MarsTS.Players;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,10 +7,32 @@ using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 using MarsTS.World.Pathfinding;
 using MarsTS.Teams;
+using MarsTS.Entities;
+using MarsTS.Events;
+using MarsTS.Prefabs;
+using MarsTS.Commands;
 
 namespace MarsTS.Units {
 
-	public class Unit : MonoBehaviour, ISelectable {
+	public class Unit : MonoBehaviour, ISelectable, ITaggable<Unit>, IRegistryObject<Unit> {
+
+		public int Health {
+			get {
+				return currentHealth;
+			}
+		}
+
+		public int MaxHealth {
+			get {
+				return maxHealth;
+			}
+		}
+
+		[SerializeField]
+		private int maxHealth;
+
+		[SerializeField]
+		private int currentHealth;
 
 		public Faction Owner {
 			get {
@@ -23,27 +44,61 @@ namespace MarsTS.Units {
 		}
 
 		[SerializeField]
-		private Faction owner;
+		protected Faction owner;
 
-		private bool initialized = false;
-
-		public int InstanceID { get { return id; } }
-
-		[SerializeField]
-		private int id;
-
-		public string UnitType { get { return type; } }
+		protected Entity entityComponent;
 
 		[SerializeField]
 		private string type;
 
-		//protected List<Node> path = new List<Node>();
-
 		public Commandlet CurrentCommand { get; protected set; }
 
-		public Queue<Commandlet> CommandQueue = new Queue<Commandlet>();
+		public string Key {
+			get {
+				return "selectable";
+			}
+		}
 
-		public string[] boundCommands;
+		public Type Type {
+			get {
+				return typeof(Unit);
+			}
+		}
+
+		public GameObject GameObject {
+			get {
+				return gameObject; 
+			}
+		}
+
+		public int ID {
+			get {
+				return entityComponent.ID;
+			}
+		}
+
+		public string RegistryType {
+			get {
+				return "unit";
+			}
+		}
+
+		public string RegistryKey {
+			get {
+				return RegistryType + ":" + UnitType;
+			}
+		}
+
+		public string UnitType {
+			get {
+				return type;
+			}
+		}
+
+		public Queue<Commandlet> CommandQueue = new Queue<Commandlet>();
+		
+		[SerializeField]
+		private string[] boundCommands;
 
 		protected Transform target;
 		private Vector3 targetOldPos;
@@ -52,10 +107,6 @@ namespace MarsTS.Units {
 		private float angle;
 		protected int pathIndex;
 
-		//[SerializeField]
-		//private float turnSpeed;
-
-		[SerializeField]
 		private GameObject selectionCircle;
 
 		protected Rigidbody body;
@@ -66,14 +117,21 @@ namespace MarsTS.Units {
 		[SerializeField]
 		private float waypointCompletionDistance;
 
+		protected EventAgent bus;
+
 		protected virtual void Awake () {
+			selectionCircle = transform.Find("SelectionCircle").gameObject;
 			selectionCircle.SetActive(false);
 			body = GetComponent<Rigidbody>();
-			//type = gameObject.name;
+			entityComponent = GetComponent<Entity>();
+			bus = GetComponent<EventAgent>();
+			currentHealth = maxHealth;
 		}
 
 		protected virtual void Start () {
 			StartCoroutine(UpdatePath());
+
+			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 		}
 
 		protected virtual void Update () {
@@ -88,6 +146,7 @@ namespace MarsTS.Units {
 				}
 
 				if (pathIndex >= currentPath.Length) {
+					bus.Local(new PathCompleteEvent(bus, true));
 					currentPath = Path.Empty;
 				}
 			}
@@ -115,23 +174,10 @@ namespace MarsTS.Units {
 			}
 		}
 
-		public void Init (int _id, Player _owner) {
-			if (!initialized) {
-				if (Owner == null) Owner = _owner;
-				id = _id;
-				name = UnitType + ":" + InstanceID.ToString();
-				initialized = true;
-
-				selectionCircle.GetComponent<MeshRenderer>().material = Relationship(Player.Main).Material();
-			}
-		}
-
 		private void OnPathFound (Path newPath, bool pathSuccessful) {
 			if (pathSuccessful) {
 				currentPath = newPath;
 				pathIndex = 0;
-				//if (movementCoroutine != null) StopCoroutine(movementCoroutine);
-				//movementCoroutine = StartCoroutine(FollowPath());
 			}
 		}
 
@@ -145,17 +191,34 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void Stop () {
-			//if (movementCoroutine != null) StopCoroutine(movementCoroutine);
 			currentPath = Path.Empty;
 			target = null;
+
+			CommandQueue.Clear();
+
+			CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+			bus.Global(_event);
+
+			CurrentCommand = null;
 		}
 
 		protected virtual void Move (Commandlet order) {
-			if (order.TargetType.Equals(typeof(Vector3))) {
-				Commandlet<Vector3> deserialized = order as Commandlet<Vector3>;
-
+			if (order is Commandlet<Vector3> deserialized) {
 				SetTarget(deserialized.Target);
+
+				bus.AddListener<PathCompleteEvent>(OnPathComplete);
+				order.Callback.AddListener((_event) => bus.RemoveListener<PathCompleteEvent>(OnPathComplete));
 			}
+		}
+
+		private void OnPathComplete (PathCompleteEvent _event) {
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+
+			CurrentCommand.Callback.Invoke(newEvent);
+
+			bus.Global(newEvent);
+
+			CurrentCommand = null;
 		}
 
 		protected IEnumerator UpdatePath () {
@@ -163,19 +226,18 @@ namespace MarsTS.Units {
 				yield return new WaitForSeconds(.5f);
 			}
 
-			//float sqrMoveThreshold = pathUpdateMoveThreshold * pathUpdateMoveThreshold;
+			float sqrMoveThreshold = pathUpdateMoveThreshold * pathUpdateMoveThreshold;
 
 			while (true) {
 				yield return new WaitForSeconds(minPathUpdateTime);
 
-				//if (target != null && (target.position - targetOldPos).sqrMagnitude > sqrMoveThreshold) {
-				if (target != null) {
+				if (target != null && (target.position - targetOldPos).sqrMagnitude > sqrMoveThreshold) {
 					PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
-					//targetOldPos = target.position;
+					targetOldPos = target.position;
 				}
-				else if (!currentPath.IsEmpty) {
+				/*else if (!currentPath.IsEmpty) {
 					PathRequestManager.RequestPath(transform.position, currentPath.End, OnPathFound);
-				}
+				}*/
 			}
 		}
 
@@ -196,14 +258,22 @@ namespace MarsTS.Units {
 		}
 
 		public void Enqueue (Commandlet order) {
-			if (!Relationship(Player.Main).Equals(Teams.Relationship.Owned)) return;
+			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 			CommandQueue.Enqueue(order);
 		}
 
 		public void Execute (Commandlet order) {
-			if (!Relationship(Player.Main).Equals(Teams.Relationship.Owned)) return;
+			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 			CommandQueue.Clear();
-			Stop();
+
+			currentPath = Path.Empty;
+			target = null;
+
+			if (CurrentCommand != null) {
+				CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, true, this);
+				CurrentCommand.Callback.Invoke(_event);
+				bus.Global(_event);
+			}
 			CurrentCommand = null;
 			CommandQueue.Enqueue(order);
 		}
@@ -217,20 +287,44 @@ namespace MarsTS.Units {
 		}
 
 		public void Select (bool status) {
-			if (status) selectionCircle.SetActive(true);
-			else selectionCircle.SetActive(false);
+			selectionCircle.SetActive(status);
+			bus.Local(new UnitSelectEvent(bus, status));
 		}
 
-		public int Id () {
-			return InstanceID;
+		public void Hover (bool status) {
+			//These are seperated due to the Player Selection Check
+			if (status) {
+				selectionCircle.SetActive(true);
+				bus.Local(new UnitHoverEvent(bus, status));
+			}
+			else if (!Player.Main.HasSelected(this)) {
+				selectionCircle.SetActive(false);
+				bus.Local(new UnitHoverEvent(bus, status));
+			}
 		}
 
-		public string Name () {
-			return UnitType;
-		}
-
-		public Relationship Relationship (Faction other) {
+		public Relationship GetRelationship (Faction other) {
 			return owner.GetRelationship(other);
+		}
+
+		public bool SetOwner (Faction player) {
+			owner = player;
+			return true;
+		}
+
+		public void Attack (int damage) {
+			currentHealth -= damage;
+
+			bus.Local(new EntityHurtEvent(bus, this));
+
+			if (currentHealth <= 0) {
+				bus.Global(new EntityDeathEvent(bus, this));
+				Destroy(gameObject, 0.1f);
+			}
+		}
+
+		public IRegistryObject<Unit> GetRegistryEntry () {
+			throw new NotImplementedException();
 		}
 	}
 }

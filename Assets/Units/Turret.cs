@@ -1,6 +1,7 @@
+using MarsTS.Entities;
+using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
-using MarsTS.Units.Cache;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,7 +17,7 @@ namespace MarsTS.Units {
 		}
 
 		[SerializeField]
-		private SphereCollider range;
+		protected SphereCollider range;
 
 		public float Falloff {
 			get {
@@ -34,74 +35,89 @@ namespace MarsTS.Units {
 		private float turnRate;
 
 		[SerializeField]
-		private int damage;
+		protected int damage;
 
 		//Seconds between firing
 		[SerializeField]
 		protected float cooldown;
 		protected float currentCooldown;
 
-		private Dictionary<int, Unit> inRangeUnits;
+		protected Dictionary<int, ISelectable> inRangeUnits;
 
-		public Unit target;
+		public ISelectable target;
 
 		protected Unit parent;
+		protected EventAgent eventAgent;
 
 		private void Awake () {
-			inRangeUnits = new Dictionary<int, Unit>();
+			inRangeUnits = new Dictionary<int, ISelectable>();
 			parent = GetComponentInParent<Unit>();
+			eventAgent = GetComponentInParent<EventAgent>();
+			eventAgent.AddListener<EntityInitEvent>(OnEntityInit);
+
+			foreach (Collider collider in parent.transform.Find("Model").GetComponentsInChildren<Collider>()) {
+				Physics.IgnoreCollision(range, collider);
+			}
 		}
 
-		private void Start () {
+		private void OnEntityInit (EntityInitEvent _event) {
 			range.gameObject.SetActive(true);
 		}
 
-		private void Update () {
+		protected virtual void Update () {
 			if (currentCooldown >= 0f) {
 				currentCooldown -= Time.deltaTime;
 			}
 
 			if (target == null) {
-				foreach (Unit unit in inRangeUnits.Values) {
-					if (unit.Relationship(parent.Owner) == Relationship.Hostile) {
+				foreach (ISelectable unit in inRangeUnits.Values) {
+					if (unit.GetRelationship(parent.Owner) == Relationship.Hostile) {
 						target = unit;
 						break;
 					}
 				}
 			}
 
-			if (target != null && inRangeUnits.ContainsKey(target.InstanceID) && currentCooldown <= 0) {
+			if (target != null && inRangeUnits.ContainsKey(target.ID) && currentCooldown <= 0) {
 				Fire();
 			}
 		}
 
 		protected virtual void Fire () {
-			Vector3 direction = (target.transform.position - transform.position).normalized;
+			Vector3 direction = (target.GameObject.transform.position - transform.position).normalized;
 
 			Physics.Raycast(barrel.transform.position, direction, range.radius);
 			Debug.DrawLine(barrel.transform.position, barrel.transform.position + (direction * range.radius), Color.cyan, 0.1f);
+
+			target.Attack(damage);
 
 			currentCooldown = cooldown;
 		}
 
 		private void FixedUpdate () {
-			if (target != null && inRangeUnits.ContainsKey(target.InstanceID)) {
+			if (target != null && inRangeUnits.ContainsKey(target.ID)) {
 				
-				barrel.transform.LookAt(target.transform, Vector3.up);
+				barrel.transform.LookAt(target.GameObject.transform, Vector3.up);
 			}
 		}
 
 		private void OnTriggerEnter (Collider other) {
-			if (UnitCache.TryGet(other.transform.root.name, out Unit unit)) {
-				inRangeUnits.TryAdd(unit.InstanceID, unit);
+			if (EntityCache.TryGet(other.transform.root.name, out Entity entityComp) && entityComp.TryGet(out ISelectable unit)) {
+				entityComp.Get<EventAgent>("eventAgent").AddListener<EntityDeathEvent>((_event) => OutOfRange(_event.Unit));
+				inRangeUnits.TryAdd(unit.ID, unit);
+
 			}
 		}
 
 		private void OnTriggerExit (Collider other) {
-			if (UnitCache.TryGet(other.transform.root.name, out Unit unit)) {
-				inRangeUnits.Remove(unit.InstanceID);
-				if (target != null && target.InstanceID == unit.InstanceID) target = null;
+			if (EntityCache.TryGet(other.transform.root.name, out ISelectable unit)) {
+				OutOfRange(unit);
 			}
+		}
+
+		private void OutOfRange (ISelectable unit) {
+			inRangeUnits.Remove(unit.ID);
+			if (target != null && target.ID == unit.ID) target = null;
 		}
 	}
 }

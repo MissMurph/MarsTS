@@ -174,8 +174,10 @@ namespace MarsTS.Players {
 		public void DeliverCommand (Commandlet packet, bool inclusive) {
 			foreach (KeyValuePair<string, Roster> entry in Selected) {
 				foreach (ISelectable unit in entry.Value.List()) {
-					if (inclusive) unit.Enqueue(packet);
-					else unit.Execute(packet);
+					if (unit is ICommandable orderable) {
+						if (inclusive) orderable.Enqueue(packet);
+						else orderable.Execute(packet);
+					}
 				}
 			}
 		}

@@ -7,15 +7,15 @@ namespace MarsTS.Events {
 
 	public class EntityHurtEvent : AbstractEvent {
 
-		public ISelectable Unit {
+		public IAttackable Unit {
 			get {
 				return unit;
 			}
 		}
 
-		private ISelectable unit;
+		private IAttackable unit;
 
-		public EntityHurtEvent (EventAgent _source, ISelectable _unit) : base("entityHurt", _source) {
+		public EntityHurtEvent (EventAgent _source, IAttackable _unit) : base("entityHurt", _source) {
 			unit = _unit;
 		}
 	}

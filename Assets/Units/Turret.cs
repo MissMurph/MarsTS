@@ -42,15 +42,15 @@ namespace MarsTS.Units {
 		protected float cooldown;
 		protected float currentCooldown;
 
-		protected Dictionary<int, ISelectable> inRangeUnits;
+		protected Dictionary<string, IAttackable> inRangeUnits;
 
-		public ISelectable target;
+		public IAttackable target;
 
 		protected Unit parent;
 		protected EventAgent eventAgent;
 
 		private void Awake () {
-			inRangeUnits = new Dictionary<int, ISelectable>();
+			inRangeUnits = new Dictionary<string, IAttackable>();
 			parent = GetComponentInParent<Unit>();
 			eventAgent = GetComponentInParent<EventAgent>();
 			eventAgent.AddListener<EntityInitEvent>(OnEntityInit);
@@ -70,7 +70,7 @@ namespace MarsTS.Units {
 			}
 
 			if (target == null) {
-				foreach (ISelectable unit in inRangeUnits.Values) {
+				foreach (IAttackable unit in inRangeUnits.Values) {
 					if (unit.GetRelationship(parent.Owner) == Relationship.Hostile) {
 						target = unit;
 						break;
@@ -78,7 +78,7 @@ namespace MarsTS.Units {
 				}
 			}
 
-			if (target != null && inRangeUnits.ContainsKey(target.ID) && currentCooldown <= 0) {
+			if (target != null && inRangeUnits.ContainsKey(target.GameObject.transform.root.name) && currentCooldown <= 0) {
 				Fire();
 			}
 		}
@@ -95,29 +95,29 @@ namespace MarsTS.Units {
 		}
 
 		private void FixedUpdate () {
-			if (target != null && inRangeUnits.ContainsKey(target.ID)) {
+			if (target != null && inRangeUnits.ContainsKey(target.GameObject.transform.root.name)) {
 				
 				barrel.transform.LookAt(target.GameObject.transform, Vector3.up);
 			}
 		}
 
 		private void OnTriggerEnter (Collider other) {
-			if (EntityCache.TryGet(other.transform.root.name, out Entity entityComp) && entityComp.TryGet(out ISelectable unit)) {
-				entityComp.Get<EventAgent>("eventAgent").AddListener<EntityDeathEvent>((_event) => OutOfRange(_event.Unit));
-				inRangeUnits.TryAdd(unit.ID, unit);
-
+			if (EntityCache.TryGet(other.transform.root.name, out Entity entityComp) && entityComp.TryGet(out ISelectable unit) && unit is IAttackable target) {
+				entityComp.Get<EventAgent>("eventAgent").AddListener<EntityDeathEvent>((_event) => OutOfRange(target));
+				inRangeUnits.TryAdd(other.transform.root.name, target);
 			}
 		}
 
 		private void OnTriggerExit (Collider other) {
-			if (EntityCache.TryGet(other.transform.root.name, out ISelectable unit)) {
-				OutOfRange(unit);
+			if (EntityCache.TryGet(other.transform.root.name, out ISelectable unit) && unit is IAttackable target) {
+				OutOfRange(target);
 			}
 		}
 
-		private void OutOfRange (ISelectable unit) {
-			inRangeUnits.Remove(unit.ID);
-			if (target != null && target.ID == unit.ID) target = null;
+		private void OutOfRange (IAttackable unit) {
+			string name = unit.GameObject.transform.root.name;
+			inRangeUnits.Remove(name);
+			if (target != null && target.GameObject.transform.root.name == name) target = null;
 		}
 	}
 }

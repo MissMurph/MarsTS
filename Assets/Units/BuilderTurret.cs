@@ -17,14 +17,14 @@ namespace MarsTS.Units {
 			}
 
 			if (target == null) {
-				foreach (ISelectable unit in inRangeUnits.Values) {
+				foreach (IAttackable unit in inRangeUnits.Values) {
 					if (unit.GetRelationship(parent.Owner) == Relationship.Owned || unit.GetRelationship(parent.Owner) == Relationship.Friendly) {
 						target = unit;
 						break;
 					}
 				}
 			}
-			if (target != null && inRangeUnits.ContainsKey(target.ID) && currentCooldown <= 0) {
+			if (target != null && inRangeUnits.ContainsKey(target.GameObject.transform.root.name) && currentCooldown <= 0) {
 				Fire();
 			}
 		}

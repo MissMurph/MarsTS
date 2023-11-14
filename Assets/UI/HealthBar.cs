@@ -17,7 +17,7 @@ namespace MarsTS.UI {
 
 			EventAgent bus = GetComponentInParent<EventAgent>();
 
-			ISelectable parent = GetComponentInParent<ISelectable>();
+			IAttackable parent = GetComponentInParent<IAttackable>();
 
 			FillLevel = (float)parent.Health / parent.MaxHealth;
 

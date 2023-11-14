@@ -39,7 +39,7 @@ namespace MarsTS.Units {
 		[SerializeField]
 		protected Turret[] turretsToRegister;
 
-		protected ISelectable AttackTarget {
+		protected IAttackable AttackTarget {
 			get {
 				return attackTarget;
 			}
@@ -60,7 +60,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected ISelectable attackTarget;
+		protected IAttackable attackTarget;
 
 		protected override void Awake () {
 			base.Awake();
@@ -126,8 +126,8 @@ namespace MarsTS.Units {
 		}
 
 		protected void Attack (Commandlet order) {
-			if (order is Commandlet<ISelectable> deserialized) {
-				AttackTarget = deserialized.Target;
+			if (order is Commandlet<ISelectable> deserialized && deserialized.Target is IAttackable target) {
+				AttackTarget = target;
 
 				EntityCache.TryGet(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
 

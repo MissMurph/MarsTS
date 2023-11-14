@@ -14,7 +14,7 @@ using MarsTS.Commands;
 
 namespace MarsTS.Units {
 
-	public class Unit : MonoBehaviour, ISelectable, ITaggable<Unit>, IRegistryObject<Unit> {
+	public class Unit : MonoBehaviour, ISelectable, ITaggable<Unit>, IRegistryObject<Unit>, IAttackable, ICommandable {
 
 		public int Health {
 			get {

@@ -40,7 +40,7 @@ namespace MarsTS.Units {
 		[SerializeField]
 		protected Turret[] turretsToRegister;
 
-		protected ISelectable RepairTarget {
+		protected IAttackable RepairTarget {
 			get {
 				return repairTarget;
 			}
@@ -64,7 +64,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected ISelectable repairTarget;
+		protected IAttackable repairTarget;
 
 		protected override void Awake () {
 			base.Awake();
@@ -133,13 +133,10 @@ namespace MarsTS.Units {
 		}
 
 		protected void Repair (Commandlet order) {
-			if (order.TargetType.Equals(typeof(ISelectable))) {
-				Commandlet<ISelectable> deserialized = order as Commandlet<ISelectable>;
-				ISelectable unit = deserialized.Target;
+			if (order is Commandlet<ISelectable> deserialized && deserialized.Target is IAttackable target) {
+				IAttackable unit = target;
 
 				if ((unit.GetRelationship(owner) == Teams.Relationship.Owned || unit.GetRelationship(owner) == Teams.Relationship.Friendly)) {
-					
-
 					RepairTarget = unit;
 				}
 			}

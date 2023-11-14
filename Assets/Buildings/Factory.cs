@@ -83,12 +83,14 @@ namespace MarsTS.Buildings {
 
 			newUnit.SetOwner(owner);
 
+			ICommandable commandable = newUnit as ICommandable;
+
 			Commandlet exit = exitOrder.Clone();
 			exit.Callback.AddListener(UnitExitCallback);
-			newUnit.Execute(exit);
+			commandable.Execute(exit);
 
 			foreach (Commandlet order in rallyOrders) {
-				newUnit.Enqueue(order.Clone());
+				commandable.Enqueue(order.Clone());
 			}
 
 			CurrentProduction = null;

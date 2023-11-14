@@ -13,7 +13,7 @@ using static UnityEngine.UI.GridLayoutGroup;
 
 namespace MarsTS.Buildings {
 
-	public abstract class Building : MonoBehaviour, ISelectable, ITaggable<Building>, IRegistryObject<Building> {
+	public abstract class Building : MonoBehaviour, ISelectable, ITaggable<Building>, IRegistryObject<Building>, IAttackable, ICommandable {
 
 		public GameObject GameObject {
 			get { 

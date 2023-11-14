@@ -1,4 +1,6 @@
 using MarsTS.Commands;
+using MarsTS.Entities;
+using MarsTS.Events;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -50,8 +52,19 @@ namespace MarsTS.Units {
 				return attackTarget;
 			}
 			set {
+				if (attackTarget != null) {
+					EntityCache.TryGet(attackTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
+					oldAgent.RemoveListener<EntityDeathEvent>((_event) => AttackTarget = null);
+				}
+
 				attackTarget = value;
 				registeredTurrets["turret_main"].target = attackTarget;
+
+				if (value != null) {
+					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
+
+					agent.AddListener<EntityDeathEvent>((_event) => AttackTarget = null);
+				}
 			}
 		}
 
@@ -162,11 +175,27 @@ namespace MarsTS.Units {
 		}
 
 		protected void Attack (Commandlet order) {
-			if (order.TargetType.Equals(typeof(ISelectable))) {
-				Commandlet<ISelectable> deserialized = order as Commandlet<ISelectable>;
-
+			if (order is Commandlet<ISelectable> deserialized) {
 				AttackTarget = deserialized.Target;
+
+				EntityCache.TryGet(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
+
+				targetBus.AddListener<EntityDeathEvent>(OnTargetDeath);
+
+				order.Callback.AddListener((_event) => {
+					targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+				});
 			}
+		}
+
+		private void OnTargetDeath (EntityDeathEvent _event) {
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+
+			CurrentCommand.Callback.Invoke(newEvent);
+
+			bus.Global(newEvent);
+
+			CurrentCommand = null;
 		}
 	}
 }

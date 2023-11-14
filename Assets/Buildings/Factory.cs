@@ -24,6 +24,8 @@ namespace MarsTS.Buildings {
 
 		protected Queue<Commandlet> rallyOrders = new Queue<Commandlet>();
 
+		protected Commandlet exitOrder;
+
 		[SerializeField]
 		protected string[] rallyCommands;
 
@@ -39,7 +41,7 @@ namespace MarsTS.Buildings {
 			stepTime = 1f / productionSpeed;
 			timeToStep = stepTime;
 
-			rallyOrders.Enqueue(CommandRegistry.Get<Move>("move").Construct(transform.position + (Vector3.forward * 5f)));
+			exitOrder = CommandRegistry.Get<Move>("move").Construct(transform.position + (Vector3.forward * 5f));
 		}
 
 		protected void Update () {
@@ -71,18 +73,22 @@ namespace MarsTS.Buildings {
 		protected virtual void ProduceUnit () {
 			ISelectable newUnit = Instantiate(CurrentProduction.Prefab, transform.position + (Vector3.up), Quaternion.Euler(0f, 0f, 0f)).GetComponent<ISelectable>();
 
-			/*Collider[] unitColliders = newUnit.GameObject.transform.Find("Model").GetComponentsInChildren<Collider>();
+			Collider[] unitColliders = newUnit.GameObject.transform.Find("Model").GetComponentsInChildren<Collider>();
 
 			foreach (Collider unitCollider in unitColliders) {
 				foreach (Collider buildingCollider in colliders) {
-					Physics.IgnoreCollision(unitCollider, buildingCollider);
+					Physics.IgnoreCollision(unitCollider, buildingCollider, true);
 				}
-			}*/
+			}
 
 			newUnit.SetOwner(owner);
 
+			Commandlet exit = exitOrder.Clone();
+			exit.Callback.AddListener(UnitExitCallback);
+			newUnit.Execute(exit);
+
 			foreach (Commandlet order in rallyOrders) {
-				newUnit.Enqueue(order);
+				newUnit.Enqueue(order.Clone());
 			}
 
 			CurrentProduction = null;
@@ -112,6 +118,18 @@ namespace MarsTS.Buildings {
 		protected virtual void Stop () {
 			ProductionQueue.Clear();
 			CurrentProduction = null;
+		}
+
+		protected void UnitExitCallback (CommandCompleteEvent _event) {
+			Collider[] unitColliders = _event.Unit.GameObject.transform.Find("Model").GetComponentsInChildren<Collider>();
+
+			foreach (Collider unitCollider in unitColliders) {
+				foreach (Collider buildingCollider in colliders) {
+					Physics.IgnoreCollision(unitCollider, buildingCollider, false);
+				}
+			}
+
+			_event.Command.Callback.RemoveListener(UnitExitCallback);
 		}
 
 		public override void Enqueue (Commandlet order) {

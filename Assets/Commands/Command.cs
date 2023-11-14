@@ -1,3 +1,4 @@
+using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.UI;
@@ -39,6 +40,10 @@ namespace MarsTS.Commands {
 			Name = name;
 			Commander = commander;
 		}
+
+		public override Commandlet Clone () {
+			return new Commandlet<T> (Name, Target, Commander);
+		}
 	}
 
 	public abstract class Commandlet {
@@ -46,10 +51,13 @@ namespace MarsTS.Commands {
 		public abstract Type TargetType { get; }
 		public string Name { get; protected set; }
 		public Faction Commander { get; protected set; }
+		public UnityEvent<CommandCompleteEvent> Callback = new UnityEvent<CommandCompleteEvent>();
 
 		public Commandlet<T> Get<T> () {
 			if (typeof(T).Equals(TargetType)) return this as Commandlet<T>;
 			else throw new ArgumentException("Commandlet target type " + TargetType + " does not match given type " + typeof(T) + ", cannot return Commandlet!");
 		}
+
+		public abstract Commandlet Clone ();
 	}
 }

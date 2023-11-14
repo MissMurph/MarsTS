@@ -117,7 +117,7 @@ namespace MarsTS.Units {
 		[SerializeField]
 		private float waypointCompletionDistance;
 
-		private EventAgent bus;
+		protected EventAgent bus;
 
 		protected virtual void Awake () {
 			selectionCircle = transform.Find("SelectionCircle").gameObject;
@@ -146,6 +146,7 @@ namespace MarsTS.Units {
 				}
 
 				if (pathIndex >= currentPath.Length) {
+					bus.Local(new PathCompleteEvent(bus, true));
 					currentPath = Path.Empty;
 				}
 			}
@@ -192,14 +193,32 @@ namespace MarsTS.Units {
 		protected virtual void Stop () {
 			currentPath = Path.Empty;
 			target = null;
+
+			CommandQueue.Clear();
+
+			CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+			bus.Global(_event);
+
+			CurrentCommand = null;
 		}
 
 		protected virtual void Move (Commandlet order) {
-			if (order.TargetType.Equals(typeof(Vector3))) {
-				Commandlet<Vector3> deserialized = order as Commandlet<Vector3>;
-
+			if (order is Commandlet<Vector3> deserialized) {
 				SetTarget(deserialized.Target);
+
+				bus.AddListener<PathCompleteEvent>(OnPathComplete);
+				order.Callback.AddListener((_event) => bus.RemoveListener<PathCompleteEvent>(OnPathComplete));
 			}
+		}
+
+		private void OnPathComplete (PathCompleteEvent _event) {
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+
+			CurrentCommand.Callback.Invoke(newEvent);
+
+			bus.Global(newEvent);
+
+			CurrentCommand = null;
 		}
 
 		protected IEnumerator UpdatePath () {
@@ -246,7 +265,15 @@ namespace MarsTS.Units {
 		public void Execute (Commandlet order) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 			CommandQueue.Clear();
-			Stop();
+
+			currentPath = Path.Empty;
+			target = null;
+
+			if (CurrentCommand != null) {
+				CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, true, this);
+				CurrentCommand.Callback.Invoke(_event);
+				bus.Global(_event);
+			}
 			CurrentCommand = null;
 			CommandQueue.Enqueue(order);
 		}

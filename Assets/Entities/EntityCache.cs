@@ -1,0 +1,131 @@
+using MarsTS.Players;
+using MarsTS.Units;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace MarsTS.Entities {
+
+	public class EntityCache : MonoBehaviour {
+
+		private static EntityCache instance;
+
+		private Dictionary<string, Dictionary<int, Entity>> instanceMap;
+
+		public static int Count {
+			get {
+				int output = 0;
+
+				foreach (Dictionary<int, Entity> map in instance.instanceMap.Values) {
+					output += map.Count;
+				}
+
+				return output;
+			}
+		}
+
+		public Entity this[string name] {
+			get {
+				string[] split = name.Split(':');
+				string type = split[0];
+				string id = split[1];
+
+				Dictionary<int, Entity> map = instance.GetMap(type);
+
+				return map[int.Parse(id)];
+			}
+		}
+
+		private void Awake () {
+			instance = this;
+			instanceMap = new Dictionary<string, Dictionary<int, Entity>>();
+
+			/*foreach (GameObject unit in GameObject.FindGameObjectsWithTag("Unit")) {
+				Unit component = unit.GetComponent<Unit>();
+				int id = RegisterUnit(component);
+				component.Init(id, Player.Main);
+			}*/
+		}
+
+		/*public static Unit CreateInstance (GameObject prefab, Player owner, Vector3 position) {
+			GameObject newInstance = Instantiate(prefab, position, Quaternion.Euler(0, 0, 0));
+
+			if (newInstance.TryGetComponent(out Unit unit) ) {
+				int id = instance.RegisterUnit(unit);
+				unit.Init(id, owner);
+				return unit;
+			}
+			else {
+				Destroy(newInstance);
+				throw new ArgumentException("Prefab " + prefab.name + " not a Unit! Cannot construct, destroying prefab");
+			}
+		}*/
+
+		public static bool TryGet (string name, out Entity output) {
+			string[] split = name.Split(':');
+
+			if (!(split.Length > 1)) {
+				Debug.LogWarning("Registered instance " + name + " not found!");
+				output = null;
+				return false;
+			}
+
+			string type = split[0];
+			string id = split[1];
+
+			if (instance.instanceMap.TryGetValue(type, out Dictionary<int, Entity> idMap) && idMap.TryGetValue(int.Parse(id), out Entity found)) {
+				output = found;
+				return true;
+			}
+			else {
+				//Debug.LogWarning("Registered instance " + name + " not found!");
+				output = null;
+				return false;
+			}
+		}
+
+		//Enter name like the below:
+		//name:instanceID:componentKey
+		//tank:236:unit
+		public static bool TryGet<T> (string name, out T output) {
+			string[] split = name.Split(':');
+
+			if (!(split.Length > 1)) {
+				Debug.LogWarning("Registered instance " + name + " not found!");
+				output = default(T);
+				return false;
+			}
+
+			if (TryGet(split[0] + ":" + split[1], out Entity entityComponent)) {
+				if (split.Length > 2 && entityComponent.TryGet(split[2], out T superType)) {
+					output = superType;
+					return true;
+				}
+				else if (entityComponent.TryGet<T>(out T foundType)) {
+					output = foundType;
+					return true;
+				}
+			}
+			
+			output = default(T);
+			return false;
+		}
+
+		//Returns -1 for an unsuccessful register
+		public static int Register (Entity entity) {
+			Dictionary<int, Entity> map = instance.GetMap(entity.Key);
+			int index = Count + 1;
+			return map.TryAdd(index, entity) ? index : -1;
+		}
+
+		private Dictionary<int, Entity> GetMap (string key) {
+			Dictionary<int, Entity> map = instanceMap.GetValueOrDefault(key, new Dictionary<int, Entity>());
+			if (!instanceMap.ContainsKey(key)) instanceMap.Add(key, map);
+			return map;
+		}
+
+		private void OnDestroy () {
+			instance = null;
+		}
+	}
+}

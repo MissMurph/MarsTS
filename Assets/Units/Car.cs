@@ -1,4 +1,6 @@
-using MarsTS.Units.Commands;
+using MarsTS.Commands;
+using MarsTS.Entities;
+using MarsTS.Events;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -45,17 +47,28 @@ namespace MarsTS.Units {
 		[SerializeField]
 		protected Turret[] turretsToRegister;
 
-		protected Unit AttackTarget {
+		protected ISelectable AttackTarget {
 			get {
 				return attackTarget;
 			}
 			set {
+				if (attackTarget != null) {
+					EntityCache.TryGet(attackTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
+					oldAgent.RemoveListener<EntityDeathEvent>((_event) => AttackTarget = null);
+				}
+
 				attackTarget = value;
 				registeredTurrets["turret_main"].target = attackTarget;
+
+				if (value != null) {
+					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
+
+					agent.AddListener<EntityDeathEvent>((_event) => AttackTarget = null);
+				}
 			}
 		}
 
-		protected Unit attackTarget;
+		protected ISelectable attackTarget;
 
 		protected override void Awake () {
 			base.Awake();
@@ -69,11 +82,11 @@ namespace MarsTS.Units {
 
 			if (attackTarget == null) return;
 
-			if (Vector3.Distance(transform.position, attackTarget.transform.position) >= registeredTurrets["turret_main"].Range
-				&& !ReferenceEquals(target, attackTarget.transform)) {
-				SetTarget(attackTarget.transform);
+			if (Vector3.Distance(transform.position, attackTarget.GameObject.transform.position) >= registeredTurrets["turret_main"].Range
+				&& !ReferenceEquals(target, attackTarget.GameObject.transform)) {
+				SetTarget(attackTarget.GameObject.transform);
 			}
-			else if (target == attackTarget.transform) {
+			else if (target == attackTarget.GameObject.transform) {
 				Stop();
 			}
 		}
@@ -162,11 +175,27 @@ namespace MarsTS.Units {
 		}
 
 		protected void Attack (Commandlet order) {
-			if (order.TargetType.Equals(typeof(ISelectable))) {
-				Commandlet<ISelectable> deserialized = order as Commandlet<ISelectable>;
+			if (order is Commandlet<ISelectable> deserialized) {
+				AttackTarget = deserialized.Target;
 
-				AttackTarget = deserialized.Target.Get();
+				EntityCache.TryGet(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
+
+				targetBus.AddListener<EntityDeathEvent>(OnTargetDeath);
+
+				order.Callback.AddListener((_event) => {
+					targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+				});
 			}
+		}
+
+		private void OnTargetDeath (EntityDeathEvent _event) {
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+
+			CurrentCommand.Callback.Invoke(newEvent);
+
+			bus.Global(newEvent);
+
+			CurrentCommand = null;
 		}
 	}
 }

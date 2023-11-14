@@ -1,37 +1,63 @@
+using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Teams;
 using MarsTS.Units;
-using MarsTS.Units.Cache;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace MarsTS.Players {
 
     public class SelectionCollider : MonoBehaviour {
 
-		public List<Unit> hitUnits = new List<Unit>();
+		public List<ISelectable> hitUnits = new List<ISelectable>();
+		private List<ISelectable> hitUnitsLastFrame = new List<ISelectable>();
+		private List<ISelectable> newlyHitUnits = new List<ISelectable>();
 
-		private void OnTriggerEnter (Collider other) {
-			if (UnitCache.TryGet(other.transform.parent.name, out Unit target)) hitUnits.Add(target);
+		private void FixedUpdate () {
+			newlyHitUnits = new List<ISelectable>();
+		}
+
+		private void OnTriggerStay (Collider other) {
+			if (EntityCache.TryGet(other.transform.parent.name, out ISelectable target)) {
+				newlyHitUnits.Add(target);
+				target.Hover(true);
+			}
+		}
+
+		private void Update () {
+			foreach (ISelectable unit in hitUnitsLastFrame) {
+				if (!newlyHitUnits.Contains(unit)) 
+					unit.Hover(false);
+
+			}
+
+			//Debug.Log("Last Frame: " + hitUnitsLastFrame.Count + " This Frame: " + newlyHitUnits.Count);
+
+			hitUnitsLastFrame = newlyHitUnits;
+			hitUnits = newlyHitUnits;
+
+			
 		}
 
 		private void OnDestroy () {
-			Dictionary<Faction, List<Unit>> factionMap = new Dictionary<Faction, List<Unit>>();
+			Dictionary<Relationship, List<ISelectable>> factionMap = new Dictionary<Relationship, List<ISelectable>>();
 
-			foreach (Unit hit in hitUnits) {
-				List<Unit> rollup = factionMap.GetValueOrDefault(hit.Owner, new List<Unit>());
-				if (!factionMap.ContainsKey(hit.Owner)) factionMap[hit.Owner] = rollup;
+			foreach (ISelectable hit in hitUnits) {
+				Relationship relation = hit.GetRelationship(Player.Main);
+				List<ISelectable> rollup = factionMap.GetValueOrDefault(relation, new List<ISelectable>());
+				if (!factionMap.ContainsKey(relation)) factionMap[relation] = rollup;
 				rollup.Add(hit);
 			}
 
-			List<Unit> outPut = new();
+			List<ISelectable> outPut = new();
 
-			foreach (Faction player in factionMap.Keys) {
-				if (factionMap[player].Count > outPut.Count) outPut = factionMap[player];
+			foreach (Relationship relation in factionMap.Keys) {
+				if (factionMap[relation].Count > outPut.Count) outPut = factionMap[relation];
 			}
 
-			if (factionMap.ContainsKey(Player.Main)) outPut = factionMap[Player.Main];
+			if (factionMap.ContainsKey(Relationship.Owned)) outPut = factionMap[Relationship.Owned];
 
 			Player.Main.SelectUnit(outPut.ToArray());
 		}

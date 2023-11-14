@@ -1,3 +1,5 @@
+using MarsTS.Prefabs;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +8,8 @@ namespace MarsTS.Units {
 
     public class Roster {
 
-        public string Type { get; private set; }
+        public string RegistryKey { get; private set; }
+        public Type Type { get; private set; }
         public List<string> Commands { get; private set; }
 
 		private Dictionary<int, ISelectable> instances;
@@ -17,17 +20,27 @@ namespace MarsTS.Units {
             }
         }
 
-        public Roster (string type, params ISelectable[] units) {
-            Type = type;
+        public Roster (string registryKey, ISelectable[] units) {
+            RegistryKey = registryKey;
 
 			instances = new Dictionary<int, ISelectable>();
 			Commands = new List<string>();
 
-            Commands.AddRange(UnitRegistry.Unit(Type).Commands());
+            //Commands.AddRange(Registry.Get<ISelectable>(registryKey).Commands());
+
+            //Commands.AddRange(UnitRegistry.Unit(Type).Commands());
+            //Commands.AddRange(units[0].Commands());
 
             foreach (ISelectable unit in units) {
-                TryAdd(unit);
+                if (TryAdd(unit)) {
+                    if (Commands.Count == 0) Commands.AddRange(unit.Commands());
+                }
             }
+		}
+
+        public Roster () {
+			instances = new Dictionary<int, ISelectable>();
+			Commands = new List<string>();
 		}
 
         public ISelectable Get (int id) {
@@ -38,15 +51,23 @@ namespace MarsTS.Units {
             return new List<ISelectable>(instances.Values);
         }
 
-        public bool TryAdd (ISelectable unit) {
-            if (!unit.Name().Equals(Type)) {
-				Debug.LogWarning("Unit type " + unit.Name() + " doesn't match roster's registered type of " + Type + "!");
+        public bool TryAdd (ISelectable entity) {
+            if (RegistryKey == null) {
+                RegistryKey = entity.RegistryKey;
+            }
+
+            if (!entity.RegistryKey.Equals(RegistryKey)) {
+				Debug.LogWarning("Unit type " + entity.RegistryKey + " doesn't match roster's registered type of " + RegistryKey + "!");
                 return false;
 			}
 
-            if (!instances.TryAdd(unit.Id(), unit)) {
+            if (!instances.TryAdd(entity.ID, entity)) {
                 //Debug.LogWarning("Unit " + unit.Id() + " already added to Roster of " + Type + " type!");
                 return false;
+            }
+
+            if (Commands.Count == 0) {
+                Commands.AddRange(entity.Commands());
             }
 
             return true;
@@ -56,6 +77,10 @@ namespace MarsTS.Units {
             foreach (int id in ids) {
                 instances.Remove(id);
             }
+        }
+
+        public bool Contains (int id) {
+            return instances.ContainsKey(id);
         }
 
         public void Clear () {

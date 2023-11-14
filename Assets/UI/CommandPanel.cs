@@ -1,5 +1,5 @@
 using MarsTS.Players;
-using MarsTS.Units.Commands;
+using MarsTS.Commands;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -23,7 +23,7 @@ namespace MarsTS.UI {
 		public void Press (int index) {
 			if (boundCommands[index] is null) return;
 
-			Command bound = Commands.Get(boundCommands[index]);
+			Command bound = CommandRegistry.Get(boundCommands[index]);
 			bound.StartSelection();
 		}
 
@@ -37,6 +37,19 @@ namespace MarsTS.UI {
 
 				boundCommands[i] = commands[i];
 				registeredText[i].text = boundCommands[i];
+			}
+		}
+
+		public void LoadCommandPage (CommandPage page) {
+			string[,] commands = page.Build();
+
+			for (int y = 0; y < 3; y++) {
+				for (int x = 0; x < 3; x++) {
+					int i = ((y + 1) * (x + 1)) - 1;
+
+					boundCommands[i] = commands[y, x];
+					registeredText[i].text = commands[y, x];
+				}
 			}
 		}
 	}

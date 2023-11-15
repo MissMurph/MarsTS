@@ -14,19 +14,15 @@ using MarsTS.Commands;
 
 namespace MarsTS.Units {
 
-	public class Unit : MonoBehaviour, ISelectable, ITaggable<Unit>, IRegistryObject<Unit>, IAttackable, ICommandable {
+	public class Unit : MonoBehaviour, ISelectable, ITaggable<Unit>, IAttackable, ICommandable {
 
-		public int Health {
-			get {
-				return currentHealth;
-			}
-		}
+		public GameObject GameObject { get { return gameObject; } }
 
-		public int MaxHealth {
-			get {
-				return maxHealth;
-			}
-		}
+		/*	IAttackable Properties	*/
+
+		public int Health { get { return currentHealth; } }
+
+		public int MaxHealth { get { return maxHealth; } }
 
 		[SerializeField]
 		private int maxHealth;
@@ -34,66 +30,33 @@ namespace MarsTS.Units {
 		[SerializeField]
 		private int currentHealth;
 
-		public Faction Owner {
-			get {
-				return owner;
-			}
-			set {
-				owner = value;
-			}
-		}
+		/*	ISelectable Properties	*/
+		
+		public int ID { get { return entityComponent.ID; } }
+
+		public string UnitType { get { return type; } }
+
+		public string RegistryKey { get { return "unit:" + UnitType; } }
+
+		[SerializeField]
+		private string type;
+
+		/*	ITaggable Properties	*/
+
+		public string Key { get { return "selectable"; } }
+
+		public Type Type { get { return typeof(Unit); } }
+
+		public Faction Owner { get { return owner; } }
+
+		/*	Unit Fields	*/
 
 		[SerializeField]
 		protected Faction owner;
 
 		protected Entity entityComponent;
 
-		[SerializeField]
-		private string type;
-
 		public Commandlet CurrentCommand { get; protected set; }
-
-		public string Key {
-			get {
-				return "selectable";
-			}
-		}
-
-		public Type Type {
-			get {
-				return typeof(Unit);
-			}
-		}
-
-		public GameObject GameObject {
-			get {
-				return gameObject; 
-			}
-		}
-
-		public int ID {
-			get {
-				return entityComponent.ID;
-			}
-		}
-
-		public string RegistryType {
-			get {
-				return "unit";
-			}
-		}
-
-		public string RegistryKey {
-			get {
-				return RegistryType + ":" + UnitType;
-			}
-		}
-
-		public string UnitType {
-			get {
-				return type;
-			}
-		}
 
 		public Queue<Commandlet> CommandQueue = new Queue<Commandlet>();
 		
@@ -111,8 +74,8 @@ namespace MarsTS.Units {
 
 		protected Rigidbody body;
 
-		const float minPathUpdateTime = .5f;
-		const float pathUpdateMoveThreshold = .5f;
+		private const float minPathUpdateTime = .5f;
+		private const float pathUpdateMoveThreshold = .5f;
 
 		[SerializeField]
 		private float waypointCompletionDistance;
@@ -321,10 +284,6 @@ namespace MarsTS.Units {
 				bus.Global(new EntityDeathEvent(bus, this));
 				Destroy(gameObject, 0.1f);
 			}
-		}
-
-		public IRegistryObject<Unit> GetRegistryEntry () {
-			throw new NotImplementedException();
 		}
 	}
 }

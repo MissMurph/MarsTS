@@ -42,15 +42,15 @@ namespace MarsTS.Units {
 		protected float cooldown;
 		protected float currentCooldown;
 
-		protected Dictionary<string, IAttackable> inRangeUnits;
+		protected Dictionary<string, ISelectable> inRangeUnits;
 
 		public IAttackable target;
 
 		protected Unit parent;
 		protected EventAgent eventAgent;
 
-		private void Awake () {
-			inRangeUnits = new Dictionary<string, IAttackable>();
+		protected virtual void Awake () {
+			inRangeUnits = new Dictionary<string, ISelectable>();
 			parent = GetComponentInParent<Unit>();
 			eventAgent = GetComponentInParent<EventAgent>();
 			eventAgent.AddListener<EntityInitEvent>(OnEntityInit);
@@ -70,9 +70,9 @@ namespace MarsTS.Units {
 			}
 
 			if (target == null) {
-				foreach (IAttackable unit in inRangeUnits.Values) {
-					if (unit.GetRelationship(parent.Owner) == Relationship.Hostile) {
-						target = unit;
+				foreach (ISelectable unit in inRangeUnits.Values) {
+					if (unit is IAttackable targetable && unit.GetRelationship(parent.Owner) == Relationship.Hostile) {
+						target = targetable;
 						break;
 					}
 				}
@@ -102,19 +102,19 @@ namespace MarsTS.Units {
 		}
 
 		private void OnTriggerEnter (Collider other) {
-			if (EntityCache.TryGet(other.transform.root.name, out Entity entityComp) && entityComp.TryGet(out ISelectable unit) && unit is IAttackable target) {
-				entityComp.Get<EventAgent>("eventAgent").AddListener<EntityDeathEvent>((_event) => OutOfRange(target));
-				inRangeUnits.TryAdd(other.transform.root.name, target);
+			if (EntityCache.TryGet(other.transform.root.name, out Entity entityComp) && entityComp.TryGet(out ISelectable unit)) {
+				entityComp.Get<EventAgent>("eventAgent").AddListener<EntityDeathEvent>((_event) => OutOfRange(unit));
+				inRangeUnits.TryAdd(other.transform.root.name, unit);
 			}
 		}
 
 		private void OnTriggerExit (Collider other) {
-			if (EntityCache.TryGet(other.transform.root.name, out ISelectable unit) && unit is IAttackable target) {
-				OutOfRange(target);
+			if (EntityCache.TryGet(other.transform.root.name, out ISelectable unit)) {
+				OutOfRange(unit);
 			}
 		}
 
-		private void OutOfRange (IAttackable unit) {
+		private void OutOfRange (ISelectable unit) {
 			string name = unit.GameObject.transform.root.name;
 			inRangeUnits.Remove(name);
 			if (target != null && target.GameObject.transform.root.name == name) target = null;

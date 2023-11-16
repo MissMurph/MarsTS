@@ -14,11 +14,11 @@ namespace MarsTS.Units {
 
 		private bool initialized = false;
 
-		private Unit parent;
+		private ISelectable parent;
 
 		private Action<bool, IAttackable> hitCallback;
 
-		public void Init (Unit _parent, Action<bool, IAttackable> callback) {
+		public void Init (ISelectable _parent, Action<bool, IAttackable> callback) {
 			parent = _parent;
 			initialized = true;
 			hitCallback = callback;

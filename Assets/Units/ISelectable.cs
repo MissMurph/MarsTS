@@ -12,6 +12,7 @@ namespace MarsTS.Units {
 		int ID { get; }
 		string UnitType { get; }
 		string RegistryKey { get; }
+		Faction Owner { get; }
 		void Select (bool status);
 		void Hover (bool status);
 		Relationship GetRelationship (Faction player);

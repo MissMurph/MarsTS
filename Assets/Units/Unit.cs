@@ -63,7 +63,29 @@ namespace MarsTS.Units {
 		[SerializeField]
 		private string[] boundCommands;
 
-		protected Transform target;
+		protected Transform TrackedTarget {
+			get {
+				return target;
+			}
+			set {
+				if (target != null) {
+					EntityCache.TryGet(target.gameObject.name + ":eventAgent", out EventAgent oldAgent);
+					oldAgent.RemoveListener<EntityDeathEvent>((_event) => TrackedTarget = null);
+				}
+
+				target = value;
+
+				if (value != null) {
+					EntityCache.TryGet(value.gameObject.name + ":eventAgent", out EventAgent agent);
+
+					agent.AddListener<EntityDeathEvent>((_event) => TrackedTarget = null);
+				}
+			}
+		}
+
+		private Transform target;
+
+
 		private Vector3 targetOldPos;
 
 		protected Path currentPath = Path.Empty;
@@ -276,6 +298,7 @@ namespace MarsTS.Units {
 		}
 
 		public void Attack (int damage) {
+			if (damage < 0 && currentHealth >= maxHealth) return;
 			currentHealth -= damage;
 
 			bus.Local(new EntityHurtEvent(bus, this));

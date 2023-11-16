@@ -22,6 +22,8 @@ namespace MarsTS.Buildings {
 
 		public ProductionCommandlet CurrentProduction { get; protected set; }
 
+		public override Commandlet CurrentCommand { get { return CurrentProduction; } }
+
 		protected Queue<Commandlet> rallyOrders = new Queue<Commandlet>();
 
 		protected Commandlet exitOrder;

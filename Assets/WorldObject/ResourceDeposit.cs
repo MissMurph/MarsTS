@@ -1,4 +1,6 @@
 using MarsTS.Entities;
+using MarsTS.Events;
+using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.Units;
 using System;
@@ -20,6 +22,8 @@ namespace MarsTS.World {
 
 		public string RegistryKey { get { return UnitType + ":" + depositType; } }
 
+		public Faction Owner { get { return null; } }
+
 		/*	ITaggable Properties	*/
 
 		public string Key { get { return "selectable"; } }
@@ -30,6 +34,10 @@ namespace MarsTS.World {
 
 		private Entity entityComponent;
 
+		private EventAgent bus;
+
+		GameObject selectionCircle;
+
 		//This is just for the registry key, some examples:
 		//deposit:scrap
 		//deposit:oil_slick
@@ -39,8 +47,14 @@ namespace MarsTS.World {
 		[SerializeField]
 		private string depositType;
 
+		private EntityAttribute attribute; 
+
 		private void Awake () {
 			entityComponent = GetComponent<Entity>();
+			attribute = GetComponent<EntityAttribute>();
+			bus = GetComponent<EventAgent>();
+			selectionCircle = transform.Find("SelectionCircle").gameObject;
+			selectionCircle.SetActive(false);
 		}
 
 		public bool CanHarvest (string resourceKey, ISelectable unit) {
@@ -56,19 +70,35 @@ namespace MarsTS.World {
 		}
 
 		public int Harvest (string resourceKey, int amount) {
-			throw new System.NotImplementedException();
-		}
+			int finalAmount = Mathf.Min(amount, attribute.Amount);
 
-		public void Hover (bool status) {
-			throw new System.NotImplementedException();
+			if (finalAmount > 0) {
+				//bus.Global(new ResourceHarvestedEvent(bus, this, finalAmount, resourceKey));
+				Debug.Log(attribute.Amount);
+			}
+
+			return finalAmount;
 		}
 
 		public void Select (bool status) {
-			throw new System.NotImplementedException();
+			selectionCircle.SetActive(status);
+			bus.Local(new UnitSelectEvent(bus, status));
+		}
+
+		public void Hover (bool status) {
+			//These are seperated due to the Player Selection Check
+			if (status) {
+				selectionCircle.SetActive(true);
+				bus.Local(new UnitHoverEvent(bus, status));
+			}
+			else if (!Player.Main.HasSelected(this)) {
+				selectionCircle.SetActive(false);
+				bus.Local(new UnitHoverEvent(bus, status));
+			}
 		}
 
 		public bool SetOwner (Faction player) {
-			throw new System.NotImplementedException();
+			return false;
 		}
 	}
 }

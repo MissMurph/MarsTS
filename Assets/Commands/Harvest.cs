@@ -2,18 +2,16 @@ using MarsTS.Entities;
 using MarsTS.Players;
 using MarsTS.Units;
 using MarsTS.World;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 namespace MarsTS.Commands {
 
-	public class Attack : Command<IAttackable> {
+    public class Harvest : Command<IHarvestable> {
 
-		public override string Name { get { return "attack"; } }
+		public override string Name { get { return "harvest"; } }
 
 		public override void StartSelection () {
 			Player.Input.Hook("Select", OnSelect);
@@ -27,9 +25,9 @@ namespace MarsTS.Commands {
 				Vector2 cursorPos = Player.MousePos;
 				Ray ray = Player.ViewPort.ScreenPointToRay(cursorPos);
 
-				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask) 
+				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)
 					&& EntityCache.TryGet(hit.collider.transform.parent.name + ":selectable", out ISelectable unit)
-					&& unit is IAttackable target) {
+					&& unit is IHarvestable target) {
 					Player.Main.DeliverCommand(Construct(target), Player.Include);
 				}
 

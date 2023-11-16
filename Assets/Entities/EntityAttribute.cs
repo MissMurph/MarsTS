@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace MarsTS.Entities {
 
-    public class Attribute : MonoBehaviour, ITaggable<Attribute> {
+    public class EntityAttribute : MonoBehaviour, ITaggable<EntityAttribute> {
 
 		public int Amount {
 			get {
@@ -29,11 +29,11 @@ namespace MarsTS.Entities {
 
 		public Type Type {
 			get {
-				return typeof(Attribute);
+				return typeof(EntityAttribute);
 			}
 		}
 
-		public Attribute Get () {
+		public EntityAttribute Get () {
 			return this;
 		}
 

@@ -41,6 +41,8 @@ namespace MarsTS.Buildings {
 			}
 		}
 
+		public Faction Owner { get { return owner; } }
+
 		[SerializeField]
 		protected Faction owner;
 
@@ -105,6 +107,8 @@ namespace MarsTS.Buildings {
 		public string RegistryKey => RegistryType + ":" + UnitType;
 
 		public string UnitType => type;
+
+		public abstract Commandlet CurrentCommand { get; }
 
 		protected EventAgent bus;
 

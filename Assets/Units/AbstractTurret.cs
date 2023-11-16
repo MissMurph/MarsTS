@@ -8,22 +8,14 @@ using UnityEngine;
 
 namespace MarsTS.Units {
 
-	public class Turret : MonoBehaviour {
+	public abstract class AbstractTurret : MonoBehaviour {
 
-		public float Range {
-			get {
-				return range.radius;
-			}
-		}
+		public float Range { get { return range.radius; } }
 
 		[SerializeField]
 		protected SphereCollider range;
 
-		public float Falloff {
-			get {
-				return falloff;
-			}
-		}
+		public float Falloff { get { return falloff; } }
 
 		[SerializeField]
 		private float falloff;
@@ -31,31 +23,21 @@ namespace MarsTS.Units {
 		[SerializeField]
 		protected GameObject barrel;
 
-		[SerializeField]
-		private float turnRate;
-
-		[SerializeField]
-		protected int damage;
-
-		//Seconds between firing
-		[SerializeField]
-		protected float cooldown;
-		protected float currentCooldown;
-
 		protected Dictionary<string, ISelectable> inRangeUnits;
 
-		public IAttackable target;
+		protected ISelectable target;
 
-		protected Unit parent;
+		protected ISelectable parent;
 		protected EventAgent eventAgent;
 
 		protected virtual void Awake () {
+			range = transform.Find("Range").GetComponent<SphereCollider>();
 			inRangeUnits = new Dictionary<string, ISelectable>();
 			parent = GetComponentInParent<Unit>();
 			eventAgent = GetComponentInParent<EventAgent>();
 			eventAgent.AddListener<EntityInitEvent>(OnEntityInit);
 
-			foreach (Collider collider in parent.transform.Find("Model").GetComponentsInChildren<Collider>()) {
+			foreach (Collider collider in parent.GameObject.transform.Find("Model").GetComponentsInChildren<Collider>()) {
 				Physics.IgnoreCollision(range, collider);
 			}
 		}
@@ -64,39 +46,8 @@ namespace MarsTS.Units {
 			range.gameObject.SetActive(true);
 		}
 
-		protected virtual void Update () {
-			if (currentCooldown >= 0f) {
-				currentCooldown -= Time.deltaTime;
-			}
-
-			if (target == null) {
-				foreach (ISelectable unit in inRangeUnits.Values) {
-					if (unit is IAttackable targetable && unit.GetRelationship(parent.Owner) == Relationship.Hostile) {
-						target = targetable;
-						break;
-					}
-				}
-			}
-
-			if (target != null && inRangeUnits.ContainsKey(target.GameObject.transform.root.name) && currentCooldown <= 0) {
-				Fire();
-			}
-		}
-
-		protected virtual void Fire () {
-			Vector3 direction = (target.GameObject.transform.position - transform.position).normalized;
-
-			Physics.Raycast(barrel.transform.position, direction, range.radius);
-			Debug.DrawLine(barrel.transform.position, barrel.transform.position + (direction * range.radius), Color.cyan, 0.1f);
-
-			target.Attack(damage);
-
-			currentCooldown = cooldown;
-		}
-
 		private void FixedUpdate () {
 			if (target != null && inRangeUnits.ContainsKey(target.GameObject.transform.root.name)) {
-				
 				barrel.transform.LookAt(target.GameObject.transform, Vector3.up);
 			}
 		}
@@ -114,7 +65,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		private void OutOfRange (ISelectable unit) {
+		protected virtual void OutOfRange (ISelectable unit) {
 			string name = unit.GameObject.transform.root.name;
 			inRangeUnits.Remove(name);
 			if (target != null && target.GameObject.transform.root.name == name) target = null;

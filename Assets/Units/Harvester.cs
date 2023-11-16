@@ -1,14 +1,14 @@
 using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
-using MarsTS.Teams;
+using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace MarsTS.Units {
 
-    public class Constructor : Unit {
+	public class Harvester : Unit {
 
 		[Header("Movement")]
 
@@ -35,37 +35,37 @@ namespace MarsTS.Units {
 
 		[Header("Turrets")]
 
-		protected Dictionary<string, AbstractTurret> registeredTurrets = new Dictionary<string, AbstractTurret>();
+		protected Dictionary<string, HarvesterTurret> registeredTurrets = new Dictionary<string, HarvesterTurret>();
 
 		[SerializeField]
-		protected AbstractTurret[] turretsToRegister;
+		protected HarvesterTurret[] turretsToRegister;
 
-		protected IAttackable RepairTarget {
+		public IHarvestable HarvestTarget {
 			get {
-				return repairTarget;
+				return harvestTarget;
 			}
 			set {
-				if (repairTarget != null) {
-					EntityCache.TryGet(repairTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
-					oldAgent.RemoveListener<EntityDeathEvent>((_event) => repairTarget = null);
+				if (harvestTarget != null) {
+					EntityCache.TryGet(harvestTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
+					oldAgent.RemoveListener<EntityDeathEvent>((_event) => harvestTarget = null);
 				}
 
-				repairTarget = value;
+				harvestTarget = value;
 
 				if (value != null) {
 					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
 
-					agent.AddListener<EntityDeathEvent>((_event) => repairTarget = null);
+					agent.AddListener<EntityDeathEvent>((_event) => harvestTarget = null);
 				}
 			}
 		}
 
-		protected IAttackable repairTarget;
+		protected IHarvestable harvestTarget;
 
 		protected override void Awake () {
 			base.Awake();
 
-			foreach (AbstractTurret turret in turretsToRegister) {
+			foreach (HarvesterTurret turret in turretsToRegister) {
 				registeredTurrets.TryAdd(turret.name, turret);
 			}
 		}
@@ -73,14 +73,14 @@ namespace MarsTS.Units {
 		protected override void Update () {
 			base.Update();
 
-			if (repairTarget == null) return;
+			if (harvestTarget == null) return;
 
-			if (Vector3.Distance(repairTarget.GameObject.transform.position, transform.position) <= registeredTurrets["turret_main"].Range) {
+			if (Vector3.Distance(harvestTarget.GameObject.transform.position, transform.position) <= registeredTurrets["turret_main"].Range) {
 				TrackedTarget = null;
 				currentPath = Path.Empty;
 			}
-			else if (!ReferenceEquals(TrackedTarget, repairTarget.GameObject.transform)) {
-				SetTarget(repairTarget.GameObject.transform);
+			else if (!ReferenceEquals(TrackedTarget, harvestTarget.GameObject.transform)) {
+				SetTarget(harvestTarget.GameObject.transform);
 			}
 		}
 
@@ -114,13 +114,10 @@ namespace MarsTS.Units {
 		}
 
 		protected override void ProcessOrder (Commandlet order) {
-			RepairTarget = null;
+			HarvestTarget = null;
 			switch (order.Name) {
-				case "construct":
-				
-				break;
-				case "repair":
-				Repair(order);
+				case "harvest":
+				Harvest(order);
 				break;
 				//This is brilliant
 				default:
@@ -129,13 +126,9 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected void Repair (Commandlet order) {
-			if (order is Commandlet<ISelectable> deserialized && deserialized.Target is IAttackable target) {
-				IAttackable unit = target;
-
-				if ((unit.GetRelationship(owner) == Teams.Relationship.Owned || unit.GetRelationship(owner) == Teams.Relationship.Friendly)) {
-					RepairTarget = unit;
-				}
+		protected void Harvest (Commandlet order) {
+			if (order is Commandlet<ISelectable> deserialized && deserialized.Target is IHarvestable target) {
+				HarvestTarget = target;
 			}
 		}
 	}

@@ -156,9 +156,9 @@ namespace MarsTS.Players {
 				Physics.Raycast(ray, out RaycastHit walkableHit, 1000f, GameWorld.WalkableMask);
 				Physics.Raycast(ray, out RaycastHit selectableHit, 1000f, GameWorld.SelectableMask);
 
-				if (selectableHit.collider != null && selectableHit.collider.gameObject.TryGetComponent(out ISelectable unit)) {
+				if (selectableHit.collider != null && EntityCache.TryGet(selectableHit.collider.transform.root.name, out ISelectable unit) && unit is IAttackable target) {
 					if (unit.GetRelationship(this) == Relationship.Hostile) {
-						DeliverCommand(CommandRegistry.Get<Attack>("attack").Construct(unit), Include);
+						DeliverCommand(CommandRegistry.Get<Attack>("attack").Construct(target), Include);
 						return;
 					}
 				}

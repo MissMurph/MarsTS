@@ -1,3 +1,4 @@
+using MarsTS.Commands;
 using MarsTS.Teams;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,33 +7,64 @@ using static UnityEngine.GraphicsBuffer;
 
 namespace MarsTS.Units {
 
-    public class BuilderTurret : Turret {
+    public class BuilderTurret : AbstractTurret {
 
 		[SerializeField]
+		private int repairRate;
+
 		private int repairAmount;
 
-        protected override void Update () {
+		private float cooldown;
+		private float currentCooldown;
+
+		protected override void Awake () {
+			base.Awake();
+
+			cooldown = 1f / repairRate;
+			repairAmount = (int)(repairRate * cooldown);
+		}
+
+		private void Update () {
 			if (currentCooldown >= 0f) {
 				currentCooldown -= Time.deltaTime;
 			}
 
-			if (target == null) {
-				foreach (IAttackable unit in inRangeUnits.Values) {
-					if (unit.GetRelationship(parent.Owner) == Relationship.Owned || unit.GetRelationship(parent.Owner) == Relationship.Friendly) {
-						target = unit;
-						break;
-					}
+			if (parent is ICommandable commandableUnit && commandableUnit.CurrentCommand != null && commandableUnit.CurrentCommand.Name == "repair") {
+				Commandlet<IAttackable> attackCommand = commandableUnit.CurrentCommand as Commandlet<IAttackable>;
+
+				if (inRangeUnits.ContainsKey(attackCommand.Target.GameObject.name)) {
+					target = attackCommand.Target as ISelectable;
 				}
 			}
+
+			if (target == null) {
+				float distance = Range;
+				IAttackable currentClosest = null;
+
+				foreach (ISelectable unit in inRangeUnits.Values) {
+					if (unit is IAttackable targetable && (unit.GetRelationship(parent.Owner) == Relationship.Owned || unit.GetRelationship(parent.Owner) == Relationship.Friendly)) {
+						if (targetable.Health >= targetable.MaxHealth) break;
+
+						float newDistance = Vector3.Distance(unit.GameObject.transform.position, transform.position);
+
+						if (newDistance < distance) {
+							currentClosest = targetable;
+						}
+					}
+				}
+
+				if (currentClosest != null) target = currentClosest as ISelectable;
+			}
+
 			if (target != null && inRangeUnits.ContainsKey(target.GameObject.transform.root.name) && currentCooldown <= 0) {
-				Fire();
+				Repair();
 			}
 		}
 
-		protected override void Fire () {
-			//When health is a thing this will have the repairing logic
-			target.Attack(-repairAmount);
-			currentCooldown = cooldown;
+		private void Repair () {
+			IAttackable targetable = target as IAttackable;
+			targetable.Attack(-repairAmount);
+			currentCooldown += cooldown;
 		}
     }
 }

@@ -34,10 +34,10 @@ namespace MarsTS.Units {
 
 		[Header("Turrets")]
 
-		protected Dictionary<string, Turret> registeredTurrets = new Dictionary<string, Turret>();
+		protected Dictionary<string, AbstractTurret> registeredTurrets = new Dictionary<string, AbstractTurret>();
 
 		[SerializeField]
-		protected Turret[] turretsToRegister;
+		protected AbstractTurret[] turretsToRegister;
 
 		protected IAttackable AttackTarget {
 			get {
@@ -50,7 +50,6 @@ namespace MarsTS.Units {
 				}
 
 				attackTarget = value;
-				registeredTurrets["turret_main"].target = attackTarget;
 
 				if (value != null) {
 					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
@@ -64,7 +63,7 @@ namespace MarsTS.Units {
 
 		protected override void Awake () {
 			base.Awake();
-			foreach (Turret turret in turretsToRegister) {
+			foreach (AbstractTurret turret in turretsToRegister) {
 				registeredTurrets.TryAdd(turret.name, turret);
 			}
 		}
@@ -75,10 +74,10 @@ namespace MarsTS.Units {
 			if (attackTarget == null) return;
 
 			if (Vector3.Distance(attackTarget.GameObject.transform.position, transform.position) <= registeredTurrets["turret_main"].Range) {
-				target = null;
+				TrackedTarget = null;
 				currentPath = Path.Empty;
 			}
-			else if (!ReferenceEquals(target, attackTarget.GameObject.transform)) {
+			else if (!ReferenceEquals(TrackedTarget, attackTarget.GameObject.transform)) {
 				SetTarget(attackTarget.GameObject.transform);
 			}
 		}

@@ -116,27 +116,44 @@ namespace MarsTS.Units {
 		protected override void ProcessOrder (Commandlet order) {
 			RepairTarget = null;
 			switch (order.Name) {
-				case "construct":
-				
-				break;
 				case "repair":
-				Repair(order);
-				break;
-				//This is brilliant
+					CurrentCommand = order;
+					Repair(order);
+					break;
 				default:
-				base.ProcessOrder(order);
-				break;
+					base.ProcessOrder(order);
+					break;
 			}
 		}
 
 		protected void Repair (Commandlet order) {
-			if (order is Commandlet<ISelectable> deserialized && deserialized.Target is IAttackable target) {
-				IAttackable unit = target;
+			if (order is Commandlet<IAttackable> deserialized) {
+				IAttackable unit = deserialized.Target;
 
-				if ((unit.GetRelationship(owner) == Teams.Relationship.Owned || unit.GetRelationship(owner) == Teams.Relationship.Friendly)) {
+				if (unit.GetRelationship(owner) == Relationship.Owned || unit.GetRelationship(owner) == Relationship.Friendly) {
 					RepairTarget = unit;
 				}
 			}
+		}
+
+		public override Command Evaluate (ISelectable target) {
+			if (target is IAttackable attackable
+				&& (target.GetRelationship(owner) == Relationship.Owned || target.GetRelationship(owner) == Relationship.Friendly)
+				&& attackable.Health < attackable.MaxHealth) {
+				return CommandRegistry.Get("repair");
+			}
+
+			return CommandRegistry.Get("move");
+		}
+
+		public override Commandlet Auto (ISelectable target) {
+			if (target is IAttackable attackable
+				&& (target.GetRelationship(owner) == Relationship.Owned || target.GetRelationship(owner) == Relationship.Friendly)
+				&& attackable.Health < attackable.MaxHealth) {
+				return CommandRegistry.Get<Repair>("repair").Construct(attackable);
+			}
+
+			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
 		}
 	}
 }

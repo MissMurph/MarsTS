@@ -14,7 +14,7 @@ using MarsTS.Commands;
 
 namespace MarsTS.Units {
 
-	public class Unit : MonoBehaviour, ISelectable, ITaggable<Unit>, IAttackable, ICommandable {
+	public abstract class Unit : MonoBehaviour, ISelectable, ITaggable<Unit>, IAttackable, ICommandable {
 
 		public GameObject GameObject { get { return gameObject; } }
 
@@ -56,7 +56,10 @@ namespace MarsTS.Units {
 
 		protected Entity entityComponent;
 
-		public Commandlet CurrentCommand { get; protected set; }
+		public Commandlet CurrentCommand { 
+			get; 
+			protected set; 
+		}
 
 		public Queue<Commandlet> CommandQueue = new Queue<Commandlet>();
 		
@@ -140,8 +143,6 @@ namespace MarsTS.Units {
 		protected void UpdateCommands () {
 			if (CurrentCommand is null && CommandQueue.TryDequeue(out Commandlet order)) {
 
-				CurrentCommand = order;
-
 				ProcessOrder(order);
 			}
 		}
@@ -149,9 +150,11 @@ namespace MarsTS.Units {
 		protected virtual void ProcessOrder (Commandlet order) {
 			switch (order.Name) {
 				case "move":
+				CurrentCommand = order;
 				Move(order);
 				break;
 				case "stop":
+				CurrentCommand = order;
 				Stop();
 				break;
 				default:
@@ -271,6 +274,10 @@ namespace MarsTS.Units {
 			return boundCommands;
 		}
 
+		public abstract Command Evaluate (ISelectable target);
+
+		public abstract Commandlet Auto (ISelectable target);
+
 		public void Select (bool status) {
 			selectionCircle.SetActive(status);
 			bus.Local(new UnitSelectEvent(bus, status));
@@ -305,7 +312,7 @@ namespace MarsTS.Units {
 
 			if (currentHealth <= 0) {
 				bus.Global(new EntityDeathEvent(bus, this));
-				Destroy(gameObject, 0.1f);
+				Destroy(gameObject);
 			}
 		}
 	}

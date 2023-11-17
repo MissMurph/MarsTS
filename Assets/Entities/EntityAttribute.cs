@@ -7,9 +7,13 @@ namespace MarsTS.Entities {
 
     public class EntityAttribute : MonoBehaviour, ITaggable<EntityAttribute> {
 
-		public int Amount {
+		public virtual int Amount {
 			get {
 				return stored;
+			}
+			set {
+				stored = value;
+				if (stored < 0) stored = 0;
 			}
 		}
 
@@ -41,8 +45,9 @@ namespace MarsTS.Entities {
 			stored = startingValue;
 		}
 
-		public virtual void Submit (int amount) {
+		public virtual int Submit (int amount) {
 			stored += amount;
+			return amount;
 		}
 
 		public virtual bool Consume (int amount) {

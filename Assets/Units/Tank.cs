@@ -1,6 +1,7 @@
 using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
+using MarsTS.Teams;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -112,12 +113,11 @@ namespace MarsTS.Units {
 		}
 
 		protected override void ProcessOrder (Commandlet order) {
-			AttackTarget = null;
 			switch (order.Name) {
 				case "attack":
+					CurrentCommand = order;
 					Attack(order);
 					break;
-				//This is brilliant
 				default:
 					base.ProcessOrder(order);
 					break;
@@ -125,16 +125,14 @@ namespace MarsTS.Units {
 		}
 
 		protected void Attack (Commandlet order) {
-			if (order is Commandlet<ISelectable> deserialized && deserialized.Target is IAttackable target) {
-				AttackTarget = target;
+			if (order is Commandlet<IAttackable> deserialized) {
+				AttackTarget = deserialized.Target;
 
 				EntityCache.TryGet(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.AddListener<EntityDeathEvent>(OnTargetDeath);
 
-				order.Callback.AddListener((_event) => {
-					targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
-				});
+				bus.AddListener<CommandCompleteEvent>(AttackCancelled);
 			}
 		}
 
@@ -144,7 +142,21 @@ namespace MarsTS.Units {
 
 		}
 
+		private void AttackCancelled (CommandCompleteEvent _event) {
+			bus.RemoveListener<CommandCompleteEvent>(AttackCancelled);
+
+			if (_event.Command is Commandlet<IAttackable> deserialized && _event.Cancelled) {
+				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
+
+				targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+			}
+		}
+
 		private void OnTargetDeath (EntityDeathEvent _event) {
+			EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
+
+			targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
 			CurrentCommand.Callback.Invoke(newEvent);
@@ -152,6 +164,22 @@ namespace MarsTS.Units {
 			bus.Global(newEvent);
 
 			CurrentCommand = null;
+		}
+
+		public override Command Evaluate (ISelectable target) {
+			if (target is IAttackable && target.GetRelationship(owner) == Relationship.Hostile) {
+				return CommandRegistry.Get("attack");
+			}
+
+			return CommandRegistry.Get("move");
+		}
+
+		public override Commandlet Auto (ISelectable target) {
+			if (target is IAttackable deserialized && target.GetRelationship(owner) == Relationship.Hostile) {
+				return CommandRegistry.Get<Attack>("attack").Construct(deserialized);
+			}
+
+			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
 		}
 	}
 }

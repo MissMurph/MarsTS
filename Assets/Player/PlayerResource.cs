@@ -6,6 +6,8 @@ namespace MarsTS.Players {
 
     public class PlayerResource : MonoBehaviour {
 
+        public string Key { get { return key; } }
+
         [SerializeField]
         private string key;
 
@@ -24,11 +26,12 @@ namespace MarsTS.Players {
             stored = startingAmount;
 		}
 
-        public void Submit (int amount) {
+        public bool Deposit (int amount) {
             stored += amount;
+            return true;
         }
 
-        public bool Consume (int amount) {
+        public bool Withdraw (int amount) {
             if (Amount >= amount) {
                 stored -= amount;
                 return true;

@@ -126,8 +126,13 @@ namespace MarsTS.Buildings {
 
 			if (currentWork > 0) {
 				model.localScale = Vector3.one * (currentWork / constructionWork);
+				Health = maxHealth * (int) (currentWork / constructionWork);
 			}
 			else model.localScale = Vector3.zero;
+		}
+
+		protected virtual void Start () {
+			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 		}
 
 		protected virtual void CancelConstruction () {
@@ -163,7 +168,8 @@ namespace MarsTS.Buildings {
 		}
 
 		public Relationship GetRelationship (Faction other) {
-			return owner.GetRelationship(other);
+			Relationship result = owner.GetRelationship(other);
+			return result;
 		}
 
 		public void Select (bool status) {
@@ -203,6 +209,7 @@ namespace MarsTS.Buildings {
 			}
 
 			Health -= damage;
+			bus.Global(new EntityHurtEvent(bus, this));
 
 			if (Health <= 0) {
 				bus.Global(new EntityDeathEvent(bus, this));
@@ -210,8 +217,16 @@ namespace MarsTS.Buildings {
 			}
 		}
 
+		public Command Evaluate (ISelectable target) {
+			return CommandRegistry.Get("move");
+		}
+
 		public IRegistryObject<Building> GetRegistryEntry () {
 			throw new NotImplementedException();
+		}
+
+		public Commandlet Auto (ISelectable target) {
+			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
 		}
 	}
 }

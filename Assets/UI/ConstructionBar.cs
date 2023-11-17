@@ -1,4 +1,5 @@
 using MarsTS.Events;
+using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,14 +9,21 @@ namespace MarsTS.UI {
     public class ConstructionBar : UnitBar {
 
 		private void Start () {
-			FillLevel = 0f;
+			IAttackable parent = GetComponentInParent<IAttackable>();
 
-			barRenderer.enabled = true;
+			if (parent.Health == 1) {
+				FillLevel = 0f;
 
-			GetComponentInParent<EventAgent>().AddListener<EntityHurtEvent>((_event) => {
-				FillLevel = (float)_event.Unit.Health / _event.Unit.MaxHealth;
-				if (FillLevel >= 1f) Destroy(gameObject);
-			});
+				barRenderer.enabled = true;
+
+				GetComponentInParent<EventAgent>().AddListener<EntityHurtEvent>((_event) => {
+					FillLevel = (float)_event.Unit.Health / _event.Unit.MaxHealth;
+					if (FillLevel >= 1f) Destroy(gameObject);
+				});
+			}
+			else {
+				barRenderer.enabled = false;
+			}
 		}
 	}
 }

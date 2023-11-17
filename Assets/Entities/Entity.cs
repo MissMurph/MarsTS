@@ -22,7 +22,7 @@ namespace MarsTS.Entities {
 			}
 		}
 
-		private int id;
+		private int id = 0;
 
 		[SerializeField]
 		private string registryKey;

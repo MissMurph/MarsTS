@@ -18,9 +18,12 @@ namespace MarsTS.World {
 
 		public int ID { get { return entityComponent.ID; } }
 
-		public string UnitType { get { return "deposit"; } }
+		public string UnitType { get { return "world_object"; } }
 
-		public string RegistryKey { get { return UnitType + ":" + depositType; } }
+		public string RegistryKey { get { return UnitType + ":" + key; } }
+
+		[SerializeField]
+		private string key;
 
 		public Faction Owner { get { return null; } }
 
@@ -29,6 +32,14 @@ namespace MarsTS.World {
 		public string Key { get { return "selectable"; } }
 
 		public Type Type { get { return typeof(ResourceDeposit); } }
+
+		/*	IHarvestable Properties	*/
+
+		public int OriginalAmount { get { return startingAmount; } }
+
+		private int startingAmount;
+
+		public int StoredAmount { get { return attribute.Amount; } }
 
 		/*	Deposit Fields	*/
 
@@ -57,6 +68,11 @@ namespace MarsTS.World {
 			selectionCircle.SetActive(false);
 		}
 
+		private void Start () {
+			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
+			startingAmount = attribute.Amount;
+		}
+
 		public bool CanHarvest (string resourceKey, ISelectable unit) {
 			return true;
 		}
@@ -69,12 +85,14 @@ namespace MarsTS.World {
 			return Relationship.Neutral;
 		}
 
-		public int Harvest (string resourceKey, int amount) {
-			int finalAmount = Mathf.Min(amount, attribute.Amount);
+		public int Harvest (string resourceKey, int harvestAmount, Func<int, int> extractor) {
+			int availableAmount = Mathf.Min(harvestAmount, attribute.Amount);
+
+			int finalAmount = extractor(availableAmount);
 
 			if (finalAmount > 0) {
-				//bus.Global(new ResourceHarvestedEvent(bus, this, finalAmount, resourceKey));
-				Debug.Log(attribute.Amount);
+				bus.Global(new ResourceHarvestedEvent(bus, this, finalAmount, resourceKey));
+				attribute.Amount -= finalAmount;
 			}
 
 			return finalAmount;

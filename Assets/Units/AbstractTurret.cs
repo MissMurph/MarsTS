@@ -28,14 +28,14 @@ namespace MarsTS.Units {
 		protected ISelectable target;
 
 		protected ISelectable parent;
-		protected EventAgent eventAgent;
+		protected EventAgent bus;
 
 		protected virtual void Awake () {
 			range = transform.Find("Range").GetComponent<SphereCollider>();
 			inRangeUnits = new Dictionary<string, ISelectable>();
-			parent = GetComponentInParent<Unit>();
-			eventAgent = GetComponentInParent<EventAgent>();
-			eventAgent.AddListener<EntityInitEvent>(OnEntityInit);
+			parent = GetComponentInParent<ISelectable>();
+			bus = GetComponentInParent<EventAgent>();
+			bus.AddListener<EntityInitEvent>(OnEntityInit);
 
 			foreach (Collider collider in parent.GameObject.transform.Find("Model").GetComponentsInChildren<Collider>()) {
 				Physics.IgnoreCollision(range, collider);
@@ -63,6 +63,10 @@ namespace MarsTS.Units {
 			if (EntityCache.TryGet(other.transform.root.name, out ISelectable unit)) {
 				OutOfRange(unit);
 			}
+		}
+
+		public virtual bool IsInRange (ISelectable unit) {
+			return inRangeUnits.ContainsKey(unit.GameObject.transform.root.name);
 		}
 
 		protected virtual void OutOfRange (ISelectable unit) {

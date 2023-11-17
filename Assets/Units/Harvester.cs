@@ -1,6 +1,8 @@
+using MarsTS.Buildings;
 using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
+using MarsTS.Teams;
 using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
@@ -62,8 +64,12 @@ namespace MarsTS.Units {
 
 		protected IHarvestable harvestTarget;
 
+		protected ResourceStorage storageComp;
+
 		protected override void Awake () {
 			base.Awake();
+
+			storageComp = GetComponent<ResourceStorage>();
 
 			foreach (HarvesterTurret turret in turretsToRegister) {
 				registeredTurrets.TryAdd(turret.name, turret);
@@ -75,7 +81,7 @@ namespace MarsTS.Units {
 
 			if (harvestTarget == null) return;
 
-			if (Vector3.Distance(harvestTarget.GameObject.transform.position, transform.position) <= registeredTurrets["turret_main"].Range) {
+			if (registeredTurrets["turret_main"].IsInRange(HarvestTarget as ISelectable)) {
 				TrackedTarget = null;
 				currentPath = Path.Empty;
 			}
@@ -117,19 +123,46 @@ namespace MarsTS.Units {
 			HarvestTarget = null;
 			switch (order.Name) {
 				case "harvest":
-				Harvest(order);
-				break;
-				//This is brilliant
+					CurrentCommand = order;
+					Harvest(order);
+					break;
 				default:
-				base.ProcessOrder(order);
-				break;
+					base.ProcessOrder(order);
+					break;
 			}
 		}
 
 		protected void Harvest (Commandlet order) {
-			if (order is Commandlet<ISelectable> deserialized && deserialized.Target is IHarvestable target) {
-				HarvestTarget = target;
+			if (order is Commandlet<IHarvestable> deserialized) {
+				HarvestTarget = deserialized.Target;
 			}
+		}
+
+		public override Command Evaluate (ISelectable target) {
+			if (target is IHarvestable) {
+				return CommandRegistry.Get("harvest");
+			}
+
+			if (target is IDepositable) {
+
+			}
+
+			return CommandRegistry.Get("move");
+		}
+
+		public override Commandlet Auto (ISelectable target) {
+			if (target is IHarvestable harvestable
+				&& storageComp.Amount < storageComp.Capacity
+				&& harvestable.StoredAmount > 0) {
+				return CommandRegistry.Get<Harvest>("harvest").Construct(harvestable);
+			}
+
+			if (target is IDepositable deserialized
+				&& storageComp.Amount > 0) {
+
+			}
+
+			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
 		}
 	}
 }

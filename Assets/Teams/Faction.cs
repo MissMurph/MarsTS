@@ -1,3 +1,5 @@
+using MarsTS.Entities;
+using MarsTS.Players;
 using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,11 +13,24 @@ namespace MarsTS.Teams {
 
         public Team Allegiance { get { return TeamCache.Team(this); } }
 
-        private int minerals;
-        private int oil;
+		private Dictionary<string, PlayerResource> resources;
 
 		private void Awake () {
             ownedUnits = new Dictionary<string, Roster>();
+			resources = new Dictionary<string, PlayerResource>();
+
+			foreach (PlayerResource toRegister in GetComponents<PlayerResource>()) {
+				resources[toRegister.Key] = toRegister;
+			}
+		}
+
+		public PlayerResource Resource (string key) {
+			if (resources.TryGetValue(key, out PlayerResource bank)) {
+				return bank;
+			}
+
+			Debug.LogWarning("Player Resource with key: " + key + " not found on Player " + name);
+			return null;
 		}
 
 		public Relationship GetRelationship (Faction other) {

@@ -1,4 +1,3 @@
-using MarsTS.Prefabs;
 using MarsTS.Units;
 using System;
 using System.Collections;
@@ -7,11 +6,11 @@ using UnityEngine;
 
 namespace MarsTS.Prefabs {
 
-	public class UnitRegistry : PrefabRegistry<Unit> {
+    public class WorldObjectRegistry : PrefabRegistry<ISelectable> {
 
-		private static UnitRegistry instance;
+        private static WorldObjectRegistry instance;
 
-		public override string Key => "unit";
+		public override string Key => "world_object";
 
 		protected override void Awake () {
 			base.Awake();
@@ -30,14 +29,14 @@ namespace MarsTS.Prefabs {
 			else throw new ArgumentException("Unit " + key + " not registered!");
 		}
 
-		public override Unit GetRegistryEntry (string key) {
-			if (registeredClasses.TryGetValue(key, out Unit component)) {
+		public override ISelectable GetRegistryEntry (string key) {
+			if (registeredClasses.TryGetValue(key, out ISelectable component)) {
 				return component;
 			}
 			else throw new ArgumentException("Unit " + key + " not registered!");
 		}
 
-		public static Unit Unit (string key) {
+		public static ISelectable Selectable (string key) {
 			return instance.GetRegistryEntry(key);
 		}
 

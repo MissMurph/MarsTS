@@ -18,7 +18,7 @@ namespace MarsTS.UI {
 
 	public class UIController : MonoBehaviour {
 
-		private static UIController instance;
+		public static UIController instance;
 
 		public static CommandPanel Command {
 			get {
@@ -51,7 +51,7 @@ namespace MarsTS.UI {
 		[SerializeField]
 		private CursorSprite defaultCursorSprite;
 
-		private string PrimarySelected {
+		public string PrimarySelected {
 			get {
 				return primarySelected;
 			}
@@ -170,31 +170,13 @@ namespace MarsTS.UI {
 
 			Ray ray = Player.ViewPort.ScreenPointToRay(mousePos);
 
-			//This is a temp method to get the cursor to reflect command. As more commands are added this'll be re-factored
-			//to be modular
-			if (Physics.Raycast(ray, out RaycastHit selectable, 1000f, GameWorld.SelectableMask)) {
+			if (PrimarySelected != null && Physics.Raycast(ray, out RaycastHit selectable, 1000f, GameWorld.SelectableMask)) {
 				if (EntityCache.TryGet(selectable.collider.transform.parent.gameObject.name, out ISelectable target)) {
-					Relationship allegiance = target.GetRelationship(Player.Main);
-
-					switch (allegiance) {
-						case Relationship.Friendly: {
-							//We don't want to do anything here just yet
-							break;
-						}
-
-						case Relationship.Hostile: {
-							if (activeCursor == null) {
-								CursorSprite sprite = CommandRegistry.Get("attack").Pointer;
-								Cursor.SetCursor(sprite.texture, sprite.target, CursorMode.Auto);
-							}
-							
-							return;
-						}
-
-						default: {
-							//We don't want to do anything here just yet
-							break;
-						}
+					if (Player.Selected[PrimarySelected].Get() is ICommandable commandable) {
+						Command result = commandable.Evaluate(target);
+						CursorSprite sprite = result.Pointer;
+						Cursor.SetCursor(sprite.texture, sprite.target, CursorMode.Auto);
+						return;
 					}
 				}
 			}

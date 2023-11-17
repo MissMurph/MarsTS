@@ -16,7 +16,7 @@ namespace MarsTS.Events {
 
 		private Dictionary<string, int> nameAtlas;
 
-		//private Dictionary<int, List<UnityAction>> localListeners;
+		private EventAgent controllerAgent;
 
 		private int currentId;
 
@@ -26,7 +26,7 @@ namespace MarsTS.Events {
 			globalListeners = new Dictionary<Type, UnityEventBase>();
 			registeredAgents = new Dictionary<int, EventAgent>();
 			nameAtlas = new Dictionary<string, int>();
-			//localListeners = new Dictionary<int, List<UnityAction>>();
+			controllerAgent = GetComponent<EventAgent>();
 
 			AddListener<EntityDeathEvent>(OnEntityDeath);
 		}

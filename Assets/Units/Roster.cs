@@ -45,6 +45,14 @@ namespace MarsTS.Units {
 			Commands = new List<string>();
 		}
 
+        public ISelectable Get () {
+            foreach (ISelectable unit in instances.Values) {
+                return unit;
+            }
+
+            return null;
+        }
+
         public ISelectable Get (int id) {
             return instances.TryGetValue(id, out ISelectable unit) ? unit : null;
         }

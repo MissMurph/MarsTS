@@ -42,7 +42,9 @@ namespace MarsTS.Buildings {
 
 			stepTime = 1f / productionSpeed;
 			timeToStep = stepTime;
+		}
 
+		protected override void Start () {
 			exitOrder = CommandRegistry.Get<Move>("move").Construct(transform.position + (Vector3.forward * 5f));
 		}
 

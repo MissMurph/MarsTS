@@ -1,4 +1,5 @@
 using MarsTS.Commands;
+using MarsTS.Events;
 using MarsTS.Teams;
 using MarsTS.World;
 using System.Collections;
@@ -18,8 +19,12 @@ namespace MarsTS.Units {
 		private float cooldown;
 		private float currentCooldown;
 
+		private ResourceStorage localStorage;
+
 		protected override void Awake () {
 			base.Awake();
+
+			localStorage = GetComponentInParent<ResourceStorage>();
 
 			cooldown = 1f / harvestRate;
 			harvestAmount = (int)(harvestRate * cooldown);
@@ -62,7 +67,10 @@ namespace MarsTS.Units {
 
 		private void Harvest () {
 			IHarvestable harvestable = target as IHarvestable;
-			harvestable.Harvest("resource_unit", harvestAmount);
+
+			int harvested = harvestable.Harvest("resource_unit", harvestAmount, localStorage.Submit);
+			bus.Global(new HarvesterExtractionEvent(bus, parent, localStorage.Amount, localStorage.Capacity));
+
 			currentCooldown += cooldown;
 		}
 	}

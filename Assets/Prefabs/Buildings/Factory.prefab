@@ -369,7 +369,7 @@ MonoBehaviour:
   maxHealth: 500
   type: factory
   boundCommands:
-  - produce/constructor
+  - produce/flattank
   constructionWork: 50
   currentWork: 0
   ghost: {fileID: 1114144885270547136, guid: b002af5474e33924792b89eed21b5aec, type: 3}

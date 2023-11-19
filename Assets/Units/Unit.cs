@@ -308,7 +308,7 @@ namespace MarsTS.Units {
 			if (damage < 0 && currentHealth >= maxHealth) return;
 			currentHealth -= damage;
 
-			bus.Local(new EntityHurtEvent(bus, this));
+			bus.Global(new EntityHurtEvent(bus, this));
 
 			if (currentHealth <= 0) {
 				bus.Global(new EntityDeathEvent(bus, this));

@@ -1,6 +1,8 @@
+using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.Units;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,6 +19,9 @@ namespace MarsTS.Commands {
 		[SerializeField]
 		private int timeRequired;
 
+		[SerializeField]
+		private CostEntry[] cost;
+
 		private ISelectable unit;
 
 		private void Awake () {
@@ -24,11 +29,28 @@ namespace MarsTS.Commands {
 		}
 
 		public override void StartSelection () {
-			Player.Main.DeliverCommand(Construct(prefab), Player.Include);
+			bool canAfford = true;
+
+			foreach (CostEntry entry in cost) {
+				if (Player.Main.Resource(entry.key).Amount < entry.amount) {
+					canAfford = false;
+					break;
+				}
+			}
+
+			if (canAfford) {
+				Player.Main.DeliverCommand(Construct(prefab), Player.Include);
+
+				foreach (CostEntry entry in cost) {
+					Player.Main.Resource(entry.key).Withdraw(entry.amount);
+				}
+			}
+
+			
 		}
 
 		public override Commandlet Construct (GameObject _target) {
-			return new ProductionCommandlet("produce", _target, Player.Main, timeRequired, prefab, unit);
+			return new ProductionCommandlet("produce", _target, Player.Main, timeRequired, prefab, unit, cost);
 		}
 	}
 
@@ -38,12 +60,33 @@ namespace MarsTS.Commands {
 		public int ProductionProgress { get; set; }
 		public ISelectable Unit { get; private set; }
 		public GameObject Prefab { get; private set; }
+		public Dictionary<string, int> Cost { get; private set; }
 
-		public ProductionCommandlet (string name, GameObject target, Faction commander, int timeRequired, GameObject prefab, ISelectable unit) : base(name, target, commander) {
+		public ProductionCommandlet (string name, GameObject target, Faction commander, int timeRequired, GameObject prefab, ISelectable unit, CostEntry[] cost) : base(name, target, commander) {
 			ProductionRequired = timeRequired;
 			ProductionProgress = 0;
 			Prefab = prefab;
 			Unit = unit;
+
+			Cost = new Dictionary<string, int>();
+
+			foreach (CostEntry entry in cost) {
+				Cost[entry.key] = entry.amount;
+			}
+
+			Callback.AddListener(OnCancel);
 		}
+
+		private void OnCancel (CommandCompleteEvent _event) {
+			foreach (KeyValuePair<string, int> entry in Cost) {
+				Player.Main.Resource(entry.Key).Deposit(entry.Value);
+			}
+		}
+	}
+
+	[Serializable]
+	public class CostEntry {
+		public string key;
+		public int amount;
 	}
 }

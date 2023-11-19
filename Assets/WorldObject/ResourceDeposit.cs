@@ -94,6 +94,11 @@ namespace MarsTS.World {
 				bus.Global(new ResourceHarvestedEvent(bus, this, finalAmount, resourceKey));
 				attribute.Amount -= finalAmount;
 			}
+			
+			if (StoredAmount <= 0) {
+				bus.Global(new EntityDeathEvent(bus, this));
+				Destroy(gameObject, 0.01f);
+			}
 
 			return finalAmount;
 		}

@@ -44,20 +44,12 @@ namespace MarsTS.Units {
 			}
 
 			if (target == null) {
-				float distance = Range;
-				IHarvestable currentClosest = null;
-
 				foreach (ISelectable unit in inRangeUnits.Values) {
-					if (unit is IHarvestable harvestable) {
-						float newDistance = Vector3.Distance(unit.GameObject.transform.position, transform.position);
-
-						if (newDistance < distance) {
-							currentClosest = harvestable;
-						}
+					if (unit is IHarvestable) {
+						target = unit;
+						break;
 					}
 				}
-
-				if (currentClosest != null) target = currentClosest as ISelectable;
 			}
 
 			if (target != null && inRangeUnits.ContainsKey(target.GameObject.transform.root.name) && currentCooldown <= 0) {
@@ -69,7 +61,7 @@ namespace MarsTS.Units {
 			IHarvestable harvestable = target as IHarvestable;
 
 			int harvested = harvestable.Harvest("resource_unit", harvestAmount, localStorage.Submit);
-			bus.Global(new HarvesterExtractionEvent(bus, parent, localStorage.Amount, localStorage.Capacity));
+			bus.Global(new HarvesterExtractionEvent(bus, parent, localStorage.Amount, localStorage.Capacity, harvestable));
 
 			currentCooldown += cooldown;
 		}

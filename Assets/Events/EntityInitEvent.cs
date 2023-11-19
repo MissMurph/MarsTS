@@ -7,16 +7,10 @@ namespace MarsTS.Events {
 
 	public class EntityInitEvent : AbstractEvent {
 
-		public Entity ParentEntity {
-			get {
-				return parentEntity;
-			}
-		}
-
-		private Entity parentEntity;
+		public Entity ParentEntity { get; private set; }
 
 		public EntityInitEvent (Entity _parentEntity, EventAgent _source) : base("entityInit", _source) {
-			parentEntity = _parentEntity;
+			ParentEntity = _parentEntity;
 		}
 	}
 }

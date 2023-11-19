@@ -2,11 +2,15 @@ using MarsTS.Buildings;
 using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
+using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.PackageManager;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
+using static UnityEngine.UI.CanvasScaler;
 
 namespace MarsTS.Units {
 
@@ -49,7 +53,7 @@ namespace MarsTS.Units {
 			set {
 				if (harvestTarget != null) {
 					EntityCache.TryGet(harvestTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
-					oldAgent.RemoveListener<EntityDeathEvent>((_event) => harvestTarget = null);
+					oldAgent.RemoveListener<EntityDeathEvent>((_event) => HarvestTarget = null);
 				}
 
 				harvestTarget = value;
@@ -57,19 +61,60 @@ namespace MarsTS.Units {
 				if (value != null) {
 					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
 
-					agent.AddListener<EntityDeathEvent>((_event) => harvestTarget = null);
+					agent.AddListener<EntityDeathEvent>((_event) => HarvestTarget = null);
 				}
 			}
 		}
 
-		protected IHarvestable harvestTarget;
+		private IHarvestable harvestTarget;
 
-		protected ResourceStorage storageComp;
+		private IDepositable DepositTarget {
+			get {
+				return depositTarget;
+			}
+			set {
+				if (depositTarget != null) {
+					EntityCache.TryGet(harvestTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
+					oldAgent.RemoveListener<EntityDeathEvent>((_event) => DepositTarget = null);
+				}
+
+				depositTarget = value;
+
+				if (value != null) {
+					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
+					agent.AddListener<EntityDeathEvent>((_event) => DepositTarget = null);
+				}
+			}
+		}
+
+		private IDepositable depositTarget;
+
+		private int Stored { get { return storageComp.Amount; } }
+
+		private int Capacity { get { return storageComp.Capacity; } }
+
+		private ResourceStorage storageComp;
+
+		private DepositSensor depoSensor;
+
+		//This is how many units per second
+		[SerializeField]
+		private float depositRate;
+
+		private int depositAmount;
+		private float cooldown;
+		private float currentCooldown;
 
 		protected override void Awake () {
 			base.Awake();
 
 			storageComp = GetComponent<ResourceStorage>();
+			depoSensor = GetComponentInChildren<DepositSensor>();
+
+			cooldown = 1f / depositRate;
+			Debug.Log(depositRate * cooldown);
+			depositAmount = Mathf.RoundToInt(depositRate * cooldown);
+			currentCooldown = cooldown;
 
 			foreach (HarvesterTurret turret in turretsToRegister) {
 				registeredTurrets.TryAdd(turret.name, turret);
@@ -79,14 +124,30 @@ namespace MarsTS.Units {
 		protected override void Update () {
 			base.Update();
 
-			if (harvestTarget == null) return;
+			if (DepositTarget != null) {
+				if (depoSensor.IsInRange(DepositTarget)) {
+					TrackedTarget = null;
+					currentPath = Path.Empty;
 
-			if (registeredTurrets["turret_main"].IsInRange(HarvestTarget as ISelectable)) {
-				TrackedTarget = null;
-				currentPath = Path.Empty;
+					if (currentCooldown <= 0f) DepositResources();
+
+					currentCooldown -= Time.deltaTime;
+				}
+				else if (!ReferenceEquals(TrackedTarget, DepositTarget.GameObject.transform)) {
+					SetTarget(DepositTarget.GameObject.transform);
+				}
+
+				return;
 			}
-			else if (!ReferenceEquals(TrackedTarget, harvestTarget.GameObject.transform)) {
-				SetTarget(harvestTarget.GameObject.transform);
+
+			if (HarvestTarget != null) {
+				if (registeredTurrets["turret_main"].IsInRange(HarvestTarget as ISelectable)) {
+					TrackedTarget = null;
+					currentPath = Path.Empty;
+				}
+				else if (!ReferenceEquals(TrackedTarget, HarvestTarget.GameObject.transform)) {
+					SetTarget(HarvestTarget.GameObject.transform);
+				}
 			}
 		}
 
@@ -120,11 +181,14 @@ namespace MarsTS.Units {
 		}
 
 		protected override void ProcessOrder (Commandlet order) {
-			HarvestTarget = null;
 			switch (order.Name) {
 				case "harvest":
 					CurrentCommand = order;
 					Harvest(order);
+					break;
+				case "deposit":
+					CurrentCommand = order; 
+					Deposit(order);
 					break;
 				default:
 					base.ProcessOrder(order);
@@ -132,9 +196,113 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected void Harvest (Commandlet order) {
+		private void Harvest (Commandlet order) {
+			if (Stored >= Capacity) {
+				FindDepositable();
+			}
+
 			if (order is Commandlet<IHarvestable> deserialized) {
 				HarvestTarget = deserialized.Target;
+
+				bus.AddListener<HarvesterExtractionEvent>(OnExtraction);
+
+				EntityCache.TryGet(HarvestTarget.GameObject.transform.root.name, out EventAgent targetBus);
+
+				targetBus.AddListener<EntityDeathEvent>(OnDepositDepleted);
+
+				order.Callback.AddListener(HarvestCancelled);
+			}
+		}
+
+		private void Deposit (Commandlet order) {
+			if (order is Commandlet<IDepositable> deserialized) {
+				DepositTarget = deserialized.Target;
+				TrackedTarget = deserialized.Target.GameObject.transform;
+
+				bus.AddListener<HarvesterDepositEvent>(OnDeposit);
+			}
+		}
+
+		private void DepositResources () {
+			storageComp.Consume(DepositTarget.Deposit("resource_unit", depositAmount));
+			bus.Global(new HarvesterDepositEvent(bus, this, Stored, Capacity, DepositTarget));
+			currentCooldown += cooldown;
+		}
+
+		private void OnDeposit (HarvesterDepositEvent _event) {
+			if (Stored <= 0) {
+				bus.RemoveListener<HarvesterDepositEvent>(OnDeposit);
+
+				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+
+				CurrentCommand.Callback.Invoke(newEvent);
+
+				bus.Global(newEvent);
+
+				CurrentCommand = null;
+
+				DepositTarget = null;
+				TrackedTarget = null;
+			}
+		}
+
+		private void FindDepositable () {
+			IDepositable closestBank = null;
+			float currentDist = 1000f;
+
+			foreach (IDepositable bank in Player.Depositables) {
+				float newDistance = Vector3.Distance(bank.GameObject.transform.position, transform.position);
+
+				if (newDistance < currentDist) {
+					closestBank = bank;
+				}
+			}
+
+			if (closestBank != null) {
+				Execute(CommandRegistry.Get<Deposit>("deposit").Construct(closestBank));
+			}
+		}
+
+		//Could potentially move these to the actual Command Classes
+		private void OnExtraction (HarvesterExtractionEvent _event) {
+			if (Stored >= Capacity) {
+				bus.RemoveListener<HarvesterExtractionEvent>(OnExtraction);
+
+				EntityCache.TryGet(_event.Deposit.GameObject.transform.root.name, out EventAgent targetBus);
+
+				targetBus.RemoveListener<EntityDeathEvent>(OnDepositDepleted);
+
+				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+
+				CurrentCommand.Callback.Invoke(newEvent);
+
+				bus.Global(newEvent);
+
+				CurrentCommand = null;
+
+				FindDepositable();
+			}
+		}
+
+		private void OnDepositDepleted (EntityDeathEvent _event) {
+			bus.RemoveListener<HarvesterExtractionEvent>(OnExtraction);
+
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+
+			CurrentCommand.Callback.Invoke(newEvent);
+
+			bus.Global(newEvent);
+
+			CurrentCommand = null;
+		}
+
+		private void HarvestCancelled (CommandCompleteEvent _event) {
+			if (_event.Command is Commandlet<IHarvestable> deserialized && _event.CommandCancelled) {
+				bus.RemoveListener<HarvesterExtractionEvent>(OnExtraction);
+
+				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
+
+				targetBus.RemoveListener<EntityDeathEvent>(OnDepositDepleted);
 			}
 		}
 
@@ -143,8 +311,8 @@ namespace MarsTS.Units {
 				return CommandRegistry.Get("harvest");
 			}
 
-			if (target is IDepositable) {
-
+			if (target is IDepositable && Stored > 0) {
+				return CommandRegistry.Get("deposit");
 			}
 
 			return CommandRegistry.Get("move");
@@ -152,14 +320,14 @@ namespace MarsTS.Units {
 
 		public override Commandlet Auto (ISelectable target) {
 			if (target is IHarvestable harvestable
-				&& storageComp.Amount < storageComp.Capacity
+				&& Stored < Capacity
 				&& harvestable.StoredAmount > 0) {
 				return CommandRegistry.Get<Harvest>("harvest").Construct(harvestable);
 			}
 
 			if (target is IDepositable deserialized
-				&& storageComp.Amount > 0) {
-
+				&& Stored > 0) {
+				return CommandRegistry.Get<Deposit>("deposit").Construct(deserialized);
 			}
 
 			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);

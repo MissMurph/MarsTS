@@ -132,7 +132,38 @@ namespace MarsTS.Units {
 
 				if (unit.GetRelationship(owner) == Relationship.Owned || unit.GetRelationship(owner) == Relationship.Friendly) {
 					RepairTarget = unit;
+
+					EntityCache.TryGet(RepairTarget.GameObject.transform.root.name, out EventAgent targetBus);
+
+					targetBus.AddListener<EntityHurtEvent>(OnTargetHealed);
+
+					order.Callback.AddListener(RepairCancelled);
 				}
+			}
+		}
+
+		//Could potentially move these to the actual Command Classes
+		private void OnTargetHealed (EntityHurtEvent _event) {
+			if (_event.Unit.Health >= _event.Unit.MaxHealth) {
+				EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
+
+				targetBus.RemoveListener<EntityHurtEvent>(OnTargetHealed);
+
+				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+
+				CurrentCommand.Callback.Invoke(newEvent);
+
+				bus.Global(newEvent);
+
+				CurrentCommand = null;
+			}
+		}
+
+		private void RepairCancelled (CommandCompleteEvent _event) {
+			if (_event.Command is Commandlet<IAttackable> deserialized && _event.CommandCancelled) {
+				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
+
+				targetBus.RemoveListener<EntityHurtEvent>(OnTargetHealed);
 			}
 		}
 

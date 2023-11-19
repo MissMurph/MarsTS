@@ -57,6 +57,13 @@ namespace MarsTS.UI {
 					if (FillLevel > 0f) HasStored = true;
 					else HasStored = false;
 				});
+
+				bus.AddListener<HarvesterDepositEvent>((_event) => {
+					FillLevel = (float)_event.StoredAmount / _event.Capacity;
+
+					if (FillLevel > 0f) HasStored = true;
+					else HasStored = false;
+				});
 			}
 		}
 	}

@@ -13,9 +13,21 @@ namespace MarsTS.Teams {
 
         public Team Allegiance { get { return TeamCache.Team(this); } }
 
+		public List<PlayerResource> Resources {
+			get {
+				List<PlayerResource> output = new List<PlayerResource>();
+
+				foreach (PlayerResource registered in resources.Values) {
+					output.Add(registered);
+				}
+
+				return output;
+			}
+		}
+
 		private Dictionary<string, PlayerResource> resources;
 
-		private void Awake () {
+		protected virtual void Awake () {
             ownedUnits = new Dictionary<string, Roster>();
 			resources = new Dictionary<string, PlayerResource>();
 

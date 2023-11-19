@@ -25,11 +25,13 @@ namespace MarsTS.Events {
 		public ISelectable Harvester { get; private set; }
 		public int StoredAmount { get; private set; }
 		public int Capacity { get; private set; }
+		public IHarvestable Deposit { get; private set; }
 
-		public HarvesterExtractionEvent (EventAgent _source, ISelectable _harvester, int _storedAmount, int _capacity) : base("harvesterExtraction", _source) {
+		public HarvesterExtractionEvent (EventAgent _source, ISelectable _harvester, int _storedAmount, int _capacity, IHarvestable _deposit) : base("harvesterExtraction", _source) {
 			Harvester = _harvester;
 			StoredAmount = _storedAmount;
 			Capacity = _capacity;
+			Deposit = _deposit;
 		}
 	}
 }

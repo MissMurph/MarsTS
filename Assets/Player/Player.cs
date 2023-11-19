@@ -1,4 +1,5 @@
-﻿using MarsTS.Commands;
+﻿using MarsTS.Buildings;
+using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players.Input;
@@ -45,6 +46,9 @@ namespace MarsTS.Players {
 		public static UIController UI { get { return instance.uiController; } }
 		private UIController uiController;
 
+		public static List<IDepositable> Depositables { get { return instance.depositables; } }
+		private List<IDepositable> depositables = new List<IDepositable>();
+
 		[SerializeField]
 		private float cameraSpeed;
 
@@ -52,7 +56,9 @@ namespace MarsTS.Players {
 
 		private ISelectable currentHover;
 
-		private void Awake () {
+		protected override void Awake () {
+			base.Awake();
+
 			instance = this;
 			view = GetComponentInChildren<Camera>();
 			inputController = GetComponent<InputHandler>();
@@ -63,6 +69,7 @@ namespace MarsTS.Players {
 
 		private void Start () {
 			EventBus.AddListener<EntityDeathEvent>(OnEntityDeath);
+			EventBus.AddListener<EntityInitEvent>(OnEntityInit);
 		}
 
 		private void Update () {
@@ -197,6 +204,20 @@ namespace MarsTS.Players {
 				//This isn't the best method to update selection, as when units die we don't want the 
 				//primary selected to be jumping around a lot, will have to come up with something better
 				EventBus.Global(new PlayerSelectEvent(Selected));
+			}
+
+			if (_event.Unit.Owner == this
+				&& _event.Unit is IDepositable deserialized
+				&& depositables.Contains(deserialized)) {
+				depositables.Remove(deserialized);
+			}
+		}
+
+		private void OnEntityInit (EntityInitEvent _event) {
+			if (_event.ParentEntity.TryGet("selectable", out ISelectable unitComponent)
+				&& unitComponent.Owner == this
+				&& unitComponent is IDepositable deserialized) {
+				depositables.Add(deserialized);
 			}
 		}
 

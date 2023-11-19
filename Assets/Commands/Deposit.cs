@@ -1,3 +1,4 @@
+using MarsTS.Buildings;
 using MarsTS.Entities;
 using MarsTS.Players;
 using MarsTS.Units;
@@ -9,9 +10,9 @@ using UnityEngine.InputSystem;
 
 namespace MarsTS.Commands {
 
-	public class Repair : Command<IAttackable> {
+	public class Deposit : Command<IDepositable> {
 
-		public override string Name { get { return "repair"; } }
+		public override string Name { get { return "deposit"; } }
 
 		public override void StartSelection () {
 			Player.Input.Hook("Select", OnSelect);
@@ -25,8 +26,8 @@ namespace MarsTS.Commands {
 				Vector2 cursorPos = Player.MousePos;
 				Ray ray = Player.ViewPort.ScreenPointToRay(cursorPos);
 
-				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask) && EntityCache.TryGet(hit.collider.transform.parent.name + ":selectable", out ISelectable target) && target is IAttackable attackable) {
-					Player.Main.DeliverCommand(Construct(attackable), Player.Include);
+				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask) && EntityCache.TryGet(hit.collider.transform.parent.name + ":selectable", out ISelectable target) && target is IDepositable deserialized) {
+					Player.Main.DeliverCommand(Construct(deserialized), Player.Include);
 				}
 
 				Player.Input.Release("Select");

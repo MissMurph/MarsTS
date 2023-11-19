@@ -31,7 +31,7 @@ namespace MarsTS.Buildings {
 
 		public string Key {
 			get {
-				return "building";
+				return "selectable";
 			}
 		}
 

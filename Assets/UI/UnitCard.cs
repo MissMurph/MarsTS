@@ -1,15 +1,17 @@
+using MarsTS.Prefabs;
 using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace MarsTS.UI {
 
 	public class UnitCard : MonoBehaviour {
 
-		[SerializeField]
-		private TextMeshProUGUI nameText;
+		//[SerializeField]
+		//private TextMeshProUGUI nameText;
 
 		[SerializeField]
 		private TextMeshProUGUI counterText;
@@ -19,6 +21,8 @@ namespace MarsTS.UI {
 
 		[SerializeField]
 		private GameObject selectionBorder;
+
+		private Image icon;
 
 		public bool Selected {
 			get {
@@ -36,10 +40,13 @@ namespace MarsTS.UI {
 		private void Awake () {
 			Selected = false;
 			counterPane.SetActive(false);
+			icon = transform.Find("Icon").GetComponent<Image>();
 		}
 
 		public void UpdateUnit (string name, int count) {
-			nameText.text = name;
+			//nameText.text = name;
+
+			icon.sprite = Registry.Get<ISelectable>(name).Icon;
 
 			if (count > 1) {
 				counterPane.SetActive(true);

@@ -15,36 +15,25 @@ namespace MarsTS.Buildings {
 
 	public abstract class Building : MonoBehaviour, ISelectable, ITaggable<Building>, IRegistryObject<Building>, IAttackable, ICommandable {
 
-		public GameObject GameObject {
-			get { 
-				return gameObject; 
-			}
-		}
+		public GameObject GameObject { get {  return gameObject;  } }
 
-		public int ID {
-			get {
-				return entityComponent.ID;
-			}
-		}
+		public int ID { get { return entityComponent.ID; } }
 
 		private Entity entityComponent;
 
-		public string Key {
-			get {
-				return "selectable";
-			}
-		}
+		public string Key { get { return "selectable"; } }
 
-		public Type Type {
-			get {
-				return typeof(Building);
-			}
-		}
+		public Type Type { get { return typeof(Building); } }
 
 		public Faction Owner { get { return owner; } }
 
 		[SerializeField]
 		protected Faction owner;
+
+		public Sprite Icon { get { return icon; } }
+
+		[SerializeField]
+		private Sprite icon;
 
 		public int Health { get; protected set; }
 

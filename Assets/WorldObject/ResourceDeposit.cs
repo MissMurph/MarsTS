@@ -27,6 +27,11 @@ namespace MarsTS.World {
 
 		public Faction Owner { get { return null; } }
 
+		public Sprite Icon { get { return icon; } }
+
+		[SerializeField]
+		private Sprite icon;
+
 		/*	ITaggable Properties	*/
 
 		public string Key { get { return "selectable"; } }

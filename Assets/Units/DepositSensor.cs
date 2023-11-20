@@ -9,7 +9,20 @@ namespace MarsTS.Units {
 
     public class DepositSensor : MonoBehaviour {
 
+		public float Range { get { return range.radius; } }
+
+		[SerializeField]
+		protected SphereCollider range;
+
 		private Dictionary<string, IDepositable> inRangeBanks = new Dictionary<string, IDepositable>();
+
+		private void Awake () {
+			range = GetComponent<SphereCollider>();
+
+			foreach (Collider collider in transform.parent.Find("Model").GetComponentsInChildren<Collider>()) {
+				Physics.IgnoreCollision(range, collider);
+			}
+		}
 
 		private void OnTriggerEnter (Collider other) {
 			if (EntityCache.TryGet(other.transform.root.name, out Entity entityComp) && entityComp.TryGet(out IDepositable bank)) {

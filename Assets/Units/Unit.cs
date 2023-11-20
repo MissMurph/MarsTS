@@ -38,6 +38,11 @@ namespace MarsTS.Units {
 
 		public string RegistryKey { get { return "unit:" + UnitType; } }
 
+		public Sprite Icon { get { return icon; } }
+
+		[SerializeField]
+		private Sprite icon;
+
 		[SerializeField]
 		private string type;
 

@@ -112,7 +112,6 @@ namespace MarsTS.Units {
 			depoSensor = GetComponentInChildren<DepositSensor>();
 
 			cooldown = 1f / depositRate;
-			Debug.Log(depositRate * cooldown);
 			depositAmount = Mathf.RoundToInt(depositRate * cooldown);
 			currentCooldown = cooldown;
 

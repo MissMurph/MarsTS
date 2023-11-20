@@ -30,15 +30,17 @@ namespace MarsTS.Prefabs {
 			else throw new ArgumentException("Unit " + key + " not registered!");
 		}
 
-		public override Unit GetRegistryEntry (string key) {
-			if (registeredClasses.TryGetValue(key, out Unit component)) {
-				return component;
+		public override bool GetRegistryEntry<T> (string key, out T output) {
+			if (registeredClasses.TryGetValue(key, out Unit component) && component is T superType) {
+				output = superType;
+				return true;
 			}
 			else throw new ArgumentException("Unit " + key + " not registered!");
 		}
 
 		public static Unit Unit (string key) {
-			return instance.GetRegistryEntry(key);
+			instance.GetRegistryEntry<Unit>(key, out Unit output);
+			return output;
 		}
 
 		private void OnDestroy () {

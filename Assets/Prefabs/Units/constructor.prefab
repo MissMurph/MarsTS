@@ -506,6 +506,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 150
   currentHealth: 0
+  icon: {fileID: 21300000, guid: 2b849b461576ef746b35c0962e52cd0c, type: 3}
   type: constructor
   owner: {fileID: 0}
   boundCommands:

@@ -571,6 +571,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 75
   currentHealth: 0
+  icon: {fileID: 21300000, guid: 41f26560069266a4eaf64ecbfa06dd1e, type: 3}
   type: scoutcar
   owner: {fileID: 0}
   boundCommands:

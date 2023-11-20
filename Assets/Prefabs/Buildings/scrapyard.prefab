@@ -305,6 +305,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   owner: {fileID: 0}
+  icon: {fileID: 21300000, guid: 4e0dc8ebe193b5241ab53cb683e802fa, type: 3}
   maxHealth: 1000
   type: scrapyard
   boundCommands:

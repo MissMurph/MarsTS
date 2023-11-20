@@ -29,15 +29,17 @@ namespace MarsTS.Prefabs {
 			else throw new ArgumentException("Unit " + key + " not registered!");
 		}
 
-		public override ISelectable GetRegistryEntry (string key) {
-			if (registeredClasses.TryGetValue(key, out ISelectable component)) {
-				return component;
+		public override bool GetRegistryEntry<T>(string key, out T output) {
+			if (registeredClasses.TryGetValue(key, out ISelectable component) && component is T superType) {
+				output = superType;
+				return true;
 			}
 			else throw new ArgumentException("Unit " + key + " not registered!");
 		}
 
 		public static ISelectable Selectable (string key) {
-			return instance.GetRegistryEntry(key);
+			instance.GetRegistryEntry(key, out ISelectable output);
+			return output;
 		}
 
 		private void OnDestroy () {

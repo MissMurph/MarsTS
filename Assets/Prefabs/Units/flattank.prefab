@@ -209,6 +209,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 250
   currentHealth: 0
+  icon: {fileID: 21300000, guid: 8fb8be3b4f3cda64689a1769771fca53, type: 3}
   type: flattank
   owner: {fileID: 0}
   boundCommands:

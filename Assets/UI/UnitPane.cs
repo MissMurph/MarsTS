@@ -24,10 +24,6 @@ namespace MarsTS.UI {
 			bus = GetComponent<EventAgent>();
 		}
 
-		public void UpdateUnits (Dictionary<string, int> instances) {
-			
-        }
-
 		public void UpdateUnits (Dictionary<string, Roster> rosters) {
 			/*Dictionary<string, int> translation = new();
 
@@ -39,28 +35,30 @@ namespace MarsTS.UI {
 
 			ClearCards();
 
-			foreach (KeyValuePair<string, Roster> typeEntry in rosters) {
-				UnitCard component = Instantiate(cardPrefab, transform).GetComponent<UnitCard>();
-
-				RectTransform rect = component.transform as RectTransform;
-				rect.anchorMin = new Vector2(0, 0);
-				rect.anchorMax = new Vector2(0, 0);
-				rect.anchoredPosition = new Vector3(45 + (80 * cardMap.Count), 180, 0);
-
-				//component.UpdateUnit(UnitRegistry.Prefab(typeEntry.Key).name, typeEntry.Value);
-
-				component.UpdateUnit(Registry.Prefab(typeEntry.Key).name, typeEntry.Value.Count);
-
-				cardMap.Add(typeEntry.Key, component);
-			}
-
 			if (rosters.Count == 1) {
 				foreach (KeyValuePair<string, Roster> typeEntry in rosters) {
 					if (typeEntry.Value.Count == 1) {
 						UnitInfoEvent _event = new UnitInfoEvent(bus, typeEntry.Value.Get());
+						bus.Global(_event);
 					}
 				}
 			}
+			//else {
+				foreach (KeyValuePair<string, Roster> typeEntry in rosters) {
+					UnitCard component = Instantiate(cardPrefab, transform).GetComponent<UnitCard>();
+
+					RectTransform rect = component.transform as RectTransform;
+					rect.anchorMin = new Vector2(0, 0);
+					rect.anchorMax = new Vector2(0, 0);
+					rect.anchoredPosition = new Vector3(45 + (80 * cardMap.Count), 180, 0);
+
+					//component.UpdateUnit(UnitRegistry.Prefab(typeEntry.Key).name, typeEntry.Value);
+
+					component.UpdateUnit(typeEntry.Key, typeEntry.Value.Count);
+
+					cardMap.Add(typeEntry.Key, component);
+				}
+			//}
 		}
 
 		public UnitCard Card (string key) {

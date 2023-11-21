@@ -71,6 +71,9 @@ namespace MarsTS.Units {
 		[SerializeField]
 		private string[] boundCommands;
 
+		[SerializeField]
+		private GameObject healthInfo;
+
 		protected Transform TrackedTarget {
 			get {
 				return target;
@@ -125,6 +128,7 @@ namespace MarsTS.Units {
 			StartCoroutine(UpdatePath());
 
 			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
+
 		}
 
 		protected virtual void Update () {
@@ -318,6 +322,12 @@ namespace MarsTS.Units {
 			if (currentHealth <= 0) {
 				bus.Global(new EntityDeathEvent(bus, this));
 				Destroy(gameObject);
+			}
+		}
+
+		protected virtual void OnUnitInfoDisplayed (UnitInfoEvent _event) {
+			if (ReferenceEquals(_event.Unit, this)) {
+
 			}
 		}
 	}

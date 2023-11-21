@@ -14,9 +14,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.HID;
-using static UnityEditor.PlayerSettings;
-using static UnityEngine.GraphicsBuffer;
-using static UnityEngine.UI.GridLayoutGroup;
 
 namespace MarsTS.Players {
 
@@ -115,9 +112,11 @@ namespace MarsTS.Players {
 		}
 
 		public bool HasSelected (ISelectable unit) {
-			Roster units = GetRoster(unit.RegistryKey);
+			if (Selected.TryGetValue(unit.RegistryKey, out Roster typeRoster)) {
+				return typeRoster.Contains(unit.ID);
+			}
 
-			return units.Contains(unit.ID);
+			return false;
 		}
 
 		public void SelectUnit (params ISelectable[] selection) {

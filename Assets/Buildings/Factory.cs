@@ -33,6 +33,9 @@ namespace MarsTS.Buildings {
 
 		private List<Collider> colliders;
 
+		[SerializeField]
+		private GameObject queueInfo;
+
 		protected override void Awake () {
 			base.Awake();
 
@@ -45,7 +48,11 @@ namespace MarsTS.Buildings {
 		}
 
 		protected override void Start () {
+			base.Start();
+
 			exitOrder = CommandRegistry.Get<Move>("move").Construct(transform.position + (Vector3.forward * 5f));
+
+			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 		}
 
 		protected void Update () {
@@ -163,6 +170,14 @@ namespace MarsTS.Buildings {
 			}
 
 			ProcessOrder(order);
+		}
+
+		protected override void OnUnitInfoDisplayed (UnitInfoEvent _event) {
+			if (ReferenceEquals(_event.Unit, this)) {
+				Instantiate(queueInfo, _event.InfoCard.transform);
+			}
+
+			base.OnUnitInfoDisplayed(_event);
 		}
 	}
 }

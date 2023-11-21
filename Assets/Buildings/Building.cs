@@ -10,6 +10,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.UI.GridLayoutGroup;
+using MarsTS.UI;
 
 namespace MarsTS.Buildings {
 
@@ -102,6 +103,9 @@ namespace MarsTS.Buildings {
 		protected EventAgent bus;
 
 		protected Transform model;
+
+		[SerializeField]
+		private GameObject healthInfo;
 
 		protected virtual void Awake () {
 			selectionCircle = transform.Find("SelectionCircle").gameObject;
@@ -216,6 +220,12 @@ namespace MarsTS.Buildings {
 
 		public Commandlet Auto (ISelectable target) {
 			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
+		}
+
+		protected virtual void OnUnitInfoDisplayed (UnitInfoEvent _event) {
+			if (ReferenceEquals(_event.Unit, this)) {
+				ProductionQueue queueDisplay = Instantiate(healthInfo, _event.InfoCard.transform).GetComponent<ProductionQueue>();
+			}
 		}
 	}
 }

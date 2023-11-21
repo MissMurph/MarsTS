@@ -212,7 +212,7 @@ namespace MarsTS.UI {
 				for (int i = 0; i < orderedCorners.Length; i++) {
 					Ray ray = Player.ViewPort.ScreenPointToRay(orderedCorners[i]);
 
-					if (Physics.Raycast(ray, out RaycastHit hit, 50000f)) {
+					if (Physics.Raycast(ray, out RaycastHit hit, 50000f, GameWorld.WalkableMask)) {
 						rayVerts[i] = hit.point;
 						dirVerts[i] = ray.origin - hit.point;
 						//Debug.DrawLine(view.ScreenToWorldPoint(orderedCorners[i]), hit.point, Color.red, 1.0f);

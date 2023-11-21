@@ -19,9 +19,12 @@ namespace MarsTS.UI {
 
 		private EventAgent bus;
 
+		private GameObject infoCard;
+
 		private void Awake () {
 			cardMap = new Dictionary<string, UnitCard>();
 			bus = GetComponent<EventAgent>();
+			infoCard = transform.Find("UnitInfo").gameObject;
 		}
 
 		public void UpdateUnits (Dictionary<string, Roster> rosters) {
@@ -38,7 +41,7 @@ namespace MarsTS.UI {
 			if (rosters.Count == 1) {
 				foreach (KeyValuePair<string, Roster> typeEntry in rosters) {
 					if (typeEntry.Value.Count == 1) {
-						UnitInfoEvent _event = new UnitInfoEvent(bus, typeEntry.Value.Get());
+						UnitInfoEvent _event = new UnitInfoEvent(bus, typeEntry.Value.Get(), infoCard);
 						bus.Global(_event);
 					}
 				}
@@ -50,7 +53,7 @@ namespace MarsTS.UI {
 					RectTransform rect = component.transform as RectTransform;
 					rect.anchorMin = new Vector2(0, 0);
 					rect.anchorMax = new Vector2(0, 0);
-					rect.anchoredPosition = new Vector3(45 + (80 * cardMap.Count), 180, 0);
+					rect.anchoredPosition = new Vector3(45 + (80 * cardMap.Count), 75, 0);
 
 					//component.UpdateUnit(UnitRegistry.Prefab(typeEntry.Key).name, typeEntry.Value);
 

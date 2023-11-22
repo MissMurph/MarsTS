@@ -1,3 +1,4 @@
+using MarsTS.UI;
 using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,11 +10,12 @@ namespace MarsTS.Events {
 
 		public ISelectable Unit { get; private set; }
 		public string Key { get { return Unit.RegistryKey; } }
-		public GameObject InfoCard { get; private set; }
 
-		public UnitInfoEvent (EventAgent _source, ISelectable _unit, GameObject _infoCard) : base("unitInfo", _source) {
+		public UnitInfoCard Info { get; private set; }
+
+		public UnitInfoEvent (EventAgent _source, ISelectable _unit, UnitInfoCard _infoCard) : base("unitInfo", _source) {
 			Unit = _unit;
-			InfoCard = _infoCard;
+			Info = _infoCard;
 		}
 	}
 }

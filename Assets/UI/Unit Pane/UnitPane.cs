@@ -5,8 +5,8 @@ using MarsTS.Units;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
-using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
 namespace MarsTS.UI {
 
@@ -17,17 +17,14 @@ namespace MarsTS.UI {
 		[SerializeField]
 		private GameObject cardPrefab;
 
-		private EventAgent bus;
-
-		private GameObject infoCard;
+		private UnitInfoCard infoCard;
 
 		private void Awake () {
 			cardMap = new Dictionary<string, UnitCard>();
-			bus = GetComponent<EventAgent>();
-			infoCard = transform.Find("UnitInfo").gameObject;
+			infoCard = transform.Find("UnitInfo").GetComponent<UnitInfoCard>();
 		}
 
-		public void UpdateUnits (Dictionary<string, Roster> rosters) {
+		public void UpdateUnits (List<Roster> rosters) {
 			/*Dictionary<string, int> translation = new();
 
 			foreach (Roster units in rosters.Values) {
@@ -36,18 +33,15 @@ namespace MarsTS.UI {
 
 			UpdateUnits(translation);*/
 
-			ClearCards();
+			ClearSelection();
 
-			if (rosters.Count == 1) {
-				foreach (KeyValuePair<string, Roster> typeEntry in rosters) {
-					if (typeEntry.Value.Count == 1) {
-						UnitInfoEvent _event = new UnitInfoEvent(bus, typeEntry.Value.Get(), infoCard);
-						bus.Global(_event);
-					}
+			if (rosters.Count == 1 && rosters[0].Count == 1) {
+				foreach (Roster typeEntry in rosters) {
+					infoCard.DisplayInfo(typeEntry.Get());
 				}
 			}
-			//else {
-				foreach (KeyValuePair<string, Roster> typeEntry in rosters) {
+			else {
+				foreach (Roster typeEntry in rosters) {
 					UnitCard component = Instantiate(cardPrefab, transform).GetComponent<UnitCard>();
 
 					RectTransform rect = component.transform as RectTransform;
@@ -57,11 +51,11 @@ namespace MarsTS.UI {
 
 					//component.UpdateUnit(UnitRegistry.Prefab(typeEntry.Key).name, typeEntry.Value);
 
-					component.UpdateUnit(typeEntry.Key, typeEntry.Value.Count);
+					component.UpdateUnit(typeEntry.RegistryKey, typeEntry.Count);
 
-					cardMap.Add(typeEntry.Key, component);
+					cardMap.Add(typeEntry.RegistryKey, component);
 				}
-			//}
+			}
 		}
 
 		public UnitCard Card (string key) {
@@ -72,10 +66,12 @@ namespace MarsTS.UI {
 			return null;
 		}
 
-		private void ClearCards () {
+		private void ClearSelection () {
 			foreach (UnitCard card in cardMap.Values) {
 				Destroy(card.gameObject);
 			 }
+
+			infoCard.Deactivate();
 
 			cardMap.Clear();
 		}

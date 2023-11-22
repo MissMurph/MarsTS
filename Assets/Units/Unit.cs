@@ -11,6 +11,7 @@ using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Prefabs;
 using MarsTS.Commands;
+using MarsTS.UI;
 
 namespace MarsTS.Units {
 
@@ -66,7 +67,7 @@ namespace MarsTS.Units {
 			protected set; 
 		}
 
-		public Queue<Commandlet> CommandQueue = new Queue<Commandlet>();
+		private Queue<Commandlet> commandQueue = new Queue<Commandlet>();
 		
 		[SerializeField]
 		private string[] boundCommands;
@@ -93,6 +94,8 @@ namespace MarsTS.Units {
 				}
 			}
 		}
+
+		public Commandlet[] CommandQueue { get { return commandQueue.ToArray(); } }
 
 		private Transform target;
 
@@ -129,6 +132,7 @@ namespace MarsTS.Units {
 
 			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 
+			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 		}
 
 		protected virtual void Update () {
@@ -150,7 +154,7 @@ namespace MarsTS.Units {
 		}
 
 		protected void UpdateCommands () {
-			if (CurrentCommand is null && CommandQueue.TryDequeue(out Commandlet order)) {
+			if (CurrentCommand is null && commandQueue.TryDequeue(out Commandlet order)) {
 
 				ProcessOrder(order);
 			}
@@ -191,7 +195,7 @@ namespace MarsTS.Units {
 			currentPath = Path.Empty;
 			target = null;
 
-			CommandQueue.Clear();
+			commandQueue.Clear();
 
 			CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 			bus.Global(_event);
@@ -256,12 +260,12 @@ namespace MarsTS.Units {
 
 		public void Enqueue (Commandlet order) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
-			CommandQueue.Enqueue(order);
+			commandQueue.Enqueue(order);
 		}
 
 		public void Execute (Commandlet order) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
-			CommandQueue.Clear();
+			commandQueue.Clear();
 
 			currentPath = Path.Empty;
 			target = null;
@@ -272,7 +276,7 @@ namespace MarsTS.Units {
 				bus.Global(_event);
 			}
 			CurrentCommand = null;
-			CommandQueue.Enqueue(order);
+			commandQueue.Enqueue(order);
 		}
 
 		public Unit Get () {
@@ -327,7 +331,8 @@ namespace MarsTS.Units {
 
 		protected virtual void OnUnitInfoDisplayed (UnitInfoEvent _event) {
 			if (ReferenceEquals(_event.Unit, this)) {
-
+				HealthInfo info = _event.Info.Module<HealthInfo>("health");
+				info.CurrentUnit = this;
 			}
 		}
 	}

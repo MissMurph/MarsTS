@@ -100,6 +100,8 @@ namespace MarsTS.Buildings {
 
 		public abstract Commandlet CurrentCommand { get; }
 
+		public abstract Commandlet[] CommandQueue { get; }
+
 		protected EventAgent bus;
 
 		protected Transform model;
@@ -126,6 +128,8 @@ namespace MarsTS.Buildings {
 
 		protected virtual void Start () {
 			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
+
+			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 		}
 
 		protected virtual void CancelConstruction () {
@@ -224,7 +228,8 @@ namespace MarsTS.Buildings {
 
 		protected virtual void OnUnitInfoDisplayed (UnitInfoEvent _event) {
 			if (ReferenceEquals(_event.Unit, this)) {
-				ProductionQueue queueDisplay = Instantiate(healthInfo, _event.InfoCard.transform).GetComponent<ProductionQueue>();
+				HealthInfo info = _event.Info.Module<HealthInfo>("health");
+				info.CurrentUnit = this;
 			}
 		}
 	}

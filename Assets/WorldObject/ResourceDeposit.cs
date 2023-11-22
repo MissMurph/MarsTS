@@ -2,6 +2,7 @@ using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
+using MarsTS.UI;
 using MarsTS.Units;
 using System;
 using System.Collections;
@@ -76,6 +77,7 @@ namespace MarsTS.World {
 		private void Start () {
 			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 			startingAmount = attribute.Amount;
+			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 		}
 
 		public bool CanHarvest (string resourceKey, ISelectable unit) {
@@ -127,6 +129,13 @@ namespace MarsTS.World {
 
 		public bool SetOwner (Faction player) {
 			return false;
+		}
+
+		private void OnUnitInfoDisplayed (UnitInfoEvent _event) {
+			if (ReferenceEquals(_event.Unit, this)) {
+				DepositInfo info = _event.Info.Module<DepositInfo>("deposit");
+				info.CurrentDeposit = this;
+			}
 		}
 	}
 }

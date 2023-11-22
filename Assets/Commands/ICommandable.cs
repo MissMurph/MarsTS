@@ -8,6 +8,7 @@ namespace MarsTS.Commands {
     public interface ICommandable {
 		GameObject GameObject { get; }
 		Commandlet CurrentCommand { get; }
+		Commandlet[] CommandQueue { get; }
 		void Enqueue (Commandlet order);
 		void Execute (Commandlet order);
 		Command Evaluate (ISelectable target);

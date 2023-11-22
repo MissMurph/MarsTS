@@ -2,6 +2,7 @@ using MarsTS.Commands;
 using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
+using MarsTS.UI;
 using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,6 +24,8 @@ namespace MarsTS.Buildings {
 		public ProductionCommandlet CurrentProduction { get; protected set; }
 
 		public override Commandlet CurrentCommand { get { return CurrentProduction; } }
+
+		public override Commandlet[] CommandQueue { get { return ProductionQueue.ToArray(); } }
 
 		protected Queue<Commandlet> rallyOrders = new Queue<Commandlet>();
 
@@ -67,7 +70,7 @@ namespace MarsTS.Buildings {
 					if (CurrentProduction.ProductionProgress >= CurrentProduction.ProductionRequired) {
 						ProduceUnit();
 					}
-					else bus.Global(new ProductionStepEvent(bus, CurrentProduction));
+					else bus.Global(new ProductionStepEvent(bus, CurrentProduction, this));
 
 					timeToStep += stepTime;
 				}
@@ -78,6 +81,8 @@ namespace MarsTS.Buildings {
 			if (CurrentProduction is null && ProductionQueue.TryDequeue(out ProductionCommandlet order)) {
 
 				CurrentProduction = order;
+
+				bus.Global(new ProductionStartedEvent(bus, CurrentProduction, ProductionQueue.ToArray(), this));
 			}
 		}
 
@@ -105,7 +110,7 @@ namespace MarsTS.Buildings {
 			}
 
 			CurrentProduction = null;
-			bus.Global(new ProductionEvent(bus, newUnit));
+			bus.Global(new ProductionEvent(bus, newUnit, this));
 		}
 
 		protected override void ProcessOrder (Commandlet order) {
@@ -126,6 +131,8 @@ namespace MarsTS.Buildings {
 			ProductionCommandlet produceOrder = order as ProductionCommandlet;
 
 			ProductionQueue.Enqueue(produceOrder);
+
+			bus.Global(new ProductionQueueEvent(bus, ProductionQueue.ToArray(), this));
 		}
 
 		protected virtual void Stop () {
@@ -174,7 +181,7 @@ namespace MarsTS.Buildings {
 
 		protected override void OnUnitInfoDisplayed (UnitInfoEvent _event) {
 			if (ReferenceEquals(_event.Unit, this)) {
-				Instantiate(queueInfo, _event.InfoCard.transform);
+				_event.Info.Module<ProductionQueue>("productionQueue").SetQueue(this, CurrentProduction, ProductionQueue.ToArray());
 			}
 
 			base.OnUnitInfoDisplayed(_event);

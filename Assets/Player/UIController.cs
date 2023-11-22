@@ -56,12 +56,16 @@ namespace MarsTS.UI {
 				return primarySelected;
 			}
 			set {
-				if (primarySelected != null) unitPane.Card(primarySelected).Selected = false;
+				if (primarySelected != null) {
+					UnitCard card = unitPane.Card(primarySelected);
+					if (card != null) unitPane.Card(primarySelected).Selected = false;
+				}
 
 				primarySelected = value;
 
 				if (primarySelected != null) {
-					unitPane.Card(primarySelected).Selected = true;
+					UnitCard card = unitPane.Card(primarySelected);
+					if (card != null) unitPane.Card(primarySelected).Selected = true;
 					commandPanel.UpdateCommands(commandProfiles[primarySelected].ToArray());
 				}
 				else commandPanel.UpdateCommands(new List<string> { }.ToArray());
@@ -249,7 +253,7 @@ namespace MarsTS.UI {
 			int index = 0;
 			PrimarySelected = null;
 
-			unitPane.UpdateUnits(_event.Selected);
+			unitPane.UpdateUnits(new List<Roster>(_event.Selected.Values));
 			
 			foreach (KeyValuePair<string, Roster> entry in _event.Selected) {
 				List<string> availableCommands = new List<string>(entry.Value.Commands);

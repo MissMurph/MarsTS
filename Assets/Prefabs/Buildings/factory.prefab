@@ -365,17 +365,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 604f8fd98aec5da4285be20acdbf20d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  owner: {fileID: 0}
-  icon: {fileID: 21300000, guid: 6c832070a2d460f44bf890196bf641a4, type: 3}
   maxHealth: 500
+  icon: {fileID: 21300000, guid: 6c832070a2d460f44bf890196bf641a4, type: 3}
   type: factory
+  owner: {fileID: 0}
   boundCommands:
   - produce/flattank
   constructionWork: 50
   currentWork: 0
   ghost: {fileID: 1114144885270547136, guid: b002af5474e33924792b89eed21b5aec, type: 3}
+  constructionCost:
+  - key: resource_unit
+    amount: 500
   productionSpeed: 10
   rallyCommands: []
+  queueInfo: {fileID: 0}
 --- !u!114 &5738845266810977013
 MonoBehaviour:
   m_ObjectHideFlags: 0

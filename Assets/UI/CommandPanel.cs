@@ -5,19 +5,27 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 namespace MarsTS.UI {
 
 	public class CommandPanel : MonoBehaviour {
 
 		public Button[] registeredButton;
-		public TextMeshProUGUI[] registeredText;
+		private Image[] registeredIcons;
 		private string[] boundCommands;
 		private int buttonCount;
 
 		private void Awake () {
 			buttonCount = registeredButton.Length;
 			boundCommands = new string[buttonCount];
+
+			registeredIcons = new Image[buttonCount];
+
+			for (int i = 0; i < registeredButton.Length; i++) {
+				registeredIcons[i] = registeredButton[i].transform.Find("Icon").GetComponent<Image>();
+				registeredIcons[i].gameObject.SetActive(false);
+			}
 		}
 
 		public void Press (int index) {
@@ -31,12 +39,13 @@ namespace MarsTS.UI {
 			for (int i = 0; i < buttonCount; i++) {
 				if (i >= commands.Length) {
 					boundCommands[i] = null;
-					registeredText[i].text = "";
+					registeredIcons[i].gameObject.SetActive(false);
 					continue;
 				}
 
 				boundCommands[i] = commands[i];
-				registeredText[i].text = boundCommands[i];
+				registeredIcons[i].gameObject.SetActive(true);
+				registeredIcons[i].sprite = CommandRegistry.Get(boundCommands[i]).Icon;
 			}
 		}
 
@@ -47,8 +56,15 @@ namespace MarsTS.UI {
 				for (int x = 0; x < 3; x++) {
 					int i = ((y + 1) * (x + 1)) - 1;
 
+					if (string.IsNullOrEmpty(commands[y, x])) {
+						registeredIcons[i].gameObject.SetActive(false);
+						boundCommands[i] = null;
+						continue;
+					}
+
 					boundCommands[i] = commands[y, x];
-					registeredText[i].text = commands[y, x];
+					registeredIcons[i].gameObject.SetActive(true);
+					registeredIcons[i].sprite = CommandRegistry.Get(boundCommands[i]).Icon;
 				}
 			}
 		}

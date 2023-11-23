@@ -13,6 +13,11 @@ namespace MarsTS.Commands {
 
 		public override Type TargetType { get { return typeof(bool); } }
 
+		public override Sprite Icon { get { return icon; } }
+
+		[SerializeField]
+		private Sprite icon;
+
 		public override void StartSelection () {
 			Player.Main.DeliverCommand(new Commandlet<bool>(Name, true, Player.Main), Player.Include);
 		}

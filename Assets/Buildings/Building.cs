@@ -18,96 +18,86 @@ namespace MarsTS.Buildings {
 
 		public GameObject GameObject { get {  return gameObject;  } }
 
+		/*	IAttackable Properties	*/
+
+		public int Health { get; protected set; }
+
+		public int MaxHealth { get { return maxHealth; } }
+
+		[SerializeField]
+		private int maxHealth;
+
+		/*	ISelectable Properties	*/
+
 		public int ID { get { return entityComponent.ID; } }
 
-		private Entity entityComponent;
+		public string UnitType { get { return type; } }
+
+		public string RegistryKey { get { return RegistryType + ":" + UnitType; } }
+
+		public Sprite Icon { get { return icon; } }
+
+		public Faction Owner { get { return owner; } }
+
+		[SerializeField]
+		private Sprite icon;
+
+		[SerializeField]
+		private string type;
+
+		[SerializeField]
+		protected Faction owner;
+
+		/*	ITaggable Properties	*/
 
 		public string Key { get { return "selectable"; } }
 
 		public Type Type { get { return typeof(Building); } }
 
-		public Faction Owner { get { return owner; } }
-
-		[SerializeField]
-		protected Faction owner;
-
-		public Sprite Icon { get { return icon; } }
-
-		[SerializeField]
-		private Sprite icon;
-
-		public int Health { get; protected set; }
-
-		public int MaxHealth {
-			get {
-				return maxHealth;
-			}
-		}
-
-		[SerializeField]
-		private int maxHealth;
-
-		[Header("Entity Fields")]
-
-		[SerializeField]
-		private string type;
-
-		private GameObject selectionCircle;
-
-		[SerializeField]
-		private string[] boundCommands;
-
-		[Header("Building Fields")]
-
-		[SerializeField]
-		private int constructionWork;
-
-		public int ConstructionProgress {
-			get {
-				return currentWork;
-			}
-		}
-
-		public int ConstructionRequired {
-			get {
-				return constructionWork;
-			}
-		}
-
-		[SerializeField]
-		private int currentWork;
-
-		public bool Constructed {
-			get {
-				return currentWork >= constructionWork;
-			}
-		}
-
-		[SerializeField]
-		private GameObject ghost;
-
-		public GameObject SelectionGhost {
-			get {
-				return ghost;
-			}
-		}
-
-		public string RegistryType => "building";
-
-		public string RegistryKey => RegistryType + ":" + UnitType;
-
-		public string UnitType => type;
+		/*	ICommandable Properties	*/
 
 		public abstract Commandlet CurrentCommand { get; }
 
 		public abstract Commandlet[] CommandQueue { get; }
 
+		[SerializeField]
+		private string[] boundCommands;
+
+		/*	Building Fields	*/
+
+		private GameObject selectionCircle;
+
+		[Header("Construction")]
+
+		[SerializeField]
+		private int constructionWork;
+
+		[SerializeField]
+		private int currentWork;
+
+		[SerializeField]
+		private GameObject ghost;
+
+		[SerializeField]
+		private CostEntry[] constructionCost;
+
+		public int ConstructionProgress { get { return currentWork; } }
+
+		public int ConstructionRequired { get { return constructionWork; } }
+
+		public bool Constructed { get { return currentWork >= constructionWork; } }
+
+		public GameObject SelectionGhost { get { return ghost; } }
+
+		public CostEntry[] ConstructionCost { get { return constructionCost; } }
+
+		public string RegistryType => "building";
+
+		private Entity entityComponent;
+
 		protected EventAgent bus;
 
 		protected Transform model;
-
-		[SerializeField]
-		private GameObject healthInfo;
 
 		protected virtual void Awake () {
 			selectionCircle = transform.Find("SelectionCircle").gameObject;
@@ -135,6 +125,11 @@ namespace MarsTS.Buildings {
 		protected virtual void CancelConstruction () {
 			if (!Constructed) {
 				bus.Global(new EntityDeathEvent(bus, this));
+
+				foreach (CostEntry materialCost in ConstructionCost) {
+					Player.Main.Resource(materialCost.key).Deposit(materialCost.amount);
+				}
+
 				Destroy(gameObject, 0.1f);
 			}
 		}

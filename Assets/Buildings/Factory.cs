@@ -29,6 +29,10 @@ namespace MarsTS.Buildings {
 
 		protected Queue<Commandlet> rallyOrders = new Queue<Commandlet>();
 
+		//This queue is required so that timing isn't broken with the Player selection code, if a unit calls its death
+		//While the selection event is still processing the collection it'll crash
+		protected Queue<Commandlet> newCommands = new Queue<Commandlet>();
+
 		protected Commandlet exitOrder;
 
 		[SerializeField]
@@ -38,6 +42,8 @@ namespace MarsTS.Buildings {
 
 		[SerializeField]
 		private GameObject queueInfo;
+
+
 
 		protected override void Awake () {
 			base.Awake();
@@ -59,6 +65,7 @@ namespace MarsTS.Buildings {
 		}
 
 		protected void Update () {
+			ProcessCommand();
 			UpdateQueue();
 
 			if (CurrentProduction != null) {
@@ -83,6 +90,12 @@ namespace MarsTS.Buildings {
 				CurrentProduction = order;
 
 				bus.Global(new ProductionStartedEvent(bus, CurrentProduction, ProductionQueue.ToArray(), this));
+			}
+		}
+
+		protected void ProcessCommand () {
+			if (newCommands.TryDequeue(out Commandlet order)) {
+				ProcessOrder(order);
 			}
 		}
 
@@ -176,7 +189,7 @@ namespace MarsTS.Buildings {
 				}
 			}
 
-			ProcessOrder(order);
+			newCommands.Enqueue(order);
 		}
 
 		protected override void OnUnitInfoDisplayed (UnitInfoEvent _event) {

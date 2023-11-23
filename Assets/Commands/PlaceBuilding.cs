@@ -15,16 +15,34 @@ namespace MarsTS.Commands {
 
 		public override string Name { get { return "construct/" + building.UnitType; } }
 
+		public override Sprite Icon { get { return building.Icon; } }
+
 		[SerializeField]
 		private Building building;
 
 		private Transform ghostTransform;
 
-		public override void StartSelection () {
-			ghostTransform = Instantiate(building.SelectionGhost).transform;
+		private CostEntry[] cost;
 
-			Player.Input.Hook("Select", OnSelect);
-			Player.Input.Hook("Order", OnOrder);
+		private void Awake () {
+			cost = building.ConstructionCost;
+		}
+
+		public override void StartSelection () {
+			bool canAfford = true;
+
+			foreach (CostEntry entry in cost) {
+				if (Player.Main.Resource(entry.key).Amount < entry.amount) {
+					canAfford = false;
+					break;
+				}
+			}
+
+			if (canAfford) {
+				ghostTransform = Instantiate(building.SelectionGhost).transform;
+				Player.Input.Hook("Select", OnSelect);
+				Player.Input.Hook("Order", OnOrder);
+			}
 		}
 
 		private void Update () {
@@ -42,17 +60,32 @@ namespace MarsTS.Commands {
 				Ray ray = Player.ViewPort.ScreenPointToRay(Player.MousePos);
 
 				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.WalkableMask)) {
-					Building newBuilding = Instantiate(building, hit.point, Quaternion.Euler(Vector3.zero)).GetComponent<Building>();
-					newBuilding.SetOwner(Player.Main);
+					bool canAfford = true;
 
-					newBuilding.GetComponent<EventAgent>().AddListener<EntityInitEvent>((_event) => {
-						Player.Main.DeliverCommand(CommandRegistry.Get<Repair>("repair").Construct(newBuilding), Player.Include);
-					});
+					foreach (CostEntry entry in cost) {
+						if (Player.Main.Resource(entry.key).Amount < entry.amount) {
+							canAfford = false;
+							break;
+						}
+					}
 
-					Destroy(ghostTransform.gameObject);
+					if (canAfford) {
+						Building newBuilding = Instantiate(building, hit.point, Quaternion.Euler(Vector3.zero)).GetComponent<Building>();
+						newBuilding.SetOwner(Player.Main);
 
-					Player.Input.Release("Select");
-					Player.Input.Release("Order");
+						newBuilding.GetComponent<EventAgent>().AddListener<EntityInitEvent>((_event) => {
+							Player.Main.DeliverCommand(CommandRegistry.Get<Repair>("repair").Construct(newBuilding), Player.Include);
+						});
+
+						Destroy(ghostTransform.gameObject);
+
+						Player.Input.Release("Select");
+						Player.Input.Release("Order");
+
+						foreach (CostEntry entry in cost) {
+							Player.Main.Resource(entry.key).Withdraw(entry.amount);
+						}
+					}
 				}
 			}
 		}

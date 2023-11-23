@@ -41,11 +41,16 @@ namespace MarsTS.Units {
 
 		public Sprite Icon { get { return icon; } }
 
+		public Faction Owner { get { return owner; } }
+
 		[SerializeField]
 		private Sprite icon;
 
 		[SerializeField]
 		private string type;
+
+		[SerializeField]
+		protected Faction owner;
 
 		/*	ITaggable Properties	*/
 
@@ -53,27 +58,20 @@ namespace MarsTS.Units {
 
 		public Type Type { get { return typeof(Unit); } }
 
-		public Faction Owner { get { return owner; } }
+		/*	ICommandable Properties	*/
 
-		/*	Unit Fields	*/
+		public Commandlet CurrentCommand { get; protected set; }
 
-		[SerializeField]
-		protected Faction owner;
-
-		protected Entity entityComponent;
-
-		public Commandlet CurrentCommand { 
-			get; 
-			protected set; 
-		}
+		public Commandlet[] CommandQueue { get { return commandQueue.ToArray(); } }
 
 		private Queue<Commandlet> commandQueue = new Queue<Commandlet>();
-		
+
 		[SerializeField]
 		private string[] boundCommands;
 
-		[SerializeField]
-		private GameObject healthInfo;
+		/*	Unit Fields	*/
+
+		protected Entity entityComponent;
 
 		protected Transform TrackedTarget {
 			get {
@@ -95,10 +93,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		public Commandlet[] CommandQueue { get { return commandQueue.ToArray(); } }
-
 		private Transform target;
-
 
 		private Vector3 targetOldPos;
 

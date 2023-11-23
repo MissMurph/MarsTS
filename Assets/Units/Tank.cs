@@ -150,6 +150,8 @@ namespace MarsTS.Units {
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+
+				AttackTarget = null;
 			}
 		}
 

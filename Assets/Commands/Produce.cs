@@ -13,6 +13,8 @@ namespace MarsTS.Commands {
 
 		public override string Name { get { return "produce/" + prefab.name; } }
 
+		public override Sprite Icon { get { return unit.Icon; } }
+
 		[SerializeField]
 		private GameObject prefab;
 
@@ -45,8 +47,6 @@ namespace MarsTS.Commands {
 					Player.Main.Resource(entry.key).Withdraw(entry.amount);
 				}
 			}
-
-			
 		}
 
 		public override Commandlet Construct (GameObject _target) {

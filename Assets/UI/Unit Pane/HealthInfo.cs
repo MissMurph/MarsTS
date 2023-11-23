@@ -54,8 +54,10 @@ namespace MarsTS.UI {
 			set {
 				currentUnit = value;
 
-				CurrentHealth = value.Health;
-				MaxHealth = value.MaxHealth;
+				if (currentUnit != null) {
+					CurrentHealth = value.Health;
+					MaxHealth = value.MaxHealth;
+				}
 			}
 		}
 

@@ -660,9 +660,10 @@ MonoBehaviour:
   - move
   - stop
   - harvest
+  healthInfo: {fileID: 0}
   waypointCompletionDistance: 2
   topSpeed: 10
-  acceleration: 440
+  acceleration: 500
   turnSpeed: 35
   angleTolerance: 25
   turretsToRegister:

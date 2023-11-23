@@ -200,6 +200,8 @@ namespace MarsTS.Players {
 			if (Selected.TryGetValue(key, out Roster unitRoster) && unitRoster.Contains(_event.Unit.ID)) {
 				unitRoster.Remove(_event.Unit.ID);
 
+				if (unitRoster.Count == 0) Selected.Remove(key);
+
 				//This isn't the best method to update selection, as when units die we don't want the 
 				//primary selected to be jumping around a lot, will have to come up with something better
 				EventBus.Global(new PlayerSelectEvent(Selected));

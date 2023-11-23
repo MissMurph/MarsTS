@@ -214,7 +214,7 @@ MonoBehaviour:
   range: {fileID: 3050993961995119547}
   falloff: 0
   barrel: {fileID: 1880250833628487226}
-  repairRate: 0
+  repairRate: 1
 --- !u!54 &168895262
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -514,6 +514,7 @@ MonoBehaviour:
   - stop
   - construct
   - repair
+  healthInfo: {fileID: 0}
   waypointCompletionDistance: 1
   topSpeed: 10
   acceleration: 425

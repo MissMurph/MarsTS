@@ -24,6 +24,7 @@ namespace MarsTS.Commands {
 
 		public abstract string Name { get; }
 		public abstract Type TargetType { get; }
+		public abstract Sprite Icon { get; }
 		public abstract void StartSelection ();
 
 		public Color IconColor;

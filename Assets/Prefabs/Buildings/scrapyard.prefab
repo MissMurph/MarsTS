@@ -305,18 +305,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0345fd9d70add34699e7a3f1b42fa35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  owner: {fileID: 0}
-  icon: {fileID: 21300000, guid: 4e0dc8ebe193b5241ab53cb683e802fa, type: 3}
   maxHealth: 1000
+  icon: {fileID: 21300000, guid: 4e0dc8ebe193b5241ab53cb683e802fa, type: 3}
   type: scrapyard
+  owner: {fileID: 0}
   boundCommands:
   - produce/constructor
   - produce/scoutcar
   constructionWork: 100
   currentWork: 100
   ghost: {fileID: 0}
+  constructionCost:
+  - key: resource_unit
+    amount: 1500
   productionSpeed: 10
   rallyCommands: []
+  queueInfo: {fileID: 0}
 --- !u!54 &6071260427580417810
 Rigidbody:
   m_ObjectHideFlags: 0

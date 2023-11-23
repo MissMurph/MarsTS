@@ -14,6 +14,8 @@ namespace MarsTS.Commands {
 
 		public override string Name { get { return "deposit"; } }
 
+		public override Sprite Icon => throw new System.NotImplementedException();
+
 		public override void StartSelection () {
 			Player.Input.Hook("Select", OnSelect);
 			Player.Input.Hook("Order", OnOrder);

@@ -10,6 +10,11 @@ namespace MarsTS.Commands {
 
 		public override string Name { get { return "construct"; } }
 
+		public override Sprite Icon { get { return icon; } }
+
+		[SerializeField]
+		private Sprite icon;
+
 		[SerializeField]
 		private CommandPage buildingCommands;
 

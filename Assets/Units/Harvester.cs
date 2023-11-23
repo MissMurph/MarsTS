@@ -74,7 +74,7 @@ namespace MarsTS.Units {
 			}
 			set {
 				if (depositTarget != null) {
-					EntityCache.TryGet(harvestTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
+					EntityCache.TryGet(depositTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
 					oldAgent.RemoveListener<EntityDeathEvent>((_event) => DepositTarget = null);
 				}
 
@@ -219,6 +219,8 @@ namespace MarsTS.Units {
 				TrackedTarget = deserialized.Target.GameObject.transform;
 
 				bus.AddListener<HarvesterDepositEvent>(OnDeposit);
+
+				order.Callback.AddListener(DepositCancelled);
 			}
 		}
 
@@ -242,6 +244,8 @@ namespace MarsTS.Units {
 
 				DepositTarget = null;
 				TrackedTarget = null;
+
+				if (HarvestTarget != null) Enqueue(CommandRegistry.Get<Harvest>("harvest").Construct(HarvestTarget));
 			}
 		}
 
@@ -302,6 +306,18 @@ namespace MarsTS.Units {
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.RemoveListener<EntityDeathEvent>(OnDepositDepleted);
+
+				HarvestTarget = null;
+				DepositTarget = null;
+			}
+		}
+
+		private void DepositCancelled (CommandCompleteEvent _event) {
+			if (_event.Command is Commandlet<IDepositable> deserialized && _event.CommandCancelled) {
+				bus.RemoveListener<HarvesterDepositEvent>(OnDeposit);
+
+				DepositTarget = null;
+				HarvestTarget = null;
 			}
 		}
 

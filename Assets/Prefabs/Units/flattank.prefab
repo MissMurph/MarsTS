@@ -216,7 +216,8 @@ MonoBehaviour:
   - move
   - stop
   - attack
-  waypointCompletionDistance: 3
+  healthInfo: {fileID: 0}
+  waypointCompletionDistance: 1
   topSpeed: 50
   acceleration: 500
   turnSpeed: 35

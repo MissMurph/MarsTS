@@ -13,6 +13,11 @@ namespace MarsTS.Commands {
 
 		public override string Name { get { return "harvest"; } }
 
+		public override Sprite Icon { get { return icon; } }
+
+		[SerializeField]
+		private Sprite icon;
+
 		public override void StartSelection () {
 			Player.Input.Hook("Select", OnSelect);
 			Player.Input.Hook("Order", OnOrder);

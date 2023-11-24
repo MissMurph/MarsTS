@@ -19,7 +19,7 @@ namespace MarsTS.World {
 
 		public int ID { get { return entityComponent.ID; } }
 
-		public string UnitType { get { return "world_object"; } }
+		public string UnitType { get { return key; } }
 
 		public string RegistryKey { get { return UnitType + ":" + key; } }
 
@@ -51,7 +51,7 @@ namespace MarsTS.World {
 
 		private Entity entityComponent;
 
-		private EventAgent bus;
+		protected EventAgent bus;
 
 		GameObject selectionCircle;
 
@@ -64,9 +64,9 @@ namespace MarsTS.World {
 		[SerializeField]
 		private string depositType;
 
-		private EntityAttribute attribute; 
+		protected EntityAttribute attribute; 
 
-		private void Awake () {
+		protected virtual void Awake () {
 			entityComponent = GetComponent<Entity>();
 			attribute = GetComponent<EntityAttribute>();
 			bus = GetComponent<EventAgent>();
@@ -92,7 +92,7 @@ namespace MarsTS.World {
 			return Relationship.Neutral;
 		}
 
-		public int Harvest (string resourceKey, int harvestAmount, Func<int, int> extractor) {
+		public virtual int Harvest (string resourceKey, ISelectable harvester, int harvestAmount, Func<int, int> extractor) {
 			int availableAmount = Mathf.Min(harvestAmount, attribute.Amount);
 
 			int finalAmount = extractor(availableAmount);

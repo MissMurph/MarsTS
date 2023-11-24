@@ -47,7 +47,7 @@ namespace MarsTS.Entities {
 			string[] split = name.Split(':');
 
 			if (!(split.Length > 1)) {
-				Debug.LogWarning("Registered instance " + name + " not found!");
+				//Debug.LogWarning("Registered instance " + name + " not found!");
 				output = null;
 				return false;
 			}
@@ -73,7 +73,7 @@ namespace MarsTS.Entities {
 			string[] split = name.Split(':');
 
 			if (!(split.Length > 1)) {
-				Debug.LogWarning("Registered instance " + name + " not found!");
+				//Debug.LogWarning("Registered instance " + name + " not found!");
 				output = default(T);
 				return false;
 			}

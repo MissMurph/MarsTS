@@ -314,7 +314,7 @@ MonoBehaviour:
   - produce/scoutcar
   constructionWork: 100
   currentWork: 100
-  ghost: {fileID: 0}
+  ghost: {fileID: 5300347722092395766, guid: 4191f665be7da1d478f0619eb973c086, type: 3}
   constructionCost:
   - key: resource_unit
     amount: 1500

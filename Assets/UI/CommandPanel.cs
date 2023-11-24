@@ -50,22 +50,18 @@ namespace MarsTS.UI {
 		}
 
 		public void LoadCommandPage (CommandPage page) {
-			string[,] commands = page.Build();
+			string[] commands = page.Commands;
 
-			for (int y = 0; y < 3; y++) {
-				for (int x = 0; x < 3; x++) {
-					int i = ((y + 1) * (x + 1)) - 1;
-
-					if (string.IsNullOrEmpty(commands[y, x])) {
-						registeredIcons[i].gameObject.SetActive(false);
-						boundCommands[i] = null;
-						continue;
-					}
-
-					boundCommands[i] = commands[y, x];
-					registeredIcons[i].gameObject.SetActive(true);
-					registeredIcons[i].sprite = CommandRegistry.Get(boundCommands[i]).Icon;
+			for (int i = 0; i < commands.Length; i++) {
+				if (string.IsNullOrEmpty(commands[i])) {
+					registeredIcons[i].gameObject.SetActive(false);
+					boundCommands[i] = null;
+					continue;
 				}
+
+				boundCommands[i] = commands[i];
+				registeredIcons[i].gameObject.SetActive(true);
+				registeredIcons[i].sprite = CommandRegistry.Get(boundCommands[i]).Icon;
 			}
 		}
 	}

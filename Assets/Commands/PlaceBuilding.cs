@@ -18,11 +18,12 @@ namespace MarsTS.Commands {
 		public override Sprite Icon { get { return building.Icon; } }
 
 		[SerializeField]
-		private Building building;
+		protected Building building;
 
-		private Transform ghostTransform;
+		protected Transform ghostTransform;
+		protected BuildingGhost ghostComp;
 
-		private CostEntry[] cost;
+		protected CostEntry[] cost;
 
 		private void Awake () {
 			cost = building.ConstructionCost;
@@ -40,12 +41,13 @@ namespace MarsTS.Commands {
 
 			if (canAfford) {
 				ghostTransform = Instantiate(building.SelectionGhost).transform;
+				ghostComp = ghostTransform.GetComponent<BuildingGhost>();
 				Player.Input.Hook("Select", OnSelect);
 				Player.Input.Hook("Order", OnOrder);
 			}
 		}
 
-		private void Update () {
+		protected virtual void Update () {
 			if (ghostTransform != null) {
 				Ray ray = Player.ViewPort.ScreenPointToRay(Player.MousePos);
 
@@ -55,7 +57,7 @@ namespace MarsTS.Commands {
 			}
 		}
 
-		private void OnSelect (InputAction.CallbackContext context) {
+		protected virtual void OnSelect (InputAction.CallbackContext context) {
 			if (context.canceled) {
 				Ray ray = Player.ViewPort.ScreenPointToRay(Player.MousePos);
 
@@ -69,7 +71,7 @@ namespace MarsTS.Commands {
 						}
 					}
 
-					if (canAfford) {
+					if (canAfford && ghostComp.Legal) {
 						Building newBuilding = Instantiate(building, hit.point, Quaternion.Euler(Vector3.zero)).GetComponent<Building>();
 						newBuilding.SetOwner(Player.Main);
 
@@ -90,7 +92,7 @@ namespace MarsTS.Commands {
 			}
 		}
 
-		private void OnOrder (InputAction.CallbackContext context) {
+		protected virtual void OnOrder (InputAction.CallbackContext context) {
 			Destroy(ghostTransform.gameObject);
 
 			Player.Input.Release("Select");

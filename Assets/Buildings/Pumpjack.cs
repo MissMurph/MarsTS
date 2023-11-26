@@ -52,8 +52,7 @@ namespace MarsTS.Buildings {
 		protected override void Start () {
 			base.Start();
 
-			exploited = transform.Find("OilCollider").GetComponent<PumpjackOilDetector>().hitExploited;
-			exploited.Exploited = true;
+			bus.AddListener<PumpjackExploitInitEvent>(OnExploitInit);
 		}
 
 		protected virtual void Update () {
@@ -69,8 +68,14 @@ namespace MarsTS.Buildings {
 			}
 		}
 
+		private void OnExploitInit (PumpjackExploitInitEvent _event) {
+			exploited = _event.Oil;
+			exploited.Exploited = true;
+		}
+
 		public bool CanHarvest (string resourceKey, ISelectable unit) {
-			throw new NotImplementedException();
+			if (resourceKey == "oil") return true;
+			return false;
 		}
 
 		public override void Enqueue (Commandlet order) {

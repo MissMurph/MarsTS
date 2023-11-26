@@ -9,6 +9,8 @@ namespace MarsTS.Units {
 
 		public int Capacity { get { return capacity; } }
 
+		public string Resource { get { return resourceKey; } }
+
         [SerializeField]
         private int capacity;
 

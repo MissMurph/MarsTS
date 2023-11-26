@@ -81,7 +81,8 @@ namespace MarsTS.World {
 		}
 
 		public bool CanHarvest (string resourceKey, ISelectable unit) {
-			return true;
+			if (resourceKey == depositType) return true;
+			return false;
 		}
 
 		public ResourceDeposit Get () {

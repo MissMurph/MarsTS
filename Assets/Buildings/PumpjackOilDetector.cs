@@ -1,4 +1,5 @@
 using MarsTS.Entities;
+using MarsTS.Events;
 using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,11 +9,15 @@ namespace MarsTS.Buildings {
 
     public class PumpjackOilDetector : MonoBehaviour {
 
-        public OilDeposit hitExploited;
+		private EventAgent bus;
+
+		private void Awake () {
+			bus = GetComponentInParent<EventAgent>();
+		}
 
 		private void OnTriggerEnter (Collider other) {
 			if (EntityCache.TryGet(other.transform.root.name, out OilDeposit found)) {
-				hitExploited = found;
+				bus.Local(new PumpjackExploitInitEvent(bus, found));
 			}
 		}
 	}

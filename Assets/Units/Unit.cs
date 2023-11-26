@@ -89,6 +89,8 @@ namespace MarsTS.Units {
 					EntityCache.TryGet(value.gameObject.name + ":eventAgent", out EventAgent agent);
 
 					agent.AddListener<EntityDeathEvent>((_event) => TrackedTarget = null);
+
+					SetTarget(value);
 				}
 			}
 		}
@@ -97,7 +99,11 @@ namespace MarsTS.Units {
 
 		private Vector3 targetOldPos;
 
-		protected Path currentPath = Path.Empty;
+		protected Path currentPath {
+			get;
+			set;
+		} = Path.Empty;
+
 		private float angle;
 		protected int pathIndex;
 
@@ -109,7 +115,7 @@ namespace MarsTS.Units {
 		private const float pathUpdateMoveThreshold = .5f;
 
 		[SerializeField]
-		private float waypointCompletionDistance;
+		protected float waypointCompletionDistance;
 
 		protected EventAgent bus;
 

@@ -66,9 +66,9 @@ namespace MarsTS.Units {
 			}
 		}
 
-		private IHarvestable harvestTarget;
+		protected IHarvestable harvestTarget;
 
-		private IDepositable DepositTarget {
+		protected IDepositable DepositTarget {
 			get {
 				return depositTarget;
 			}
@@ -87,29 +87,29 @@ namespace MarsTS.Units {
 			}
 		}
 
-		private IDepositable depositTarget;
+		protected IDepositable depositTarget;
 
-		private int Stored { get { return storageComp.Amount; } }
+		protected int Stored { get { return storageComp.Amount; } }
 
-		private int Capacity { get { return storageComp.Capacity; } }
+		protected int Capacity { get { return storageComp.Capacity; } }
 
-		private ResourceStorage storageComp;
+		protected ResourceStorage storageComp;
 
-		private DepositSensor depoSensor;
+		protected DepositSensor depositableDetector;
 
 		//This is how many units per second
 		[SerializeField]
-		private float depositRate;
+		protected float depositRate;
 
-		private int depositAmount;
-		private float cooldown;
-		private float currentCooldown;
+		protected int depositAmount;
+		protected float cooldown;
+		protected float currentCooldown;
 
 		protected override void Awake () {
 			base.Awake();
 
 			storageComp = GetComponent<ResourceStorage>();
-			depoSensor = GetComponentInChildren<DepositSensor>();
+			depositableDetector = GetComponentInChildren<DepositSensor>();
 
 			cooldown = 1f / depositRate;
 			depositAmount = Mathf.RoundToInt(depositRate * cooldown);
@@ -124,7 +124,7 @@ namespace MarsTS.Units {
 			base.Update();
 
 			if (DepositTarget != null) {
-				if (depoSensor.IsInRange(DepositTarget)) {
+				if (depositableDetector.IsInRange(DepositTarget)) {
 					TrackedTarget = null;
 					currentPath = Path.Empty;
 
@@ -224,7 +224,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		private void DepositResources () {
+		protected void DepositResources () {
 			storageComp.Consume(DepositTarget.Deposit("resource_unit", depositAmount));
 			bus.Global(new HarvesterDepositEvent(bus, this, Stored, Capacity, DepositTarget));
 			currentCooldown += cooldown;
@@ -322,7 +322,10 @@ namespace MarsTS.Units {
 		}
 
 		public override Command Evaluate (ISelectable target) {
-			if (target is IHarvestable) {
+			if (target is IHarvestable harvestable
+				&& Stored < Capacity
+				&& harvestable.StoredAmount > 0
+				&& harvestable.CanHarvest(storageComp.Resource, this)) {
 				return CommandRegistry.Get("harvest");
 			}
 
@@ -336,12 +339,12 @@ namespace MarsTS.Units {
 		public override Commandlet Auto (ISelectable target) {
 			if (target is IHarvestable harvestable
 				&& Stored < Capacity
-				&& harvestable.StoredAmount > 0) {
+				&& harvestable.StoredAmount > 0
+				&& harvestable.CanHarvest(storageComp.Resource, this)) {
 				return CommandRegistry.Get<Harvest>("harvest").Construct(harvestable);
 			}
 
-			if (target is IDepositable deserialized
-				&& Stored > 0) {
+			if (target is IDepositable deserialized && Stored > 0) {
 				return CommandRegistry.Get<Deposit>("deposit").Construct(deserialized);
 			}
 

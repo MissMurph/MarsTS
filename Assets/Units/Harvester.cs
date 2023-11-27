@@ -224,7 +224,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected void DepositResources () {
+		protected virtual void DepositResources () {
 			storageComp.Consume(DepositTarget.Deposit("resource_unit", depositAmount));
 			bus.Global(new HarvesterDepositEvent(bus, this, Stored, Capacity, DepositTarget));
 			currentCooldown += cooldown;
@@ -329,7 +329,8 @@ namespace MarsTS.Units {
 				return CommandRegistry.Get("harvest");
 			}
 
-			if (target is IDepositable && Stored > 0) {
+			if (target is IDepositable 
+				&& Stored > 0) {
 				return CommandRegistry.Get("deposit");
 			}
 
@@ -344,7 +345,8 @@ namespace MarsTS.Units {
 				return CommandRegistry.Get<Harvest>("harvest").Construct(harvestable);
 			}
 
-			if (target is IDepositable deserialized && Stored > 0) {
+			if (target is IDepositable deserialized 
+				&& Stored > 0) {
 				return CommandRegistry.Get<Deposit>("deposit").Construct(deserialized);
 			}
 

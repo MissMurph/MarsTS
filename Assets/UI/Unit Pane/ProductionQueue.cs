@@ -119,7 +119,17 @@ namespace MarsTS.UI {
 
 		private void OnUnitProduction (ProductionEvent _event) {
 			if (ReferenceEquals(_event.Producer, currentUnit)) {
-				SetQueue(currentUnit, _event.Producer.CurrentCommand as ProductionCommandlet, _event.Producer.CommandQueue as ProductionCommandlet[]);
+				ProductionCommandlet currentProd = _event.Producer.CurrentCommand as ProductionCommandlet;
+				ProductionCommandlet[] queue = _event.Producer.CommandQueue as ProductionCommandlet[];
+
+				if (currentProd != null && queue.Length > 0) {
+					SetQueue(currentUnit, currentProd, queue);
+				}
+				else {
+					currentProdIcon.transform.parent.gameObject.SetActive(false);
+					overflow.transform.parent.gameObject.SetActive(false);
+					productionProgress.SetActive(false);
+				}
 			}
 		}
 

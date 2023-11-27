@@ -200,6 +200,7 @@ namespace MarsTS.Buildings {
 				return;
 			}
 
+			if (damage < 0 && Health >= maxHealth) return;
 			Health -= damage;
 			bus.Global(new EntityHurtEvent(bus, this));
 

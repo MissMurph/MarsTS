@@ -276,7 +276,7 @@ MonoBehaviour:
   - key: resource_unit
     amount: 200
   capacity: 2000
-  harvestRate: 10
+  harvestRate: 5
 --- !u!114 &3668977583793415181
 MonoBehaviour:
   m_ObjectHideFlags: 0

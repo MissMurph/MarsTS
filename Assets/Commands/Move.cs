@@ -13,10 +13,14 @@ namespace MarsTS.Commands {
 		public override string Name { get { return "move"; } }
 		public Vector3 Target { get; private set; }
 
-		public override Sprite Icon { get { return icon; } }
+		public override string Description { get { return description; } }
 
 		[SerializeField]
-		private Sprite icon;
+		private string description;
+
+		public override CostEntry[] GetCost () {
+			return new CostEntry[0];
+		}
 
 		public override void StartSelection () {
 			Player.Input.Hook("Select", OnClick);

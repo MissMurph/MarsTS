@@ -14,7 +14,10 @@ namespace MarsTS.Commands {
 
 		public override string Name { get { return "deposit"; } }
 
-		public override Sprite Icon => throw new System.NotImplementedException();
+		public override string Description { get { return description; } }
+
+		[SerializeField]
+		private string description;
 
 		public override void StartSelection () {
 			Player.Input.Hook("Select", OnSelect);
@@ -44,6 +47,10 @@ namespace MarsTS.Commands {
 				Player.Input.Release("Order");
 				Player.UI.ResetCursor();
 			}
+		}
+
+		public override CostEntry[] GetCost () {
+			return new CostEntry[0];
 		}
 	}
 }

@@ -16,9 +16,13 @@ namespace MarsTS.UI {
 		private string[] boundCommands;
 		private int buttonCount;
 
+		private CommandTooltip tooltip;
+
 		private void Awake () {
 			buttonCount = registeredButton.Length;
 			boundCommands = new string[buttonCount];
+
+			tooltip = GetComponentInChildren<CommandTooltip>();
 
 			registeredIcons = new Image[buttonCount];
 
@@ -26,6 +30,10 @@ namespace MarsTS.UI {
 				registeredIcons[i] = registeredButton[i].transform.Find("Icon").GetComponent<Image>();
 				registeredIcons[i].gameObject.SetActive(false);
 			}
+		}
+
+		private void Start () {
+			tooltip.gameObject.SetActive(false);
 		}
 
 		public void Press (int index) {
@@ -63,6 +71,17 @@ namespace MarsTS.UI {
 				registeredIcons[i].gameObject.SetActive(true);
 				registeredIcons[i].sprite = CommandRegistry.Get(boundCommands[i]).Icon;
 			}
+		}
+
+		public void OnPointerEnterButton (int index) {
+			if (boundCommands[index] != null) {
+				tooltip.ShowCommand(boundCommands[index]);
+				tooltip.gameObject.SetActive(true);
+			}
+		}
+
+		public void OnPointerExitButton (int index) {
+			tooltip.gameObject.SetActive(false);
 		}
 	}
 }

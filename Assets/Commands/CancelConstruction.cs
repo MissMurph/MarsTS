@@ -11,13 +11,17 @@ namespace MarsTS.Commands {
 
 		public override string Name { get { return "cancelConstruction"; } }
 
-		public override Sprite Icon { get { return icon; } }
+		public override string Description { get { return description; } }
 
 		[SerializeField]
-		private Sprite icon;
+		private string description;
 
 		public override void StartSelection () {
 			Player.Main.DeliverCommand(Construct(true), false);
+		}
+
+		public override CostEntry[] GetCost () {
+			return new CostEntry[0];
 		}
 	}
 }

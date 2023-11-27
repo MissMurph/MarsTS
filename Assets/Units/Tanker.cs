@@ -83,5 +83,11 @@ namespace MarsTS.Units {
 
 			currentHarvestCooldown += harvestCooldown;
 		}
+
+		protected override void DepositResources () {
+			storageComp.Consume(DepositTarget.Deposit("oil", depositAmount));
+			bus.Global(new HarvesterDepositEvent(bus, this, Stored, Capacity, DepositTarget));
+			currentCooldown += cooldown;
+		}
 	}
 }

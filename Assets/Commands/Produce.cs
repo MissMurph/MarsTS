@@ -1,3 +1,4 @@
+using MarsTS.Buildings;
 using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
@@ -14,6 +15,11 @@ namespace MarsTS.Commands {
 		public override string Name { get { return "produce/" + prefab.name; } }
 
 		public override Sprite Icon { get { return unit.Icon; } }
+
+		public override string Description { get { return description; } }
+
+		[SerializeField]
+		private string description;
 
 		[SerializeField]
 		private GameObject prefab;
@@ -51,6 +57,22 @@ namespace MarsTS.Commands {
 
 		public override Commandlet Construct (GameObject _target) {
 			return new ProductionCommandlet("produce", _target, Player.Main, timeRequired, prefab, unit, cost);
+		}
+
+		public override CostEntry[] GetCost () {
+			List<CostEntry> spool = new List<CostEntry>();
+
+			foreach (CostEntry entry in cost) {
+				spool.Add(entry);
+			}
+
+			CostEntry time = new CostEntry();
+			time.key = "time";
+			time.amount = timeRequired;
+
+			spool.Add(time);
+
+			return spool.ToArray();
 		}
 	}
 

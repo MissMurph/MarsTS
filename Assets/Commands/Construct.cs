@@ -10,16 +10,20 @@ namespace MarsTS.Commands {
 
 		public override string Name { get { return "construct"; } }
 
-		public override Sprite Icon { get { return icon; } }
+		public override string Description { get { return description; } }
 
 		[SerializeField]
-		private Sprite icon;
+		private string description;
 
 		[SerializeField]
 		private CommandPage buildingCommands;
 
 		public override void StartSelection () {
 			UIController.Command.LoadCommandPage(buildingCommands);
+		}
+
+		public override CostEntry[] GetCost () {
+			return new CostEntry[0];
 		}
 	}
 }

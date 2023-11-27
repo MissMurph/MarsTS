@@ -59,7 +59,7 @@ namespace MarsTS.Buildings {
 		protected override void Start () {
 			base.Start();
 
-			exitOrder = CommandRegistry.Get<Move>("move").Construct(transform.position + (Vector3.forward * 5f));
+			exitOrder = CommandRegistry.Get<Move>("move").Construct(transform.position + (Vector3.forward * 10f));
 
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 		}

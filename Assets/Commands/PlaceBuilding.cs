@@ -17,6 +17,11 @@ namespace MarsTS.Commands {
 
 		public override Sprite Icon { get { return building.Icon; } }
 
+		public override string Description { get { return description; } }
+
+		[SerializeField]
+		private string description;
+
 		[SerializeField]
 		protected Building building;
 
@@ -97,6 +102,22 @@ namespace MarsTS.Commands {
 
 			Player.Input.Release("Select");
 			Player.Input.Release("Order");
+		}
+
+		public override CostEntry[] GetCost () {
+			List<CostEntry> spool = new List<CostEntry>();
+
+			foreach (CostEntry entry in cost) {
+				spool.Add(entry);
+			}
+
+			CostEntry time = new CostEntry();
+			time.key = "time";
+			time.amount = building.ConstructionRequired;
+
+			spool.Add(time);
+
+			return spool.ToArray();
 		}
 	}
 }

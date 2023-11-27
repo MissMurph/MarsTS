@@ -185,7 +185,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   key: minerals
   icon: {fileID: 21300000, guid: 15ea3726cb10f8349a424bbb4043c745, type: 3}
-  depositType: resouce_unit
+  depositType: resource_unit
 --- !u!114 &7104668611416931312
 MonoBehaviour:
   m_ObjectHideFlags: 0

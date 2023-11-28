@@ -35,26 +35,22 @@ namespace MarsTS.Units {
 
 		[Header("Turrets")]
 
-		protected Dictionary<string, Turret> registeredTurrets = new Dictionary<string, Turret>();
+		protected Dictionary<string, AbstractTurret> registeredTurrets = new Dictionary<string, AbstractTurret>();
 
 		[SerializeField]
-		protected Turret[] turretsToRegister;
+		protected AbstractTurret[] turretsToRegister;
 
-		protected ISelectable RepairTarget {
+		protected IAttackable RepairTarget {
 			get {
 				return repairTarget;
 			}
 			set {
-				//repairTarget = value;
-				//registeredTurrets["turret_main"].target = repairTarget;
-
 				if (repairTarget != null) {
 					EntityCache.TryGet(repairTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
 					oldAgent.RemoveListener<EntityDeathEvent>((_event) => repairTarget = null);
 				}
 
 				repairTarget = value;
-				registeredTurrets["turret_main"].target = repairTarget;
 
 				if (value != null) {
 					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
@@ -64,11 +60,12 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected ISelectable repairTarget;
+		protected IAttackable repairTarget;
 
 		protected override void Awake () {
 			base.Awake();
-			foreach (Turret turret in turretsToRegister) {
+
+			foreach (AbstractTurret turret in turretsToRegister) {
 				registeredTurrets.TryAdd(turret.name, turret);
 			}
 		}
@@ -79,10 +76,10 @@ namespace MarsTS.Units {
 			if (repairTarget == null) return;
 
 			if (Vector3.Distance(repairTarget.GameObject.transform.position, transform.position) <= registeredTurrets["turret_main"].Range) {
-				target = null;
+				TrackedTarget = null;
 				currentPath = Path.Empty;
 			}
-			else if (!ReferenceEquals(target, repairTarget.GameObject.transform)) {
+			else if (!ReferenceEquals(TrackedTarget, repairTarget.GameObject.transform)) {
 				SetTarget(repairTarget.GameObject.transform);
 			}
 		}
@@ -119,30 +116,93 @@ namespace MarsTS.Units {
 		protected override void ProcessOrder (Commandlet order) {
 			RepairTarget = null;
 			switch (order.Name) {
-				case "construct":
-				
-				break;
 				case "repair":
-				Repair(order);
-				break;
-				//This is brilliant
+					CurrentCommand = order;
+					Repair(order);
+					break;
 				default:
-				base.ProcessOrder(order);
-				break;
+					base.ProcessOrder(order);
+					break;
 			}
 		}
 
 		protected void Repair (Commandlet order) {
-			if (order.TargetType.Equals(typeof(ISelectable))) {
-				Commandlet<ISelectable> deserialized = order as Commandlet<ISelectable>;
-				ISelectable unit = deserialized.Target;
+			if (order is Commandlet<IAttackable> deserialized) {
+				IAttackable unit = deserialized.Target;
 
-				if ((unit.GetRelationship(owner) == Teams.Relationship.Owned || unit.GetRelationship(owner) == Teams.Relationship.Friendly)) {
-					
-
+				if (unit.GetRelationship(owner) == Relationship.Owned || unit.GetRelationship(owner) == Relationship.Friendly) {
 					RepairTarget = unit;
+
+					EntityCache.TryGet(RepairTarget.GameObject.transform.root.name, out EventAgent targetBus);
+
+					targetBus.AddListener<EntityHurtEvent>(OnTargetHealed);
+					targetBus.AddListener<EntityDeathEvent>(OnTargetDeath);
+
+					order.Callback.AddListener(RepairCancelled);
 				}
 			}
+		}
+
+		//Could potentially move these to the actual Command Classes
+		private void OnTargetHealed (EntityHurtEvent _event) {
+			if (_event.Unit.Health >= _event.Unit.MaxHealth) {
+				EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
+
+				targetBus.RemoveListener<EntityHurtEvent>(OnTargetHealed);
+
+				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+
+				CurrentCommand.Callback.Invoke(newEvent);
+
+				bus.Global(newEvent);
+
+				CurrentCommand = null;
+			}
+		}
+
+		private void OnTargetDeath (EntityDeathEvent _event) {
+			EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
+
+			targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, true, this);
+
+			CurrentCommand.Callback.Invoke(newEvent);
+
+			bus.Global(newEvent);
+
+			CurrentCommand = null;
+		}
+
+		private void RepairCancelled (CommandCompleteEvent _event) {
+			if (_event.Command is Commandlet<IAttackable> deserialized && _event.CommandCancelled) {
+				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
+
+				targetBus.RemoveListener<EntityHurtEvent>(OnTargetHealed);
+				targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+
+				RepairTarget = null;
+			}
+		}
+
+		public override Command Evaluate (ISelectable target) {
+			if (target is IAttackable attackable
+				&& (target.GetRelationship(owner) == Relationship.Owned || target.GetRelationship(owner) == Relationship.Friendly)
+				&& attackable.Health < attackable.MaxHealth) {
+				return CommandRegistry.Get("repair");
+			}
+
+			return CommandRegistry.Get("move");
+		}
+
+		public override Commandlet Auto (ISelectable target) {
+			if (target is IAttackable attackable
+				&& (target.GetRelationship(owner) == Relationship.Owned || target.GetRelationship(owner) == Relationship.Friendly)
+				&& attackable.Health < attackable.MaxHealth) {
+				return CommandRegistry.Get<Repair>("repair").Construct(attackable);
+			}
+
+			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
 		}
 	}
 }

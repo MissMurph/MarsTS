@@ -1,4 +1,5 @@
-﻿using MarsTS.Commands;
+﻿using MarsTS.Buildings;
+using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players.Input;
@@ -13,9 +14,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.HID;
-using static UnityEditor.PlayerSettings;
-using static UnityEngine.GraphicsBuffer;
-using static UnityEngine.UI.GridLayoutGroup;
 
 namespace MarsTS.Players {
 
@@ -45,6 +43,9 @@ namespace MarsTS.Players {
 		public static UIController UI { get { return instance.uiController; } }
 		private UIController uiController;
 
+		public static List<IDepositable> Depositables { get { return instance.depositables; } }
+		private List<IDepositable> depositables = new List<IDepositable>();
+
 		[SerializeField]
 		private float cameraSpeed;
 
@@ -52,7 +53,9 @@ namespace MarsTS.Players {
 
 		private ISelectable currentHover;
 
-		private void Awake () {
+		protected override void Awake () {
+			base.Awake();
+
 			instance = this;
 			view = GetComponentInChildren<Camera>();
 			inputController = GetComponent<InputHandler>();
@@ -63,6 +66,7 @@ namespace MarsTS.Players {
 
 		private void Start () {
 			EventBus.AddListener<EntityDeathEvent>(OnEntityDeath);
+			EventBus.AddListener<EntityInitEvent>(OnEntityInit);
 		}
 
 		private void Update () {
@@ -95,7 +99,7 @@ namespace MarsTS.Players {
 
 		public void Select (InputAction.CallbackContext context) {
 			if (context.phase == InputActionPhase.Canceled) {
-				if (UI.Hovering) return;
+				if (UI.IsHovering) return;
 				if (!Include) ClearSelection();
 
 				Ray ray = ViewPort.ScreenPointToRay(cursorPos);
@@ -108,9 +112,11 @@ namespace MarsTS.Players {
 		}
 
 		public bool HasSelected (ISelectable unit) {
-			Roster units = GetRoster(unit.RegistryKey);
+			if (Selected.TryGetValue(unit.RegistryKey, out Roster typeRoster)) {
+				return typeRoster.Contains(unit.ID);
+			}
 
-			return units.Contains(unit.ID);
+			return false;
 		}
 
 		public void SelectUnit (params ISelectable[] selection) {
@@ -150,15 +156,16 @@ namespace MarsTS.Players {
 		}
 
 		public void Command (InputAction.CallbackContext context) {
-			if (context.canceled && !UI.Hovering) {
+			if (context.canceled && !UI.IsHovering) {
 				Ray ray = ViewPort.ScreenPointToRay(cursorPos);
 
 				Physics.Raycast(ray, out RaycastHit walkableHit, 1000f, GameWorld.WalkableMask);
 				Physics.Raycast(ray, out RaycastHit selectableHit, 1000f, GameWorld.SelectableMask);
 
-				if (selectableHit.collider != null && selectableHit.collider.gameObject.TryGetComponent(out ISelectable unit)) {
-					if (unit.GetRelationship(this) == Relationship.Hostile) {
-						DeliverCommand(CommandRegistry.Get<Attack>("attack").Construct(unit), Include);
+				if (selectableHit.collider != null && EntityCache.TryGet(selectableHit.collider.transform.root.name, out ISelectable target)) {
+					if (Selected[UIController.instance.PrimarySelected].Get() is ICommandable commandable) {
+						Commandlet constructed = commandable.Auto(target);
+						DeliverCommand(constructed, Include);
 						return;
 					}
 				}
@@ -174,8 +181,10 @@ namespace MarsTS.Players {
 		public void DeliverCommand (Commandlet packet, bool inclusive) {
 			foreach (KeyValuePair<string, Roster> entry in Selected) {
 				foreach (ISelectable unit in entry.Value.List()) {
-					if (inclusive) unit.Enqueue(packet);
-					else unit.Execute(packet);
+					if (unit is ICommandable orderable) {
+						if (inclusive) orderable.Enqueue(packet);
+						else orderable.Execute(packet);
+					}
 				}
 			}
 		}
@@ -191,9 +200,25 @@ namespace MarsTS.Players {
 			if (Selected.TryGetValue(key, out Roster unitRoster) && unitRoster.Contains(_event.Unit.ID)) {
 				unitRoster.Remove(_event.Unit.ID);
 
+				if (unitRoster.Count == 0) Selected.Remove(key);
+
 				//This isn't the best method to update selection, as when units die we don't want the 
 				//primary selected to be jumping around a lot, will have to come up with something better
 				EventBus.Global(new PlayerSelectEvent(Selected));
+			}
+
+			if (_event.Unit.Owner == this
+				&& _event.Unit is IDepositable deserialized
+				&& depositables.Contains(deserialized)) {
+				depositables.Remove(deserialized);
+			}
+		}
+
+		private void OnEntityInit (EntityInitEvent _event) {
+			if (_event.ParentEntity.TryGet("selectable", out ISelectable unitComponent)
+				&& unitComponent.Owner == this
+				&& unitComponent is IDepositable deserialized) {
+				depositables.Add(deserialized);
 			}
 		}
 

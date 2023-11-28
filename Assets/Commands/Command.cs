@@ -24,10 +24,18 @@ namespace MarsTS.Commands {
 
 		public abstract string Name { get; }
 		public abstract Type TargetType { get; }
-		public abstract void StartSelection ();
+		public virtual Sprite Icon { get { return icon; } }
+		public abstract string Description { get; }
+
+		[SerializeField]
+		protected Sprite icon;
 
 		public Color IconColor;
 		public CursorSprite Pointer;
+
+		public abstract void StartSelection ();
+		public abstract void CancelSelection ();
+		public abstract CostEntry[] GetCost ();
 	}
 
 	public class Commandlet<T> : Commandlet {

@@ -34,6 +34,7 @@ namespace MarsTS.Events {
 
 		private void Start () {
 			id = EventBus.RegisterAgent(this);
+			Local(new EventAgentInitEvent(this));
 		}
 
 		public void AddListener<T> (UnityAction<T> func) where T : AbstractEvent {

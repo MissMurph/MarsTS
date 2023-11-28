@@ -2,6 +2,7 @@ using MarsTS.Commands;
 using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
+using MarsTS.UI;
 using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,7 +23,15 @@ namespace MarsTS.Buildings {
 
 		public ProductionCommandlet CurrentProduction { get; protected set; }
 
+		public override Commandlet CurrentCommand { get { return CurrentProduction; } }
+
+		public override Commandlet[] CommandQueue { get { return ProductionQueue.ToArray(); } }
+
 		protected Queue<Commandlet> rallyOrders = new Queue<Commandlet>();
+
+		//This queue is required so that timing isn't broken with the Player selection code, if a unit calls its death
+		//While the selection event is still processing the collection it'll crash
+		protected Queue<Commandlet> newCommands = new Queue<Commandlet>();
 
 		protected Commandlet exitOrder;
 
@@ -30,6 +39,11 @@ namespace MarsTS.Buildings {
 		protected string[] rallyCommands;
 
 		private List<Collider> colliders;
+
+		[SerializeField]
+		private GameObject queueInfo;
+
+
 
 		protected override void Awake () {
 			base.Awake();
@@ -40,11 +54,18 @@ namespace MarsTS.Buildings {
 
 			stepTime = 1f / productionSpeed;
 			timeToStep = stepTime;
+		}
 
-			exitOrder = CommandRegistry.Get<Move>("move").Construct(transform.position + (Vector3.forward * 5f));
+		protected override void Start () {
+			base.Start();
+
+			exitOrder = CommandRegistry.Get<Move>("move").Construct(transform.position + (Vector3.forward * 10f));
+
+			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 		}
 
 		protected void Update () {
+			ProcessCommand();
 			UpdateQueue();
 
 			if (CurrentProduction != null) {
@@ -56,7 +77,7 @@ namespace MarsTS.Buildings {
 					if (CurrentProduction.ProductionProgress >= CurrentProduction.ProductionRequired) {
 						ProduceUnit();
 					}
-					else bus.Global(new ProductionStepEvent(bus, CurrentProduction));
+					else bus.Global(new ProductionStepEvent(bus, CurrentProduction, this));
 
 					timeToStep += stepTime;
 				}
@@ -67,6 +88,14 @@ namespace MarsTS.Buildings {
 			if (CurrentProduction is null && ProductionQueue.TryDequeue(out ProductionCommandlet order)) {
 
 				CurrentProduction = order;
+
+				bus.Global(new ProductionStartedEvent(bus, CurrentProduction, ProductionQueue.ToArray(), this));
+			}
+		}
+
+		protected void ProcessCommand () {
+			if (newCommands.TryDequeue(out Commandlet order)) {
+				ProcessOrder(order);
 			}
 		}
 
@@ -83,16 +112,18 @@ namespace MarsTS.Buildings {
 
 			newUnit.SetOwner(owner);
 
+			ICommandable commandable = newUnit as ICommandable;
+
 			Commandlet exit = exitOrder.Clone();
 			exit.Callback.AddListener(UnitExitCallback);
-			newUnit.Execute(exit);
+			commandable.Execute(exit);
 
 			foreach (Commandlet order in rallyOrders) {
-				newUnit.Enqueue(order.Clone());
+				commandable.Enqueue(order.Clone());
 			}
 
 			CurrentProduction = null;
-			bus.Global(new ProductionEvent(bus, newUnit));
+			bus.Global(new ProductionEvent(bus, newUnit, this));
 		}
 
 		protected override void ProcessOrder (Commandlet order) {
@@ -113,6 +144,8 @@ namespace MarsTS.Buildings {
 			ProductionCommandlet produceOrder = order as ProductionCommandlet;
 
 			ProductionQueue.Enqueue(produceOrder);
+
+			bus.Global(new ProductionQueueEvent(bus, ProductionQueue.ToArray(), this));
 		}
 
 		protected virtual void Stop () {
@@ -156,7 +189,15 @@ namespace MarsTS.Buildings {
 				}
 			}
 
-			ProcessOrder(order);
+			newCommands.Enqueue(order);
+		}
+
+		protected override void OnUnitInfoDisplayed (UnitInfoEvent _event) {
+			if (ReferenceEquals(_event.Unit, this)) {
+				_event.Info.Module<ProductionQueue>("productionQueue").SetQueue(this, CurrentProduction, ProductionQueue.ToArray());
+			}
+
+			base.OnUnitInfoDisplayed(_event);
 		}
 	}
 }

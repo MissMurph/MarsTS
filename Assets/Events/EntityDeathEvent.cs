@@ -7,11 +7,7 @@ namespace MarsTS.Events {
 
 	public class EntityDeathEvent : AbstractEvent {
 
-		public ISelectable Unit {
-			get {
-				return unit;
-			}
-		}
+		public ISelectable Unit { get { return unit; } }
 
 		private ISelectable unit;
 		

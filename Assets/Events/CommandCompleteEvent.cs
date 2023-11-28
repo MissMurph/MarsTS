@@ -9,12 +9,12 @@ namespace MarsTS.Events {
 	public class CommandCompleteEvent : AbstractEvent {
 
 		public Commandlet Command { get; private set; }
-		public bool Cancelled { get; private set; }
+		public bool CommandCancelled { get; private set; }
 		public ISelectable Unit { get; private set; }
 
 		public CommandCompleteEvent (EventAgent _source, Commandlet _command, bool _cancelled, ISelectable _unit) : base("commandCompleted", _source) {
 			Command = _command;
-			Cancelled = _cancelled;
+			CommandCancelled = _cancelled;
 			Unit = _unit;
 		}
 	}

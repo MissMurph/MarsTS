@@ -34,8 +34,6 @@ namespace MarsTS.Prefabs {
 				registeredClasses.Add(key, component);
 			}
 		}
-
-		public abstract T GetRegistryEntry (string key);
 	}
 
 	public abstract class PrefabRegistry : MonoBehaviour {
@@ -56,5 +54,7 @@ namespace MarsTS.Prefabs {
 		protected abstract void Register (string key, GameObject prefab);
 
 		public abstract GameObject GetPrefab (string key);
+
+		public abstract bool GetRegistryEntry<T> (string key, out T output);
 	}
 }

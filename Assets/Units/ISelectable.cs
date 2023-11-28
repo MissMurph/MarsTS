@@ -8,19 +8,15 @@ using UnityEngine;
 
 namespace MarsTS.Units {
 	public interface ISelectable {
-		void Enqueue (Commandlet order);
-		void Execute (Commandlet order);
 		GameObject GameObject { get; }
-		string[] Commands ();
-		void Select (bool status);
-		void Hover (bool status);
 		int ID { get; }
 		string UnitType { get; }
+		string RegistryKey { get; }
+		Faction Owner { get; }
+		void Select (bool status);
+		void Hover (bool status);
+		Sprite Icon { get; }
 		Relationship GetRelationship (Faction player);
 		bool SetOwner (Faction player);
-		int Health { get; }
-		int MaxHealth { get; }
-		void Attack (int damage);
-		string RegistryKey { get; }
 	}
 }

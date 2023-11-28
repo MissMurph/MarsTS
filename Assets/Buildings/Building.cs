@@ -10,101 +10,90 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.UI.GridLayoutGroup;
+using MarsTS.UI;
 
 namespace MarsTS.Buildings {
 
-	public abstract class Building : MonoBehaviour, ISelectable, ITaggable<Building>, IRegistryObject<Building> {
+	public abstract class Building : MonoBehaviour, ISelectable, ITaggable<Building>, IRegistryObject<Building>, IAttackable, ICommandable {
 
-		public GameObject GameObject {
-			get { 
-				return gameObject; 
-			}
-		}
+		public GameObject GameObject { get {  return gameObject;  } }
 
-		public int ID {
-			get {
-				return entityComponent.ID;
-			}
-		}
-
-		private Entity entityComponent;
-
-		public string Key {
-			get {
-				return "building";
-			}
-		}
-
-		public Type Type {
-			get {
-				return typeof(Building);
-			}
-		}
-
-		[SerializeField]
-		protected Faction owner;
+		/*	IAttackable Properties	*/
 
 		public int Health { get; protected set; }
 
-		public int MaxHealth {
-			get {
-				return maxHealth;
-			}
-		}
+		public int MaxHealth { get { return maxHealth; } }
 
 		[SerializeField]
 		private int maxHealth;
 
-		[Header("Entity Fields")]
+		/*	ISelectable Properties	*/
+
+		public int ID { get { return entityComponent.ID; } }
+
+		public string UnitType { get { return type; } }
+
+		public string RegistryKey { get { return RegistryType + ":" + UnitType; } }
+
+		public Sprite Icon { get { return icon; } }
+
+		public Faction Owner { get { return owner; } }
+
+		[SerializeField]
+		private Sprite icon;
 
 		[SerializeField]
 		private string type;
 
-		private GameObject selectionCircle;
+		[SerializeField]
+		protected Faction owner;
+
+		/*	ITaggable Properties	*/
+
+		public string Key { get { return "selectable"; } }
+
+		public Type Type { get { return typeof(Building); } }
+
+		/*	ICommandable Properties	*/
+
+		public abstract Commandlet CurrentCommand { get; }
+
+		public abstract Commandlet[] CommandQueue { get; }
 
 		[SerializeField]
 		private string[] boundCommands;
 
-		[Header("Building Fields")]
+		/*	Building Fields	*/
+
+		private GameObject selectionCircle;
+
+		[Header("Construction")]
 
 		[SerializeField]
 		private int constructionWork;
 
-		public int ConstructionProgress {
-			get {
-				return currentWork;
-			}
-		}
-
-		public int ConstructionRequired {
-			get {
-				return constructionWork;
-			}
-		}
-
 		[SerializeField]
 		private int currentWork;
-
-		public bool Constructed {
-			get {
-				return currentWork >= constructionWork;
-			}
-		}
 
 		[SerializeField]
 		private GameObject ghost;
 
-		public GameObject SelectionGhost {
-			get {
-				return ghost;
-			}
-		}
+		[SerializeField]
+		private CostEntry[] constructionCost;
+
+		public int ConstructionProgress { get { return currentWork; } }
+
+		public int ConstructionRequired { get { return constructionWork; } }
+
+		public bool Constructed { get { return currentWork >= constructionWork; } }
+
+		public GameObject SelectionGhost { get { return ghost; } }
+
+		public CostEntry[] ConstructionCost { get { return constructionCost; } }
 
 		public string RegistryType => "building";
 
-		public string RegistryKey => RegistryType + ":" + UnitType;
-
-		public string UnitType => type;
+		private Entity entityComponent;
 
 		protected EventAgent bus;
 
@@ -122,13 +111,25 @@ namespace MarsTS.Buildings {
 
 			if (currentWork > 0) {
 				model.localScale = Vector3.one * (currentWork / constructionWork);
+				Health = maxHealth * (int) (currentWork / constructionWork);
 			}
 			else model.localScale = Vector3.zero;
+		}
+
+		protected virtual void Start () {
+			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
+
+			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 		}
 
 		protected virtual void CancelConstruction () {
 			if (!Constructed) {
 				bus.Global(new EntityDeathEvent(bus, this));
+
+				foreach (CostEntry materialCost in ConstructionCost) {
+					Player.Main.Resource(materialCost.key).Deposit(materialCost.amount);
+				}
+
 				Destroy(gameObject, 0.1f);
 			}
 		}
@@ -159,7 +160,8 @@ namespace MarsTS.Buildings {
 		}
 
 		public Relationship GetRelationship (Faction other) {
-			return owner.GetRelationship(other);
+			Relationship result = owner.GetRelationship(other);
+			return result;
 		}
 
 		public void Select (bool status) {
@@ -198,7 +200,9 @@ namespace MarsTS.Buildings {
 				return;
 			}
 
+			if (damage < 0 && Health >= maxHealth) return;
 			Health -= damage;
+			bus.Global(new EntityHurtEvent(bus, this));
 
 			if (Health <= 0) {
 				bus.Global(new EntityDeathEvent(bus, this));
@@ -206,8 +210,23 @@ namespace MarsTS.Buildings {
 			}
 		}
 
+		public Command Evaluate (ISelectable target) {
+			return CommandRegistry.Get("move");
+		}
+
 		public IRegistryObject<Building> GetRegistryEntry () {
 			throw new NotImplementedException();
+		}
+
+		public Commandlet Auto (ISelectable target) {
+			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
+		}
+
+		protected virtual void OnUnitInfoDisplayed (UnitInfoEvent _event) {
+			if (ReferenceEquals(_event.Unit, this)) {
+				HealthInfo info = _event.Info.Module<HealthInfo>("health");
+				info.CurrentUnit = this;
+			}
 		}
 	}
 }

@@ -22,7 +22,7 @@ namespace MarsTS.Entities {
 			}
 		}
 
-		private int id;
+		private int id = 0;
 
 		[SerializeField]
 		private string registryKey;
@@ -34,6 +34,8 @@ namespace MarsTS.Entities {
 		private void Awake () {
 			eventAgent = GetComponent<EventAgent>();
 
+			//eventAgent.AddListener<EventAgentInitEvent>(Init);
+
 			taggedComponents = new Dictionary<string, ITaggable> ();
 
 			foreach (ITaggable component in GetComponents<ITaggable>()) {
@@ -41,10 +43,12 @@ namespace MarsTS.Entities {
 			}
 		}
 
-		private void Start () {
-			id = EntityCache.Register(this);
-			name = registryKey + ":" + id.ToString();
-			eventAgent.Local(new EntityInitEvent(this, eventAgent));
+		private void Update () {
+			if (id == 0) {
+				id = EntityCache.Register(this);
+				name = registryKey + ":" + id.ToString();
+				eventAgent.Global(new EntityInitEvent(this, eventAgent));
+			}
 		}
 
 		public bool TryGet<T> (string key, out T output) {

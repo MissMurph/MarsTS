@@ -175,7 +175,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1214473941654255901}
-  - component: {fileID: 1214473941654255888}
+  - component: {fileID: 1136886775272587408}
   - component: {fileID: 1214473941654255889}
   m_Layer: 0
   m_Name: turret_main
@@ -202,7 +202,7 @@ Transform:
   m_Father: {fileID: 1214473942047108565}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1214473941654255888
+--- !u!114 &1136886775272587408
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -211,15 +211,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 1214473941654255900}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 20dd833d2b8ec3d4e939b45877bf7949, type: 3}
+  m_Script: {fileID: 11500000, guid: 5f81996ae128c4f47884189027df8738, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   range: {fileID: 1214473942015219724}
   falloff: 0
   barrel: {fileID: 5689438752885368348}
-  turnRate: 0
-  damage: 25
-  cooldown: 5
+  projectile: {fileID: 5732885903752370511, guid: c53d0750fc9147c4f82636c698100a22,
+    type: 3}
+  damage: 50
+  cooldown: 7
 --- !u!54 &1214473941654255889
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -473,8 +474,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 150
   currentHealth: 0
-  owner: {fileID: 0}
+  icon: {fileID: 21300000, guid: db7c4a86328576146aaec74d7401b030, type: 3}
   type: longtank
+  owner: {fileID: 0}
   boundCommands:
   - move
   - stop
@@ -485,7 +487,7 @@ MonoBehaviour:
   turnSpeed: 25
   angleTolerance: 25
   turretsToRegister:
-  - {fileID: 1214473941654255888}
+  - {fileID: 1136886775272587408}
 --- !u!1 &1548256937297088197
 GameObject:
   m_ObjectHideFlags: 0

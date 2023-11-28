@@ -5,23 +5,45 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 namespace MarsTS.UI {
 
 	public class CommandPanel : MonoBehaviour {
 
 		public Button[] registeredButton;
-		public TextMeshProUGUI[] registeredText;
+		private Image[] registeredIcons;
 		private string[] boundCommands;
 		private int buttonCount;
+
+		private CommandTooltip tooltip;
+
+		private string currentlyTargetingCommand;
 
 		private void Awake () {
 			buttonCount = registeredButton.Length;
 			boundCommands = new string[buttonCount];
+
+			tooltip = GetComponentInChildren<CommandTooltip>();
+
+			registeredIcons = new Image[buttonCount];
+
+			for (int i = 0; i < registeredButton.Length; i++) {
+				registeredIcons[i] = registeredButton[i].transform.Find("Icon").GetComponent<Image>();
+				registeredIcons[i].gameObject.SetActive(false);
+			}
+		}
+
+		private void Start () {
+			tooltip.gameObject.SetActive(false);
 		}
 
 		public void Press (int index) {
 			if (boundCommands[index] is null) return;
+
+			if (currentlyTargetingCommand != null) CommandRegistry.Get(currentlyTargetingCommand).CancelSelection();
+
+			currentlyTargetingCommand = boundCommands[index];
 
 			Command bound = CommandRegistry.Get(boundCommands[index]);
 			bound.StartSelection();
@@ -31,26 +53,41 @@ namespace MarsTS.UI {
 			for (int i = 0; i < buttonCount; i++) {
 				if (i >= commands.Length) {
 					boundCommands[i] = null;
-					registeredText[i].text = "";
+					registeredIcons[i].gameObject.SetActive(false);
 					continue;
 				}
 
 				boundCommands[i] = commands[i];
-				registeredText[i].text = boundCommands[i];
+				registeredIcons[i].gameObject.SetActive(true);
+				registeredIcons[i].sprite = CommandRegistry.Get(boundCommands[i]).Icon;
 			}
 		}
 
 		public void LoadCommandPage (CommandPage page) {
-			string[,] commands = page.Build();
+			string[] commands = page.Commands;
 
-			for (int y = 0; y < 3; y++) {
-				for (int x = 0; x < 3; x++) {
-					int i = ((y + 1) * (x + 1)) - 1;
-
-					boundCommands[i] = commands[y, x];
-					registeredText[i].text = commands[y, x];
+			for (int i = 0; i < commands.Length; i++) {
+				if (string.IsNullOrEmpty(commands[i])) {
+					registeredIcons[i].gameObject.SetActive(false);
+					boundCommands[i] = null;
+					continue;
 				}
+
+				boundCommands[i] = commands[i];
+				registeredIcons[i].gameObject.SetActive(true);
+				registeredIcons[i].sprite = CommandRegistry.Get(boundCommands[i]).Icon;
 			}
+		}
+
+		public void OnPointerEnterButton (int index) {
+			if (boundCommands[index] != null) {
+				tooltip.ShowCommand(boundCommands[index]);
+				tooltip.gameObject.SetActive(true);
+			}
+		}
+
+		public void OnPointerExitButton (int index) {
+			tooltip.gameObject.SetActive(false);
 		}
 	}
 }

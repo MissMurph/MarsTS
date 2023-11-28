@@ -11,22 +11,19 @@ using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Prefabs;
 using MarsTS.Commands;
+using MarsTS.UI;
 
 namespace MarsTS.Units {
 
-	public class Unit : MonoBehaviour, ISelectable, ITaggable<Unit>, IRegistryObject<Unit> {
+	public abstract class Unit : MonoBehaviour, ISelectable, ITaggable<Unit>, IAttackable, ICommandable {
 
-		public int Health {
-			get {
-				return currentHealth;
-			}
-		}
+		public GameObject GameObject { get { return gameObject; } }
 
-		public int MaxHealth {
-			get {
-				return maxHealth;
-			}
-		}
+		/*	IAttackable Properties	*/
+
+		public int Health { get { return currentHealth; } }
+
+		public int MaxHealth { get { return maxHealth; } }
 
 		[SerializeField]
 		private int maxHealth;
@@ -34,76 +31,79 @@ namespace MarsTS.Units {
 		[SerializeField]
 		private int currentHealth;
 
-		public Faction Owner {
-			get {
-				return owner;
-			}
-			set {
-				owner = value;
-			}
-		}
+		/*	ISelectable Properties	*/
+		
+		public int ID { get { return entityComponent.ID; } }
+
+		public string UnitType { get { return type; } }
+
+		public string RegistryKey { get { return "unit:" + UnitType; } }
+
+		public Sprite Icon { get { return icon; } }
+
+		public Faction Owner { get { return owner; } }
 
 		[SerializeField]
-		protected Faction owner;
-
-		protected Entity entityComponent;
+		private Sprite icon;
 
 		[SerializeField]
 		private string type;
 
+		[SerializeField]
+		protected Faction owner;
+
+		/*	ITaggable Properties	*/
+
+		public string Key { get { return "selectable"; } }
+
+		public Type Type { get { return typeof(Unit); } }
+
+		/*	ICommandable Properties	*/
+
 		public Commandlet CurrentCommand { get; protected set; }
 
-		public string Key {
-			get {
-				return "selectable";
-			}
-		}
+		public Commandlet[] CommandQueue { get { return commandQueue.ToArray(); } }
 
-		public Type Type {
-			get {
-				return typeof(Unit);
-			}
-		}
+		private Queue<Commandlet> commandQueue = new Queue<Commandlet>();
 
-		public GameObject GameObject {
-			get {
-				return gameObject; 
-			}
-		}
-
-		public int ID {
-			get {
-				return entityComponent.ID;
-			}
-		}
-
-		public string RegistryType {
-			get {
-				return "unit";
-			}
-		}
-
-		public string RegistryKey {
-			get {
-				return RegistryType + ":" + UnitType;
-			}
-		}
-
-		public string UnitType {
-			get {
-				return type;
-			}
-		}
-
-		public Queue<Commandlet> CommandQueue = new Queue<Commandlet>();
-		
 		[SerializeField]
 		private string[] boundCommands;
 
-		protected Transform target;
+		/*	Unit Fields	*/
+
+		protected Entity entityComponent;
+
+		protected Transform TrackedTarget {
+			get {
+				return target;
+			}
+			set {
+				if (target != null) {
+					EntityCache.TryGet(target.gameObject.name + ":eventAgent", out EventAgent oldAgent);
+					oldAgent.RemoveListener<EntityDeathEvent>((_event) => TrackedTarget = null);
+				}
+
+				target = value;
+
+				if (value != null) {
+					EntityCache.TryGet(value.gameObject.name + ":eventAgent", out EventAgent agent);
+
+					agent.AddListener<EntityDeathEvent>((_event) => TrackedTarget = null);
+
+					SetTarget(value);
+				}
+			}
+		}
+
+		private Transform target;
+
 		private Vector3 targetOldPos;
 
-		protected Path currentPath = Path.Empty;
+		protected Path currentPath {
+			get;
+			set;
+		} = Path.Empty;
+
 		private float angle;
 		protected int pathIndex;
 
@@ -111,11 +111,11 @@ namespace MarsTS.Units {
 
 		protected Rigidbody body;
 
-		const float minPathUpdateTime = .5f;
-		const float pathUpdateMoveThreshold = .5f;
+		private const float minPathUpdateTime = .5f;
+		private const float pathUpdateMoveThreshold = .5f;
 
 		[SerializeField]
-		private float waypointCompletionDistance;
+		protected float waypointCompletionDistance;
 
 		protected EventAgent bus;
 
@@ -132,6 +132,8 @@ namespace MarsTS.Units {
 			StartCoroutine(UpdatePath());
 
 			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
+
+			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 		}
 
 		protected virtual void Update () {
@@ -153,9 +155,7 @@ namespace MarsTS.Units {
 		}
 
 		protected void UpdateCommands () {
-			if (CurrentCommand is null && CommandQueue.TryDequeue(out Commandlet order)) {
-
-				CurrentCommand = order;
+			if (CurrentCommand is null && commandQueue.TryDequeue(out Commandlet order)) {
 
 				ProcessOrder(order);
 			}
@@ -164,9 +164,11 @@ namespace MarsTS.Units {
 		protected virtual void ProcessOrder (Commandlet order) {
 			switch (order.Name) {
 				case "move":
+				CurrentCommand = order;
 				Move(order);
 				break;
 				case "stop":
+				CurrentCommand = order;
 				Stop();
 				break;
 				default:
@@ -194,7 +196,7 @@ namespace MarsTS.Units {
 			currentPath = Path.Empty;
 			target = null;
 
-			CommandQueue.Clear();
+			commandQueue.Clear();
 
 			CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 			bus.Global(_event);
@@ -259,12 +261,12 @@ namespace MarsTS.Units {
 
 		public void Enqueue (Commandlet order) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
-			CommandQueue.Enqueue(order);
+			commandQueue.Enqueue(order);
 		}
 
 		public void Execute (Commandlet order) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
-			CommandQueue.Clear();
+			commandQueue.Clear();
 
 			currentPath = Path.Empty;
 			target = null;
@@ -275,7 +277,7 @@ namespace MarsTS.Units {
 				bus.Global(_event);
 			}
 			CurrentCommand = null;
-			CommandQueue.Enqueue(order);
+			commandQueue.Enqueue(order);
 		}
 
 		public Unit Get () {
@@ -285,6 +287,10 @@ namespace MarsTS.Units {
 		public string[] Commands () {
 			return boundCommands;
 		}
+
+		public abstract Command Evaluate (ISelectable target);
+
+		public abstract Commandlet Auto (ISelectable target);
 
 		public void Select (bool status) {
 			selectionCircle.SetActive(status);
@@ -313,18 +319,22 @@ namespace MarsTS.Units {
 		}
 
 		public void Attack (int damage) {
+			if (damage < 0 && currentHealth >= maxHealth) return;
 			currentHealth -= damage;
 
-			bus.Local(new EntityHurtEvent(bus, this));
+			bus.Global(new EntityHurtEvent(bus, this));
 
 			if (currentHealth <= 0) {
 				bus.Global(new EntityDeathEvent(bus, this));
-				Destroy(gameObject, 0.1f);
+				Destroy(gameObject);
 			}
 		}
 
-		public IRegistryObject<Unit> GetRegistryEntry () {
-			throw new NotImplementedException();
+		protected virtual void OnUnitInfoDisplayed (UnitInfoEvent _event) {
+			if (ReferenceEquals(_event.Unit, this)) {
+				HealthInfo info = _event.Info.Module<HealthInfo>("health");
+				info.CurrentUnit = this;
+			}
 		}
 	}
 }

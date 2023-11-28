@@ -1,6 +1,7 @@
 using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
+using MarsTS.Teams;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -42,12 +43,12 @@ namespace MarsTS.Units {
 
 		[Header("Turret")]
 
-		protected Dictionary<string, Turret> registeredTurrets = new Dictionary<string, Turret>();
+		protected Dictionary<string, AbstractTurret> registeredTurrets = new Dictionary<string, AbstractTurret>();
 
 		[SerializeField]
-		protected Turret[] turretsToRegister;
+		protected AbstractTurret[] turretsToRegister;
 
-		protected ISelectable AttackTarget {
+		protected IAttackable AttackTarget {
 			get {
 				return attackTarget;
 			}
@@ -58,7 +59,6 @@ namespace MarsTS.Units {
 				}
 
 				attackTarget = value;
-				registeredTurrets["turret_main"].target = attackTarget;
 
 				if (value != null) {
 					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
@@ -68,11 +68,11 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected ISelectable attackTarget;
+		protected IAttackable attackTarget;
 
 		protected override void Awake () {
 			base.Awake();
-			foreach (Turret turret in turretsToRegister) {
+			foreach (AbstractTurret turret in turretsToRegister) {
 				registeredTurrets.TryAdd(turret.name, turret);
 			}
 		}
@@ -82,12 +82,12 @@ namespace MarsTS.Units {
 
 			if (attackTarget == null) return;
 
-			if (Vector3.Distance(transform.position, attackTarget.GameObject.transform.position) >= registeredTurrets["turret_main"].Range
-				&& !ReferenceEquals(target, attackTarget.GameObject.transform)) {
-				SetTarget(attackTarget.GameObject.transform);
+			if (Vector3.Distance(attackTarget.GameObject.transform.position, transform.position) <= registeredTurrets["turret_main"].Range) {
+				TrackedTarget = null;
+				currentPath = Path.Empty;
 			}
-			else if (target == attackTarget.GameObject.transform) {
-				Stop();
+			else if (!ReferenceEquals(TrackedTarget, attackTarget.GameObject.transform)) {
+				SetTarget(attackTarget.GameObject.transform);
 			}
 		}
 
@@ -166,29 +166,42 @@ namespace MarsTS.Units {
 		protected override void ProcessOrder (Commandlet order) {
 			switch (order.Name) {
 				case "attack":
-				Attack(order);
-				break;
+					CurrentCommand = order;
+					Attack(order);
+					break;
 				default:
-				base.ProcessOrder(order);
-				break;
+					base.ProcessOrder(order);
+					break;
 			}
 		}
 
 		protected void Attack (Commandlet order) {
-			if (order is Commandlet<ISelectable> deserialized) {
+			if (order is Commandlet<IAttackable> deserialized) {
 				AttackTarget = deserialized.Target;
 
 				EntityCache.TryGet(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.AddListener<EntityDeathEvent>(OnTargetDeath);
 
-				order.Callback.AddListener((_event) => {
-					targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
-				});
+				order.Callback.AddListener(AttackCancelled);
+			}
+		}
+
+		private void AttackCancelled (CommandCompleteEvent _event) {
+			if (_event.Command is Commandlet<IAttackable> deserialized && _event.CommandCancelled) {
+				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
+
+				targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+
+				AttackTarget = null;
 			}
 		}
 
 		private void OnTargetDeath (EntityDeathEvent _event) {
+			EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
+
+			targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
 			CurrentCommand.Callback.Invoke(newEvent);
@@ -196,6 +209,22 @@ namespace MarsTS.Units {
 			bus.Global(newEvent);
 
 			CurrentCommand = null;
+		}
+
+		public override Command Evaluate (ISelectable target) {
+			if (target is IAttackable && target.GetRelationship(owner) == Relationship.Hostile) {
+				return CommandRegistry.Get("attack");
+			}
+
+			return CommandRegistry.Get("move");
+		}
+
+		public override Commandlet Auto (ISelectable target) {
+			if (target is IAttackable deserialized && target.GetRelationship(owner) == Relationship.Hostile) {
+				return CommandRegistry.Get<Attack>("attack").Construct(deserialized);
+			}
+
+			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
 		}
 	}
 }

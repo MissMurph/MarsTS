@@ -1,3 +1,4 @@
+using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Units;
 using System;
@@ -40,32 +41,13 @@ namespace MarsTS.Entities {
 			instance = this;
 			instanceMap = new Dictionary<string, Dictionary<int, Entity>>();
 
-			/*foreach (GameObject unit in GameObject.FindGameObjectsWithTag("Unit")) {
-				Unit component = unit.GetComponent<Unit>();
-				int id = RegisterUnit(component);
-				component.Init(id, Player.Main);
-			}*/
 		}
-
-		/*public static Unit CreateInstance (GameObject prefab, Player owner, Vector3 position) {
-			GameObject newInstance = Instantiate(prefab, position, Quaternion.Euler(0, 0, 0));
-
-			if (newInstance.TryGetComponent(out Unit unit) ) {
-				int id = instance.RegisterUnit(unit);
-				unit.Init(id, owner);
-				return unit;
-			}
-			else {
-				Destroy(newInstance);
-				throw new ArgumentException("Prefab " + prefab.name + " not a Unit! Cannot construct, destroying prefab");
-			}
-		}*/
 
 		public static bool TryGet (string name, out Entity output) {
 			string[] split = name.Split(':');
 
 			if (!(split.Length > 1)) {
-				Debug.LogWarning("Registered instance " + name + " not found!");
+				//Debug.LogWarning("Registered instance " + name + " not found!");
 				output = null;
 				return false;
 			}
@@ -91,7 +73,7 @@ namespace MarsTS.Entities {
 			string[] split = name.Split(':');
 
 			if (!(split.Length > 1)) {
-				Debug.LogWarning("Registered instance " + name + " not found!");
+				//Debug.LogWarning("Registered instance " + name + " not found!");
 				output = default(T);
 				return false;
 			}

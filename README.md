@@ -8,7 +8,7 @@
  ## Key Features:
 
  ### Varied Unit Combat
- Unit Combat now features a variety of units with different strengths and weaknesses, creating varied gameplay and tactical decision making in how you utilise each unit. Currently there are 4 nmin units used for combat; the Scout Car, Flat Tank, Long Tank & Constructor. The scout car is fast, able to dodge projectiles from tanks and fire quickly, making it an excellent counter to the slower, long range artillery focused long tank, which is able to snipe flat tanks from afar. Flat tanks however are fast, deadly and precise, able to easily dispatch scout cars when in a group. All of these units can be supported by constructors to repair and sustain them in the battle, however constructors are incredibly slow, requiring encounters to push ahead and fall back when repairs are needed.
+ Unit Combat now features a variety of units with different strengths and weaknesses, creating varied gameplay and tactical decision making in how you utilise each unit. Currently there are 4 main units used for combat; the Scout Car, Flat Tank, Long Tank & Constructor. The scout car is fast, able to dodge projectiles from tanks and fire quickly, making it an excellent counter to the slower, long range artillery focused long tank, which is able to snipe flat tanks from afar. Flat tanks however are fast, deadly and precise, able to easily dispatch scout cars when in a group. All of these units can be supported by constructors to repair and sustain them in the battle, however constructors are incredibly slow, requiring encounters to push ahead and fall back when repairs are needed.
 
  ![Closeup screenshot of a large group of scout cars & tanks overwhelming enemy flat tanks](/FolioImages/resourcing/unit_combat_3.png)
 

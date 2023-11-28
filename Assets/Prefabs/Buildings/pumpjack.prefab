@@ -274,7 +274,7 @@ MonoBehaviour:
   ghost: {fileID: 6633247702655670159, guid: 38121fc0d5ac7f745977aff782b851b7, type: 3}
   constructionCost:
   - key: resource_unit
-    amount: 200
+    amount: 350
   capacity: 2000
   harvestRate: 5
 --- !u!114 &3668977583793415181

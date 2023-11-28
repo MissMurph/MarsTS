@@ -1057,6 +1057,59 @@ MonoBehaviour:
     texture: {fileID: 2800000, guid: 212798f475e02144590a4cb9b6579b32, type: 3}
     target: {x: 0, y: 0}
   description: hahaha you're not gonna read this
+--- !u!1 &572821988
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 572821989}
+  - component: {fileID: 572821990}
+  m_Layer: 0
+  m_Name: PlaceScrapyard
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &572821989
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 572821988}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1024439839}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &572821990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 572821988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3df5fb3abdc5b540aa5035b39b98c6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  icon: {fileID: 0}
+  IconColor: {r: 0, g: 0, b: 0, a: 0}
+  Pointer:
+    texture: {fileID: 0}
+    target: {x: 0, y: 0}
+  description: The Scrapyard is a durable self-sustaining headquarters that's able
+    to produce all civilian units and even scout cars, however, at a slow rate
+  building: {fileID: 4367344837201828850, guid: d7c5d84192531db42bf9768732143f5a,
+    type: 3}
 --- !u!1001 &621779614
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2541,6 +2594,7 @@ Transform:
   m_Children:
   - {fileID: 2101259501}
   - {fileID: 1887719734}
+  - {fileID: 572821989}
   m_Father: {fileID: 989160902}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2564,9 +2618,9 @@ MonoBehaviour:
   description: Construction
   buildingCommands:
     Commands:
-    - construct/factory
+    - construct/scrapyard
     - construct/pumpjack
-    - 
+    - construct/factory
     - 
     - 
     - 
@@ -3288,6 +3342,7 @@ Transform:
   - {fileID: 1880354888}
   - {fileID: 1458946604}
   - {fileID: 1329167290}
+  - {fileID: 1698717491}
   m_Father: {fileID: 989160902}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4078,6 +4133,64 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &1698717490
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1698717491}
+  - component: {fileID: 1698717492}
+  m_Layer: 0
+  m_Name: LongTank
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1698717491
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1698717490}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1275691528}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1698717492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1698717490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d909854d25a6a684b94123d19dcc9e45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  icon: {fileID: 0}
+  IconColor: {r: 0, g: 0, b: 0, a: 0}
+  Pointer:
+    texture: {fileID: 0}
+    target: {x: 0, y: 0}
+  description: A flat, sturdy tank that's able to deal significant damage and move
+    dececntly fast for the Martian terrain.
+  prefab: {fileID: 1214473942990757588, guid: 0b9093e2fbee662458f91f0ff9771aee, type: 3}
+  timeRequired: 90
+  cost:
+  - key: resource_unit
+    amount: 400
+  - key: oil
+    amount: 250
 --- !u!1 &1700968615
 GameObject:
   m_ObjectHideFlags: 0
@@ -4318,7 +4431,7 @@ MonoBehaviour:
   timeRequired: 60
   cost:
   - key: resource_unit
-    amount: 400
+    amount: 450
   - key: oil
     amount: 100
 --- !u!1 &1887719733
@@ -5019,7 +5132,8 @@ MonoBehaviour:
   Pointer:
     texture: {fileID: 0}
     target: {x: 0, y: 0}
-  description: The Factory is a durable building that can produce Tanks
+  description: The Factory is a vulnerable building that can produce units much quicker
+    than the Scrapyard and is specialized enough to construct tanks
   building: {fileID: 786404291129723528, guid: 99e1bf818329ce04c841228c3d27e06b, type: 3}
 --- !u!1001 &2105599406
 PrefabInstance:
@@ -6132,7 +6246,7 @@ PrefabInstance:
     - target: {fileID: 7104668611416931317, guid: 364ab05988600ae43b4b6de60a8ac94b,
         type: 3}
       propertyPath: m_Name
-      value: ResourceUnitDeposit
+      value: minerals
       objectReference: {fileID: 0}
     - target: {fileID: 7104668611416931318, guid: 364ab05988600ae43b4b6de60a8ac94b,
         type: 3}

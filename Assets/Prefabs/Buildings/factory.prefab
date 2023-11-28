@@ -371,13 +371,17 @@ MonoBehaviour:
   type: factory
   owner: {fileID: 0}
   boundCommands:
+  - produce/scoutcar
   - produce/flattank
+  - produce/longtank
   constructionWork: 50
   currentWork: 0
   ghost: {fileID: 1114144885270547136, guid: b002af5474e33924792b89eed21b5aec, type: 3}
   constructionCost:
   - key: resource_unit
-    amount: 500
+    amount: 750
+  - key: oil
+    amount: 150
   productionSpeed: 10
   rallyCommands: []
   queueInfo: {fileID: 0}

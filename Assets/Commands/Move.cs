@@ -13,6 +13,15 @@ namespace MarsTS.Commands {
 		public override string Name { get { return "move"; } }
 		public Vector3 Target { get; private set; }
 
+		public override string Description { get { return description; } }
+
+		[SerializeField]
+		private string description;
+
+		public override CostEntry[] GetCost () {
+			return new CostEntry[0];
+		}
+
 		public override void StartSelection () {
 			Player.Input.Hook("Select", OnClick);
 			Player.Input.Hook("Order", OnOrder);
@@ -37,9 +46,13 @@ namespace MarsTS.Commands {
 		private void OnOrder (InputAction.CallbackContext context) {
 			//On Mouse Up
 			if (context.canceled) {
-				Player.Input.Release("Select");
-				Player.UI.ResetCursor();
+				CancelSelection();
 			}
+		}
+
+		public override void CancelSelection () {
+			Player.Input.Release("Select");
+			Player.UI.ResetCursor();
 		}
 	}
 }

@@ -11,8 +11,21 @@ namespace MarsTS.Commands {
 
 		public override string Name { get { return "cancelConstruction"; } }
 
+		public override string Description { get { return description; } }
+
+		[SerializeField]
+		private string description;
+
 		public override void StartSelection () {
-			Player.Main.DeliverCommand(Construct(true), Player.Include);
+			Player.Main.DeliverCommand(Construct(true), false);
+		}
+
+		public override CostEntry[] GetCost () {
+			return new CostEntry[0];
+		}
+
+		public override void CancelSelection () {
+			
 		}
 	}
 }

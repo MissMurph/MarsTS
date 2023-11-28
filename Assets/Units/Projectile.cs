@@ -14,11 +14,11 @@ namespace MarsTS.Units {
 
 		private bool initialized = false;
 
-		private Unit parent;
+		private ISelectable parent;
 
-		private Action<bool, ISelectable> hitCallback;
+		private Action<bool, IAttackable> hitCallback;
 
-		public void Init (Unit _parent, Action<bool, ISelectable> callback) {
+		public void Init (ISelectable _parent, Action<bool, IAttackable> callback) {
 			parent = _parent;
 			initialized = true;
 			hitCallback = callback;
@@ -31,7 +31,7 @@ namespace MarsTS.Units {
 		}
 
 		private void OnTriggerEnter (Collider other) {
-			if (initialized && EntityCache.TryGet(other.transform.root.name, out ISelectable unit) && unit.GetRelationship(parent.Owner) != Teams.Relationship.Owned) {
+			if (initialized && EntityCache.TryGet(other.transform.root.name, out IAttackable unit) && unit.GetRelationship(parent.Owner) != Teams.Relationship.Owned) {
 				hitCallback(true, unit);
 				Destroy(gameObject);
 			}

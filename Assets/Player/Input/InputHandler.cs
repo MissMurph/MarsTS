@@ -13,12 +13,11 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using static MarsTS.Players.Input.InputHandler;
 using static UnityEditor.Timeline.TimelinePlaybackControls;
+using MarsTS.UI;
 
 namespace MarsTS.Players.Input {
 
     public class InputHandler : MonoBehaviour {
-
-		//private event Action<InputAction.CallbackContext> Move;
 
 		public InputActionReference[] inputsToBind;
 		private Dictionary<string, InputAction> inputs;
@@ -40,38 +39,6 @@ namespace MarsTS.Players.Input {
 				defaults.Add(def.Action.name, def);
 				active.Add(def.Action.name, def);
 				//Debug.Log(def.Action.name);
-			}
-		}
-
-		private void Update () {
-			
-		}
-
-		//This will clear the function of all events and then set new ones
-		//This is a simple but effective way of quickly changing listeners
-		private void SetListener (string name, ListenerBinding newListener) {
-			if (inputs.TryGetValue(name, out InputAction action)) {
-				active.TryGetValue(name, out ListenerBinding current);
-
-				//We need to set to each individual phase event, so we quickly do a manual loop
-				/*for (int i = 0; i < 3; i++) {
-					switch (i) {
-						case (0):
-							action.started -= current.Function;
-							action.started += newListener.Function;
-							continue;
-						case (1):
-							action.performed -= current.Function;
-							action.performed += newListener.Function;
-							continue;
-						case (2):
-							action.canceled -= current.Function;
-							action.canceled += newListener.Function;
-							continue;
-					}
-				}*/
-
-				
 			}
 		}
 
@@ -100,13 +67,13 @@ namespace MarsTS.Players.Input {
 			}
 		}
 
-		/*public void PointerInput (InputAction.CallbackContext context) {
+		public void PointerInput (InputAction.CallbackContext context) {
 			if (active.TryGetValue(context.action.name, out ListenerBinding current)) {
-				if ((context.phase == InputActionPhase.Started || context.phase == InputActionPhase.Performed) && isHoveringUi) return;
+				if (UIController.Hovering) return;
 
 				current.Function.Invoke(context);
 			}
-		}*/
+		}
 
 		[Serializable]
 		public class DefaultEntry : ListenerBinding {

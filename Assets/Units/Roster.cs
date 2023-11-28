@@ -1,8 +1,10 @@
+using MarsTS.Commands;
 using MarsTS.Prefabs;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.UI.CanvasScaler;
 
 namespace MarsTS.Units {
 
@@ -33,7 +35,7 @@ namespace MarsTS.Units {
 
             foreach (ISelectable unit in units) {
                 if (TryAdd(unit)) {
-                    if (Commands.Count == 0) Commands.AddRange(unit.Commands());
+                    if (Commands.Count == 0 && unit is ICommandable orderable) Commands.AddRange(orderable.Commands());
                 }
             }
 		}
@@ -42,6 +44,14 @@ namespace MarsTS.Units {
 			instances = new Dictionary<int, ISelectable>();
 			Commands = new List<string>();
 		}
+
+        public ISelectable Get () {
+            foreach (ISelectable unit in instances.Values) {
+                return unit;
+            }
+
+            return null;
+        }
 
         public ISelectable Get (int id) {
             return instances.TryGetValue(id, out ISelectable unit) ? unit : null;
@@ -62,12 +72,12 @@ namespace MarsTS.Units {
 			}
 
             if (!instances.TryAdd(entity.ID, entity)) {
-                //Debug.LogWarning("Unit " + unit.Id() + " already added to Roster of " + Type + " type!");
-                return false;
-            }
+				//Debug.LogWarning("Unit " + unit.Id() + " already added to Roster of " + Type + " type!");
+				return false;
+			}
 
-            if (Commands.Count == 0) {
-                Commands.AddRange(entity.Commands());
+            if (Commands.Count == 0 && entity is ICommandable orderable) {
+                Commands.AddRange(orderable.Commands());
             }
 
             return true;

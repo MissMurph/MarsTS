@@ -1,3 +1,4 @@
+using MarsTS.Commands;
 using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,14 +10,13 @@ namespace MarsTS.Events {
 
 		public ISelectable Unit { get; private set; }
 
-		public GameObject Object {
-			get {
-				return Unit.GameObject;
-			}
-		}
+		public GameObject Object { get { return Unit.GameObject; } }
 
-		public ProductionEvent (EventAgent _source, ISelectable unit) : base("unitProduction", _source) {
-			Unit = unit;
+		public ICommandable Producer { get; private set; }
+
+		public ProductionEvent (EventAgent _source, ISelectable _unit, ICommandable _producer) : base("unitProduction", _source) {
+			Unit = _unit;
+			Producer = _producer;
 		}
 	}
 }

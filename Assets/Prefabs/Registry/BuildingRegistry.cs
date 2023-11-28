@@ -29,15 +29,17 @@ namespace MarsTS.Prefabs {
 			return instance.GetPrefab(key);
 		}
 
-		public override Building GetRegistryEntry (string key) {
-			if (registeredClasses.TryGetValue(key, out Building entry)) {
-				return entry.Get();
+		public override bool GetRegistryEntry<T> (string key, out T output) {
+			if (registeredClasses.TryGetValue(key, out Building entry) && entry is T superType) {
+				output = superType;
+				return true;
 			}
 			else throw new ArgumentException("Building " + key + " not registered!");
 		}
 
 		public static Building Building (string key) {
-			return instance.GetRegistryEntry(key);
+			instance.GetRegistryEntry<Building>(key, out Building output);
+			return output;
 		}
 
 		private void OnDestroy () {

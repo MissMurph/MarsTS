@@ -9,15 +9,13 @@ namespace MarsTS.Commands {
 
 		private static CommandRegistry instance;
 
-        public Command[] toRegister;
-
         private Dictionary<string, Command> registered;
 
 		private void Awake () {
 			instance = this;
 			registered = new Dictionary<string, Command>();
 
-			foreach (Command entry in toRegister) {
+			foreach (Command entry in GetComponentsInChildren<Command>()) {
 				registered.Add(entry.Name, entry);
 			}
 		}

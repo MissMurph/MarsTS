@@ -34,8 +34,8 @@ namespace MarsTS.Prefabs {
 			string objectType = split[1];
 
 			if (instance.registries.TryGetValue(registryType, out PrefabRegistry abstactRegistry)
-				&& abstactRegistry.RegistryType is PrefabRegistry<T> registrySupertype) {
-				return registrySupertype.GetRegistryEntry(objectType);
+				&& abstactRegistry.GetRegistryEntry<T>(objectType, out T output)) {
+				return output;
 			}
 
 			Debug.LogWarning("Registry Object " + key + " not found!");

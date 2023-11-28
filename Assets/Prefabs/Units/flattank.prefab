@@ -209,19 +209,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 250
   currentHealth: 0
-  owner: {fileID: 0}
+  icon: {fileID: 21300000, guid: 8fb8be3b4f3cda64689a1769771fca53, type: 3}
   type: flattank
+  owner: {fileID: 0}
   boundCommands:
   - move
   - stop
   - attack
-  waypointCompletionDistance: 3
+  healthInfo: {fileID: 0}
+  waypointCompletionDistance: 1
   topSpeed: 50
   acceleration: 500
   turnSpeed: 35
   angleTolerance: 35
   turretsToRegister:
-  - {fileID: 5460469245933127377}
+  - {fileID: 8693655541015990535}
 --- !u!54 &452040235065412184
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -259,7 +261,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2739087309515765746}
-  - component: {fileID: 5460469245933127377}
+  - component: {fileID: 8693655541015990535}
   - component: {fileID: 1260324501410054030}
   - component: {fileID: 1165809898012780982}
   - component: {fileID: 1422126093968072147}
@@ -287,7 +289,7 @@ Transform:
   m_Father: {fileID: 452040235065412164}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5460469245933127377
+--- !u!114 &8693655541015990535
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -296,15 +298,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 712073241917357164}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 20dd833d2b8ec3d4e939b45877bf7949, type: 3}
+  m_Script: {fileID: 11500000, guid: 5f81996ae128c4f47884189027df8738, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   range: {fileID: 8184980789676948735}
   falloff: 0
   barrel: {fileID: 4336445020379293311}
-  turnRate: 0
-  damage: 15
-  cooldown: 0.2
+  projectile: {fileID: 5732885903752370511, guid: c53d0750fc9147c4f82636c698100a22,
+    type: 3}
+  damage: 25
+  cooldown: 3
 --- !u!33 &1260324501410054030
 MeshFilter:
   m_ObjectHideFlags: 0

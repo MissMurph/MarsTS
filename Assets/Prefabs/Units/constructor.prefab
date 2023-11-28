@@ -214,10 +214,7 @@ MonoBehaviour:
   range: {fileID: 3050993961995119547}
   falloff: 0
   barrel: {fileID: 1880250833628487226}
-  turnRate: 0
-  damage: 0
-  cooldown: 1
-  repairAmount: 5
+  repairRate: 1
 --- !u!54 &168895262
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -509,13 +506,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 150
   currentHealth: 0
-  owner: {fileID: 0}
+  icon: {fileID: 21300000, guid: 2b849b461576ef746b35c0962e52cd0c, type: 3}
   type: constructor
+  owner: {fileID: 0}
   boundCommands:
   - move
   - stop
   - construct
   - repair
+  healthInfo: {fileID: 0}
   waypointCompletionDistance: 1
   topSpeed: 10
   acceleration: 425
@@ -584,7 +583,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3050993961995119546
 Transform:
   m_ObjectHideFlags: 0

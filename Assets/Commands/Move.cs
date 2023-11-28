@@ -46,9 +46,13 @@ namespace MarsTS.Commands {
 		private void OnOrder (InputAction.CallbackContext context) {
 			//On Mouse Up
 			if (context.canceled) {
-				Player.Input.Release("Select");
-				Player.UI.ResetCursor();
+				CancelSelection();
 			}
+		}
+
+		public override void CancelSelection () {
+			Player.Input.Release("Select");
+			Player.UI.ResetCursor();
 		}
 	}
 }

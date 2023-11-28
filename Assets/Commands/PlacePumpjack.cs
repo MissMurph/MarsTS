@@ -90,11 +90,19 @@ namespace MarsTS.Commands {
 		}
 
 		protected override void OnOrder (InputAction.CallbackContext context) {
-			Destroy(ghostTransform.gameObject);
-			Destroy(snapTransform.gameObject);
+			if (context.canceled) {
+				CancelSelection();
+			}
+		}
 
-			Player.Input.Release("Select");
-			Player.Input.Release("Order");
+		public override void CancelSelection () {
+			if (ghostTransform != null) {
+				Destroy(ghostTransform.gameObject);
+				Destroy(snapTransform.gameObject);
+
+				Player.Input.Release("Select");
+				Player.Input.Release("Order");
+			}
 		}
 	}
 }

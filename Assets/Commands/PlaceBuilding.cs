@@ -98,10 +98,9 @@ namespace MarsTS.Commands {
 		}
 
 		protected virtual void OnOrder (InputAction.CallbackContext context) {
-			Destroy(ghostTransform.gameObject);
-
-			Player.Input.Release("Select");
-			Player.Input.Release("Order");
+			if (context.canceled) {
+				CancelSelection();
+			}
 		}
 
 		public override CostEntry[] GetCost () {
@@ -118,6 +117,15 @@ namespace MarsTS.Commands {
 			spool.Add(time);
 
 			return spool.ToArray();
+		}
+
+		public override void CancelSelection () {
+			if (ghostTransform != null) {
+				Destroy(ghostTransform.gameObject);
+
+				Player.Input.Release("Select");
+				Player.Input.Release("Order");
+			}
 		}
 	}
 }

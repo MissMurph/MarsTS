@@ -34,6 +34,7 @@ namespace MarsTS.Commands {
 		public CursorSprite Pointer;
 
 		public abstract void StartSelection ();
+		public abstract void CancelSelection ();
 		public abstract CostEntry[] GetCost ();
 	}
 

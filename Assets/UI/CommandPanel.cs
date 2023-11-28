@@ -18,6 +18,8 @@ namespace MarsTS.UI {
 
 		private CommandTooltip tooltip;
 
+		private string currentlyTargetingCommand;
+
 		private void Awake () {
 			buttonCount = registeredButton.Length;
 			boundCommands = new string[buttonCount];
@@ -38,6 +40,10 @@ namespace MarsTS.UI {
 
 		public void Press (int index) {
 			if (boundCommands[index] is null) return;
+
+			if (currentlyTargetingCommand != null) CommandRegistry.Get(currentlyTargetingCommand).CancelSelection();
+
+			currentlyTargetingCommand = boundCommands[index];
 
 			Command bound = CommandRegistry.Get(boundCommands[index]);
 			bound.StartSelection();

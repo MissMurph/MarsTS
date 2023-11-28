@@ -23,5 +23,9 @@ namespace MarsTS.Commands {
 		public override CostEntry[] GetCost () {
 			return new CostEntry[0];
 		}
+
+		public override void CancelSelection () {
+			
+		}
 	}
 }

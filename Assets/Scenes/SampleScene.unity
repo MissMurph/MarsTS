@@ -1729,10 +1729,10 @@ RectTransform:
   m_Father: {fileID: 1416657016}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -135, y: -65}
-  m_SizeDelta: {x: 270, y: 0}
+  m_AnchoredPosition: {x: 0, y: -65}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &854723097
 MonoBehaviour:
@@ -1943,7 +1943,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 963194233}
         m_TargetAssemblyTypeName: MarsTS.Players.Input.InputHandler, Assembly-CSharp
-        m_MethodName: Input
+        m_MethodName: PointerInput
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3489,10 +3489,10 @@ RectTransform:
   m_Father: {fileID: 14908669}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -135, y: 100}
-  m_SizeDelta: {x: 270, y: 200}
+  m_AnchoredPosition: {x: 0, y: 100}
+  m_SizeDelta: {x: 0, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1416657017
 MonoBehaviour:
@@ -6327,6 +6327,11 @@ PrefabInstance:
       propertyPath: owner
       value: 
       objectReference: {fileID: 963194230}
+    - target: {fileID: 4367344837201828850, guid: d7c5d84192531db42bf9768732143f5a,
+        type: 3}
+      propertyPath: currentWork
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 4367344837201828851, guid: d7c5d84192531db42bf9768732143f5a,
         type: 3}
       propertyPath: m_RootOrder

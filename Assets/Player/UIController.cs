@@ -79,7 +79,7 @@ namespace MarsTS.UI {
 
 		private MeshCollider boxCollider;
 
-		public bool Hovering {
+		public bool IsHovering {
 			get {
 				Vector2 mousePos = Player.MousePos;
 
@@ -90,6 +90,12 @@ namespace MarsTS.UI {
 				canvasRaycaster.Raycast(pointData, results);
 
 				return results.Count > 0;
+			}
+		}
+
+		public static bool Hovering {
+			get {
+				return instance.IsHovering;
 			}
 		}
 

@@ -99,7 +99,7 @@ namespace MarsTS.Players {
 
 		public void Select (InputAction.CallbackContext context) {
 			if (context.phase == InputActionPhase.Canceled) {
-				if (UI.Hovering) return;
+				if (UI.IsHovering) return;
 				if (!Include) ClearSelection();
 
 				Ray ray = ViewPort.ScreenPointToRay(cursorPos);
@@ -156,7 +156,7 @@ namespace MarsTS.Players {
 		}
 
 		public void Command (InputAction.CallbackContext context) {
-			if (context.canceled && !UI.Hovering) {
+			if (context.canceled && !UI.IsHovering) {
 				Ray ray = ViewPort.ScreenPointToRay(cursorPos);
 
 				Physics.Raycast(ray, out RaycastHit walkableHit, 1000f, GameWorld.WalkableMask);

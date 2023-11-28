@@ -38,8 +38,15 @@ namespace MarsTS.UI {
             commandName.text = source.name;
             icon.sprite = source.Icon;
             commandDescription.text = source.Description;
+            commandDescription.ForceMeshUpdate(true, true);
 
-            CostEntry[] commandCost = source.GetCost();
+			float descSize = (commandDescription.textBounds.extents * 2).y + 5;
+
+			descSize = Mathf.Max(descSize, 20f);
+
+			RectTransform wholeTooltip = transform as RectTransform;
+
+			CostEntry[] commandCost = source.GetCost();
 
             foreach (GameObject instantiated in costModules) {
                 Destroy(instantiated);
@@ -47,27 +54,19 @@ namespace MarsTS.UI {
 
 			if (commandCost.Length == 0) {
                 RectTransform rect = commandDescription.transform as RectTransform;
-                //rect.anchoredPosition = new Vector3(-135, -65, 0);
+                rect.anchoredPosition = new Vector3(0, -65, 0);
 
-				float descSize = (commandDescription.textBounds.extents * 2).y;
-
-				RectTransform wholeTooltip = transform as RectTransform;
-
-				wholeTooltip.sizeDelta = new Vector2(270, descSize + 70);
+				wholeTooltip.sizeDelta = new Vector2(0, descSize + 70);
 			}
             else {
 				RectTransform rect = commandDescription.transform as RectTransform;
-				//rect.anchoredPosition = new Vector3(-135, -100, 0);
+				rect.anchoredPosition = new Vector3(0, -100, 0);
 
-				float descSize = (commandDescription.textBounds.extents * 2).y;
-
-                RectTransform wholeTooltip = transform as RectTransform;
-
-                wholeTooltip.sizeDelta = new Vector2(270, descSize + 35 + 70);
+                wholeTooltip.sizeDelta = new Vector2(0, descSize + 35 + 70);
 
 				for (int i = 0; i < commandCost.Length; i++) {
                     RectTransform newCost = Instantiate(costPrefab, transform).transform as RectTransform;
-                    newCost.anchoredPosition = new Vector3(42.5f + (80 * i), 0, 0);
+                    newCost.anchoredPosition = new Vector3(42.5f + (80 * i), -85f, 0);
                     costModules[i] = newCost.gameObject;
 
 					Image costIcon = newCost.Find("Icon").GetComponent<Image>();
@@ -77,6 +76,8 @@ namespace MarsTS.UI {
                     costAmount.text = commandCost[i].amount.ToString();
                 }
             }
-        }
+
+            wholeTooltip.anchoredPosition = new Vector3(0, wholeTooltip.sizeDelta.y / 2, 0);
+		}
     }
 }

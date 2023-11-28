@@ -74,6 +74,10 @@ namespace MarsTS.Commands {
 
 			return spool.ToArray();
 		}
+
+		public override void CancelSelection () {
+			
+		}
 	}
 
 	public class ProductionCommandlet : Commandlet<GameObject> {

@@ -16,7 +16,18 @@ namespace MarsTS.Vision {
 
 		private int[,] visited;
 
+		[SerializeField]
+		private float nodeSize;
+
 		private Dictionary<string, EntityVision> registeredVision;
+
+		public Vector2Int GridSize;
+
+		private Vector3 BottomLeft {
+			get {
+				return new Vector3(transform.position.x - nodeSize * GridSize.x / 2, 0, transform.position.z - nodeSize * GridSize.y / 2);
+			}
+		}
 
 		private void Awake () {
 			instance = this;
@@ -24,15 +35,17 @@ namespace MarsTS.Vision {
 
 			registeredVision = new Dictionary<string, EntityVision>();
 
-			int width = world.GridSize.x;
-			int height = world.GridSize.y;
+			int width = GridSize.x;
+			int height = GridSize.y;
 
 			nodes = new int[width,height];
 			visited = new int[width, height];
 		}
 
-		public void Register () {
-
+		public static void Register (string entityName, EntityVision toRegister) {
+			if (!instance.registeredVision.TryAdd(entityName, toRegister)) {
+				Debug.LogWarning("Could not register vision component for " + entityName + "! Potentially already registered!");
+			}
 		}
 
 		public void Visible (int x, int y, int players) {
@@ -48,6 +61,24 @@ namespace MarsTS.Vision {
 
 		public bool WasVisited (int x, int y, int players) {
 			return (visited[x, y] & players) > 0;
+		}
+
+		public static Vector2Int GetGridPosFromWorldPos (Vector3 worldPos) {
+
+			float percentX = (worldPos.x - instance.BottomLeft.x) / (instance.GridSize.x * instance.nodeSize);
+			float percentY = (worldPos.z - instance.BottomLeft.z) / (instance.GridSize.y * instance.nodeSize);
+
+			percentX = Mathf.Clamp01(percentX);
+			percentY = Mathf.Clamp01(percentY);
+
+			int x = Mathf.RoundToInt((instance.GridSize.x - 1) * percentX);
+			int y = Mathf.RoundToInt((instance.GridSize.y - 1) * percentY);
+
+			return new Vector2Int(x, y);
+		}
+
+		public static Vector3 WorldPosFromGridPos (Vector2Int gridPos) {
+			return instance.BottomLeft + new Vector3(gridPos.x * instance.nodeSize + (instance.nodeSize / 2), 0, gridPos.y * instance.nodeSize + (instance.nodeSize / 2));
 		}
 
 		private void OnDestroy () {

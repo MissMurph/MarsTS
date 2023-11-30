@@ -64,7 +64,9 @@ namespace MarsTS.Players {
 			alternate = false;
 		}
 
-		private void Start () {
+		protected override void Start () {
+			base.Start();
+
 			EventBus.AddListener<EntityDeathEvent>(OnEntityDeath);
 			EventBus.AddListener<EntityInitEvent>(OnEntityInit);
 		}

@@ -3,6 +3,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 namespace MarsTS.Teams {
 	public class TeamCache : MonoBehaviour {
@@ -39,6 +41,7 @@ namespace MarsTS.Teams {
 
 		private Dictionary<int, Team> teamMap;
 		private Dictionary<Faction, int> playerMap;
+		private Dictionary<int, Faction> players;
 
 		public static Team Observer {
 			get {
@@ -50,6 +53,7 @@ namespace MarsTS.Teams {
 			instance = this;
 			playerMap = new Dictionary<Faction, int>();
 			teamMap = new Dictionary<int, Team>();
+			players = new Dictionary<int, Faction>();
 			teamMap[0] = new Team { Id = 0, Members = new List<Faction>() };
 			teamMap[0].Members.AddRange(startingObservers);
 
@@ -61,6 +65,12 @@ namespace MarsTS.Teams {
 					playerMap[member] = team.Id;
 				}
 			}
+		}
+
+		public static int RegisterPlayer (Faction player) {
+			int id = 2 ^ instance.players.Count;
+			if (!instance.players.TryAdd(id, player)) Debug.LogError("Player " + id + " could not be registered! Check the generated ID!");
+			return id;
 		}
 
 		public static Team Team (Faction player) {

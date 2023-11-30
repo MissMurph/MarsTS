@@ -41,6 +41,10 @@ namespace MarsTS.World {
 		private LayerMask selectableMask;
 		public static LayerMask SelectableMask { get { return instance.selectableMask; } }
 
+		[SerializeField]
+		private LayerMask environmentMask;
+		public static LayerMask EnvironmentMask { get { return instance.environmentMask; } }
+
 		public int MaxGridSize {
 			get {
 				return GridSize.x * GridSize.y;

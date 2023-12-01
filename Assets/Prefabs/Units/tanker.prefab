@@ -1044,6 +1044,7 @@ GameObject:
   - component: {fileID: 7680554594384699936}
   - component: {fileID: 7680554594384699937}
   - component: {fileID: 1516258249182937622}
+  - component: {fileID: 2434953027732606424}
   m_Layer: 0
   m_Name: tanker
   m_TagString: Untagged
@@ -1158,6 +1159,22 @@ MonoBehaviour:
   startingValue: 0
   capacity: 500
   resourceKey: oil
+--- !u!114 &2434953027732606424
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7680554594384699938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89e4001c157ec4447bc333ae420835ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visionRange: 5
+  rayCount: 0
+  drawGizmos: 0
+  visionUpdateTime: 0
 --- !u!1 &7680554594623944569
 GameObject:
   m_ObjectHideFlags: 0

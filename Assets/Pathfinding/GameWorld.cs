@@ -51,11 +51,7 @@ namespace MarsTS.World {
 			}
 		}
 
-		private Vector3 BottomLeft {
-			get {
-				return new Vector3(transform.position.x - nodeSize * GridSize.x / 2, 0, transform.position.z - nodeSize * GridSize.y / 2);
-			}
-		}
+		private Vector3 BottomLeft { get; set;	}
 
 		private void Awake () {
 			instance = this;
@@ -64,6 +60,8 @@ namespace MarsTS.World {
 				//AddLayerToMask(region.terrainMask.value, walkableMask);
 				walkableRegionsDic.Add(Mathf.RoundToInt(Mathf.Log(region.terrainMask.value, 2)), region.terrainPenalty);
 			}
+
+			BottomLeft = new Vector3(transform.position.x - nodeSize * GridSize.x / 2, 0, transform.position.z - nodeSize * GridSize.y / 2);
 
 			CreateGrid();
 		}

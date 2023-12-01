@@ -1,6 +1,9 @@
+using MarsTS.Events;
 using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using System.Xml.Linq;
 using UnityEngine;
 
 namespace MarsTS.Vision {
@@ -14,7 +17,12 @@ namespace MarsTS.Vision {
 		//2D array of bitmasks, determine which players can currently see the nodes
 		private int[,] nodes;
 
+		private Queue<int[,]> results;
+		private Queue<VisionEntry[]> requests;
+
 		private int[,] visited;
+
+		private int[,] heights;
 
 		[SerializeField]
 		private float nodeSize;
@@ -23,23 +31,202 @@ namespace MarsTS.Vision {
 
 		public Vector2Int GridSize;
 
-		private Vector3 BottomLeft {
-			get {
-				return new Vector3(transform.position.x - nodeSize * GridSize.x / 2, 0, transform.position.z - nodeSize * GridSize.y / 2);
-			}
-		}
+		[SerializeField]
+		private float visionUpdateTime;
+
+		[SerializeField]
+		private bool drawGizmos;
+
+		private Vector3 BottomLeft { get; set; }
+
+		private Thread currentThread;
+
+		private bool running;
 
 		private void Awake () {
 			instance = this;
 			world = GetComponent<GameWorld>();
 
 			registeredVision = new Dictionary<string, EntityVision>();
+			results = new Queue<int[,]>();
+			requests = new Queue<VisionEntry[]>();
 
 			int width = GridSize.x;
 			int height = GridSize.y;
 
-			nodes = new int[width,height];
+			nodes = new int[width, height];
 			visited = new int[width, height];
+			heights = new int[width, height];
+
+			BottomLeft = new Vector3(transform.position.x - nodeSize * GridSize.x / 2, 0, transform.position.z - nodeSize * GridSize.y / 2);
+
+			for (int x = 0; x < width; x++) {
+				for (int y = 0; y < height; y++) {
+					if (Physics.Raycast(WorldPosFromGridPos(new(x, y)) + (Vector3.up * 100f), Vector3.down, out RaycastHit hit, 200f, GameWorld.EnvironmentMask)) {
+						if (hit.point.y > 0) {
+							heights[x, y] = (int)hit.point.y;
+						}
+					}
+				}
+			}
+
+			running = true;
+
+			Application.quitting += Quitting;
+		}
+
+		private void Start () {
+			StartCoroutine(EnqueueUpdate());
+
+			EventBus.AddListener<EntityDeathEvent>(OnEntityDeath);
+
+			ThreadStart workerThread = delegate { ProcessUpdate(); };
+
+			currentThread = new Thread(workerThread);
+			currentThread.Start();
+		}
+
+		private void Update () {
+			if (results.Count > 0) {
+				lock (results) {
+					nodes = results.Dequeue();
+				}
+
+				for (int x = 0; x < GridSize.x; x++) {
+					for (int y = 0; y < GridSize.y; y++) {
+						visited[x,y] |= nodes[x, y];
+					}
+				}
+			}
+		}
+
+		private void Quitting () {
+			running = false;
+		}
+
+		private IEnumerator EnqueueUpdate () {
+			if (Time.timeSinceLevelLoad < .5f) {
+				yield return new WaitForSeconds(.5f);
+			}
+
+			while (true) {
+				yield return new WaitForSeconds(visionUpdateTime);
+
+				List<VisionEntry> sources = new List<VisionEntry>();
+
+				foreach (EntityVision vision in registeredVision.Values) {
+					sources.Add(vision.Collect());
+				}
+
+				lock (requests) {
+					requests.Enqueue(sources.ToArray());
+				}
+			}
+		}
+
+		private void ProcessUpdate () {
+			while (running) {
+				if (requests.Count > 0) {
+					VisionEntry[] toProcess;
+
+					lock (requests) {
+						toProcess = requests.Dequeue();
+					}
+
+					CalculateVision(toProcess);
+				}
+			}
+		}
+
+		private void CalculateVision (VisionEntry[] sources) {
+			int[,] newNodes = new int[GridSize.x, GridSize.y];
+
+			foreach (VisionEntry vision in sources) {
+				int sqrRange = vision.range * vision.range;
+
+				Dictionary<int, List<Vector2Int>> distanceDic = new Dictionary<int, List<Vector2Int>>();
+
+				for (int x = vision.gridPos.x - vision.range; x < vision.gridPos.x + vision.range + 1; x++) {
+					if (x < 0 || x >= GridSize.x) continue;
+					for (int y = vision.gridPos.y - vision.range; y < vision.gridPos.y + vision.range + 1; y++) {
+						if (y < 0 || y >= GridSize.y) continue;
+
+						int xDistance = Mathf.Abs(x - vision.gridPos.x);
+						int yDistance = Mathf.Abs(y - vision.gridPos.y);
+
+						int distance = new Vector2Int(xDistance, yDistance).sqrMagnitude;
+
+						if (distance <= sqrRange) {
+							List<Vector2Int> set = distanceDic.GetValueOrDefault(distance, new List<Vector2Int>());
+
+							if (!distanceDic.ContainsKey(distance)) distanceDic[distance] = set;
+
+							set.Add(new Vector2Int(x, y));
+						}
+					}
+				}
+
+				foreach (KeyValuePair<int, List<Vector2Int>> entry in distanceDic) {
+					foreach (Vector2Int node in entry.Value) {
+						if ((newNodes[node.x, node.y] & vision.mask) == vision.mask) {
+							continue;
+						}
+
+						LinkedList<Vector2Int> toInspect = GridLine(vision.gridPos.x, vision.gridPos.y, node.x, node.y);
+
+						while (toInspect.Count > 0) {
+							Vector2Int inLine = toInspect.First.Value;
+							toInspect.RemoveFirst();
+
+							if ((newNodes[node.x, node.y] & vision.mask) == vision.mask) {
+								continue;
+							}
+
+							if (heights[inLine.x, inLine.y] > vision.height) {
+								break;
+							}
+							else {
+								newNodes[inLine.x, inLine.y] |= vision.mask;
+								//visited[inLine.x, inLine.y] |= vision.mask;
+							}
+						}
+					}
+				}
+			}
+			
+
+			FinishCalculatingVision(newNodes);
+		}
+
+		private void FinishCalculatingVision (int[,] newVision) {
+			lock (results) {
+				results.Enqueue(newVision);
+			}
+		}
+
+		//Bresenham's line algorithm for speed I think?
+		//Stolen from rosettacode.org
+		private LinkedList<Vector2Int> GridLine (int x1, int y1, int x2, int y2) {
+			int dx = Mathf.Abs(x2 - x1);
+			int sx = x1 < x2 ? 1 : -1;
+
+			int dy = Mathf.Abs(y2 - y1);
+			int sy = y1 < y2 ? 1 : -1;
+
+			int error = (dx > dy ? dx : -dy) / 2, e2;
+
+			LinkedList<Vector2Int> output = new LinkedList<Vector2Int>();
+
+			for (; ; ) {
+				output.AddLast(new Vector2Int(x1, y1));
+
+				if (x1 == x2 && y1 == y2) break;
+				e2 = error;
+				if (e2 > -dx) { error -= dy; x1 += sx; }
+				if (e2 < dy) { error += dx; y1 += sy; }
+			}
+
+			return output;
 		}
 
 		public static void Register (string entityName, EntityVision toRegister) {
@@ -81,8 +268,37 @@ namespace MarsTS.Vision {
 			return instance.BottomLeft + new Vector3(gridPos.x * instance.nodeSize + (instance.nodeSize / 2), 0, gridPos.y * instance.nodeSize + (instance.nodeSize / 2));
 		}
 
+		private void OnEntityDeath (EntityDeathEvent _event) {
+			if (registeredVision.TryGetValue(_event.Unit.GameObject.name, out EntityVision vision)) {
+				registeredVision.Remove(_event.Unit.GameObject.name);
+			}
+		}
+
+		private void OnDrawGizmos () {
+			if (drawGizmos) {
+				Gizmos.DrawWireCube(transform.position, new Vector3(GridSize.x * nodeSize, 1, GridSize.y * nodeSize));
+
+				if (nodes != null) {
+					Gizmos.color = Color.cyan;
+
+					for (int x = 0; x < GridSize.x; x++) {
+						for (int y = 0; y < GridSize.y; y++) {
+							if (nodes[x, y] > 0) Gizmos.DrawCube(WorldPosFromGridPos(new(x, y)), Vector3.one / 2f);
+						}
+					}
+				}
+			}
+		}
+
 		private void OnDestroy () {
 			instance = null;
 		}
+	}
+
+	public struct VisionEntry {
+		public Vector2Int gridPos;
+		public int range;
+		public int height;
+		public int mask;
 	}
 }

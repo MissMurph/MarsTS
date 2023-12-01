@@ -16,6 +16,8 @@ namespace MarsTS.Vision {
 
 		private EventAgent bus;
 
+		public int Range { get { return visionRange; } }
+
 		[SerializeField]
 		private int visionRange;
 
@@ -151,7 +153,16 @@ namespace MarsTS.Vision {
 
 			owner = _event.ParentEntity.Get<ISelectable>("selectable").Owner;
 
-			StartCoroutine(UpdateVision());
+			
+		}
+
+		public VisionEntry Collect () {
+			return new VisionEntry {
+				gridPos = Vision.GetGridPosFromWorldPos(transform.position),
+				range = visionRange,
+				height = Mathf.RoundToInt(transform.position.y),
+				mask = Mask
+			};
 		}
 
 		private void OnDrawGizmos () {

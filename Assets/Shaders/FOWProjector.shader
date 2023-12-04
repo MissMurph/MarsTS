@@ -1,9 +1,9 @@
 Shader "Custom/FOWProjector" {
     Properties {
         _DynamicFog("Dynamic", 2D) = "white" {}
-        _StaticFog("Static", 2D) = "white" {}
         _Color ("Color", Color) = (0,0,0,0.7)
         _Darkness ("Unexplored Darkness", Float) = 0.3
+        _Smoothness ("Feather", Range(0,1)) = 0.005
     }
 
     Subshader {
@@ -33,10 +33,10 @@ Shader "Custom/FOWProjector" {
             };
 
             sampler2D _DynamicFog;
-            sampler2D _StaticFog;
             float4x4 unity_Projector;
             float4 _Color;
             float _Darkness;
+            float _Smoothness;
 
             v2f vert(appdata_tan v)
             {
@@ -50,20 +50,31 @@ Shader "Custom/FOWProjector" {
             {
                 half4 tex = tex2Dproj(_DynamicFog, i.uv);
 
-                half4 tex2 = tex2Dproj(_StaticFog, i.uv);
-
-                tex *= tex2;
+                tex.a = tex.r;
+                tex.r = 0;
 
                 if (tex.a <= _Darkness) {
                     tex.a = _Darkness;
                 }
 
-                tex.a = tex.a - _Color.a;
-
                 if (i.uv.w < 0)
                 {
                     tex = float4(0,0,0,1);
                 }
+
+                half4 gaussianH   = tex2Dproj (_DynamicFog, i.uv + float4(-_Smoothness,0,-_Smoothness,0))*0.25;
+                gaussianH  += tex2Dproj (_DynamicFog, i.uv                         )*0.5  ;
+                gaussianH  += tex2Dproj (_DynamicFog, i.uv + float4( _Smoothness,0,_Smoothness,0))*0.25;
+ 
+                half4 gaussianV   = tex2Dproj (_DynamicFog, i.uv + float4(0,-_Smoothness,0,-_Smoothness))*0.25;
+                gaussianV  += tex2Dproj (_DynamicFog, i.uv                        ) *0.5  ;
+                gaussianV  += tex2Dproj (_DynamicFog, i.uv + float4(0, _Smoothness,0, _Smoothness))*0.25;
+ 
+                half4 blurred    = (gaussianH+ gaussianV)*0.5;
+
+                tex.a = tex.a - blurred.g;
+
+                
                 return tex;
             }
             ENDCG

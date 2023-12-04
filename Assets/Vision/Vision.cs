@@ -12,15 +12,13 @@ namespace MarsTS.Vision {
 
         private static Vision instance;
 
-		private GameWorld world;
-
 		//2D array of bitmasks, determine which players can currently see the nodes
-		private int[,] nodes;
+		public int[,] Nodes { get; private set; }
+
+		public int[,] Visited { get; private set; }
 
 		private Queue<int[,]> results;
 		private Queue<VisionEntry[]> requests;
-
-		private int[,] visited;
 
 		private int[,] heights;
 
@@ -43,9 +41,10 @@ namespace MarsTS.Vision {
 
 		private bool running;
 
+		public bool Dirty;
+
 		private void Awake () {
 			instance = this;
-			world = GetComponent<GameWorld>();
 
 			registeredVision = new Dictionary<string, EntityVision>();
 			results = new Queue<int[,]>();
@@ -54,8 +53,8 @@ namespace MarsTS.Vision {
 			int width = GridSize.x;
 			int height = GridSize.y;
 
-			nodes = new int[width, height];
-			visited = new int[width, height];
+			Nodes = new int[width, height];
+			Visited = new int[width, height];
 			heights = new int[width, height];
 
 			BottomLeft = new Vector3(transform.position.x - nodeSize * GridSize.x / 2, 0, transform.position.z - nodeSize * GridSize.y / 2);
@@ -63,14 +62,13 @@ namespace MarsTS.Vision {
 			for (int x = 0; x < width; x++) {
 				for (int y = 0; y < height; y++) {
 					if (Physics.Raycast(WorldPosFromGridPos(new(x, y)) + (Vector3.up * 100f), Vector3.down, out RaycastHit hit, 200f, GameWorld.EnvironmentMask)) {
-						if (hit.point.y > 0) {
-							heights[x, y] = (int)hit.point.y;
-						}
+						heights[x, y] = Mathf.RoundToInt(hit.point.y);
 					}
 				}
 			}
 
 			running = true;
+			Dirty = false;
 
 			Application.quitting += Quitting;
 		}
@@ -89,14 +87,16 @@ namespace MarsTS.Vision {
 		private void Update () {
 			if (results.Count > 0) {
 				lock (results) {
-					nodes = results.Dequeue();
+					Nodes = results.Dequeue();
 				}
 
 				for (int x = 0; x < GridSize.x; x++) {
 					for (int y = 0; y < GridSize.y; y++) {
-						visited[x,y] |= nodes[x, y];
+						Visited[x,y] |= Nodes[x, y];
 					}
 				}
+
+				Dirty = true;
 			}
 		}
 
@@ -237,17 +237,17 @@ namespace MarsTS.Vision {
 
 		public void Visible (int x, int y, int players) {
 			//Logical bitwise OR operator will set the bit to 1 if either the node or the player bit is 1
-			nodes[x, y] |= players;
-			visited[x, y] |= players;
+			Nodes[x, y] |= players;
+			Visited[x, y] |= players;
 		}
 
 		public bool IsVisible (int x, int y, int players) {
 			//Logical bitwise AND operator will only return 1 if both the node & the player return 1
-			return (nodes[x, y] & players) > 0;
+			return (Nodes[x, y] & players) > 0;
 		}
 
 		public bool WasVisited (int x, int y, int players) {
-			return (visited[x, y] & players) > 0;
+			return (Visited[x, y] & players) > 0;
 		}
 
 		public static Vector2Int GetGridPosFromWorldPos (Vector3 worldPos) {
@@ -278,12 +278,12 @@ namespace MarsTS.Vision {
 			if (drawGizmos) {
 				Gizmos.DrawWireCube(transform.position, new Vector3(GridSize.x * nodeSize, 1, GridSize.y * nodeSize));
 
-				if (nodes != null) {
+				if (Nodes != null) {
 					Gizmos.color = Color.cyan;
 
 					for (int x = 0; x < GridSize.x; x++) {
 						for (int y = 0; y < GridSize.y; y++) {
-							if (nodes[x, y] > 0) Gizmos.DrawCube(WorldPosFromGridPos(new(x, y)), Vector3.one / 2f);
+							if (Nodes[x, y] > 0) Gizmos.DrawCube(WorldPosFromGridPos(new(x, y)), Vector3.one / 2f);
 						}
 					}
 				}

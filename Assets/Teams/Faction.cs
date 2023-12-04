@@ -13,7 +13,9 @@ namespace MarsTS.Teams {
 
         public Team Allegiance { get { return TeamCache.Team(this); } }
 
-		public int Mask { get { return id; } }
+		public int Mask { get { return Allegiance.VisionMask; } }
+
+		public int ID { get { return id; } }
 
 		private int id;
 

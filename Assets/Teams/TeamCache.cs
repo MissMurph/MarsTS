@@ -86,6 +86,18 @@ namespace MarsTS.Teams {
 	public class Team {
 		public int Id { get; internal set; }
 		public List<Faction> Members;
+
+		public int VisionMask {
+			get {
+				int output = 0;
+
+				foreach (Faction player in Members) {
+					output |= player.ID;
+				}
+
+				return output;
+			}
+		}
 	}
 
 	static class RelationshipExtensions {

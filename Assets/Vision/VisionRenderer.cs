@@ -13,7 +13,7 @@ namespace MarsTS.Vision {
 
 		private Player mainPlayer;
 
-		private Vision vision;
+		private GameVision vision;
 
 		private Texture2D render;
 
@@ -31,7 +31,7 @@ namespace MarsTS.Vision {
 		private void Awake () {
 			instance = this;
 
-			vision = GetComponent<Vision>();
+			vision = GetComponent<GameVision>();
 
 			render = new Texture2D(vision.GridSize.x, vision.GridSize.y);
 			render.filterMode = FilterMode.Point;
@@ -85,10 +85,10 @@ namespace MarsTS.Vision {
 				for (int y = 0; y < vision.GridSize.y; y++) {
 					float redValue = 0f;
 
-					if ((vision.Nodes[x, y] & mainPlayer.Mask) == mainPlayer.Mask) {
+					if ((vision.Nodes[x, y] & mainPlayer.VisionMask) == mainPlayer.VisionMask) {
 						redValue = 1f;
 					}
-					else if ((vision.Visited[x, y] & mainPlayer.Mask) == mainPlayer.Mask) {
+					else if ((vision.Visited[x, y] & mainPlayer.VisionMask) == mainPlayer.VisionMask) {
 						redValue = 0.5f;
 					}
 

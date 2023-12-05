@@ -43,6 +43,7 @@ namespace MarsTS.Units {
 		}
 
 		private void OnEntityInit (EntityInitEvent _event) {
+			if (_event.Phase == Phase.Pre) return;
 			range.gameObject.SetActive(true);
 		}
 

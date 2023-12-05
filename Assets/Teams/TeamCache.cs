@@ -68,7 +68,8 @@ namespace MarsTS.Teams {
 		}
 
 		public static int RegisterPlayer (Faction player) {
-			int id = 2 ^ instance.players.Count;
+			int id = Mathf.RoundToInt(Mathf.Pow(2, instance.players.Count));
+			
 			if (!instance.players.TryAdd(id, player)) Debug.LogError("Player " + id + " could not be registered! Check the generated ID!");
 			return id;
 		}

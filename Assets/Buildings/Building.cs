@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.UI.GridLayoutGroup;
 using MarsTS.UI;
+using MarsTS.Vision;
 
 namespace MarsTS.Buildings {
 
@@ -99,6 +100,11 @@ namespace MarsTS.Buildings {
 
 		protected Transform model;
 
+		[SerializeField]
+		private GameObject[] visionObjects;
+
+		private GameObject currentVisionObject;
+
 		protected virtual void Awake () {
 			selectionCircle = transform.Find("SelectionCircle").gameObject;
 			selectionCircle.SetActive(false);
@@ -120,6 +126,16 @@ namespace MarsTS.Buildings {
 			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
+			EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
+			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
+		}
+
+		private void OnVisionInit (VisionInitEvent _event) {
+			bool visible = GameVision.IsVisible(gameObject, Player.Main.VisionMask);
+
+			foreach (GameObject hideable in visionObjects) {
+				hideable.SetActive(visible);
+			}
 		}
 
 		protected virtual void CancelConstruction () {
@@ -165,18 +181,18 @@ namespace MarsTS.Buildings {
 		}
 
 		public void Select (bool status) {
-			selectionCircle.SetActive(status);
+			//selectionCircle.SetActive(status);
 			bus.Local(new UnitSelectEvent(bus, status));
 		}
 
 		public void Hover (bool status) {
 			//These are seperated due to the Player Selection Check
 			if (status) {
-				selectionCircle.SetActive(true);
+				//selectionCircle.SetActive(true);
 				bus.Local(new UnitHoverEvent(bus, status));
 			}
 			else if (!Player.Main.HasSelected(this)) {
-				selectionCircle.SetActive(false);
+				//selectionCircle.SetActive(false);
 				bus.Local(new UnitHoverEvent(bus, status));
 			}
 		}
@@ -226,6 +242,16 @@ namespace MarsTS.Buildings {
 			if (ReferenceEquals(_event.Unit, this)) {
 				HealthInfo info = _event.Info.Module<HealthInfo>("health");
 				info.CurrentUnit = this;
+			}
+		}
+
+		protected virtual void OnVisionUpdate (VisionUpdateEvent _event) {
+			bool visible = GameVision.IsVisible(gameObject, Player.Main.VisionMask);
+
+			if (visible) {
+				foreach (GameObject hideable in visionObjects) {
+					hideable.SetActive(visible);
+				}
 			}
 		}
 	}

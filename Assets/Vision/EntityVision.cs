@@ -21,16 +21,6 @@ namespace MarsTS.Vision {
 		[SerializeField]
 		private int visionRange;
 
-		//Will evenly divide the amount of raycasts in a circle around the entity
-		[SerializeField]
-		private int rayCount;
-
-		[SerializeField]
-		private bool drawGizmos;
-
-		[SerializeField]
-		private float visionUpdateTime;
-
 		private void Awake () {
 			bus = GetComponent<EventAgent>();
 
@@ -38,14 +28,16 @@ namespace MarsTS.Vision {
 		}
 
 		private void OnEntityInit (EntityInitEvent _event) {
-			Vision.Register(gameObject.name, this);
+			if (_event.Phase == Phase.Pre) {
+				GameVision.Register(gameObject.name, this);
 
-			owner = _event.ParentEntity.Get<ISelectable>("selectable").Owner;
+				owner = _event.ParentEntity.Get<ISelectable>("selectable").Owner;
+			}
 		}
 
 		public VisionEntry Collect () {
 			return new VisionEntry {
-				gridPos = Vision.GetGridPosFromWorldPos(transform.position),
+				gridPos = GameVision.GetGridPosFromWorldPos(transform.position),
 				range = visionRange,
 				height = Mathf.RoundToInt(transform.position.y),
 				mask = Mask

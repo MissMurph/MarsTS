@@ -12,6 +12,7 @@ using MarsTS.Events;
 using MarsTS.Prefabs;
 using MarsTS.Commands;
 using MarsTS.UI;
+using MarsTS.Vision;
 
 namespace MarsTS.Units {
 
@@ -119,6 +120,9 @@ namespace MarsTS.Units {
 
 		protected EventAgent bus;
 
+		[SerializeField]
+		private GameObject[] hideables;
+
 		protected virtual void Awake () {
 			selectionCircle = transform.Find("SelectionCircle").gameObject;
 			selectionCircle.SetActive(false);
@@ -134,6 +138,16 @@ namespace MarsTS.Units {
 			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
+			EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
+			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
+		}
+
+		private void OnVisionInit (VisionInitEvent _event) {
+			bool visible = GameVision.IsVisible(gameObject, Player.Main.VisionMask);
+
+			foreach (GameObject hideable in hideables) {
+				hideable.SetActive(visible);
+			}
 		}
 
 		protected virtual void Update () {
@@ -300,11 +314,11 @@ namespace MarsTS.Units {
 		public void Hover (bool status) {
 			//These are seperated due to the Player Selection Check
 			if (status) {
-				selectionCircle.SetActive(true);
+				//selectionCircle.SetActive(true);
 				bus.Local(new UnitHoverEvent(bus, status));
 			}
 			else if (!Player.Main.HasSelected(this)) {
-				selectionCircle.SetActive(false);
+				//selectionCircle.SetActive(false);
 				bus.Local(new UnitHoverEvent(bus, status));
 			}
 		}
@@ -334,6 +348,14 @@ namespace MarsTS.Units {
 			if (ReferenceEquals(_event.Unit, this)) {
 				HealthInfo info = _event.Info.Module<HealthInfo>("health");
 				info.CurrentUnit = this;
+			}
+		}
+
+		protected virtual void OnVisionUpdate (VisionUpdateEvent _event) {
+			bool visible = GameVision.IsVisible(gameObject, Player.Main.VisionMask);
+
+			foreach (GameObject hideable in hideables) {
+				hideable.SetActive(visible);
 			}
 		}
 	}

@@ -8,9 +8,9 @@ using UnityEngine;
 
 namespace MarsTS.Vision {
 
-    public class Vision : MonoBehaviour {
+    public class GameVision : MonoBehaviour {
 
-        private static Vision instance;
+        private static GameVision instance;
 
 		//2D array of bitmasks, determine which players can currently see the nodes
 		public int[,] Nodes { get; private set; }
@@ -43,8 +43,14 @@ namespace MarsTS.Vision {
 
 		public bool Dirty;
 
+		private EventAgent bus;
+
+		private bool initialized;
+
 		private void Awake () {
 			instance = this;
+
+			bus = GetComponent<EventAgent>();
 
 			registeredVision = new Dictionary<string, EntityVision>();
 			results = new Queue<int[,]>();
@@ -69,6 +75,7 @@ namespace MarsTS.Vision {
 
 			running = true;
 			Dirty = false;
+			initialized = false;
 
 			Application.quitting += Quitting;
 		}
@@ -97,6 +104,12 @@ namespace MarsTS.Vision {
 				}
 
 				Dirty = true;
+				if (!initialized) {
+					bus.Global(new VisionInitEvent(bus));
+					initialized = true;
+					return;
+				}
+				bus.Global(new VisionUpdateEvent(bus));
 			}
 		}
 
@@ -235,19 +248,25 @@ namespace MarsTS.Vision {
 			}
 		}
 
-		public void Visible (int x, int y, int players) {
-			//Logical bitwise OR operator will set the bit to 1 if either the node or the player bit is 1
-			Nodes[x, y] |= players;
-			Visited[x, y] |= players;
-		}
-
 		public bool IsVisible (int x, int y, int players) {
 			//Logical bitwise AND operator will only return 1 if both the node & the player return 1
-			return (Nodes[x, y] & players) > 0;
+			int nodeMask = Nodes[x, y];
+			int resultingMask = nodeMask & players;
+			return resultingMask > 0;
+		}
+
+		public static bool IsVisible (GameObject _object, int players) {
+			Vector2Int pos = GetGridPosFromWorldPos(_object.transform.position);
+			return instance.IsVisible(pos.x, pos.y, players);
 		}
 
 		public bool WasVisited (int x, int y, int players) {
 			return (Visited[x, y] & players) > 0;
+		}
+
+		public static bool WasVisited (GameObject _object, int players) {
+			Vector2Int pos = GetGridPosFromWorldPos(_object.transform.position);
+			return instance.WasVisited(pos.x, pos.y, players);
 		}
 
 		public static Vector2Int GetGridPosFromWorldPos (Vector3 worldPos) {

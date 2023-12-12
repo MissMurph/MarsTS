@@ -6,15 +6,11 @@ using UnityEngine;
 
 namespace MarsTS.Events {
 
-	public class UnitInfoEvent : AbstractEvent {
-
-		public ISelectable Unit { get; private set; }
+	public class UnitInfoEvent : SelectableEvent {
 		public string Key { get { return Unit.RegistryKey; } }
-
 		public UnitInfoCard Info { get; private set; }
 
-		public UnitInfoEvent (EventAgent _source, ISelectable _unit, UnitInfoCard _infoCard) : base("unitInfo", _source) {
-			Unit = _unit;
+		public UnitInfoEvent (EventAgent _source, ISelectable _unit, UnitInfoCard _infoCard) : base("Info", _source, _unit) {
 			Info = _infoCard;
 		}
 	}

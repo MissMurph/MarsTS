@@ -62,7 +62,7 @@ namespace MarsTS.UI {
 				else if (!HasStored) DisplayBar = false;
 			});
 
-			bus.AddListener<HarvesterExtractionEvent>((_event) => {
+			bus.AddListener<ResourceHarvestedEvent>((_event) => {
 				FillLevel = (float)_event.StoredAmount / _event.Capacity;
 
 				if (FillLevel > 0f) HasStored = true;

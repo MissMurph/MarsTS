@@ -21,8 +21,8 @@ namespace MarsTS.UI {
 
 			FillLevel = (float)parent.Health / parent.MaxHealth;
 
-			bus.AddListener<EntityHurtEvent>((_event) => {
-				FillLevel = (float)_event.Unit.Health / _event.Unit.MaxHealth;
+			bus.AddListener<UnitHurtEvent>((_event) => {
+				FillLevel = (float)_event.Targetable.Health / _event.Targetable.MaxHealth;
 
 				if (FillLevel <= 1f) {
 					hurt = true;

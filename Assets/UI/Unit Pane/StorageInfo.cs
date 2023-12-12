@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace MarsTS.UI {
 
-    public class DepositInfo : MonoBehaviour, IInfoModule {
+	public class StorageInfo : MonoBehaviour, IInfoModule {
 
 		public int CurrentValue {
 			get {
@@ -47,23 +47,23 @@ namespace MarsTS.UI {
 			}
 		}
 
-		public IHarvestable CurrentDeposit {
+		public ISelectable CurrentUnit {
 			get {
-				return currentDeposit;
+				return currentUnit;
 			}
 			set {
-				currentDeposit = value;
+				currentUnit = value;
 
-				CurrentValue = value.StoredAmount;
-				MaxValue = value.OriginalAmount;
+				//CurrentValue = value.StoredAmount;
+				//MaxValue = value.OriginalAmount;
 			}
 		}
 
-		private IHarvestable currentDeposit;
+		private ISelectable currentUnit;
 
 		public GameObject GameObject { get { return gameObject; } }
 
-		public string Name { get { return "deposit"; } }
+		public string Name { get { return "storage"; } }
 
 		private TextMeshProUGUI text;
 		private RectTransform barTransform;
@@ -81,18 +81,33 @@ namespace MarsTS.UI {
 		private void Start () {
 			EventBus.AddListener<EntityDeathEvent>(OnEntityDeath);
 			EventBus.AddListener<ResourceHarvestedEvent>(OnResourceHarvested);
+			EventBus.AddListener<HarvesterDepositEvent>(OnResourceDeposited);
 		}
 
 		private void OnResourceHarvested (ResourceHarvestedEvent _event) {
-			if (ReferenceEquals(_event.Deposit, CurrentDeposit)) {
-				CurrentValue = _event.Deposit.StoredAmount;
-				MaxValue = _event.Deposit.OriginalAmount;
+			if (ReferenceEquals(_event.Deposit, CurrentUnit) && _event.EventSide == ResourceHarvestedEvent.Side.Deposit) {
+				CurrentValue = _event.StoredAmount;
+				MaxValue = _event.Capacity;
+			}
+			else if (ReferenceEquals(_event.Harvester, CurrentUnit) && _event.EventSide == ResourceHarvestedEvent.Side.Harvester) {
+				CurrentValue = _event.StoredAmount;
+				MaxValue = _event.Capacity;
+			}
+		}
+
+		private void OnResourceDeposited (HarvesterDepositEvent _event) {
+			if (ReferenceEquals(_event.Bank, CurrentUnit) && _event.EventSide == HarvesterDepositEvent.Side.Bank) {
+				CurrentValue = _event.StoredAmount;
+				MaxValue = _event.Capacity;
+			} else if (ReferenceEquals(_event.Harvester, CurrentUnit) && _event.EventSide == HarvesterDepositEvent.Side.Harvester) {
+				CurrentValue = _event.StoredAmount;
+				MaxValue = _event.Capacity;
 			}
 		}
 
 		private void OnEntityDeath (EntityDeathEvent _event) {
-			if (ReferenceEquals(_event.Unit, CurrentDeposit)) {
-				CurrentDeposit = null;
+			if (ReferenceEquals(_event.Unit, CurrentUnit)) {
+				CurrentUnit = null;
 			}
 		}
 

@@ -77,7 +77,7 @@ namespace MarsTS.Buildings {
 					if (CurrentProduction.ProductionProgress >= CurrentProduction.ProductionRequired) {
 						ProduceUnit();
 					}
-					else bus.Global(new ProductionStepEvent(bus, CurrentProduction, this));
+					else bus.Global(ProductionEvent.Step(bus, this));
 
 					timeToStep += stepTime;
 				}
@@ -89,7 +89,7 @@ namespace MarsTS.Buildings {
 
 				CurrentProduction = order;
 
-				bus.Global(new ProductionStartedEvent(bus, CurrentProduction, ProductionQueue.ToArray(), this));
+				bus.Global(ProductionEvent.Started(bus, this));
 			}
 		}
 
@@ -123,7 +123,7 @@ namespace MarsTS.Buildings {
 			}
 
 			CurrentProduction = null;
-			bus.Global(new ProductionEvent(bus, newUnit, this));
+			bus.Global(new UnitProducedEvent(bus, newUnit, this));
 		}
 
 		protected override void ProcessOrder (Commandlet order) {
@@ -145,7 +145,7 @@ namespace MarsTS.Buildings {
 
 			ProductionQueue.Enqueue(produceOrder);
 
-			bus.Global(new ProductionQueueEvent(bus, ProductionQueue.ToArray(), this));
+			bus.Global(ProductionEvent.Queued(bus, this));
 		}
 
 		protected virtual void Stop () {

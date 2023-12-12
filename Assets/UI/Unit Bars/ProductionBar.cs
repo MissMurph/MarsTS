@@ -12,12 +12,13 @@ namespace MarsTS.UI {
 
 			EventAgent bus = GetComponentInParent<EventAgent>();
 
-			bus.AddListener<ProductionStepEvent>((_event) => {
+			bus.AddListener<ProductionEvent>((_event) => {
+				if (_event.Name != "productionStep") return;
 				if (!barRenderer.enabled) barRenderer.enabled = true; 
-				FillLevel = (float)_event.CurrentProduction / _event.RequiredProduction;
+				FillLevel = (float)_event.CurrentProduction.ProductionProgress / _event.CurrentProduction.ProductionRequired;
 			});
 
-			bus.AddListener<ProductionEvent>((_event) => {
+			bus.AddListener<UnitProducedEvent>((_event) => {
 				barRenderer.enabled = false;
 				FillLevel = 0f;
 			});

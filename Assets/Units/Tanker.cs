@@ -79,14 +79,14 @@ namespace MarsTS.Units {
 
 		private void SiphonOil () {
 			int harvested = HarvestTarget.Harvest("oil", this, harvestAmount, storageComp.Submit);
-			bus.Global(new HarvesterExtractionEvent(bus, this, Stored, Capacity, HarvestTarget));
+			bus.Global(new ResourceHarvestedEvent(bus, HarvestTarget, this, ResourceHarvestedEvent.Side.Harvester, harvested, "oil", Stored, Capacity));
 
 			currentHarvestCooldown += harvestCooldown;
 		}
 
 		protected override void DepositResources () {
 			storageComp.Consume(DepositTarget.Deposit("oil", depositAmount));
-			bus.Global(new HarvesterDepositEvent(bus, this, Stored, Capacity, DepositTarget));
+			bus.Global(new HarvesterDepositEvent(bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity, DepositTarget));
 			currentCooldown += cooldown;
 		}
 	}

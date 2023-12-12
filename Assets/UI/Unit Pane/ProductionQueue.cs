@@ -99,25 +99,27 @@ namespace MarsTS.UI {
 		}
 
 		private void Start () {
-			EventBus.AddListener<ProductionEvent>(OnUnitProduction);
-			EventBus.AddListener<ProductionStepEvent>(OnProductionStep);
-			EventBus.AddListener<ProductionStartedEvent>(OnProductionStart);
-			EventBus.AddListener<ProductionQueueEvent>(OnProductionQueued);
+			EventBus.AddListener<UnitProducedEvent>(OnUnitProduction);
+			EventBus.AddListener<ProductionEvent>(OnProductionStep);
+			EventBus.AddListener<ProductionEvent>(OnProductionUpdate);
 		}
 
-		private void OnProductionStart (ProductionStartedEvent _event) {
+		private void OnProductionUpdate (ProductionEvent _event) {
+			if (_event.Name != "productionStarted" && _event.Name != "productionQueued") return;
 			if (ReferenceEquals(_event.Producer, currentUnit)) {
-				SetQueue(currentUnit, _event.Order, _event.Queue);
+				SetQueue(currentUnit, _event.CurrentProduction, _event.ProductionQueue);
 			}
 		}
 
-		private void OnProductionQueued (ProductionQueueEvent _event) {
+		private void OnProductionStep (ProductionEvent _event) {
+			if (_event.Name != "productionStep") return;
 			if (ReferenceEquals(_event.Producer, currentUnit)) {
-				SetQueue(currentUnit, _event.Producer.CurrentCommand as ProductionCommandlet, _event.Queue);
+				CurrentProduction = _event.CurrentProduction.ProductionProgress;
+				MaxProduction = _event.CurrentProduction.ProductionRequired;
 			}
 		}
 
-		private void OnUnitProduction (ProductionEvent _event) {
+		private void OnUnitProduction (UnitProducedEvent _event) {
 			if (ReferenceEquals(_event.Producer, currentUnit)) {
 				ProductionCommandlet currentProd = _event.Producer.CurrentCommand as ProductionCommandlet;
 				ProductionCommandlet[] queue = _event.Producer.CommandQueue as ProductionCommandlet[];
@@ -133,12 +135,7 @@ namespace MarsTS.UI {
 			}
 		}
 
-		private void OnProductionStep (ProductionStepEvent _event) {
-			if (ReferenceEquals(_event.Producer, currentUnit)) {
-				CurrentProduction = _event.CurrentProduction;
-				MaxProduction = _event.RequiredProduction;
-			}
-		}
+		
 
 		public void SetQueue (ICommandable unit, ProductionCommandlet current, ProductionCommandlet[] queue) {
 			currentUnit = unit;

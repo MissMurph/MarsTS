@@ -2,12 +2,15 @@ using MarsTS.Commands;
 using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
+using MarsTS.UI;
 using MarsTS.Units;
 using MarsTS.World;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.Port;
+using UnityEngine.SocialPlatforms.Impl;
 
 namespace MarsTS.Buildings {
 
@@ -61,7 +64,7 @@ namespace MarsTS.Buildings {
 
 				if (currentCooldown <= 0) {
 					int harvested = exploited.Harvest("oil", this, harvestAmount, Pump);
-					bus.Global(new HarvesterExtractionEvent(bus, this, stored, capacity, exploited));
+					bus.Global(new ResourceHarvestedEvent(bus, exploited, this, ResourceHarvestedEvent.Side.Harvester, harvested, "oil", stored, capacity));
 
 					currentCooldown += cooldown;
 				}
@@ -105,7 +108,7 @@ namespace MarsTS.Buildings {
 				int finalAmount = extractor(availableAmount);
 
 				if (finalAmount > 0) {
-					bus.Global(new ResourceHarvestedEvent(bus, this, finalAmount, resourceKey));
+					bus.Global(new ResourceHarvestedEvent(bus, this, harvester, ResourceHarvestedEvent.Side.Deposit, finalAmount, "oil", stored, capacity));
 					stored -= finalAmount;
 				}
 
@@ -117,6 +120,13 @@ namespace MarsTS.Buildings {
 
 		protected override void OnUnitInfoDisplayed (UnitInfoEvent _event) {
 			base.OnUnitInfoDisplayed(_event);
+
+			if (ReferenceEquals(_event.Unit, this)) {
+				StorageInfo info = _event.Info.Module<StorageInfo>("storage");
+				info.CurrentUnit = this;
+				info.CurrentValue = stored;
+				info.MaxValue = capacity;
+			}
 		}
 
 		private void OnDestroy () {

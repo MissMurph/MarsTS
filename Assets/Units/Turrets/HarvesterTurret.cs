@@ -61,7 +61,7 @@ namespace MarsTS.Units {
 			IHarvestable harvestable = target as IHarvestable;
 
 			int harvested = harvestable.Harvest("resource_unit", parent, harvestAmount, localStorage.Submit);
-			bus.Global(new HarvesterExtractionEvent(bus, parent, localStorage.Amount, localStorage.Capacity, harvestable));
+			bus.Global(new ResourceHarvestedEvent(bus, harvestable, parent, ResourceHarvestedEvent.Side.Harvester, harvested, "resource_unit", localStorage.Amount, localStorage.Capacity));
 
 			currentCooldown += cooldown;
 		}

@@ -6,17 +6,14 @@ using UnityEngine;
 
 namespace MarsTS.Events {
 
-	public class ProductionEvent : AbstractEvent {
+	public class UnitProducedEvent : ProductionEvent {
 
 		public ISelectable Unit { get; private set; }
 
 		public GameObject Object { get { return Unit.GameObject; } }
 
-		public ICommandable Producer { get; private set; }
-
-		public ProductionEvent (EventAgent _source, ISelectable _unit, ICommandable _producer) : base("unitProduction", _source) {
+		public UnitProducedEvent (EventAgent _source, ISelectable _unit, ICommandable _producer) : base("Complete", _source, _producer) {
 			Unit = _unit;
-			Producer = _producer;
 		}
 	}
 }

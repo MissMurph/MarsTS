@@ -4,6 +4,7 @@ using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
+using MarsTS.UI;
 using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
@@ -203,7 +204,7 @@ namespace MarsTS.Units {
 			if (order is Commandlet<IHarvestable> deserialized) {
 				HarvestTarget = deserialized.Target;
 
-				bus.AddListener<HarvesterExtractionEvent>(OnExtraction);
+				bus.AddListener<ResourceHarvestedEvent>(OnExtraction);
 
 				EntityCache.TryGet(HarvestTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
@@ -226,7 +227,7 @@ namespace MarsTS.Units {
 
 		protected virtual void DepositResources () {
 			storageComp.Consume(DepositTarget.Deposit("resource_unit", depositAmount));
-			bus.Global(new HarvesterDepositEvent(bus, this, Stored, Capacity, DepositTarget));
+			bus.Global(new HarvesterDepositEvent(bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity, DepositTarget));
 			currentCooldown += cooldown;
 		}
 
@@ -267,9 +268,9 @@ namespace MarsTS.Units {
 		}
 
 		//Could potentially move these to the actual Command Classes
-		private void OnExtraction (HarvesterExtractionEvent _event) {
+		private void OnExtraction (ResourceHarvestedEvent _event) {
 			if (Stored >= Capacity) {
-				bus.RemoveListener<HarvesterExtractionEvent>(OnExtraction);
+				bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
 				EntityCache.TryGet(_event.Deposit.GameObject.transform.root.name, out EventAgent targetBus);
 
@@ -288,7 +289,7 @@ namespace MarsTS.Units {
 		}
 
 		private void OnDepositDepleted (EntityDeathEvent _event) {
-			bus.RemoveListener<HarvesterExtractionEvent>(OnExtraction);
+			bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
@@ -301,7 +302,7 @@ namespace MarsTS.Units {
 
 		private void HarvestCancelled (CommandCompleteEvent _event) {
 			if (_event.Command is Commandlet<IHarvestable> deserialized && _event.CommandCancelled) {
-				bus.RemoveListener<HarvesterExtractionEvent>(OnExtraction);
+				bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
@@ -351,6 +352,17 @@ namespace MarsTS.Units {
 			}
 
 			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
+		}
+
+		protected override void OnUnitInfoDisplayed (UnitInfoEvent _event) {
+			base.OnUnitInfoDisplayed(_event);
+
+			if (ReferenceEquals(_event.Unit, this)) {
+				StorageInfo info = _event.Info.Module<StorageInfo>("storage");
+				info.CurrentUnit = this;
+				info.CurrentValue = Stored;
+				info.MaxValue = Capacity;
+			}
 		}
 	}
 }

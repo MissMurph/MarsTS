@@ -210,7 +210,7 @@ namespace MarsTS.Buildings {
 
 				model.localScale = Vector3.one * progress;
 
-				bus.Global(new EntityHurtEvent(bus, this));
+				bus.Global(new UnitHurtEvent(bus, this));
 
 				if (progress >= 1f) bus.Global(new CommandsUpdatedEvent(bus, this, boundCommands));
 				return;
@@ -218,7 +218,7 @@ namespace MarsTS.Buildings {
 
 			if (damage < 0 && Health >= maxHealth) return;
 			Health -= damage;
-			bus.Global(new EntityHurtEvent(bus, this));
+			bus.Global(new UnitHurtEvent(bus, this));
 
 			if (Health <= 0) {
 				bus.Global(new EntityDeathEvent(bus, this));

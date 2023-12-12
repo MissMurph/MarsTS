@@ -99,7 +99,7 @@ namespace MarsTS.World {
 			int finalAmount = extractor(availableAmount);
 
 			if (finalAmount > 0) {
-				bus.Global(new ResourceHarvestedEvent(bus, this, finalAmount, resourceKey));
+				bus.Global(new ResourceHarvestedEvent(bus, this, harvester, ResourceHarvestedEvent.Side.Deposit, finalAmount, resourceKey, StoredAmount, OriginalAmount));
 				attribute.Amount -= finalAmount;
 			}
 			
@@ -134,7 +134,7 @@ namespace MarsTS.World {
 
 		private void OnUnitInfoDisplayed (UnitInfoEvent _event) {
 			if (ReferenceEquals(_event.Unit, this)) {
-				DepositInfo info = _event.Info.Module<DepositInfo>("deposit");
+				ResourceInfo info = _event.Info.Module<ResourceInfo>("deposit");
 				info.CurrentDeposit = this;
 			}
 		}

@@ -135,7 +135,7 @@ namespace MarsTS.Units {
 
 					EntityCache.TryGet(RepairTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
-					targetBus.AddListener<EntityHurtEvent>(OnTargetHealed);
+					targetBus.AddListener<UnitHurtEvent>(OnTargetHealed);
 					targetBus.AddListener<EntityDeathEvent>(OnTargetDeath);
 
 					order.Callback.AddListener(RepairCancelled);
@@ -144,11 +144,11 @@ namespace MarsTS.Units {
 		}
 
 		//Could potentially move these to the actual Command Classes
-		private void OnTargetHealed (EntityHurtEvent _event) {
-			if (_event.Unit.Health >= _event.Unit.MaxHealth) {
-				EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
+		private void OnTargetHealed (UnitHurtEvent _event) {
+			if (_event.Targetable.Health >= _event.Targetable.MaxHealth) {
+				EntityCache.TryGet(_event.Targetable.GameObject.transform.root.name, out EventAgent targetBus);
 
-				targetBus.RemoveListener<EntityHurtEvent>(OnTargetHealed);
+				targetBus.RemoveListener<UnitHurtEvent>(OnTargetHealed);
 
 				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
@@ -178,7 +178,7 @@ namespace MarsTS.Units {
 			if (_event.Command is Commandlet<IAttackable> deserialized && _event.CommandCancelled) {
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
-				targetBus.RemoveListener<EntityHurtEvent>(OnTargetHealed);
+				targetBus.RemoveListener<UnitHurtEvent>(OnTargetHealed);
 				targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
 
 				RepairTarget = null;

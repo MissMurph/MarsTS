@@ -16,8 +16,8 @@ namespace MarsTS.UI {
 
 				barRenderer.enabled = true;
 
-				GetComponentInParent<EventAgent>().AddListener<EntityHurtEvent>((_event) => {
-					FillLevel = (float)_event.Unit.Health / _event.Unit.MaxHealth;
+				GetComponentInParent<EventAgent>().AddListener<UnitHurtEvent>((_event) => {
+					FillLevel = (float)_event.Targetable.Health / _event.Targetable.MaxHealth;
 					if (FillLevel >= 1f) Destroy(gameObject);
 				});
 			}

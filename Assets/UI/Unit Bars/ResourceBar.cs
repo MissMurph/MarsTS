@@ -51,7 +51,7 @@ namespace MarsTS.UI {
 
 				FillLevel = (float)localStorage.Amount / localStorage.Capacity;
 
-				bus.AddListener<HarvesterExtractionEvent>((_event) => {
+				bus.AddListener<ResourceHarvestedEvent>((_event) => {
 					FillLevel = (float)_event.StoredAmount / _event.Capacity;
 
 					if (FillLevel > 0f) HasStored = true;

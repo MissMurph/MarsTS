@@ -2,6 +2,7 @@ using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Teams;
+using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -32,6 +33,10 @@ namespace MarsTS.Units {
 		private float angleTolerance;
 
 		private float velocity;
+
+		private bool grounded;
+
+		private BoxCollider groundCollider;
 
 		[Header("Turrets")]
 
@@ -72,6 +77,9 @@ namespace MarsTS.Units {
 
 		protected override void Awake () {
 			base.Awake();
+
+			groundCollider = transform.Find("GroundCollider").GetComponent<BoxCollider>();
+
 			foreach (AbstractTurret turret in turretsToRegister) {
 				registeredTurrets.TryAdd(turret.name, turret);
 			}
@@ -79,6 +87,11 @@ namespace MarsTS.Units {
 
 		protected override void Update () {
 			base.Update();
+
+			grounded = Physics.CheckBox(new Vector3(groundCollider.transform.position.x, groundCollider.transform.position.y - (groundCollider.bounds.size.y / 2), groundCollider.transform.position.z),
+				groundCollider.bounds.extents,
+				groundCollider.transform.rotation,
+				GameWorld.WalkableMask);
 
 			if (attackTarget == null) return;
 
@@ -92,31 +105,40 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void FixedUpdate () {
-			velocity = body.velocity.magnitude;
+			velocity = body.velocity.sqrMagnitude;
 
-			if (!currentPath.IsEmpty) {
-				Vector3 targetWaypoint = currentPath[pathIndex];
+			if (grounded) {
+				if (!currentPath.IsEmpty) {
+					Vector3 targetWaypoint = currentPath[pathIndex];
 
-				Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
-				float targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
+					Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
+					float targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
 
-				float newAngle = Mathf.MoveTowardsAngle(CurrentAngle, targetAngle, turnSpeed * Time.fixedDeltaTime);
-				body.MoveRotation(Quaternion.Euler(transform.rotation.x, newAngle, transform.rotation.z));
+					float newAngle = Mathf.MoveTowardsAngle(CurrentAngle, targetAngle, turnSpeed * Time.fixedDeltaTime);
+					body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, newAngle, transform.eulerAngles.z));
 
-				Vector3 currentVelocity = body.velocity;
-				Vector3 adjustedVelocity = transform.forward * currentVelocity.magnitude;
+					Vector3 currentVelocity = body.velocity;
+					Vector3 adjustedVelocity = transform.forward * currentVelocity.magnitude;
 
-				if (Vector3.Angle(targetDirection, transform.forward) <= angleTolerance) {
-					float accelCap = 1f - (velocity / topSpeed);
+					if (Vector3.Angle(targetDirection, transform.forward) <= angleTolerance) {
+						float accelCap = 1f - (velocity / (topSpeed * topSpeed));
 
-					body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
+						//This moves the velocity according to the rotation of the unit
+						body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
 
-					//Relative so it can take into account the forward vector of the car
-					body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
+						//Relative so it can take into account the forward vector of the car
+						body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
+					}
+
+					if (velocity > topSpeed * topSpeed) {
+						Vector3 direction = body.velocity.normalized;
+						direction *= topSpeed;
+						body.velocity = direction;
+					}
 				}
-			}
-			else if (velocity >= 0.5f) {
-				body.AddRelativeForce(-body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
+				else if (velocity >= 0.5f) {
+					body.AddRelativeForce(-body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
+				}
 			}
 		}
 

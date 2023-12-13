@@ -146,7 +146,7 @@ namespace MarsTS.Units {
 
 				float brakeThreshold = currentVelocity.magnitude * brakeWindowTime;
 
-				body.MoveRotation(Quaternion.Euler(transform.rotation.x, newAngle, transform.rotation.z));
+				body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, newAngle, transform.eulerAngles.z));
 
 				Vector3 adjustedVelocity = transform.forward * currentVelocity.magnitude;
 

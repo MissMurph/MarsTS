@@ -2,6 +2,7 @@ using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Teams;
+using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -43,10 +44,7 @@ namespace MarsTS.Units {
 
 		[Header("Turret")]
 
-		protected Dictionary<string, AbstractTurret> registeredTurrets = new Dictionary<string, AbstractTurret>();
-
-		[SerializeField]
-		protected AbstractTurret[] turretsToRegister;
+		protected Dictionary<string, ProjectileTurret> registeredTurrets = new Dictionary<string, ProjectileTurret>();
 
 		protected IAttackable AttackTarget {
 			get {
@@ -78,9 +76,14 @@ namespace MarsTS.Units {
 
 		protected IAttackable attackTarget;
 
+		private GroundDetection ground;
+
 		protected override void Awake () {
 			base.Awake();
-			foreach (AbstractTurret turret in turretsToRegister) {
+
+			ground = GetComponent<GroundDetection>();
+
+			foreach (ProjectileTurret turret in GetComponentsInChildren<ProjectileTurret>()) {
 				registeredTurrets.TryAdd(turret.name, turret);
 			}
 		}
@@ -90,7 +93,7 @@ namespace MarsTS.Units {
 
 			if (attackTarget == null) return;
 
-			if (Vector3.Distance(attackTarget.GameObject.transform.position, transform.position) <= registeredTurrets["turret_main"].Range) {
+			if (registeredTurrets["turret_main"].IsInRange(AttackTarget)) {
 				TrackedTarget = null;
 				currentPath = Path.Empty;
 			}
@@ -100,74 +103,44 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void FixedUpdate () {
-			velocity = body.velocity.magnitude;
+			velocity = body.velocity.sqrMagnitude;
 
-			if (!currentPath.IsEmpty) {
-				Vector3 targetWaypoint = currentPath[pathIndex];
+			if (ground.Grounded) {
+				if (!currentPath.IsEmpty) {
+					Vector3 targetWaypoint = currentPath[pathIndex];
 
-				//Vector3 difference = ;
+					Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
 
-				Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
+					float targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
 
-				//float distance = difference.magnitude;
+					float newAngle = Mathf.MoveTowardsAngle(CurrentAngle, targetAngle, turnSpeed * Time.fixedDeltaTime);
 
+					Vector3 currentVelocity = body.velocity;
 
-				//currentSpeed += acceleration * Time.fixedDeltaTime;
-				//currentSpeed = Mathf.Min(currentSpeed, topSpeed);
+					//float brakeThreshold = currentVelocity.magnitude * brakeWindowTime;
 
-				float targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
+					body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, newAngle, transform.eulerAngles.z));
 
+					Vector3 adjustedVelocity = Vector3.ProjectOnPlane(transform.forward, ground.Slope.normal);
 
-				/*float distToMin = Mathf.Abs(targetAngle);
-				float distToMax = 180f - distToMin;
-				
-				float currentDistToMin = Mathf.Abs(CurrentAngle);
-				float currentDistToMax = 180f - currentDistToMin;
+					adjustedVelocity *= currentVelocity.magnitude;
 
-				float totalMinDiff = distToMin + currentDistToMin;
-				float totalMaxDiff = distToMax + currentDistToMax;
+					float accelCap = 1f - (velocity / (topSpeed * topSpeed));
 
-				int sameSide = (int)(Mathf.Sign(targetAngle) * Mathf.Sign(CurrentAngle));
+					body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
 
-				int posOrNeg = 1;
+					//Relative so it can take into account the forward vector of the car
+					body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
 
-				float finalDist = totalMinDiff;
-
-				if (totalMaxDiff < totalMinDiff) {
-					posOrNeg *= -1;
-					finalDist = totalMaxDiff;
-				}*/
-
-				//if (CurrentAngle > 0) posOrNeg *= -1;
-
-				float newAngle = Mathf.MoveTowardsAngle(CurrentAngle, targetAngle, turnSpeed * Time.fixedDeltaTime);
-
-				Vector3 currentVelocity = body.velocity;
-
-				float brakeThreshold = currentVelocity.magnitude * brakeWindowTime;
-
-				body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, newAngle, transform.eulerAngles.z));
-
-				Vector3 adjustedVelocity = transform.forward * currentVelocity.magnitude;
-
-				
-
-				//Mathf.Lerp(currentSpeed, 0, distance * brakeWindowTime / brakeThreshold);
-
-				float accelCap = 1f - (velocity / topSpeed);
-
-				body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
-
-				//Relative so it can take into account the forward vector of the car
-				body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
-
-
-				//body.AddRelativeForce(Vector3.forward * topSpeed * Time.fixedDeltaTime, ForceMode.Force);
-
-				
-			}
-			else if (body.velocity.magnitude >= 0.5f) {
-				body.AddRelativeForce(-body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
+					if (velocity > topSpeed * topSpeed) {
+						Vector3 direction = body.velocity.normalized;
+						direction *= topSpeed;
+						body.velocity = direction;
+					}
+				}
+				else if (body.velocity.magnitude >= 0.5f) {
+					body.AddRelativeForce(-body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
+				}
 			}
 		}
 

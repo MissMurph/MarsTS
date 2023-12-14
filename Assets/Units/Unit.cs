@@ -336,12 +336,11 @@ namespace MarsTS.Units {
 			if (damage < 0 && currentHealth >= maxHealth) return;
 			currentHealth -= damage;
 
-			bus.Global(new UnitHurtEvent(bus, this));
-
 			if (currentHealth <= 0) {
 				bus.Global(new EntityDeathEvent(bus, this));
 				Destroy(gameObject);
 			}
+			else bus.Global(new UnitHurtEvent(bus, this));
 		}
 
 		protected virtual void OnUnitInfoDisplayed (UnitInfoEvent _event) {
@@ -357,6 +356,8 @@ namespace MarsTS.Units {
 			foreach (GameObject hideable in hideables) {
 				hideable.SetActive(visible);
 			}
+
+			bus.Local(new UnitVisibleEvent(bus, this, visible));
 		}
 	}
 }

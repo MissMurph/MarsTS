@@ -1,14 +1,11 @@
 using MarsTS.Commands;
+using MarsTS.Events;
 using MarsTS.Teams;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 namespace MarsTS.Units {
 
-    public class ProjectileTurret : AbstractTurret {
+    public class ProjectileTurret : MonoBehaviour {
 
 		[SerializeField]
 		private GameObject projectile;
@@ -20,6 +17,26 @@ namespace MarsTS.Units {
 		private float cooldown;
 		private float currentCooldown;
 
+		[SerializeField]
+		private GameObject barrel;
+
+		public float Range { get { return sensor.Range; } }
+
+		private IAttackable target;
+
+		private ISelectable parent;
+		private EventAgent bus;
+
+		private AttackableSensor sensor;
+
+		private void Awake () {
+			parent = GetComponentInParent<ISelectable>();
+			bus = GetComponentInParent<EventAgent>();
+			sensor = GetComponent<AttackableSensor>();
+
+			bus.AddListener<SensorUpdateEvent<IAttackable>>(OnSensorUpdate);
+		}
+
 		private void Update () {
 			if (currentCooldown >= 0f) {
 				currentCooldown -= Time.deltaTime;
@@ -28,30 +45,36 @@ namespace MarsTS.Units {
 			if (parent is ICommandable commandableUnit && commandableUnit.CurrentCommand != null && commandableUnit.CurrentCommand.Name == "attack") {
 				Commandlet<IAttackable> attackCommand = commandableUnit.CurrentCommand as Commandlet<IAttackable>;
 
-				if (inRangeUnits.ContainsKey(attackCommand.Target.GameObject.name)) {
-					target = attackCommand.Target as ISelectable;
+				if (sensor.IsDetected(attackCommand.Target)) {
+					target = attackCommand.Target;
 				}
 			}
 
 			if (target == null) {
-				float distance = Range;
+				float distance = sensor.Range * sensor.Range;
 				IAttackable currentClosest = null;
 
-				foreach (ISelectable unit in inRangeUnits.Values) {
-					if (unit is IAttackable targetable && unit.GetRelationship(parent.Owner) == Relationship.Hostile) {
+				foreach (IAttackable unit in sensor.Detected) {
+					if (unit.GetRelationship(parent.Owner) == Relationship.Hostile) {
 						float newDistance = Vector3.Distance(unit.GameObject.transform.position, transform.position);
 
 						if (newDistance < distance) {
-							currentClosest = targetable;
+							currentClosest = unit;
 						}
 					}
 				}
 
-				if (currentClosest != null) target = currentClosest as ISelectable;
+				if (currentClosest != null) target = currentClosest;
 			}
 
-			if (target != null && inRangeUnits.ContainsKey(target.GameObject.transform.root.name) && currentCooldown <= 0) {
+			if (target != null && sensor.IsDetected(target) && currentCooldown <= 0) {
 				Fire();
+			}
+		}
+
+		private void FixedUpdate () {
+			if (target != null && sensor.IsDetected(target)) {
+				barrel.transform.LookAt(target.GameObject.transform, Vector3.up);
 			}
 		}
 
@@ -65,6 +88,21 @@ namespace MarsTS.Units {
 			bullet.Init(parent, (success, unit) => { if (success) unit.Attack(damage); });
 
 			currentCooldown += cooldown;
+		}
+
+		private void OnSensorUpdate (SensorUpdateEvent<IAttackable> _event) {
+			if (_event.Detected == true) {
+				if (target == null && _event.Target.GetRelationship(parent.Owner) == Relationship.Hostile) {
+					target = _event.Target;
+				}
+			}
+			else if (ReferenceEquals(_event.Target, target)) {
+				target = null;
+			}
+		}
+
+		public bool IsInRange (IAttackable target) {
+			return sensor.IsDetected(target);
 		}
 	}
 }

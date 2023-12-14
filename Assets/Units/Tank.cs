@@ -34,16 +34,9 @@ namespace MarsTS.Units {
 
 		private float velocity;
 
-		private bool grounded;
+		private GroundDetection ground;
 
-		private BoxCollider groundCollider;
-
-		[Header("Turrets")]
-
-		protected Dictionary<string, AbstractTurret> registeredTurrets = new Dictionary<string, AbstractTurret>();
-
-		[SerializeField]
-		protected AbstractTurret[] turretsToRegister;
+		protected Dictionary<string, ProjectileTurret> registeredTurrets = new Dictionary<string, ProjectileTurret>();
 
 		protected IAttackable AttackTarget {
 			get {
@@ -78,9 +71,9 @@ namespace MarsTS.Units {
 		protected override void Awake () {
 			base.Awake();
 
-			groundCollider = transform.Find("GroundCollider").GetComponent<BoxCollider>();
+			ground = GetComponent<GroundDetection>();
 
-			foreach (AbstractTurret turret in turretsToRegister) {
+			foreach (ProjectileTurret turret in GetComponentsInChildren<ProjectileTurret>()) {
 				registeredTurrets.TryAdd(turret.name, turret);
 			}
 		}
@@ -88,14 +81,9 @@ namespace MarsTS.Units {
 		protected override void Update () {
 			base.Update();
 
-			grounded = Physics.CheckBox(new Vector3(groundCollider.transform.position.x, groundCollider.transform.position.y - (groundCollider.bounds.size.y / 2), groundCollider.transform.position.z),
-				groundCollider.bounds.extents,
-				groundCollider.transform.rotation,
-				GameWorld.WalkableMask);
-
 			if (attackTarget == null) return;
 
-			if (Vector3.Distance(attackTarget.GameObject.transform.position, transform.position) <= registeredTurrets["turret_main"].Range) {
+			if (registeredTurrets["turret_main"].IsInRange(AttackTarget)) {
 				TrackedTarget = null;
 				currentPath = Path.Empty;
 			}
@@ -107,7 +95,7 @@ namespace MarsTS.Units {
 		protected virtual void FixedUpdate () {
 			velocity = body.velocity.sqrMagnitude;
 
-			if (grounded) {
+			if (ground.Grounded) {
 				if (!currentPath.IsEmpty) {
 					Vector3 targetWaypoint = currentPath[pathIndex];
 
@@ -118,7 +106,9 @@ namespace MarsTS.Units {
 					body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, newAngle, transform.eulerAngles.z));
 
 					Vector3 currentVelocity = body.velocity;
-					Vector3 adjustedVelocity = transform.forward * currentVelocity.magnitude;
+					Vector3 adjustedVelocity = Vector3.ProjectOnPlane(transform.forward, ground.Slope.normal);
+
+					adjustedVelocity *= currentVelocity.magnitude;
 
 					if (Vector3.Angle(targetDirection, transform.forward) <= angleTolerance) {
 						float accelCap = 1f - (velocity / (topSpeed * topSpeed));

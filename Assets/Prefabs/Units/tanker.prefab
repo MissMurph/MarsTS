@@ -174,7 +174,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59d50c5376086d2468fc496a5f43756d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  range: {fileID: 0}
 --- !u!135 &3780183992131938124
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -683,7 +682,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 960d8ac1979103a4e87560f23e696881, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  range: {fileID: 0}
 --- !u!135 &4905211555027867784
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1006,6 +1004,7 @@ GameObject:
   - component: {fileID: 7680554594384699937}
   - component: {fileID: 1516258249182937622}
   - component: {fileID: 2434953027732606424}
+  - component: {fileID: 7104396259140940136}
   m_Layer: 0
   m_Name: tanker
   m_TagString: Untagged
@@ -1062,11 +1061,10 @@ MonoBehaviour:
   - {fileID: 7680554594309416084}
   - {fileID: 1730746830768490085}
   - {fileID: 4666152948652239434}
-  topSpeed: 10
-  acceleration: 550
-  turnSpeed: 35
-  angleTolerance: 25
-  turretsToRegister: []
+  topSpeed: 8
+  acceleration: 700
+  turnSpeed: 55
+  angleTolerance: 35
   depositRate: 100
   harvestRate: 100
 --- !u!54 &7680554594384699998
@@ -1139,9 +1137,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visionRange: 5
-  rayCount: 0
-  drawGizmos: 0
-  visionUpdateTime: 0
+--- !u!114 &7104396259140940136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7680554594384699938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7443c4268b6722747b288e6367aee14f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7680554594623944569
 GameObject:
   m_ObjectHideFlags: 0
@@ -1349,13 +1356,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1831631696989345087, guid: 25e6df0840ee3434eb5d4dcf622276e2,
         type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1831631696989345087, guid: 25e6df0840ee3434eb5d4dcf622276e2,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1831631696989345087, guid: 25e6df0840ee3434eb5d4dcf622276e2,
+        type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1831631696989345087, guid: 25e6df0840ee3434eb5d4dcf622276e2,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.4
+      value: -0.3
       objectReference: {fileID: 0}
     - target: {fileID: 1831631696989345087, guid: 25e6df0840ee3434eb5d4dcf622276e2,
         type: 3}

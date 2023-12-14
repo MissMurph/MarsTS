@@ -1,6 +1,3 @@
-using MarsTS.Buildings;
-using MarsTS.Entities;
-using MarsTS.Events;
 using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,9 +5,9 @@ using UnityEngine;
 
 namespace MarsTS.Units {
 
-    public class HarvestSensor : AbstractSensor<IHarvestable> {
+    public class AttackableSensor : AbstractSensor<IAttackable> {
 
-		public override bool IsDetected (IHarvestable unit) {
+		public override bool IsDetected (IAttackable unit) {
 			return IsDetected(unit.GameObject.transform.root.name);
 		}
 	}

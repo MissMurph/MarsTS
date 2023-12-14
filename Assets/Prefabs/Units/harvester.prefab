@@ -510,51 +510,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!1 &3758000306278292966
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3758000306278292985}
-  - component: {fileID: 3758000306278292984}
-  m_Layer: 13
-  m_Name: Range
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &3758000306278292985
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3758000306278292966}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 3758000306880776226}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &3758000306278292984
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3758000306278292966}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 4
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &3758000306350165283
 GameObject:
   m_ObjectHideFlags: 0
@@ -616,6 +571,7 @@ GameObject:
   - component: {fileID: 3758000306492427154}
   - component: {fileID: 5456957795722013601}
   - component: {fileID: 1897545057432171859}
+  - component: {fileID: 6522401961797229150}
   m_Layer: 0
   m_Name: harvester
   m_TagString: Untagged
@@ -713,12 +669,10 @@ MonoBehaviour:
   - {fileID: 3758000306350165283}
   - {fileID: 4091789543579619753}
   - {fileID: 2193349266834965501}
-  topSpeed: 10
-  acceleration: 500
-  turnSpeed: 35
+  topSpeed: 5
+  acceleration: 800
+  turnSpeed: 45
   angleTolerance: 25
-  turretsToRegister:
-  - {fileID: 2193349268058887514}
   depositRate: 100
 --- !u!114 &5456957795722013601
 MonoBehaviour:
@@ -749,6 +703,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visionRange: 5
+--- !u!114 &6522401961797229150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3758000306492427157}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7443c4268b6722747b288e6367aee14f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3758000306654263273
 GameObject:
   m_ObjectHideFlags: 0
@@ -842,8 +808,10 @@ GameObject:
   m_Component:
   - component: {fileID: 3758000306880776226}
   - component: {fileID: 2193349268058887514}
+  - component: {fileID: 7936878566158919061}
   - component: {fileID: 2193349268058887517}
-  m_Layer: 0
+  - component: {fileID: 8456507928426346925}
+  m_Layer: 13
   m_Name: turret_main
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -861,8 +829,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0.5, z: 0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 3758000306278292985}
+  m_Children: []
   m_Father: {fileID: 3758000306492427156}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -878,10 +845,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7787fb3d03f89164a8bedd9f06b468fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  range: {fileID: 3758000306278292984}
-  falloff: 0
-  barrel: {fileID: 317408812239464569}
   harvestRate: 20
+  barrel: {fileID: 317408812239464569}
+--- !u!135 &7936878566158919061
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3758000306880776227}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 4
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &2193349268058887517
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -898,6 +876,18 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &8456507928426346925
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3758000306880776227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59d50c5376086d2468fc496a5f43756d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3758000306929437515
 GameObject:
   m_ObjectHideFlags: 0
@@ -1078,7 +1068,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 960d8ac1979103a4e87560f23e696881, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  range: {fileID: 0}
 --- !u!135 &1919405356120994111
 SphereCollider:
   m_ObjectHideFlags: 0

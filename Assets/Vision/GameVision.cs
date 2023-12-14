@@ -25,6 +25,8 @@ namespace MarsTS.Vision {
 		[SerializeField]
 		private float nodeSize;
 
+		public static float NodeSize { get { return instance.nodeSize; } }
+
 		private Dictionary<string, EntityVision> registeredVision;
 
 		public Vector2Int GridSize;
@@ -34,6 +36,8 @@ namespace MarsTS.Vision {
 
 		[SerializeField]
 		private bool drawGizmos;
+
+		public static bool DrawGizmos { get { return instance.drawGizmos; } }
 
 		private Vector3 BottomLeft { get; set; }
 
@@ -45,7 +49,14 @@ namespace MarsTS.Vision {
 
 		private EventAgent bus;
 
-		private bool initialized;
+		private bool initialized = false;
+
+		public static bool Initialized {
+			get {
+				if (instance == null) return false;
+				else return instance.initialized;
+			}
+		}
 
 		private void Awake () {
 			instance = this;

@@ -176,8 +176,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1214473941654255901}
   - component: {fileID: 1136886775272587408}
+  - component: {fileID: 7074105209275471447}
   - component: {fileID: 1214473941654255889}
-  m_Layer: 0
+  - component: {fileID: 5321804829641003086}
+  m_Layer: 13
   m_Name: turret_main
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -195,8 +197,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1214473942015219723}
+  m_Children: []
   m_Father: {fileID: 1214473942047108565}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -212,13 +213,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f81996ae128c4f47884189027df8738, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  range: {fileID: 1214473942015219724}
-  falloff: 0
-  barrel: {fileID: 5689438752885368348}
   projectile: {fileID: 5732885903752370511, guid: c53d0750fc9147c4f82636c698100a22,
     type: 3}
   damage: 50
   cooldown: 7
+  barrel: {fileID: 5689438752885368348}
+--- !u!135 &7074105209275471447
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1214473941654255900}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 50
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &1214473941654255889
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -235,51 +247,18 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!1 &1214473942015219722
-GameObject:
+--- !u!114 &5321804829641003086
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1214473942015219723}
-  - component: {fileID: 1214473942015219724}
-  m_Layer: 13
-  m_Name: Range
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1214473942015219723
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1214473942015219722}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1214473941654255901}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &1214473942015219724
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1214473942015219722}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_GameObject: {fileID: 1214473941654255900}
   m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 50
-  m_Center: {x: 0, y: 0, z: 0}
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1701ff42258f09e42a75cb926cc0534f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1214473942957689298
 GameObject:
   m_ObjectHideFlags: 0
@@ -328,6 +307,7 @@ GameObject:
   - component: {fileID: 1214473942047108563}
   - component: {fileID: 1214473942047108566}
   - component: {fileID: 5525253249239655198}
+  - component: {fileID: 5738421268432317307}
   m_Layer: 0
   m_Name: longtank
   m_TagString: Unit
@@ -424,12 +404,10 @@ MonoBehaviour:
   - {fileID: 1548256937297088197}
   - {fileID: 3232551385975708767}
   - {fileID: 1759595291747803630}
-  topSpeed: 50
-  acceleration: 450
-  turnSpeed: 25
-  angleTolerance: 25
-  turretsToRegister:
-  - {fileID: 1136886775272587408}
+  topSpeed: 7
+  acceleration: 800
+  turnSpeed: 20
+  angleTolerance: 30
 --- !u!114 &5525253249239655198
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -443,9 +421,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visionRange: 10
-  rayCount: 0
-  drawGizmos: 0
-  visionUpdateTime: 0
+--- !u!114 &5738421268432317307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1214473942990757588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7443c4268b6722747b288e6367aee14f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1548256937297088197
 GameObject:
   m_ObjectHideFlags: 0

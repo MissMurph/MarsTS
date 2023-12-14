@@ -43,5 +43,11 @@ namespace MarsTS.Vision {
 				mask = Mask
 			};
 		}
+
+		private void OnDrawGizmos () {
+			if (GameVision.Initialized && GameVision.DrawGizmos) {
+				Gizmos.DrawWireSphere(transform.position, visionRange * GameVision.NodeSize);
+			}
+		}
 	}
 }

@@ -3,7 +3,6 @@ using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 namespace MarsTS.Units {
 
@@ -47,7 +46,7 @@ namespace MarsTS.Units {
 			}
 
 			if (DepositTarget != null) {
-				if (depositableDetector.IsInRange(DepositTarget)) {
+				if (depositableDetector.IsDetected(DepositTarget)) {
 					TrackedTarget = null;
 					currentPath = Path.Empty;
 
@@ -63,7 +62,7 @@ namespace MarsTS.Units {
 			}
 
 			if (HarvestTarget != null) {
-				if (harvestableDetector.IsInRange(HarvestTarget)) {
+				if (harvestableDetector.IsDetected(HarvestTarget)) {
 					TrackedTarget = null;
 					currentPath = Path.Empty;
 

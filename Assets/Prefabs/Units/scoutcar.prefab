@@ -1,50 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &887458201587974076
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3795390782422432265}
-  - component: {fileID: 4709434121616070505}
-  m_Layer: 13
-  m_Name: Range
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &3795390782422432265
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 887458201587974076}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9129233428191878665}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &4709434121616070505
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 887458201587974076}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 20
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1019673165800029035
 GameObject:
   m_ObjectHideFlags: 0
@@ -100,8 +55,10 @@ GameObject:
   m_Component:
   - component: {fileID: 9129233428191878665}
   - component: {fileID: 7050632724546659591}
+  - component: {fileID: 3481540815482789596}
   - component: {fileID: 3245237068033572756}
-  m_Layer: 0
+  - component: {fileID: 6974218413154503115}
+  m_Layer: 13
   m_Name: turret_main
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -119,8 +76,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0.5, z: -0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 3795390782422432265}
+  m_Children: []
   m_Father: {fileID: 5910861939871708019}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -136,13 +92,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f81996ae128c4f47884189027df8738, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  range: {fileID: 4709434121616070505}
-  falloff: 0
-  barrel: {fileID: 4783804811270564957}
   projectile: {fileID: 5732885903752370511, guid: c53d0750fc9147c4f82636c698100a22,
     type: 3}
   damage: 5
   cooldown: 0.2
+  barrel: {fileID: 4783804811270564957}
+--- !u!135 &3481540815482789596
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1236843101666688662}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 20
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &3245237068033572756
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -159,6 +126,18 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &6974218413154503115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1236843101666688662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1701ff42258f09e42a75cb926cc0534f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2600212411466267600
 GameObject:
   m_ObjectHideFlags: 0
@@ -417,6 +396,7 @@ GameObject:
   - component: {fileID: 1150365005811226064}
   - component: {fileID: 6945863160223434669}
   - component: {fileID: 2855321176159231924}
+  - component: {fileID: 7946026259015385907}
   m_Layer: 0
   m_Name: scoutcar
   m_TagString: Unit
@@ -505,11 +485,9 @@ MonoBehaviour:
   acceleration: 1000
   currentSpeed: 0
   velocity: 0
-  turnSpeed: 40
+  turnSpeed: 100
   brakeWindowTime: 2
   brakeForce: 25
-  turretsToRegister:
-  - {fileID: 7050632724546659591}
 --- !u!114 &6945863160223434669
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -536,6 +514,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visionRange: 12
+--- !u!114 &7946026259015385907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5910861939855668350}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7443c4268b6722747b288e6367aee14f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5910861940876086822
 GameObject:
   m_ObjectHideFlags: 0

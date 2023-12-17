@@ -357,7 +357,7 @@ namespace MarsTS.Units {
 				hideable.SetActive(visible);
 			}
 
-			bus.Local(new UnitVisibleEvent(bus, this, visible));
+			//bus.Local(new UnitVisibleEvent(bus, this, visible));
 		}
 	}
 }

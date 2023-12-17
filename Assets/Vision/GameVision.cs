@@ -271,6 +271,14 @@ namespace MarsTS.Vision {
 			return instance.IsVisible(pos.x, pos.y, players);
 		}
 
+		public static bool IsVisible (string entityName, int players) {
+			if (instance.registeredVision.TryGetValue(entityName, out EntityVision unitVision)) {
+				return IsVisible(unitVision.gameObject, players);
+			}
+
+			return true;
+		}
+
 		public bool WasVisited (int x, int y, int players) {
 			return (Visited[x, y] & players) > 0;
 		}

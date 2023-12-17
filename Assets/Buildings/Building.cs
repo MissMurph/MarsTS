@@ -253,6 +253,8 @@ namespace MarsTS.Buildings {
 					hideable.SetActive(visible);
 				}
 			}
+
+			//if (GameVision.WasVisited(gameObject, Player.Main.VisionMask)) bus.Global(new UnitVisibleEvent(bus, this, true));
 		}
 	}
 }

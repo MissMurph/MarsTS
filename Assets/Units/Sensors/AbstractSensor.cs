@@ -50,6 +50,10 @@ namespace MarsTS.Units {
 			bus.AddListener<EntityInitEvent>(OnEntityInit);
 		}
 
+		protected void Start () {
+			EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
+		}
+
 		protected void OnEntityInit (EntityInitEvent _event) {
 			if (_event.Phase == Phase.Pre) return;
 			initialized = true;
@@ -64,7 +68,7 @@ namespace MarsTS.Units {
 				EventAgent targetBus = entityComp.Get<EventAgent>("eventAgent");
 
 				targetBus.AddListener<EntityDeathEvent>((_event) => OutOfRange(_event.Unit.GameObject.name));
-				targetBus.AddListener<UnitVisibleEvent>((_event) => OnVisionUpdate(_event));
+				//targetBus.AddListener<UnitVisibleEvent>((_event) => OnVisionUpdate(_event));
 
 				inRange[other.transform.root.name] = target;
 
@@ -83,18 +87,17 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected virtual void OnVisionUpdate (UnitVisibleEvent _event) {
-			if (_event.Visible
-				&& inRange.ContainsKey(_event.UnitName)
-				&& !detected.ContainsKey(_event.UnitName)) {
-				detected[_event.UnitName] = inRange[_event.UnitName];
-				bus.Local(new SensorUpdateEvent<T>(bus, detected[_event.UnitName], true));
-			}
-			else if (!_event.Visible
-				&& detected.ContainsKey(_event.UnitName)) {
-				T toRemove = detected[_event.UnitName];
-				detected.Remove(_event.UnitName);
-				bus.Local(new SensorUpdateEvent<T>(bus, toRemove, false));
+		protected virtual void OnVisionUpdate (VisionUpdateEvent _event) {
+			foreach (KeyValuePair<string, T> inRangeUnit in inRange) {
+				if (GameVision.IsVisible(inRangeUnit.Key, parent.Owner.VisionMask)) {
+					detected[inRangeUnit.Key] = inRange[inRangeUnit.Key];
+					bus.Local(new SensorUpdateEvent<T>(bus, detected[inRangeUnit.Key], true));
+				}
+				else if (detected.ContainsKey(inRangeUnit.Key)) {
+					T toRemove = detected[inRangeUnit.Key];
+					detected.Remove(inRangeUnit.Key);
+					bus.Local(new SensorUpdateEvent<T>(bus, toRemove, false));
+				}
 			}
 		}
 
@@ -112,7 +115,7 @@ namespace MarsTS.Units {
 			EventAgent targetBus = entityComp.Get<EventAgent>("eventAgent");
 
 			targetBus.RemoveListener<EntityDeathEvent>((_event) => OutOfRange(_event.Unit.GameObject.name));
-			targetBus.RemoveListener<UnitVisibleEvent>((_event) => OnVisionUpdate(_event));
+			//targetBus.RemoveListener<UnitVisibleEvent>((_event) => OnVisionUpdate(_event));
 
 			T toRemove = inRange[name];
 

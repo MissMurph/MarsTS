@@ -108,8 +108,6 @@ namespace MarsTS.Units {
 		private float angle;
 		protected int pathIndex;
 
-		private GameObject selectionCircle;
-
 		protected Rigidbody body;
 
 		private const float minPathUpdateTime = .5f;
@@ -124,8 +122,6 @@ namespace MarsTS.Units {
 		private GameObject[] hideables;
 
 		protected virtual void Awake () {
-			selectionCircle = transform.Find("SelectionCircle").gameObject;
-			selectionCircle.SetActive(false);
 			body = GetComponent<Rigidbody>();
 			entityComponent = GetComponent<Entity>();
 			bus = GetComponent<EventAgent>();
@@ -135,7 +131,7 @@ namespace MarsTS.Units {
 		protected virtual void Start () {
 			StartCoroutine(UpdatePath());
 
-			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
+			transform.Find("SelectionCircle").GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 			EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
@@ -307,7 +303,7 @@ namespace MarsTS.Units {
 		public abstract Commandlet Auto (ISelectable target);
 
 		public void Select (bool status) {
-			selectionCircle.SetActive(status);
+			//selectionCircle.SetActive(status);
 			bus.Local(new UnitSelectEvent(bus, status));
 		}
 
@@ -324,7 +320,7 @@ namespace MarsTS.Units {
 		}
 
 		public Relationship GetRelationship (Faction other) {
-			return owner.GetRelationship(other);
+			return Owner.GetRelationship(other);
 		}
 
 		public bool SetOwner (Faction player) {

@@ -1,71 +1,54 @@
 using MarsTS.Commands;
-using MarsTS.Entities;
 using MarsTS.Teams;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace MarsTS.Units {
 
-	public class Infantry : MonoBehaviour, ISelectable, ITaggable<Infantry>, ICommandable {
-		public GameObject GameObject => throw new System.NotImplementedException();
+	public class Infantry : Unit {
 
-		public int ID => throw new System.NotImplementedException();
+		public new Faction Owner { get { return squad.Owner; } }
 
-		public string UnitType => throw new System.NotImplementedException();
+		public InfantrySquad squad;
 
-		public string RegistryKey => throw new System.NotImplementedException();
+		[SerializeField]
+		private float moveSpeed;
 
-		public Faction Owner => throw new System.NotImplementedException();
+		private GroundDetection ground;
 
-		public Sprite Icon => throw new System.NotImplementedException();
+		protected override void Awake () {
+			base.Awake();
 
-		public string Key => throw new NotImplementedException();
-
-		public Type Type => throw new NotImplementedException();
-
-		public Commandlet CurrentCommand => throw new NotImplementedException();
-
-		public Commandlet[] CommandQueue => throw new NotImplementedException();
-
-		public Commandlet Auto (ISelectable target) {
-			throw new NotImplementedException();
+			ground = GetComponent<GroundDetection>();
 		}
 
-		public string[] Commands () {
-			throw new NotImplementedException();
+		protected virtual void FixedUpdate () {
+			if (ground.Grounded) {
+				if (!currentPath.IsEmpty) {
+					Vector3 targetWaypoint = currentPath[pathIndex];
+
+					Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
+					float targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
+					body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, targetAngle, transform.eulerAngles.z));
+
+					Vector3 moveDirection = Vector3.ProjectOnPlane(transform.forward, ground.Slope.normal);
+
+					Vector3 newVelocity = moveDirection * moveSpeed;
+
+					body.velocity = newVelocity;
+				}
+				else {
+					body.velocity = Vector3.zero;
+				}
+			}
 		}
 
-		public void Enqueue (Commandlet order) {
-			throw new NotImplementedException();
-		}
-
-		public Command Evaluate (ISelectable target) {
-			throw new NotImplementedException();
-		}
-
-		public void Execute (Commandlet order) {
-			throw new NotImplementedException();
-		}
-
-		public Infantry Get () {
-			throw new NotImplementedException();
-		}
-
-		public Relationship GetRelationship (Faction player) {
+		public override Commandlet Auto (ISelectable target) {
 			throw new System.NotImplementedException();
 		}
 
-		public void Hover (bool status) {
-			throw new System.NotImplementedException();
-		}
-
-		public void Select (bool status) {
-			throw new System.NotImplementedException();
-		}
-
-		public bool SetOwner (Faction player) {
+		public override Command Evaluate (ISelectable target) {
 			throw new System.NotImplementedException();
 		}
 	}

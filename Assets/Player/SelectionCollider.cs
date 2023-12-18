@@ -12,26 +12,25 @@ namespace MarsTS.Players {
 
     public class SelectionCollider : MonoBehaviour {
 
-		private List<ISelectable> hitUnits = new List<ISelectable>();
-		private List<ISelectable> hitUnitsLastFrame = new List<ISelectable>();
-		private List<ISelectable> newlyHitUnits = new List<ISelectable>();
+		private Dictionary<string, ISelectable> hitUnits = new Dictionary<string, ISelectable>();
+		private Dictionary<string, ISelectable> hitUnitsLastFrame = new Dictionary<string, ISelectable>();
+		private Dictionary<string, ISelectable> newlyHitUnits = new Dictionary<string, ISelectable>();
 
 		private void FixedUpdate () {
-			newlyHitUnits = new List<ISelectable>();
+			newlyHitUnits = new Dictionary<string, ISelectable>();
 		}
 
 		private void OnTriggerStay (Collider other) {
-			if (EntityCache.TryGet(other.transform.parent.name, out ISelectable target)) {
-				newlyHitUnits.Add(target);
+			if (EntityCache.TryGet(other.transform.root.name, out ISelectable target)) {
+				newlyHitUnits[other.transform.root.name] = target;
 				target.Hover(true);
 			}
 		}
 
 		private void Update () {
-			foreach (ISelectable unit in hitUnitsLastFrame) {
-				if (!newlyHitUnits.Contains(unit)) 
+			foreach (ISelectable unit in hitUnitsLastFrame.Values) {
+				if (!newlyHitUnits.ContainsKey(unit.GameObject.name)) 
 					unit.Hover(false);
-
 			}
 
 			//Debug.Log("Last Frame: " + hitUnitsLastFrame.Count + " This Frame: " + newlyHitUnits.Count);
@@ -45,7 +44,7 @@ namespace MarsTS.Players {
 		private void OnDestroy () {
 			Dictionary<Relationship, List<ISelectable>> factionMap = new Dictionary<Relationship, List<ISelectable>>();
 
-			foreach (ISelectable hit in hitUnits) {
+			foreach (ISelectable hit in hitUnits.Values) {
 				Relationship relation = hit.GetRelationship(Player.Main);
 				List<ISelectable> rollup = factionMap.GetValueOrDefault(relation, new List<ISelectable>());
 				if (!factionMap.ContainsKey(relation)) factionMap[relation] = rollup;

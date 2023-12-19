@@ -111,17 +111,21 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void ProcessOrder (Commandlet order) {
-			switch (order.Name) {
+			/*switch (order.Name) {
 				case "move":
-				CurrentCommand = order;
+				//CurrentCommand = order;
 				DistributeOrder(order);
 				break;
 				case "stop":
-				CurrentCommand = order;
+				//CurrentCommand = order;
 				DistributeOrder(order);
 				break;
 				default:
 				break;
+			}*/
+
+			foreach (Infantry unit in members) {
+				unit.Execute(order);
 			}
 		}
 

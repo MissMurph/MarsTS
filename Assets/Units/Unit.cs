@@ -133,8 +133,9 @@ namespace MarsTS.Units {
 
 			transform.Find("SelectionCircle").GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 
+			bus.AddListener<UnitVisibleEvent>(OnVisionUpdate);
+
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
-			EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
 			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
 		}
 
@@ -346,14 +347,10 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected virtual void OnVisionUpdate (VisionUpdateEvent _event) {
-			bool visible = GameVision.IsVisible(gameObject, Player.Main.VisionMask);
-
+		protected virtual void OnVisionUpdate (UnitVisibleEvent _event) {
 			foreach (GameObject hideable in hideables) {
-				hideable.SetActive(visible);
+				hideable.SetActive(_event.Visible);
 			}
-
-			//bus.Local(new UnitVisibleEvent(bus, this, visible));
 		}
 	}
 }

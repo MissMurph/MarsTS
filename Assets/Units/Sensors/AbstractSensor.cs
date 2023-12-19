@@ -25,6 +25,18 @@ namespace MarsTS.Units {
 			}
 		}
 
+		public List<T> InRange {
+			get {
+				List<T> output = new List<T>();
+
+				foreach (T t in inRange.Values) {
+					output.Add(t);
+				}
+
+				return output;
+			}
+		}
+
 		protected SphereCollider range;
 
 		protected Dictionary<string, T> inRange = new Dictionary<string, T>();

@@ -267,8 +267,20 @@ namespace MarsTS.Vision {
 		}
 
 		public static bool IsVisible (GameObject _object, int players) {
+			if (instance.registeredVision.TryGetValue(_object.transform.root.name, out EntityVision visionComp)) {
+				return (visionComp.VisibleTo & players) > 0;
+			}
+			
 			Vector2Int pos = GetGridPosFromWorldPos(_object.transform.position);
 			return instance.IsVisible(pos.x, pos.y, players);
+		}
+
+		public int VisibleTo (int x, int y) {
+			return Nodes[x, y];
+		}
+		public static int VisibleTo (GameObject _object) {
+			Vector2Int pos = GetGridPosFromWorldPos(_object.transform.position);
+			return instance.VisibleTo(pos.x, pos.y);
 		}
 
 		public static bool IsVisible (string entityName, int players) {

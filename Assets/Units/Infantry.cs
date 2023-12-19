@@ -1,4 +1,5 @@
 using MarsTS.Commands;
+using MarsTS.Events;
 using MarsTS.Teams;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,12 +16,21 @@ namespace MarsTS.Units {
 		[SerializeField]
 		private float moveSpeed;
 
+		[SerializeField]
+		private float sneakSpeed;
+
+		private float currentSpeed;
+
 		private GroundDetection ground;
+
+		private bool isSneaking;
 
 		protected override void Awake () {
 			base.Awake();
 
 			ground = GetComponent<GroundDetection>();
+
+			currentSpeed = moveSpeed;
 		}
 
 		protected virtual void FixedUpdate () {
@@ -34,7 +44,7 @@ namespace MarsTS.Units {
 
 					Vector3 moveDirection = Vector3.ProjectOnPlane(transform.forward, ground.Slope.normal);
 
-					Vector3 newVelocity = moveDirection * moveSpeed;
+					Vector3 newVelocity = moveDirection * currentSpeed;
 
 					body.velocity = newVelocity;
 				}
@@ -42,6 +52,30 @@ namespace MarsTS.Units {
 					body.velocity = Vector3.zero;
 				}
 			}
+		}
+
+		protected override void ProcessOrder (Commandlet order) {
+			switch (order.Name) {
+				case "sneak":
+				Sneak();
+				break;
+				default:
+				base.ProcessOrder(order);
+				break;
+			}
+		}
+
+		private void Sneak () {
+			if (isSneaking) {
+				isSneaking = false;
+				currentSpeed = moveSpeed;
+			}
+			else {
+				isSneaking = true;
+				currentSpeed = sneakSpeed;
+			}
+
+			bus.Local(new SneakEvent(bus, this, isSneaking));
 		}
 
 		public override Commandlet Auto (ISelectable target) {

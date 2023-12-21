@@ -183,6 +183,8 @@ namespace MarsTS.Units {
 			bus.Global(newEvent);
 
 			CurrentCommand = null;
+
+			Stop();
 		}
 
 		private void RepairCancelled (CommandCompleteEvent _event) {

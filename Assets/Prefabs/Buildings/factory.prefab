@@ -29,8 +29,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5738845266770178254}
-  m_RootOrder: 1
+  m_Father: {fileID: 5738845266810977015}
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &2176105182628219514
 BoxCollider:
@@ -311,7 +311,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5738845267546712010}
-  - {fileID: 7217567376093541744}
   m_Father: {fileID: 5738845266810977015}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -352,6 +351,7 @@ Transform:
   - {fileID: 5738845266770178254}
   - {fileID: 5111986784738206146}
   - {fileID: 7632288851047041859}
+  - {fileID: 7217567376093541744}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -445,9 +445,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visionRange: 5
-  rayCount: 0
-  drawGizmos: 0
-  visionUpdateTime: 0
 --- !u!1 &5738845267546712011
 GameObject:
   m_ObjectHideFlags: 0

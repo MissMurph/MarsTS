@@ -76,9 +76,8 @@ namespace MarsTS.Buildings {
 			exploited.Exploited = true;
 		}
 
-		public bool CanHarvest (string resourceKey, ISelectable unit) {
-			if (resourceKey == "oil") return true;
-			return false;
+		public virtual bool CanHarvest (string resourceKey, ISelectable unit) {
+			return resourceKey == "oil" && (unit.Owner == Owner || unit.UnitType == "roughneck");
 		}
 
 		public override void Enqueue (Commandlet order) {
@@ -101,8 +100,8 @@ namespace MarsTS.Buildings {
 			return difference;
 		}
 
-		public int Harvest (string resourceKey, ISelectable harvester, int harvestAmount, Func<int, int> extractor) {
-			if (resourceKey == "oil") {
+		public virtual int Harvest (string resourceKey, ISelectable harvester, int harvestAmount, Func<int, int> extractor) {
+			if (CanHarvest(resourceKey, harvester)) {
 				int availableAmount = Mathf.Min(harvestAmount, stored);
 
 				int finalAmount = extractor(availableAmount);

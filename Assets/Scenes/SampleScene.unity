@@ -423,17 +423,17 @@ PrefabInstance:
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.67
+      value: 19.4
       objectReference: {fileID: 0}
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.94
+      value: -42.9
       objectReference: {fileID: 0}
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
@@ -1183,17 +1183,17 @@ PrefabInstance:
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.06
+      value: 21.01
       objectReference: {fileID: 0}
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.78
+      value: -43.74
       objectReference: {fileID: 0}
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
@@ -1295,6 +1295,63 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!1 &452638539
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 452638540}
+  - component: {fileID: 452638541}
+  m_Layer: 0
+  m_Name: PlacePumpjack
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &452638540
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 452638539}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 989160902}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &452638541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 452638539}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 017ae3b5602ee6a438f1cd8bb9ef6ba9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  icon: {fileID: 0}
+  IconColor: {r: 0, g: 0, b: 0, a: 0}
+  Pointer:
+    texture: {fileID: 0}
+    target: {x: 0, y: 0}
+  description: Pumps oil out of an exploited Oil Deposit in the ground. This variant
+    of the Pumpjack is smaller and flimsier, able to be built and emptied by infantry
+    alone, but has the advantage of being upgradable with camoflage, hiding the pumpjack
+    from enemies.
+  building: {fileID: 5367866818507981619, guid: e2416d01d4b5eca45b50219bfa76d7ce,
+    type: 3}
+  snapPrefab: {fileID: 2123405586041306835, guid: b3212ea83705a974bb3d3938232075da,
+    type: 3}
 --- !u!1 &459481563
 GameObject:
   m_ObjectHideFlags: 0
@@ -1930,17 +1987,17 @@ PrefabInstance:
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.54
+      value: 22.61
       objectReference: {fileID: 0}
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.7
+      value: -40.260002
       objectReference: {fileID: 0}
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
@@ -2646,7 +2703,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0.5, y: 0, z: 0, w: 0.8660254}
-  m_LocalPosition: {x: 0, y: 45, z: -52.14}
+  m_LocalPosition: {x: 0, y: 45, z: -71.05}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3034,7 +3091,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   key: resource_unit
-  startingAmount: 500
+  startingAmount: 5000
 --- !u!114 &963194238
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3162,6 +3219,7 @@ Transform:
   - {fileID: 2024952383}
   - {fileID: 503483436}
   - {fileID: 391940044}
+  - {fileID: 452638540}
   m_Father: {fileID: 1176459603}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3602,9 +3660,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e37d2f77521348549bb80f71d64245b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nodeSize: 2
-  GridSize: {x: 250, y: 250}
-  visionUpdateTime: 0.5
+  nodeSize: 1
+  GridSize: {x: 500, y: 500}
+  visionUpdateTime: 0.25
   drawGizmos: 0
   Dirty: 0
 --- !u!114 &1176459615
@@ -5299,6 +5357,7 @@ GameObject:
   - component: {fileID: 1720994614}
   - component: {fileID: 1720994613}
   - component: {fileID: 1720994615}
+  - component: {fileID: 1720994616}
   m_Layer: 0
   m_Name: roughneckSquad
   m_TagString: Untagged
@@ -5333,7 +5392,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70960d52ead898c49a454400c17518d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 2267b8fb27649754bb6389657306f0e0, type: 3}
   type: roughneck
   owner: {fileID: 963194230}
   boundCommands:
@@ -5341,6 +5400,9 @@ MonoBehaviour:
   - stop
   - attack
   - sneak
+  - harvest
+  - repair
+  - construct/makeshift_pumpjack
   maxMembers: 5
   startingMembers:
   - {fileID: 974687869899179965}
@@ -5391,6 +5453,22 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &1720994616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1720994610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db75fe7896a566744b02bc8532aebeab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: oil
+  startingValue: 0
+  capacity: 500
+  resourceKey: oil
 --- !u!1 &1756880932
 GameObject:
   m_ObjectHideFlags: 0
@@ -5826,17 +5904,17 @@ PrefabInstance:
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.76
+      value: 22.83
       objectReference: {fileID: 0}
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.83
+      value: -42.790005
       objectReference: {fileID: 0}
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
@@ -6423,11 +6501,6 @@ PrefabInstance:
       propertyPath: owner
       value: 
       objectReference: {fileID: 203840619}
-    - target: {fileID: 2099175169948715877, guid: 160c6e924a2b7dd428126aa4f46fd60b,
-        type: 3}
-      propertyPath: visionRange
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 7880851597027462242, guid: 160c6e924a2b7dd428126aa4f46fd60b,
         type: 3}
       propertyPath: owner
@@ -6877,6 +6950,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: 357daeff9bc5e444f80c022a80831c0d,
         type: 3}
+    - target: {fileID: 5416129085890621849, guid: 7a5d6d2c04170114db84b35ea9452b40,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5416129086323090429, guid: 7a5d6d2c04170114db84b35ea9452b40,
         type: 3}
       propertyPath: m_Size.y
@@ -6970,17 +7048,17 @@ PrefabInstance:
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 21.07
       objectReference: {fileID: 0}
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -41.960003
       objectReference: {fileID: 0}
     - target: {fileID: 974687869533868369, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
@@ -7245,11 +7323,6 @@ PrefabInstance:
       propertyPath: unitCollider
       value: 
       objectReference: {fileID: 0}
-    - target: {fileID: 66751218771914729, guid: c3590048fa9d52b45bcd9c4b3a8c11df,
-        type: 3}
-      propertyPath: repairRate
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 3050993961840164310, guid: c3590048fa9d52b45bcd9c4b3a8c11df,
         type: 3}
       propertyPath: m_Name
@@ -7268,7 +7341,7 @@ PrefabInstance:
     - target: {fileID: 3050993961840164311, guid: c3590048fa9d52b45bcd9c4b3a8c11df,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.25
+      value: -5.02
       objectReference: {fileID: 0}
     - target: {fileID: 3050993961840164311, guid: c3590048fa9d52b45bcd9c4b3a8c11df,
         type: 3}
@@ -7278,7 +7351,7 @@ PrefabInstance:
     - target: {fileID: 3050993961840164311, guid: c3590048fa9d52b45bcd9c4b3a8c11df,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -17.4
+      value: -37.39
       objectReference: {fileID: 0}
     - target: {fileID: 3050993961840164311, guid: c3590048fa9d52b45bcd9c4b3a8c11df,
         type: 3}

@@ -3,6 +3,7 @@ using MarsTS.Players;
 using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 namespace MarsTS.Vision {
@@ -11,6 +12,8 @@ namespace MarsTS.Vision {
 
         private SelectableSensor stealthSensor;
 
+		private GameObject rangeIndicator;
+
 		[SerializeField]
         private bool isSneaking;
 
@@ -18,12 +21,18 @@ namespace MarsTS.Vision {
 			base.Awake();
 
 			stealthSensor = transform.Find("SneakRange").GetComponent<SelectableSensor>();
-
-			bus.AddListener<SneakEvent>(OnSneak);
+			rangeIndicator = transform.Find("SneakRangeIndicator").gameObject;
 		}
 
 		protected override void Start () {
 			base.Start();
+
+			bus.AddListener<SneakEvent>(OnSneak);
+
+			bus.AddListener<UnitSelectEvent>(OnSelect);
+			bus.AddListener<UnitHoverEvent>(OnHover);
+
+			rangeIndicator.SetActive(false);
 		}
 
 		protected override void OnVisionUpdate (VisionUpdateEvent _event) {
@@ -47,6 +56,25 @@ namespace MarsTS.Vision {
 
 		private void OnSneak (SneakEvent _event) {
 			isSneaking = _event.IsSneaking;
+			rangeIndicator.SetActive(_event.IsSneaking);
+		}
+
+		private void OnSelect (UnitSelectEvent _event) {
+			if (isSneaking && _event.Status) {
+				rangeIndicator.SetActive(true);
+			}
+			else {
+				rangeIndicator.SetActive(false);
+			}
+		}
+
+		private void OnHover (UnitHoverEvent _event) {
+			if (isSneaking && _event.Status) {
+				rangeIndicator.SetActive(true);
+			}
+			else {
+				rangeIndicator.SetActive(false);
+			}
 		}
 	}
 }

@@ -84,8 +84,7 @@ namespace MarsTS.Units {
 		}
 
 		private void Repair () {
-			IAttackable targetable = target;
-			targetable.Attack(-repairAmount);
+			target.Attack(-repairAmount);
 			currentCooldown += cooldown;
 		}
 

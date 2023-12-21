@@ -12,13 +12,18 @@ namespace MarsTS.Buildings {
 
 		public override bool Legal {
 			get {
+				bool valid = false;
+
 				foreach (Collider other in collisions) {
 					if (EntityCache.TryGet(other.transform.root.name, out ResourceDeposit comp) && comp is OilDeposit) {
-						return true;
+						valid = true;
+					}
+					else {
+						valid = false;
 					}
 				}
 
-				return false;
+				return valid;
 			}
 		}
 	}

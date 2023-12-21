@@ -702,7 +702,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89e4001c157ec4447bc333ae420835ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  visionRange: 5
+  visionRange: 10
 --- !u!114 &6522401961797229150
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -65,7 +65,7 @@ namespace MarsTS.Units {
 
 		public Commandlet[] CommandQueue { get { return commandQueue.ToArray(); } }
 
-		private Queue<Commandlet> commandQueue = new Queue<Commandlet>();
+		protected Queue<Commandlet> commandQueue = new Queue<Commandlet>();
 
 		[SerializeField]
 		private string[] boundCommands;
@@ -270,17 +270,17 @@ namespace MarsTS.Units {
 			}
 		}
 
-		public void Enqueue (Commandlet order) {
+		public virtual void Enqueue (Commandlet order) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 			commandQueue.Enqueue(order);
 		}
 
-		public void Execute (Commandlet order) {
+		public virtual void Execute (Commandlet order) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 			commandQueue.Clear();
 
 			currentPath = Path.Empty;
-			target = null;
+			TrackedTarget = null;
 
 			if (CurrentCommand != null) {
 				CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, true, this);
@@ -303,12 +303,12 @@ namespace MarsTS.Units {
 
 		public abstract Commandlet Auto (ISelectable target);
 
-		public void Select (bool status) {
+		public virtual void Select (bool status) {
 			//selectionCircle.SetActive(status);
 			bus.Local(new UnitSelectEvent(bus, status));
 		}
 
-		public void Hover (bool status) {
+		public virtual void Hover (bool status) {
 			//These are seperated due to the Player Selection Check
 			if (status) {
 				//selectionCircle.SetActive(true);

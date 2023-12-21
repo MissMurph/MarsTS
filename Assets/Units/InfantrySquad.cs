@@ -1,13 +1,17 @@
+using MarsTS.Buildings;
 using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.UI;
+using MarsTS.World;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.Port;
+using UnityEngine.SocialPlatforms.Impl;
 using static UnityEngine.GraphicsBuffer;
 
 namespace MarsTS.Units {
@@ -71,6 +75,12 @@ namespace MarsTS.Units {
 
 		private EventAgent bus;
 
+		protected int Stored { get { return storageComp.Amount; } }
+
+		protected int Capacity { get { return storageComp.Capacity; } }
+
+		protected ResourceStorage storageComp;
+
 		private void Awake () {
 			foreach (Infantry unit in startingMembers) {
 				unit.SetOwner(owner);
@@ -85,6 +95,7 @@ namespace MarsTS.Units {
 
 			entityComponent = GetComponent<Entity>();
 			bus = GetComponent<EventAgent>();
+			storageComp = GetComponent<ResourceStorage>();
 		}
 
 		private void Start () {
@@ -148,17 +159,29 @@ namespace MarsTS.Units {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 			commandQueue.Clear();
 
-			if (CurrentCommand != null) {
+			/*if (CurrentCommand != null) {
 				CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, true, this);
 				CurrentCommand.Callback.Invoke(_event);
 				bus.Global(_event);
 			}
 
-			CurrentCommand = null;
+			CurrentCommand = null;*/
 			commandQueue.Enqueue(order);
 		}
 
-		public virtual Command Evaluate (ISelectable target) {
+		public Command Evaluate (ISelectable target) {
+			if (target is IHarvestable harvestable
+				&& Stored < Capacity
+				&& harvestable.StoredAmount > 0
+				&& harvestable.CanHarvest(storageComp.Resource, this)) {
+				return CommandRegistry.Get("harvest");
+			}
+
+			if (target is IDepositable
+				&& Stored > 0) {
+				return CommandRegistry.Get("deposit");
+			}
+
 			if (target is IAttackable && target.GetRelationship(owner) == Relationship.Hostile) {
 				return CommandRegistry.Get("attack");
 			}
@@ -166,9 +189,21 @@ namespace MarsTS.Units {
 			return CommandRegistry.Get("move");
 		}
 
-		public virtual Commandlet Auto (ISelectable target) {
-			if (target is IAttackable deserialized && target.GetRelationship(owner) == Relationship.Hostile) {
-				return CommandRegistry.Get<Attack>("attack").Construct(deserialized);
+		public Commandlet Auto (ISelectable target) {
+			if (target is IHarvestable harvestable
+				&& Stored < Capacity
+				&& harvestable.StoredAmount > 0
+				&& harvestable.CanHarvest(storageComp.Resource, this)) {
+				return CommandRegistry.Get<Harvest>("harvest").Construct(harvestable);
+			}
+
+			if (target is IDepositable depositable
+				&& Stored > 0) {
+				return CommandRegistry.Get<Deposit>("deposit").Construct(depositable);
+			}
+
+			if (target is IAttackable attackable && target.GetRelationship(owner) == Relationship.Hostile) {
+				return CommandRegistry.Get<Attack>("attack").Construct(attackable);
 			}
 
 			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);

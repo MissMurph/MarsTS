@@ -14,20 +14,20 @@ namespace MarsTS.Units {
 		private int damage;
 
 		[SerializeField]
-		private float cooldown;
-		private float currentCooldown;
+		protected float cooldown;
+		protected float currentCooldown;
 
 		[SerializeField]
 		private GameObject barrel;
 
 		public float Range { get { return sensor.Range; } }
 
-		private IAttackable target;
+		protected IAttackable target;
 
-		private ISelectable parent;
-		private EventAgent bus;
+		protected ISelectable parent;
+		protected EventAgent bus;
 
-		private AttackableSensor sensor;
+		protected AttackableSensor sensor;
 
 		private void Awake () {
 			parent = GetComponentInParent<ISelectable>();
@@ -37,7 +37,7 @@ namespace MarsTS.Units {
 			bus.AddListener<SensorUpdateEvent<IAttackable>>(OnSensorUpdate);
 		}
 
-		private void Update () {
+		protected virtual void Update () {
 			if (currentCooldown >= 0f) {
 				currentCooldown -= Time.deltaTime;
 			}

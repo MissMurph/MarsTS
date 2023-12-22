@@ -42,6 +42,7 @@ namespace MarsTS.Vision {
 				int sneakMask = owner.VisionMask;
 
 				foreach (ISelectable unit in stealthSensor.InRange) {
+					if (unit.UnitType == "pumpjack") continue;
 					sneakMask |= unit.Owner.VisionMask;
 				}
 

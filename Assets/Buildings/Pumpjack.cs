@@ -44,22 +44,28 @@ namespace MarsTS.Buildings {
 		private float cooldown;
 		private float currentCooldown;
 
+		private GameObject oilDetector;
+
 		protected override void Awake () {
 			base.Awake();
 
 			cooldown = 1f / harvestRate;
 			harvestAmount = (int)(harvestRate * cooldown);
 			currentCooldown = cooldown;
+
+			oilDetector = transform.Find("OilCollider").gameObject;
+			oilDetector.SetActive(false);
 		}
 
 		protected override void Start () {
 			base.Start();
 
 			bus.AddListener<PumpjackExploitInitEvent>(OnExploitInit);
+			bus.AddListener<EntityInitEvent>(OnEntityInit);
 		}
 
 		protected virtual void Update () {
-			if (Constructed) {
+			if (Constructed && exploited != null) {
 				currentCooldown -= Time.deltaTime;
 
 				if (currentCooldown <= 0) {
@@ -69,6 +75,10 @@ namespace MarsTS.Buildings {
 					currentCooldown += cooldown;
 				}
 			}
+		}
+
+		private void OnEntityInit (EntityInitEvent _event) {
+			oilDetector.SetActive(true);
 		}
 
 		private void OnExploitInit (PumpjackExploitInitEvent _event) {

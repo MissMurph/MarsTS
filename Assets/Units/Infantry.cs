@@ -1,11 +1,16 @@
+using MarsTS.Buildings;
 using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
+using MarsTS.World;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.Port;
+using UnityEngine.SocialPlatforms.Impl;
 using static UnityEngine.GraphicsBuffer;
 
 namespace MarsTS.Units {
@@ -37,94 +42,82 @@ namespace MarsTS.Units {
 		private float repairRate;
 
 		private int repairAmount;
-		protected float cooldown;
-		protected float currentCooldown;
+		protected float repairCooldown;
+		protected float currentRepairCooldown;
 
-		protected IAttackable AttackTarget {
-			get {
-				return attackTarget;
-			}
-			set {
-				if (attackTarget != null) {
-					EntityCache.TryGet(attackTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
-					oldAgent.RemoveListener<EntityDeathEvent>((_event) => AttackTarget = null);
-					oldAgent.RemoveListener<UnitVisibleEvent>((_event) => {
-						if (!_event.Visible) {
-							SetTarget(AttackTarget.GameObject.transform.position);
-							AttackTarget = null;
-						}
-					});
-				}
+		/*	Attacking	*/
 
-				attackTarget = value;
+		protected UnitReference<IAttackable> AttackTarget = new UnitReference<IAttackable>();
 
-				if (value != null) {
-					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
+		/*	Repairing	*/
 
-					agent.AddListener<EntityDeathEvent>((_event) => AttackTarget = null);
-					agent.AddListener<UnitVisibleEvent>((_event) => {
-						if (!_event.Visible) {
-							SetTarget(AttackTarget.GameObject.transform.position);
-							AttackTarget = null;
-						}
-					});
-				}
-			}
-		}
-
-		protected IAttackable attackTarget;
-
-		protected IAttackable RepairTarget {
-			get {
-				return repairTarget;
-			}
-			set {
-				if (repairTarget != null) {
-					EntityCache.TryGet(repairTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
-					oldAgent.RemoveListener<EntityDeathEvent>((_event) => repairTarget = null);
-				}
-
-				repairTarget = value;
-
-				if (value != null) {
-					AttackTarget = null;
-
-					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
-
-					agent.AddListener<EntityDeathEvent>((_event) => repairTarget = null);
-				}
-			}
-		}
-
-		protected IAttackable repairTarget;
+		protected UnitReference<IAttackable> RepairTarget = new UnitReference<IAttackable>();
 
 		protected AttackableSensor repairSensor;
+
+		/*	Harvesting	*/
+
+		protected UnitReference<IHarvestable> HarvestTarget = new UnitReference<IHarvestable>();
+
+		private HarvestSensor harvestableDetector;
+
+		//This is how many units per second are harvested
+		[SerializeField]
+		private float harvestRate;
+
+		private int harvestAmount;
+		private float harvestCooldown;
+		private float currentHarvestCooldown;
+
+		/*	Depositing	*/
+
+		protected UnitReference<IDepositable> DepositTarget = new UnitReference<IDepositable>();
+
+		protected DepositSensor depositableDetector;
+
+		[SerializeField]
+		protected float depositRate;
+
+		protected int depositAmount;
+		protected float depositCooldown;
+		protected float currentDepositCooldown;
 
 		protected override void Awake () {
 			base.Awake();
 
 			ground = GetComponent<GroundDetection>();
 			equippedWeapon = GetComponentInChildren<ProjectileTurret>();
-			repairSensor = transform.Find("RepairRange").GetComponent<AttackableSensor>();
+			repairSensor = transform.Find("InteractRange").GetComponent<AttackableSensor>();
+			harvestableDetector = repairSensor.GetComponent<HarvestSensor>();
+			depositableDetector = repairSensor.GetComponent<DepositSensor>();
 
 			currentSpeed = moveSpeed;
 			isSelected = false;
 
-			cooldown = 1f / repairRate;
-			repairAmount = Mathf.RoundToInt(repairRate * cooldown);
-			currentCooldown = cooldown;
+			repairCooldown = 1f / repairRate;
+			repairAmount = Mathf.RoundToInt(repairRate * repairCooldown);
+			currentRepairCooldown = repairCooldown;
+
+			harvestCooldown = 1f / harvestRate;
+			harvestAmount = Mathf.RoundToInt(harvestRate * harvestCooldown);
+			currentHarvestCooldown = harvestCooldown;
+
+			depositCooldown = 1f / depositRate;
+			depositAmount = Mathf.RoundToInt(depositRate * depositCooldown);
+			currentDepositCooldown = depositCooldown;
 		}
 
 		protected override void Update () {
 			base.Update();
 
-			if (currentCooldown >= 0f) {
-				currentCooldown -= Time.deltaTime;
+			if (currentRepairCooldown >= 0f) {
+				currentRepairCooldown -= Time.deltaTime;
 			}
 			
-
-			if (attackTarget != null) {
-				if (equippedWeapon.IsInRange(AttackTarget)) {
+			//I'd like to move these all to commands, for now they'll remain here
+			//Will start devising a method to do so
+			if (AttackTarget.Get != null) {
+				if (equippedWeapon.IsInRange(AttackTarget.Get)) {
 					TrackedTarget = null;
 					currentPath = Path.Empty;
 				}
@@ -133,15 +126,45 @@ namespace MarsTS.Units {
 				}
 			}
 
-			if (repairTarget != null) {
-				if (repairSensor.IsDetected(RepairTarget)) {
+			if (RepairTarget.Get != null) {
+				if (repairSensor.IsDetected(RepairTarget.Get)) {
 					TrackedTarget = null;
 					currentPath = Path.Empty;
 
-					if (currentCooldown <= 0f) FireRepair();
+					if (currentRepairCooldown <= 0f) FireRepair();
 				}
 				else if (!ReferenceEquals(TrackedTarget, RepairTarget.GameObject.transform)) {
 					SetTarget(RepairTarget.GameObject.transform);
+				}
+			}
+
+			if (DepositTarget.Get != null) {
+				if (depositableDetector.IsDetected(DepositTarget.Get)) {
+					TrackedTarget = null;
+					currentPath = Path.Empty;
+
+					if (currentRepairCooldown <= 0f) DepositResources();
+
+					currentRepairCooldown -= Time.deltaTime;
+				}
+				else if (!ReferenceEquals(TrackedTarget, DepositTarget.GameObject.transform)) {
+					SetTarget(DepositTarget.GameObject.transform);
+				}
+
+				return;
+			}
+
+			if (HarvestTarget.Get != null) {
+				if (harvestableDetector.IsDetected(HarvestTarget.Get)) {
+					TrackedTarget = null;
+					currentPath = Path.Empty;
+
+					if (currentHarvestCooldown <= 0f) SiphonOil();
+
+					currentHarvestCooldown -= Time.deltaTime;
+				}
+				else if (!ReferenceEquals(TrackedTarget, HarvestTarget.GameObject.transform)) {
+					SetTarget(HarvestTarget.GameObject.transform);
 				}
 			}
 		}
@@ -180,6 +203,14 @@ namespace MarsTS.Units {
 					CurrentCommand = order;
 					Repair(order);
 					break;
+				case "harvest":
+					CurrentCommand = order;
+					Harvest(order);
+					break;
+				case "deposit":
+					CurrentCommand= order;
+					Deposit(order);
+					break;
 				default:
 					base.ProcessOrder(order);
 					break;
@@ -209,9 +240,11 @@ namespace MarsTS.Units {
 			commandQueue.Enqueue(order);
 		}
 
+		/*	Commands	*/
+
 		protected void Attack (Commandlet order) {
 			if (order is Commandlet<IAttackable> deserialized) {
-				AttackTarget = deserialized.Target;
+				AttackTarget.Set(deserialized.Target, deserialized.Target.GameObject);
 
 				EntityCache.TryGet(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
@@ -234,6 +267,50 @@ namespace MarsTS.Units {
 			bus.Local(new SneakEvent(bus, this, isSneaking));
 		}
 
+		protected void Repair (Commandlet order) {
+			if (order is Commandlet<IAttackable> deserialized) {
+				IAttackable unit = deserialized.Target;
+
+				if (unit.GetRelationship(owner) == Relationship.Owned || unit.GetRelationship(owner) == Relationship.Friendly) {
+					RepairTarget.Set(unit, unit.GameObject);
+
+					EntityCache.TryGet(RepairTarget.GameObject.transform.root.name, out EventAgent targetBus);
+
+					targetBus.AddListener<UnitHurtEvent>(OnTargetHealed);
+					targetBus.AddListener<EntityDeathEvent>(OnTargetDeath);
+
+					order.Callback.AddListener(RepairCancelled);
+				}
+			}
+		}
+
+		private void Harvest (Commandlet order) {
+			if (order is Commandlet<IHarvestable> deserialized) {
+				HarvestTarget.Set(deserialized.Target, deserialized.Target.GameObject);
+
+				bus.AddListener<ResourceHarvestedEvent>(OnExtraction);
+
+				EntityCache.TryGet(HarvestTarget.GameObject.transform.root.name, out EventAgent targetBus);
+
+				targetBus.AddListener<EntityDeathEvent>(OnDepositDepleted);
+
+				order.Callback.AddListener(HarvestCancelled);
+			}
+		}
+
+		private void Deposit (Commandlet order) {
+			if (order is Commandlet<IDepositable> deserialized) {
+				DepositTarget.Set(deserialized.Target, deserialized.Target.GameObject);
+				TrackedTarget = deserialized.Target.GameObject.transform;
+
+				bus.AddListener<HarvesterDepositEvent>(OnDeposit);
+
+				order.Callback.AddListener(DepositCancelled);
+			}
+		}
+
+		/*	Command Safety	*/
+
 		//Could potentially move these to the actual Command Classes
 		private void AttackCancelled (CommandCompleteEvent _event) {
 			//bus.RemoveListener<CommandCompleteEvent>(AttackCancelled);
@@ -243,7 +320,19 @@ namespace MarsTS.Units {
 
 				targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
 
-				AttackTarget = null;
+				AttackTarget.Set(null, null);
+				TrackedTarget = null;
+			}
+		}
+		private void RepairCancelled (CommandCompleteEvent _event) {
+			if (_event.Command is Commandlet<IAttackable> deserialized && _event.CommandCancelled) {
+				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
+
+				targetBus.RemoveListener<UnitHurtEvent>(OnTargetHealed);
+				targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+
+				RepairTarget.Set(null, null);
+				TrackedTarget = null;
 			}
 		}
 
@@ -263,34 +352,6 @@ namespace MarsTS.Units {
 			Stop();
 		}
 
-		protected void Repair (Commandlet order) {
-			if (order is Commandlet<IAttackable> deserialized) {
-				IAttackable unit = deserialized.Target;
-
-				if (unit.GetRelationship(owner) == Relationship.Owned || unit.GetRelationship(owner) == Relationship.Friendly) {
-					RepairTarget = unit;
-
-					EntityCache.TryGet(RepairTarget.GameObject.transform.root.name, out EventAgent targetBus);
-
-					targetBus.AddListener<UnitHurtEvent>(OnTargetHealed);
-					targetBus.AddListener<EntityDeathEvent>(OnTargetDeath);
-
-					order.Callback.AddListener(RepairCancelled);
-				}
-			}
-		}
-
-		private void RepairCancelled (CommandCompleteEvent _event) {
-			if (_event.Command is Commandlet<IAttackable> deserialized && _event.CommandCancelled) {
-				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
-
-				targetBus.RemoveListener<UnitHurtEvent>(OnTargetHealed);
-				targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
-
-				RepairTarget = null;
-			}
-		}
-
 		//Could potentially move these to the actual Command Classes
 		private void OnTargetHealed (UnitHurtEvent _event) {
 			if (_event.Targetable.Health >= _event.Targetable.MaxHealth) {
@@ -305,13 +366,97 @@ namespace MarsTS.Units {
 				bus.Global(newEvent);
 
 				CurrentCommand = null;
-				RepairTarget = null;
+				RepairTarget.Set(null, null);
 			}
 		}
 
+		private void OnExtraction (ResourceHarvestedEvent _event) {
+			if (squad.Stored >= squad.Capacity) {
+				bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
+
+				EntityCache.TryGet(_event.Deposit.GameObject.transform.root.name, out EventAgent targetBus);
+
+				targetBus.RemoveListener<EntityDeathEvent>(OnDepositDepleted);
+
+				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+
+				CurrentCommand.Callback.Invoke(newEvent);
+
+				bus.Global(newEvent);
+
+				CurrentCommand = null;
+			}
+		}
+
+		private void OnDeposit (HarvesterDepositEvent _event) {
+			if (squad.Stored <= 0) {
+				bus.RemoveListener<HarvesterDepositEvent>(OnDeposit);
+
+				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+
+				CurrentCommand.Callback.Invoke(newEvent);
+
+				bus.Global(newEvent);
+
+				CurrentCommand = null;
+
+				DepositTarget.Set(null, null);
+				TrackedTarget = null;
+			}
+		}
+
+		private void OnDepositDepleted (EntityDeathEvent _event) {
+			bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
+
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+
+			CurrentCommand.Callback.Invoke(newEvent);
+
+			bus.Global(newEvent);
+
+			CurrentCommand = null;
+		}
+
+		private void HarvestCancelled (CommandCompleteEvent _event) {
+			if (_event.Command is Commandlet<IHarvestable> deserialized && _event.CommandCancelled) {
+				bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
+
+				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
+
+				targetBus.RemoveListener<EntityDeathEvent>(OnDepositDepleted);
+
+				HarvestTarget.Set(null, null);
+				DepositTarget.Set(null, null);
+			}
+		}
+
+		private void DepositCancelled (CommandCompleteEvent _event) {
+			if (_event.Command is Commandlet<IDepositable> deserialized && _event.CommandCancelled) {
+				bus.RemoveListener<HarvesterDepositEvent>(OnDeposit);
+
+				DepositTarget.Set(null, null);
+				HarvestTarget.Set(null, null);
+			}
+		}
+
+		/*	Interactions	*/
+
 		private void FireRepair () {
-			RepairTarget.Attack(-repairAmount);
-			currentCooldown += cooldown;
+			RepairTarget.Get.Attack(-repairAmount);
+			currentRepairCooldown += repairCooldown;
+		}
+
+		private void SiphonOil () {
+			int harvested = HarvestTarget.Get.Harvest("oil", this, harvestAmount, squad.storageComp.Submit);
+			bus.Global(new ResourceHarvestedEvent(bus, HarvestTarget.Get, this, ResourceHarvestedEvent.Side.Harvester, harvested, "oil", squad.Stored, squad.Capacity));
+
+			currentHarvestCooldown += harvestCooldown;
+		}
+
+		private void DepositResources () {
+			squad.storageComp.Consume(DepositTarget.Get.Deposit("oil", depositAmount));
+			bus.Global(new HarvesterDepositEvent(bus, this, HarvesterDepositEvent.Side.Harvester, squad.Stored, squad.Capacity, DepositTarget.Get));
+			currentDepositCooldown += depositCooldown;
 		}
 
 		public override void Select (bool status) {

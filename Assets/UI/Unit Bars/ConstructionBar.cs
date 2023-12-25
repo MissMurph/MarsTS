@@ -18,7 +18,7 @@ namespace MarsTS.UI {
 
 				GetComponentInParent<EventAgent>().AddListener<UnitHurtEvent>((_event) => {
 					FillLevel = (float)_event.Targetable.Health / _event.Targetable.MaxHealth;
-					if (FillLevel >= 1f) Destroy(gameObject);
+					if (FillLevel >= 1f) gameObject.SetActive(false);
 				});
 			}
 			else {

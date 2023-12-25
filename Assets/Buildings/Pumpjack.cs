@@ -16,12 +16,6 @@ namespace MarsTS.Buildings {
 
 	public class Pumpjack : Building, IHarvestable {
 
-		/*	ICommandable Properties	*/
-
-		public override Commandlet CurrentCommand => null;
-
-		public override Commandlet[] CommandQueue => null;
-
 		/*	IHarvestable Properties	*/
 
 		public int OriginalAmount { get { return capacity; } }
@@ -64,7 +58,9 @@ namespace MarsTS.Buildings {
 			bus.AddListener<EntityInitEvent>(OnEntityInit);
 		}
 
-		protected virtual void Update () {
+		protected override void Update () {
+			base.Update();
+
 			if (Constructed && exploited != null) {
 				currentCooldown -= Time.deltaTime;
 

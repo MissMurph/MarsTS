@@ -141,7 +141,7 @@ namespace MarsTS.UI {
 			currentUnit = unit;
 
 			if (current != null) {
-				currentProdIcon.sprite = current.Unit.Icon;
+				currentProdIcon.sprite = current.Command.Icon;
 				currentProdIcon.transform.parent.gameObject.SetActive(true);
 				productionProgress.SetActive(true);
 
@@ -152,7 +152,7 @@ namespace MarsTS.UI {
 
 				for (int i = 0; i < orders; i++) {
 					if (i < queueIcons.Length) {
-						queueIcons[i].sprite = queue[i].Unit.Icon;
+						queueIcons[i].sprite = queue[i].Command.Icon;
 						queueObjects[i].SetActive(true);
 					}
 					else {

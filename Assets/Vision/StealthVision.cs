@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace MarsTS.Vision {
 
-    public class RoughneckVision : EntityVision {
+    public class StealthVision : EntityVision {
 
         private SelectableSensor stealthSensor;
 

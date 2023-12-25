@@ -19,16 +19,16 @@ namespace MarsTS.Commands {
 		public override string Description { get { return description; } }
 
 		[SerializeField]
-		private string description;
+		protected string description;
 
 		[SerializeField]
-		private GameObject prefab;
+		protected GameObject prefab;
 
 		[SerializeField]
-		private int timeRequired;
+		protected int timeRequired;
 
 		[SerializeField]
-		private CostEntry[] cost;
+		protected CostEntry[] cost;
 
 		private ISelectable unit;
 
@@ -56,7 +56,7 @@ namespace MarsTS.Commands {
 		}
 
 		public override Commandlet Construct (GameObject _target) {
-			return new ProductionCommandlet("produce", _target, Player.Main, timeRequired, prefab, unit, cost);
+			return new ProductionCommandlet("produce", _target, timeRequired, cost);
 		}
 
 		public override CostEntry[] GetCost () {
@@ -84,15 +84,11 @@ namespace MarsTS.Commands {
 
 		public int ProductionRequired { get; private set; }
 		public int ProductionProgress { get; set; }
-		public ISelectable Unit { get; private set; }
-		public GameObject Prefab { get; private set; }
 		public Dictionary<string, int> Cost { get; private set; }
 
-		public ProductionCommandlet (string name, GameObject target, Faction commander, int timeRequired, GameObject prefab, ISelectable unit, CostEntry[] cost) : base(name, target, commander) {
+		public ProductionCommandlet (string name, GameObject prefab, int timeRequired, CostEntry[] cost) : base(name, prefab, Player.Main) {
 			ProductionRequired = timeRequired;
 			ProductionProgress = 0;
-			Prefab = prefab;
-			Unit = unit;
 
 			Cost = new Dictionary<string, int>();
 

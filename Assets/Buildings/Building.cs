@@ -57,9 +57,11 @@ namespace MarsTS.Buildings {
 
 		/*	ICommandable Properties	*/
 
-		public abstract Commandlet CurrentCommand { get; }
+		public Commandlet CurrentCommand { get; protected set; }
 
-		public abstract Commandlet[] CommandQueue { get; }
+		public Commandlet[] CommandQueue { get { return commandQueue.ToArray(); } }
+
+		protected Queue<Commandlet> commandQueue = new Queue<Commandlet>();
 
 		[SerializeField]
 		private string[] boundCommands;
@@ -92,6 +94,14 @@ namespace MarsTS.Buildings {
 
 		public CostEntry[] ConstructionCost { get { return constructionCost; } }
 
+		/*	Upgrades	*/
+
+		//How many steps will occur per second
+		[SerializeField]
+		protected float productionSpeed;
+		protected float stepTime;
+		protected float timeToStep;
+
 		public string RegistryType => "building";
 
 		private Entity entityComponent;
@@ -102,8 +112,6 @@ namespace MarsTS.Buildings {
 
 		[SerializeField]
 		private GameObject[] visionObjects;
-
-		private GameObject currentVisionObject;
 
 		protected virtual void Awake () {
 			selectionCircle = transform.Find("SelectionCircle").gameObject;
@@ -120,6 +128,9 @@ namespace MarsTS.Buildings {
 				Health = maxHealth * (int) (currentWork / constructionWork);
 			}
 			else model.localScale = Vector3.zero;
+
+			stepTime = 1f / productionSpeed;
+			timeToStep = stepTime;
 		}
 
 		protected virtual void Start () {
@@ -128,6 +139,34 @@ namespace MarsTS.Buildings {
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 			EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
 			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
+		}
+
+		protected virtual void Update () {
+			UpdateQueue();
+
+			if (CurrentCommand != null && CurrentCommand is ProductionCommandlet production && production.Name == "upgrade") {
+				timeToStep -= Time.deltaTime;
+
+				if (timeToStep <= 0) {
+					production.ProductionProgress++;
+
+					if (production.ProductionProgress >= production.ProductionRequired) {
+						Upgrade(production);
+					}
+					else bus.Global(ProductionEvent.Step(bus, this));
+
+					timeToStep += stepTime;
+				}
+			}
+		}
+
+		protected void UpdateQueue () {
+			if (CurrentCommand is null && commandQueue.TryDequeue(out Commandlet order)) {
+
+				CurrentCommand = order;
+
+				bus.Global(ProductionEvent.Started(bus, this));
+			}
 		}
 
 		private void OnVisionInit (VisionInitEvent _event) {
@@ -150,6 +189,13 @@ namespace MarsTS.Buildings {
 			}
 		}
 
+		protected virtual void Upgrade (Commandlet order) {
+			ProductionCommandlet production = order as ProductionCommandlet;
+			Instantiate(production.Target, transform, false);
+			CurrentCommand = null;
+			bus.Global(new ProductionCompleteEvent(bus, production.Target, this));
+		}
+
 		public string[] Commands () {
 			if (!Constructed) {
 				return new string[] { "cancelConstruction" };
@@ -157,15 +203,29 @@ namespace MarsTS.Buildings {
 			else return boundCommands;
 		}
 
-		public abstract void Enqueue (Commandlet order);
+		public virtual void Enqueue (Commandlet order) {
+			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 
-		public abstract void Execute (Commandlet order);
+			Execute(order);
+		}
+
+		public virtual void Execute (Commandlet order) {
+			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
+
+			if (order.Name == "upgrade") {
+				commandQueue.Enqueue(order);
+				bus.Global(ProductionEvent.Queued(bus, this));
+				return;
+			}
+
+			ProcessOrder(order);
+		}
 
 		protected virtual void ProcessOrder (Commandlet order) {
 			switch (order.Name) {
 				case "cancelConstruction":
-				CancelConstruction();
-				break;
+					CancelConstruction();
+					break;
 				default:
 				break;
 			}
@@ -242,6 +302,10 @@ namespace MarsTS.Buildings {
 			if (ReferenceEquals(_event.Unit, this)) {
 				HealthInfo info = _event.Info.Module<HealthInfo>("health");
 				info.CurrentUnit = this;
+
+				if (commandQueue.Count > 0) {
+					_event.Info.Module<ProductionQueue>("productionQueue").SetQueue(this, CurrentCommand as ProductionCommandlet, commandQueue.ToArray() as ProductionCommandlet[]);
+				}
 			}
 		}
 

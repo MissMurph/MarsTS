@@ -18,7 +18,7 @@ namespace MarsTS.Units {
 		protected float currentCooldown;
 
 		[SerializeField]
-		private GameObject barrel;
+		protected GameObject barrel;
 
 		public float Range { get { return sensor.Range; } }
 
@@ -29,7 +29,7 @@ namespace MarsTS.Units {
 
 		protected AttackableSensor sensor;
 
-		private void Awake () {
+		protected virtual void Awake () {
 			parent = GetComponentInParent<ISelectable>();
 			bus = GetComponentInParent<EventAgent>();
 			sensor = GetComponent<AttackableSensor>();

@@ -14,7 +14,9 @@ namespace MarsTS.Units {
 		[Header("Movement")]
 
 		[SerializeField]
-		private float topSpeed;
+		protected float topSpeed;
+
+		protected float currentTopSpeed;
 
 		[SerializeField]
 		private float acceleration;
@@ -77,6 +79,8 @@ namespace MarsTS.Units {
 
 			ground = GetComponent<GroundDetection>();
 
+			currentTopSpeed = topSpeed;
+
 			foreach (ProjectileTurret turret in GetComponentsInChildren<ProjectileTurret>()) {
 				registeredTurrets.TryAdd(turret.name, turret);
 			}
@@ -115,7 +119,7 @@ namespace MarsTS.Units {
 					adjustedVelocity *= currentVelocity.magnitude;
 
 					if (Vector3.Angle(targetDirection, transform.forward) <= angleTolerance) {
-						float accelCap = 1f - (velocity / (topSpeed * topSpeed));
+						float accelCap = 1f - (velocity / (currentTopSpeed * currentTopSpeed));
 
 						//This moves the velocity according to the rotation of the unit
 						body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
@@ -124,9 +128,9 @@ namespace MarsTS.Units {
 						body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
 					}
 
-					if (velocity > topSpeed * topSpeed) {
+					if (velocity > currentTopSpeed * currentTopSpeed) {
 						Vector3 direction = body.velocity.normalized;
-						direction *= topSpeed;
+						direction *= currentTopSpeed;
 						body.velocity = direction;
 					}
 				}

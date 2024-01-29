@@ -7,7 +7,10 @@ using UnityEngine;
 namespace MarsTS.Commands {
 
 	public class Deploy : Command {
-		public override string Name { get { return "deploy"; } }
+		public override string Name { get { return commandName; } }
+
+		[SerializeField]
+		private string commandName;
 
 		public override Type TargetType { get { return typeof(bool); } }
 
@@ -17,7 +20,7 @@ namespace MarsTS.Commands {
 		private string description;
 
 		public override void StartSelection () {
-			Player.Main.DeliverCommand(new Commandlet<bool>(Name, true, Player.Main), true);
+			Player.Main.DeliverCommand(new Commandlet<bool>(Name, true, Player.Main), Player.Include);
 		}
 
 		public override CostEntry[] GetCost () {

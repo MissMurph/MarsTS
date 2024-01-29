@@ -16,6 +16,7 @@ namespace MarsTS.Units {
 		[SerializeField]
 		protected float topSpeed;
 
+		[SerializeField]
 		protected float currentTopSpeed;
 
 		[SerializeField]

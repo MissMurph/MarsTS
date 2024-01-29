@@ -28,18 +28,21 @@ namespace MarsTS.Units {
 		}
 
 		protected override void FixedUpdate () {
-			base.FixedUpdate();
+			if (!deployed) base.FixedUpdate();
 		}
 
 		private void Deploy () {
 			if (deployed) {
-				currentTopSpeed = 0f;
-				deployed = true;
-			}
-			else {
 				currentTopSpeed = topSpeed;
 				deployed = false;
 			}
+			else {
+				currentTopSpeed = 0f;
+				body.velocity = Vector3.zero;
+				deployed = true;
+			}
+
+			bus.Local(new DeployEvent(bus, this, deployed));
 		}
 
 		public override void Execute (Commandlet order) {

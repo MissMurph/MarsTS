@@ -29,7 +29,13 @@ namespace MarsTS.Units {
 
 		protected override void Update () {
 			if (isDeployed) base.Update();
-			else barrel.transform.localRotation = startingPos;
+			else {
+				barrel.transform.localRotation = startingPos;
+
+				if (currentCooldown >= 0f) {
+					currentCooldown -= Time.deltaTime;
+				}
+			}
 		}
 
 		private void OnDeploy (DeployEvent _event) {

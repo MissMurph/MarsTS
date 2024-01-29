@@ -230,7 +230,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11d8260000c29334d825c08fdc87a6d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 250
+  maxHealth: 300
   currentHealth: 0
   icon: {fileID: 21300000, guid: 8fb8be3b4f3cda64689a1769771fca53, type: 3}
   type: flattank
@@ -246,6 +246,7 @@ MonoBehaviour:
   - {fileID: 3301224272326716992}
   - {fileID: 8554739113565525387}
   topSpeed: 10
+  currentTopSpeed: 0
   acceleration: 800
   turnSpeed: 35
   angleTolerance: 45

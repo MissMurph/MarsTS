@@ -12,6 +12,7 @@ using UnityEngine;
 using static UnityEditor.Experimental.GraphView.Port;
 using UnityEngine.SocialPlatforms.Impl;
 using static UnityEngine.GraphicsBuffer;
+using UnityEditor.PackageManager;
 
 namespace MarsTS.Units {
 
@@ -190,34 +191,30 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected override void ProcessOrder (Commandlet order) {
-			switch (order.Name) {
+		protected override void ExecuteOrder (CommandStartEvent _event) {
+			switch (_event.Command.Name) {
 				case "sneak":
 					Sneak();
 					break;
 				case "attack":
-					CurrentCommand = order;
-					Attack(order);
+					Attack(_event.Command);
 					break;
 				case "repair":
-					CurrentCommand = order;
-					Repair(order);
+					Repair(_event.Command);
 					break;
 				case "harvest":
-					CurrentCommand = order;
-					Harvest(order);
+					Harvest(_event.Command);
 					break;
 				case "deposit":
-					CurrentCommand= order;
-					Deposit(order);
+					Deposit(_event.Command);
 					break;
 				default:
-					base.ProcessOrder(order);
+					base.ExecuteOrder(_event);
 					break;
 			}
 		}
 
-		public override void Execute (Commandlet order) {
+		public override void Order (Commandlet order, bool inclusive) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 
 			if (order.Name == "sneak") {
@@ -225,19 +222,25 @@ namespace MarsTS.Units {
 				return;
 			}
 
-			commandQueue.Clear();
-
-			currentPath = Path.Empty;
-			TrackedTarget = null;
-
-			if (CurrentCommand != null) {
-				CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, true, this);
-				CurrentCommand.Callback.Invoke(_event);
-				bus.Global(_event);
+			switch (order.Name) {
+				case "sneak":
+					commands.Activate(order);
+					return;
+				case "attack":
+					break;
+				case "repair":
+					break;
+				case "harvest":
+					break;
+				case "deposit":
+					break;
+				default:
+					base.Order(order, inclusive);
+					return;
 			}
 
-			CurrentCommand = null;
-			commandQueue.Enqueue(order);
+			if (inclusive) commands.Enqueue(order);
+			else commands.Execute(order);
 		}
 
 		/*	Commands	*/
@@ -345,10 +348,6 @@ namespace MarsTS.Units {
 
 			CurrentCommand.Callback.Invoke(newEvent);
 
-			bus.Global(newEvent);
-
-			CurrentCommand = null;
-
 			Stop();
 		}
 
@@ -362,10 +361,6 @@ namespace MarsTS.Units {
 				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
 				CurrentCommand.Callback.Invoke(newEvent);
-
-				bus.Global(newEvent);
-
-				CurrentCommand = null;
 				RepairTarget.Set(null, null);
 			}
 		}
@@ -381,10 +376,6 @@ namespace MarsTS.Units {
 				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
 				CurrentCommand.Callback.Invoke(newEvent);
-
-				bus.Global(newEvent);
-
-				CurrentCommand = null;
 			}
 		}
 
@@ -395,10 +386,6 @@ namespace MarsTS.Units {
 				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
 				CurrentCommand.Callback.Invoke(newEvent);
-
-				bus.Global(newEvent);
-
-				CurrentCommand = null;
 
 				DepositTarget.Set(null, null);
 				TrackedTarget = null;
@@ -411,10 +398,6 @@ namespace MarsTS.Units {
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
 			CurrentCommand.Callback.Invoke(newEvent);
-
-			bus.Global(newEvent);
-
-			CurrentCommand = null;
 		}
 
 		private void HarvestCancelled (CommandCompleteEvent _event) {

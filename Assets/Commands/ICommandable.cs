@@ -9,8 +9,7 @@ namespace MarsTS.Commands {
 		GameObject GameObject { get; }
 		Commandlet CurrentCommand { get; }
 		Commandlet[] CommandQueue { get; }
-		void Enqueue (Commandlet order);
-		void Execute (Commandlet order);
+		void Order (Commandlet order, bool inclusive);
 		Command Evaluate (ISelectable target);
 		Commandlet Auto (ISelectable target);
 		string[] Commands ();

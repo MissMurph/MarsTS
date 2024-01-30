@@ -191,13 +191,7 @@ namespace MarsTS.Units {
 			}*/
 
 			foreach (Infantry unit in members) {
-				unit.Execute(order);
-			}
-		}
-
-		protected virtual void DistributeOrder (Commandlet order) {
-			foreach (Infantry unit in members) {
-				unit.Execute(order);
+				unit.Order(order, false);
 			}
 		}
 
@@ -205,14 +199,10 @@ namespace MarsTS.Units {
 			return boundCommands;
 		}
 
-		public void Enqueue (Commandlet order) {
+		public void Order (Commandlet order, bool inclusive) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
-			commandQueue.Enqueue(order);
-		}
 
-		public void Execute (Commandlet order) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
-			commandQueue.Clear();
+			if (!inclusive) commandQueue.Clear();
 
 			/*if (CurrentCommand != null) {
 				CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, true, this);

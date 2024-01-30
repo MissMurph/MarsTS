@@ -572,6 +572,7 @@ GameObject:
   - component: {fileID: 5456957795722013601}
   - component: {fileID: 1897545057432171859}
   - component: {fileID: 6522401961797229150}
+  - component: {fileID: 8236913360440907497}
   m_Layer: 0
   m_Name: harvester
   m_TagString: Untagged
@@ -713,6 +714,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7443c4268b6722747b288e6367aee14f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8236913360440907497
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3758000306492427157}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 866af88a2db170c42a48b68ed236afd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &3758000306654263273

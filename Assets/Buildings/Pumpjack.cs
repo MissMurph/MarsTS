@@ -86,11 +86,7 @@ namespace MarsTS.Buildings {
 			return resourceKey == "oil" && (unit.Owner == Owner || unit.UnitType == "roughneck");
 		}
 
-		public override void Enqueue (Commandlet order) {
-			Execute(order);
-		}
-
-		public override void Execute (Commandlet order) {
+		public override void Order (Commandlet order, bool inclusive) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 
 			if (!Constructed) ProcessOrder(order);

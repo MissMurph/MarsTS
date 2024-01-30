@@ -397,6 +397,7 @@ GameObject:
   - component: {fileID: 6945863160223434669}
   - component: {fileID: 2855321176159231924}
   - component: {fileID: 7946026259015385907}
+  - component: {fileID: 3606357447327319206}
   m_Layer: 0
   m_Name: scoutcar
   m_TagString: Unit
@@ -524,6 +525,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7443c4268b6722747b288e6367aee14f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3606357447327319206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5910861939855668350}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 866af88a2db170c42a48b68ed236afd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &5910861940876086822

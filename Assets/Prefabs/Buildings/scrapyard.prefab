@@ -157,6 +157,8 @@ GameObject:
   - component: {fileID: 4367344837201828850}
   - component: {fileID: 6071260427580417810}
   - component: {fileID: 5840463531384133451}
+  - component: {fileID: 4260115086938966548}
+  - component: {fileID: 4753157223906513630}
   m_Layer: 0
   m_Name: scrapyard
   m_TagString: Untagged
@@ -238,12 +240,12 @@ MonoBehaviour:
   constructionCost:
   - key: resource_unit
     amount: 2000
+  productionSpeed: 5
   visionObjects:
   - {fileID: 8926580804881163808}
   - {fileID: 4367344839216842102}
   - {fileID: 4367344837301277131}
   - {fileID: 3877310407130595527}
-  productionSpeed: 5
   rallyCommands: []
   queueInfo: {fileID: 0}
 --- !u!54 &6071260427580417810
@@ -275,6 +277,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visionRange: 20
+--- !u!114 &4260115086938966548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4367344837201828623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 866af88a2db170c42a48b68ed236afd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4753157223906513630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4367344837201828623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ec1573b00b570e41bd9eb6c4e1bb97d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4367344837301277131
 GameObject:
   m_ObjectHideFlags: 0

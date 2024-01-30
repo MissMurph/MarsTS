@@ -148,14 +148,13 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected override void ProcessOrder (Commandlet order) {
-			switch (order.Name) {
+		protected override void ExecuteOrder (CommandStartEvent _event) {
+			switch (_event.Command.Name) {
 				case "attack":
-					CurrentCommand = order;
-					Attack(order);
+					Attack(_event.Command);
 					break;
 				default:
-					base.ProcessOrder(order);
+					base.ExecuteOrder(_event);
 					break;
 			}
 		}
@@ -190,10 +189,6 @@ namespace MarsTS.Units {
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
 			CurrentCommand.Callback.Invoke(newEvent);
-
-			bus.Global(newEvent);
-
-			CurrentCommand = null;
 		}
 
 		public override Command Evaluate (ISelectable target) {

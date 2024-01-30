@@ -203,13 +203,7 @@ namespace MarsTS.Buildings {
 			else return boundCommands;
 		}
 
-		public virtual void Enqueue (Commandlet order) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
-
-			Execute(order);
-		}
-
-		public virtual void Execute (Commandlet order) {
+		public virtual void Order (Commandlet order, bool inclusive) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 
 			if (order.Name == "upgrade") {
@@ -304,7 +298,7 @@ namespace MarsTS.Buildings {
 				info.CurrentUnit = this;
 
 				if (commandQueue.Count > 0) {
-					_event.Info.Module<ProductionQueue>("productionQueue").SetQueue(this, CurrentCommand as ProductionCommandlet, commandQueue.ToArray() as ProductionCommandlet[]);
+					_event.Info.Module<ProductionInfo>("productionQueue").SetQueue(this, CurrentCommand as ProductionCommandlet, commandQueue.ToArray() as ProductionCommandlet[]);
 				}
 			}
 		}

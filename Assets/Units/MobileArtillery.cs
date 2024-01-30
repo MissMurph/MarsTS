@@ -12,26 +12,11 @@ namespace MarsTS.Units {
 
 		private bool deployed = false;
 
-		protected override void ProcessOrder (Commandlet order) {
-			switch (order.Name) {
-				case "attack":
-					CurrentCommand = order;
-					Attack(order);
-					break;
-				case "deploy":
-					Deploy();
-					break;
-				default:
-					base.ProcessOrder(order);
-					break;
-			}
-		}
-
 		protected override void FixedUpdate () {
 			if (!deployed) base.FixedUpdate();
 		}
 
-		private void Deploy () {
+		private void Deploy (Commandlet order) {
 			if (deployed) {
 				currentTopSpeed = topSpeed;
 				deployed = false;
@@ -45,27 +30,33 @@ namespace MarsTS.Units {
 			bus.Local(new DeployEvent(bus, this, deployed));
 		}
 
-		public override void Execute (Commandlet order) {
+		protected override void ExecuteOrder (CommandStartEvent _event) {
+			switch (_event.Command.Name) {
+				case "attack":
+				Attack(_event.Command);
+				break;
+				case "deploy":
+				Deploy(_event.Command);
+				break;
+				default:
+				base.ExecuteOrder(_event);
+				break;
+			}
+		}
+
+		public override void Order (Commandlet order, bool inclusive) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 
-			if (order.Name == "deploy") {
-				Deploy();
-				return;
+			switch (order.Name) {
+				case "deploy":
+					break;
+				default:
+					base.Order(order, inclusive);
+					return;
 			}
 
-			commandQueue.Clear();
-
-			currentPath = Path.Empty;
-			TrackedTarget = null;
-
-			if (CurrentCommand != null) {
-				CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, true, this);
-				CurrentCommand.Callback.Invoke(_event);
-				bus.Global(_event);
-			}
-
-			CurrentCommand = null;
-			commandQueue.Enqueue(order);
+			if (inclusive) commands.Enqueue(order);
+			else commands.Execute(order);
 		}
 	}
 }

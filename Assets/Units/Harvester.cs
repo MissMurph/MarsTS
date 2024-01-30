@@ -191,18 +191,16 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected override void ProcessOrder (Commandlet order) {
-			switch (order.Name) {
+		protected override void ExecuteOrder (CommandStartEvent _event) {
+			switch (_event.Command.Name) {
 				case "harvest":
-					CurrentCommand = order;
-					Harvest(order);
+					Harvest(_event.Command);
 					break;
 				case "deposit":
-					CurrentCommand = order; 
-					Deposit(order);
+					Deposit(_event.Command);
 					break;
 				default:
-					base.ProcessOrder(order);
+					base.ExecuteOrder(_event);
 					break;
 			}
 		}
@@ -250,14 +248,10 @@ namespace MarsTS.Units {
 
 				CurrentCommand.Callback.Invoke(newEvent);
 
-				bus.Global(newEvent);
-
-				CurrentCommand = null;
-
 				DepositTarget = null;
 				TrackedTarget = null;
 
-				if (HarvestTarget != null) Enqueue(CommandRegistry.Get<Harvest>("harvest").Construct(HarvestTarget));
+				//if (HarvestTarget != null) Order(CommandRegistry.Get<Harvest>("harvest").Construct(HarvestTarget));
 			}
 		}
 
@@ -274,7 +268,10 @@ namespace MarsTS.Units {
 			}
 
 			if (closestBank != null) {
-				Execute(CommandRegistry.Get<Deposit>("deposit").Construct(closestBank));
+				DepositTarget = closestBank;
+				TrackedTarget = DepositTarget.GameObject.transform;
+
+				bus.AddListener<HarvesterDepositEvent>(OnDeposit);
 			}
 		}
 
@@ -291,10 +288,6 @@ namespace MarsTS.Units {
 
 				CurrentCommand.Callback.Invoke(newEvent);
 
-				bus.Global(newEvent);
-
-				CurrentCommand = null;
-
 				FindDepositable();
 			}
 		}
@@ -305,10 +298,6 @@ namespace MarsTS.Units {
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
 			CurrentCommand.Callback.Invoke(newEvent);
-
-			bus.Global(newEvent);
-
-			CurrentCommand = null;
 		}
 
 		private void HarvestCancelled (CommandCompleteEvent _event) {

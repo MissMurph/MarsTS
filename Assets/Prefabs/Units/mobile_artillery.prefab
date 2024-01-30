@@ -311,6 +311,7 @@ GameObject:
   - component: {fileID: 1214473942047108563}
   - component: {fileID: 5525253249239655198}
   - component: {fileID: 5738421268432317307}
+  - component: {fileID: 669137645337638381}
   m_Layer: 0
   m_Name: mobile_artillery
   m_TagString: Unit
@@ -438,6 +439,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7443c4268b6722747b288e6367aee14f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &669137645337638381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1214473942990757588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 866af88a2db170c42a48b68ed236afd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1548256937297088197

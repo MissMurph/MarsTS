@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace MarsTS.UI {
 
-    public class ProductionQueue : MonoBehaviour, IInfoModule {
+    public class ProductionInfo : MonoBehaviour, IInfoModule {
 
 		public int CurrentProduction {
 			get {

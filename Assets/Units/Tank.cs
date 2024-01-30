@@ -1,6 +1,7 @@
 using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
+using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.World;
 using System.Collections;
@@ -141,14 +142,28 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected override void ProcessOrder (Commandlet order) {
+		public override void Order (Commandlet order, bool inclusive) {
+			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
+
 			switch (order.Name) {
 				case "attack":
-					CurrentCommand = order;
-					Attack(order);
 					break;
 				default:
-					base.ProcessOrder(order);
+					base.Order(order, inclusive);
+					return;
+			}
+
+			if (inclusive) commands.Enqueue(order);
+			else commands.Execute(order);
+		}
+
+		protected override void ExecuteOrder (CommandStartEvent _event) {
+			switch (_event.Command.Name) {
+				case "attack":
+					Attack(_event.Command);
+					break;
+				default:
+					base.ExecuteOrder(_event);
 					break;
 			}
 		}
@@ -193,9 +208,9 @@ namespace MarsTS.Units {
 
 			CurrentCommand.Callback.Invoke(newEvent);
 
-			bus.Global(newEvent);
+			
 
-			CurrentCommand = null;
+			//CurrentCommand = null;
 		}
 
 		public override Command Evaluate (ISelectable target) {

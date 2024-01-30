@@ -61,11 +61,13 @@ namespace MarsTS.Units {
 
 		/*	ICommandable Properties	*/
 
-		public Commandlet CurrentCommand { get; protected set; }
+		public Commandlet CurrentCommand { get { return commands.Current; } }
 
-		public Commandlet[] CommandQueue { get { return commandQueue.ToArray(); } }
+		public Commandlet[] CommandQueue { get { return commands.Queue; } }
 
-		protected Queue<Commandlet> commandQueue = new Queue<Commandlet>();
+		//protected Queue<Commandlet> commandQueue = new Queue<Commandlet>();
+
+		protected CommandQueue commands;
 
 		[SerializeField]
 		private string[] boundCommands;
@@ -125,6 +127,8 @@ namespace MarsTS.Units {
 			body = GetComponent<Rigidbody>();
 			entityComponent = GetComponent<Entity>();
 			bus = GetComponent<EventAgent>();
+			commands = GetComponent<CommandQueue>();
+
 			currentHealth = maxHealth;
 		}
 
@@ -134,6 +138,7 @@ namespace MarsTS.Units {
 			transform.Find("SelectionCircle").GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 
 			bus.AddListener<UnitVisibleEvent>(OnVisionUpdate);
+			bus.AddListener<CommandStartEvent>(ExecuteOrder);
 
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
@@ -148,7 +153,7 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void Update () {
-			UpdateCommands();
+			//UpdateCommands();
 
 			if (!currentPath.IsEmpty) {
 				Vector3 targetWaypoint = currentPath[pathIndex];
@@ -166,26 +171,13 @@ namespace MarsTS.Units {
 		}
 
 		protected void UpdateCommands () {
-			if (CurrentCommand is null && commandQueue.TryDequeue(out Commandlet order)) {
+			/*if (CurrentCommand is null && commandQueue.TryDequeue(out Commandlet order)) {
 
 				ProcessOrder(order);
-			}
+			}*/
 		}
 
-		protected virtual void ProcessOrder (Commandlet order) {
-			switch (order.Name) {
-				case "move":
-				CurrentCommand = order;
-				Move(order);
-				break;
-				case "stop":
-				CurrentCommand = order;
-				Stop();
-				break;
-				default:
-				break;
-			}
-		}
+		
 
 		private void OnPathFound (Path newPath, bool pathSuccessful) {
 			if (pathSuccessful) {
@@ -207,12 +199,12 @@ namespace MarsTS.Units {
 			currentPath = Path.Empty;
 			target = null;
 
-			commandQueue.Clear();
+			commands.Clear();
 
-			CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, false, this);
-			bus.Global(_event);
+			//CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+			//bus.Global(_event);
 
-			CurrentCommand = null;
+			//CurrentCommand = null;
 		}
 
 		protected virtual void Move (Commandlet order) {
@@ -231,7 +223,7 @@ namespace MarsTS.Units {
 
 			bus.Global(newEvent);
 
-			CurrentCommand = null;
+			//CurrentCommand = null;
 		}
 
 		protected IEnumerator UpdatePath () {
@@ -270,25 +262,33 @@ namespace MarsTS.Units {
 			}
 		}
 
-		public virtual void Enqueue (Commandlet order) {
+		public virtual void Order (Commandlet order, bool inclusive) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
-			commandQueue.Enqueue(order);
+
+			switch (order.Name) {
+				case "move":
+					break;
+				case "stop":
+					break;
+				default:
+					return;
+			}
+
+			if (inclusive) commands.Enqueue(order);
+			else commands.Execute(order);
 		}
 
-		public virtual void Execute (Commandlet order) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
-			commandQueue.Clear();
-
-			currentPath = Path.Empty;
-			TrackedTarget = null;
-
-			if (CurrentCommand != null) {
-				CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, true, this);
-				CurrentCommand.Callback.Invoke(_event);
-				bus.Global(_event);
+		protected virtual void ExecuteOrder (CommandStartEvent _event) {
+			switch (_event.Command.Name) {
+				case "move":
+					Move(_event.Command);
+					break;
+				case "stop":
+					Stop();
+					break;
+				default:
+					break;
 			}
-			CurrentCommand = null;
-			commandQueue.Enqueue(order);
 		}
 
 		public Unit Get () {

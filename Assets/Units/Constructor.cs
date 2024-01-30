@@ -124,15 +124,14 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected override void ProcessOrder (Commandlet order) {
+		protected override void ExecuteOrder (CommandStartEvent _event) {
 			RepairTarget = null;
-			switch (order.Name) {
+			switch (_event.Command.Name) {
 				case "repair":
-					CurrentCommand = order;
-					Repair(order);
+					Repair(_event.Command);
 					break;
 				default:
-					base.ProcessOrder(order);
+					base.ExecuteOrder(_event);
 					break;
 			}
 		}
@@ -164,10 +163,6 @@ namespace MarsTS.Units {
 				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
 				CurrentCommand.Callback.Invoke(newEvent);
-
-				bus.Global(newEvent);
-
-				CurrentCommand = null;
 			}
 		}
 
@@ -179,10 +174,6 @@ namespace MarsTS.Units {
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, true, this);
 
 			CurrentCommand.Callback.Invoke(newEvent);
-
-			bus.Global(newEvent);
-
-			CurrentCommand = null;
 
 			Stop();
 		}

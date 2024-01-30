@@ -184,8 +184,7 @@ namespace MarsTS.Players {
 			foreach (KeyValuePair<string, Roster> entry in Selected) {
 				foreach (ISelectable unit in entry.Value.List()) {
 					if (unit is ICommandable orderable) {
-						if (inclusive) orderable.Enqueue(packet);
-						else orderable.Execute(packet);
+						orderable.Order(packet, inclusive);
 					}
 				}
 			}

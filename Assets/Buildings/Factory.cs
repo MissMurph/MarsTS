@@ -88,10 +88,10 @@ namespace MarsTS.Buildings {
 
 			Commandlet exit = exitOrder.Clone();
 			exit.Callback.AddListener(UnitExitCallback);
-			commandable.Execute(exit);
+			commandable.Order(exit, false);
 
 			foreach (Commandlet newCommand in rallyOrders) {
-				commandable.Enqueue(newCommand.Clone());
+				commandable.Order(newCommand.Clone(), true);
 			}
 
 			CurrentCommand = null;
@@ -136,26 +136,16 @@ namespace MarsTS.Buildings {
 			_event.Command.Callback.RemoveListener(UnitExitCallback);
 		}
 
-		public override void Enqueue (Commandlet order) {
+		public override void Order (Commandlet order, bool inclusive) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 
 			foreach (string command in rallyCommands) {
 				if (order.Name == command) {
-					rallyOrders.Enqueue(order);
-					return;
-				}
-			}
-
-			Execute(order);
-		}
-
-		public override void Execute (Commandlet order) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
-
-			foreach (string command in rallyCommands) {
-				if (order.Name == command) {
-					rallyOrders.Clear();
-					rallyOrders.Enqueue(order);
+					if (inclusive) rallyOrders.Enqueue(order);
+					else {
+						rallyOrders.Clear();
+						rallyOrders.Enqueue(order);
+					}
 					return;
 				}
 			}

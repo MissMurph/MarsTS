@@ -26,7 +26,6 @@ namespace MarsTS.Units {
 		}
 
 		protected override void Update () {
-			return;
 			if (currentCooldown >= 0f) currentCooldown -= Time.deltaTime;
 			if (currentBurstCooldown >= 0f) currentBurstCooldown -= Time.deltaTime;
 

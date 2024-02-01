@@ -27,10 +27,10 @@ namespace MarsTS.Units {
 		public int MaxHealth { get { return maxHealth; } }
 
 		[SerializeField]
-		private int maxHealth;
+		protected int maxHealth;
 
 		[SerializeField]
-		private int currentHealth;
+		protected int currentHealth;
 
 		/*	ISelectable Properties	*/
 		
@@ -153,8 +153,6 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void Update () {
-			//UpdateCommands();
-
 			if (!currentPath.IsEmpty) {
 				Vector3 targetWaypoint = currentPath[pathIndex];
 				float distance = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).magnitude;
@@ -169,15 +167,6 @@ namespace MarsTS.Units {
 				}
 			}
 		}
-
-		protected void UpdateCommands () {
-			/*if (CurrentCommand is null && commandQueue.TryDequeue(out Commandlet order)) {
-
-				ProcessOrder(order);
-			}*/
-		}
-
-		
 
 		private void OnPathFound (Path newPath, bool pathSuccessful) {
 			if (pathSuccessful) {
@@ -220,10 +209,6 @@ namespace MarsTS.Units {
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
 			CurrentCommand.Callback.Invoke(newEvent);
-
-			bus.Global(newEvent);
-
-			//CurrentCommand = null;
 		}
 
 		protected IEnumerator UpdatePath () {
@@ -240,9 +225,6 @@ namespace MarsTS.Units {
 					PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
 					targetOldPos = target.position;
 				}
-				/*else if (!currentPath.IsEmpty) {
-					PathRequestManager.RequestPath(transform.position, currentPath.End, OnPathFound);
-				}*/
 			}
 		}
 

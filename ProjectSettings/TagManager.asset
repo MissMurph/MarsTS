@@ -43,3 +43,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: StealthCircles
+    uniqueID: 2201949637
+    locked: 0
+  - name: SelectionCircles
+    uniqueID: 1053253323
+    locked: 0
+  - name: AttackCircles
+    uniqueID: 751620137
+    locked: 0

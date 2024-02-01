@@ -13,6 +13,7 @@ using UnityEngine;
 using static UnityEditor.Experimental.GraphView.Port;
 using UnityEngine.SocialPlatforms.Impl;
 using static UnityEngine.GraphicsBuffer;
+using UnityEditor.PackageManager;
 
 namespace MarsTS.Units {
 
@@ -48,18 +49,18 @@ namespace MarsTS.Units {
 
 		/*	ICommandable Properties	*/
 
-		public Commandlet CurrentCommand { get; protected set; }
+		public Commandlet CurrentCommand { get { return commands.Current; } }
 
-		public Commandlet[] CommandQueue { get { return commandQueue.ToArray(); } }
-
-		private Queue<Commandlet> commandQueue = new Queue<Commandlet>();
+		public Commandlet[] CommandQueue { get { return commands.Queue; } }
 
 		[SerializeField]
 		private string[] boundCommands;
 
+		protected CommandQueue commands;
+
 		/*	InfantrySquad Fields	*/
 
-		private List<Infantry> members = new List<Infantry>();
+		private List<InfantryMember> members = new List<InfantryMember>();
 		private List<Transform> selectionColliders = new List<Transform>();
 
 		private Entity entityComponent;
@@ -68,7 +69,7 @@ namespace MarsTS.Units {
 		private int maxMembers;
 
 		[SerializeField]
-		private Infantry[] startingMembers;
+		private InfantryMember[] startingMembers;
 
 		[SerializeField]
 		private GameObject selectionColliderPrefab;
@@ -83,7 +84,7 @@ namespace MarsTS.Units {
 			get {
 				int current = 0;
 
-				foreach (Infantry member in members) {
+				foreach (InfantryMember member in members) {
 					current += member.Health;
 				}
 
@@ -98,7 +99,7 @@ namespace MarsTS.Units {
 		private Transform resourceBar;
 
 		private void Awake () {
-			foreach (Infantry unit in startingMembers) {
+			foreach (InfantryMember unit in startingMembers) {
 				unit.SetOwner(owner);
 				unit.squad = this;
 
@@ -118,12 +119,14 @@ namespace MarsTS.Units {
 			entityComponent = GetComponent<Entity>();
 			bus = GetComponent<EventAgent>();
 			storageComp = GetComponent<ResourceStorage>();
+			commands = GetComponent<CommandQueue>();
 			resourceBar = transform.Find("BarOrientation");
 		}
 
 		private void Start () {
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 			bus.AddListener<EntityInitEvent>(OnEntityInit);
+			bus.AddListener<CommandStartEvent>(ExecuteOrder);
 		}
 
 		private void OnEntityInit (EntityInitEvent _event) {
@@ -137,15 +140,6 @@ namespace MarsTS.Units {
 
 			for (int i = 0; i < members.Count; i++) {
 				selectionColliders[i].transform.position = members[i].transform.position;
-			}
-
-			UpdateCommands();
-		}
-
-		protected void UpdateCommands () {
-			if (CurrentCommand is null && commandQueue.TryDequeue(out Commandlet order)) {
-
-				ProcessOrder(order);
 			}
 		}
 
@@ -176,7 +170,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected virtual void ProcessOrder (Commandlet order) {
+		protected virtual void ExecuteOrder (CommandStartEvent _event) {
 			/*switch (order.Name) {
 				case "move":
 				//CurrentCommand = order;
@@ -190,8 +184,8 @@ namespace MarsTS.Units {
 				break;
 			}*/
 
-			foreach (Infantry unit in members) {
-				unit.Order(order, false);
+			foreach (InfantryMember unit in members) {
+				unit.Order(_event.Command, false);
 			}
 		}
 
@@ -202,7 +196,36 @@ namespace MarsTS.Units {
 		public void Order (Commandlet order, bool inclusive) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 
-			if (!inclusive) commandQueue.Clear();
+			if (!inclusive) commands.Clear();
+
+			switch (order.Name) {
+				case "sneak":
+					commands.Activate(order);
+					foreach (InfantryMember unit in members) {
+						unit.Order(order, false);
+					}
+					return;
+				case "attack":
+					
+					break;
+				case "repair":
+					
+					break;
+				case "harvest":
+					
+					break;
+				case "deposit":
+					
+					break;
+				case "move":
+
+					break;
+				case "stop":
+					
+					break;
+				default:
+					return;
+			}
 
 			/*if (CurrentCommand != null) {
 				CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, true, this);
@@ -211,7 +234,7 @@ namespace MarsTS.Units {
 			}
 
 			CurrentCommand = null;*/
-			commandQueue.Enqueue(order);
+			commands.Enqueue(order);
 		}
 
 		public Command Evaluate (ISelectable target) {
@@ -263,13 +286,13 @@ namespace MarsTS.Units {
 		}
 
 		public void Hover (bool status) {
-			foreach (Infantry unit in members) {
+			foreach (InfantryMember unit in members) {
 				unit.Hover(status);
 			}
 		}
 
 		public void Select (bool status) {
-			foreach (Infantry unit in members) {
+			foreach (InfantryMember unit in members) {
 				unit.Select(status);
 			}
 		}

@@ -4,21 +4,69 @@ using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
+using MarsTS.UI;
+using MarsTS.Vision;
 using MarsTS.World;
+using MarsTS.World.Pathfinding;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.Port;
-using UnityEngine.SocialPlatforms.Impl;
-using static UnityEngine.GraphicsBuffer;
-using UnityEditor.PackageManager;
 
 namespace MarsTS.Units {
 
-	public class Infantry : Unit {
+	public class InfantryMember : MonoBehaviour, ISelectable, ITaggable<InfantryMember>, IAttackable, ICommandable {
 
-		public new Faction Owner { get { return squad.Owner; } }
+		public GameObject GameObject { get { return gameObject; } }
+
+		/*	IAttackable Properties	*/
+
+		public int Health { get { return currentHealth; } }
+
+		public int MaxHealth { get { return maxHealth; } }
+
+		[SerializeField]
+		protected int maxHealth;
+
+		[SerializeField]
+		protected int currentHealth;
+
+		/*	ISelectable Properties	*/
+
+		public int ID { get { return entityComponent.ID; } }
+
+		public string UnitType { get { return type; } }
+
+		public string RegistryKey { get { return "unit:" + UnitType; } }
+
+		public Sprite Icon { get { return icon; } }
+
+		public Faction Owner { get { return squad.Owner; } }
+
+		[SerializeField]
+		private Sprite icon;
+
+		[SerializeField]
+		private string type;
+
+		[SerializeField]
+		protected Faction owner;
+
+		/*	ITaggable Properties	*/
+
+		public string Key { get { return "selectable"; } }
+
+		public Type Type { get { return typeof(Unit); } }
+
+		/*	ICommandable Properties	*/
+
+		public Commandlet CurrentCommand { get { return squad.CurrentCommand; } }
+
+		public Commandlet[] CommandQueue { get { return squad.CommandQueue; } }
+
+		/*	Infantry Fields	*/
+
+		protected Entity entityComponent;
 
 		public InfantrySquad squad;
 
@@ -38,6 +86,61 @@ namespace MarsTS.Units {
 
 		private ProjectileTurret equippedWeapon;
 
+		
+
+		protected Transform TrackedTarget {
+			get {
+				return target;
+			}
+			set {
+				if (target != null) {
+					EntityCache.TryGet(target.gameObject.name + ":eventAgent", out EventAgent oldAgent);
+					oldAgent.RemoveListener<EntityDeathEvent>((_event) => TrackedTarget = null);
+				}
+
+				target = value;
+
+				if (value != null) {
+					EntityCache.TryGet(value.gameObject.name + ":eventAgent", out EventAgent agent);
+
+					agent.AddListener<EntityDeathEvent>((_event) => TrackedTarget = null);
+
+					SetTarget(value);
+				}
+			}
+		}
+
+		private Transform target;
+
+		private Vector3 targetOldPos;
+
+		protected Path currentPath {
+			get;
+			set;
+		} = Path.Empty;
+
+		private float angle;
+		protected int pathIndex;
+
+		protected Rigidbody body;
+
+		private const float minPathUpdateTime = .5f;
+		private const float pathUpdateMoveThreshold = .5f;
+
+		[SerializeField]
+		protected float waypointCompletionDistance;
+
+		protected EventAgent bus;
+
+		[SerializeField]
+		private GameObject[] hideables;
+
+		/*	Attacking	*/
+
+		protected UnitReference<IAttackable> AttackTarget = new UnitReference<IAttackable>();
+
+		/*	Repairing	*/
+
 		//How many units per second
 		[SerializeField]
 		private float repairRate;
@@ -45,12 +148,6 @@ namespace MarsTS.Units {
 		private int repairAmount;
 		protected float repairCooldown;
 		protected float currentRepairCooldown;
-
-		/*	Attacking	*/
-
-		protected UnitReference<IAttackable> AttackTarget = new UnitReference<IAttackable>();
-
-		/*	Repairing	*/
 
 		protected UnitReference<IAttackable> RepairTarget = new UnitReference<IAttackable>();
 
@@ -83,8 +180,12 @@ namespace MarsTS.Units {
 		protected float depositCooldown;
 		protected float currentDepositCooldown;
 
-		protected override void Awake () {
-			base.Awake();
+		protected virtual void Awake () {
+			body = GetComponent<Rigidbody>();
+			entityComponent = GetComponent<Entity>();
+			bus = GetComponent<EventAgent>();
+
+			currentHealth = maxHealth;
 
 			ground = GetComponent<GroundDetection>();
 			equippedWeapon = GetComponentInChildren<ProjectileTurret>();
@@ -108,8 +209,38 @@ namespace MarsTS.Units {
 			currentDepositCooldown = depositCooldown;
 		}
 
-		protected override void Update () {
-			base.Update();
+		protected virtual void Start () {
+			StartCoroutine(UpdatePath());
+
+			transform.Find("SelectionCircle").GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
+
+			bus.AddListener<UnitVisibleEvent>(OnVisionUpdate);
+
+			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
+		}
+
+		private void OnVisionInit (VisionInitEvent _event) {
+			bool visible = GameVision.IsVisible(gameObject, Player.Main.VisionMask);
+
+			foreach (GameObject hideable in hideables) {
+				hideable.SetActive(visible);
+			}
+		}
+
+		protected virtual void Update () {
+			if (!currentPath.IsEmpty) {
+				Vector3 targetWaypoint = currentPath[pathIndex];
+				float distance = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).magnitude;
+
+				if (distance <= waypointCompletionDistance) {
+					pathIndex++;
+				}
+
+				if (pathIndex >= currentPath.Length) {
+					bus.Local(new PathCompleteEvent(bus, true));
+					currentPath = Path.Empty;
+				}
+			}
 
 			if (currentRepairCooldown >= 0f) {
 				currentRepairCooldown -= Time.deltaTime;
@@ -172,7 +303,8 @@ namespace MarsTS.Units {
 
 		protected virtual void FixedUpdate () {
 			if (ground.Grounded) {
-				if (!currentPath.IsEmpty) {
+				//Dunno why we need this check on the infantry member when we don't need it on any other unit type...
+				if (!currentPath.IsEmpty && !(pathIndex >= currentPath.Length)) {
 					Vector3 targetWaypoint = currentPath[pathIndex];
 
 					Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
@@ -191,56 +323,92 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected override void ExecuteOrder (CommandStartEvent _event) {
-			switch (_event.Command.Name) {
+		protected IEnumerator UpdatePath () {
+			if (Time.timeSinceLevelLoad < .5f) {
+				yield return new WaitForSeconds(.5f);
+			}
+
+			float sqrMoveThreshold = pathUpdateMoveThreshold * pathUpdateMoveThreshold;
+
+			while (true) {
+				yield return new WaitForSeconds(minPathUpdateTime);
+
+				if (target != null && (target.position - targetOldPos).sqrMagnitude > sqrMoveThreshold) {
+					PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
+					targetOldPos = target.position;
+				}
+			}
+		}
+
+		public void OnDrawGizmos () {
+			if (!currentPath.IsEmpty) {
+				for (int i = pathIndex; i < currentPath.Length; i++) {
+					Gizmos.color = Color.black;
+					Gizmos.DrawCube(currentPath[i], Vector3.one / 2);
+
+					if (i == pathIndex) {
+						Gizmos.DrawLine(transform.position, currentPath[i]);
+					}
+					else {
+						Gizmos.DrawLine(currentPath[i - 1], currentPath[i]);
+					}
+				}
+			}
+		}
+
+		private void OnPathFound (Path newPath, bool pathSuccessful) {
+			if (pathSuccessful) {
+				currentPath = newPath;
+				pathIndex = 0;
+			}
+		}
+
+		protected void SetTarget (Vector3 _target) {
+			PathRequestManager.RequestPath(transform.position, _target, OnPathFound);
+		}
+
+		protected void SetTarget (Transform _target) {
+			SetTarget(_target.position);
+			target = _target;
+		}
+
+		protected virtual void Stop () {
+			currentPath = Path.Empty;
+			target = null;
+
+			//CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+			//bus.Global(_event);
+
+			//CurrentCommand = null;
+		}
+
+		public void Order (Commandlet order, bool inclusive) {
+			switch (order.Name) {
 				case "sneak":
 					Sneak();
 					break;
 				case "attack":
-					Attack(_event.Command);
+					Attack(order);
 					break;
 				case "repair":
-					Repair(_event.Command);
+					Repair(order);
 					break;
 				case "harvest":
-					Harvest(_event.Command);
+					Harvest(order);
 					break;
 				case "deposit":
-					Deposit(_event.Command);
+					Deposit(order);
+					break;
+				case "move":
+					Move(order);
+					break;
+				case "stop":
+					Stop();
 					break;
 				default:
-					base.ExecuteOrder(_event);
+					
 					break;
 			}
-		}
-
-		public override void Order (Commandlet order, bool inclusive) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
-
-			if (order.Name == "sneak") {
-				Sneak();
-				return;
-			}
-
-			switch (order.Name) {
-				case "sneak":
-					commands.Activate(order);
-					return;
-				case "attack":
-					break;
-				case "repair":
-					break;
-				case "harvest":
-					break;
-				case "deposit":
-					break;
-				default:
-					base.Order(order, inclusive);
-					return;
-			}
-
-			if (inclusive) commands.Enqueue(order);
-			else commands.Execute(order);
 		}
 
 		/*	Commands	*/
@@ -255,6 +423,21 @@ namespace MarsTS.Units {
 
 				order.Callback.AddListener(AttackCancelled);
 			}
+		}
+
+		protected virtual void Move (Commandlet order) {
+			if (order is Commandlet<Vector3> deserialized) {
+				SetTarget(deserialized.Target);
+
+				bus.AddListener<PathCompleteEvent>(OnPathComplete);
+				order.Callback.AddListener((_event) => bus.RemoveListener<PathCompleteEvent>(OnPathComplete));
+			}
+		}
+
+		private void OnPathComplete (PathCompleteEvent _event) {
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+
+			CurrentCommand.Callback.Invoke(newEvent);
 		}
 
 		private void Sneak () {
@@ -442,13 +625,13 @@ namespace MarsTS.Units {
 			currentDepositCooldown += depositCooldown;
 		}
 
-		public override void Select (bool status) {
+		public virtual void Select (bool status) {
 			//selectionCircle.SetActive(status);
 			bus.Local(new UnitSelectEvent(bus, status));
 			isSelected = status;
 		}
 
-		public override void Hover (bool status) {
+		public virtual void Hover (bool status) {
 			//These are seperated due to the Player Selection Check
 			if (status) {
 				//selectionCircle.SetActive(true);
@@ -460,12 +643,46 @@ namespace MarsTS.Units {
 			}
 		}
 
-		public override Commandlet Auto (ISelectable target) {
+		public virtual Commandlet Auto (ISelectable target) {
 			throw new System.NotImplementedException();
 		}
 
-		public override Command Evaluate (ISelectable target) {
+		public virtual Command Evaluate (ISelectable target) {
 			throw new System.NotImplementedException();
+		}
+
+		public Relationship GetRelationship (Faction other) {
+			return Owner.GetRelationship(other);
+		}
+
+		public bool SetOwner (Faction player) {
+			owner = player;
+			return true;
+		}
+
+		public void Attack (int damage) {
+			if (damage < 0 && currentHealth >= maxHealth) return;
+			currentHealth -= damage;
+
+			if (currentHealth <= 0) {
+				bus.Global(new EntityDeathEvent(bus, this));
+				Destroy(gameObject);
+			}
+			else bus.Global(new UnitHurtEvent(bus, this));
+		}
+
+		public InfantryMember Get () {
+			return this;
+		}
+
+		public string[] Commands () {
+			return new string[0];
+		}
+
+		protected virtual void OnVisionUpdate (UnitVisibleEvent _event) {
+			foreach (GameObject hideable in hideables) {
+				hideable.SetActive(_event.Visible);
+			}
 		}
 	}
 }

@@ -29,8 +29,6 @@ namespace MarsTS.Units {
 		}
 
 		protected override void Update () {
-			UpdateCommands();
-
 			if (!currentPath.IsEmpty) {
 				Vector3 targetWaypoint = currentPath[pathIndex];
 				float distance = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).magnitude;

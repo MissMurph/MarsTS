@@ -280,12 +280,11 @@ MonoBehaviour:
   icon: {fileID: 0}
   type: roughneck
   owner: {fileID: 0}
-  boundCommands: []
-  waypointCompletionDistance: 1.5
-  hideables: []
   squad: {fileID: 0}
   moveSpeed: 3
   sneakSpeed: 2
+  waypointCompletionDistance: 1.5
+  hideables: []
   repairRate: 1
   harvestRate: 1
   depositRate: 1
@@ -868,7 +867,7 @@ Transform:
   m_GameObject: {fileID: 7942216869367903200}
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: -0.4, z: 0}
-  m_LocalScale: {x: 2.5, y: 2.5, z: 1}
+  m_LocalScale: {x: 2.4999998, y: 2.4999998, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3236804277763097531}
@@ -913,9 +912,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -2093017659
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 3cff16ea9282eac4ba715d1de5a31b9c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 0.1764706}
   m_FlipX: 0
@@ -1015,13 +1014,13 @@ SpriteMask:
   m_Sprite: {fileID: 8177471321811730583, guid: 87aaca0a643d54397ba969dab4fc8875,
     type: 3}
   m_MaskAlphaCutoff: 0.5
-  m_FrontSortingLayerID: 0
-  m_BackSortingLayerID: 0
-  m_FrontSortingLayer: 0
-  m_BackSortingLayer: 0
-  m_FrontSortingOrder: 0
+  m_FrontSortingLayerID: -2093017659
+  m_BackSortingLayerID: -2093017659
+  m_FrontSortingLayer: 1
+  m_BackSortingLayer: 1
+  m_FrontSortingOrder: 2
   m_BackSortingOrder: 0
-  m_IsCustomRangeActive: 0
+  m_IsCustomRangeActive: 1
   m_SpriteSortPoint: 0
 --- !u!1001 &974687869894541068
 PrefabInstance:
@@ -1099,42 +1098,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: SelectionCircle
-      objectReference: {fileID: 0}
-    - target: {fileID: 7476154159544246434, guid: 25e6df0840ee3434eb5d4dcf622276e2,
-        type: 3}
-      propertyPath: m_Size.x
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 7476154159544246434, guid: 25e6df0840ee3434eb5d4dcf622276e2,
-        type: 3}
-      propertyPath: m_Size.y
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 7476154159544246434, guid: 25e6df0840ee3434eb5d4dcf622276e2,
-        type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 298057316, guid: ac900b5d1dc22f54f92d7c6ff114dc65,
-        type: 3}
-    - target: {fileID: 7476154159544246434, guid: 25e6df0840ee3434eb5d4dcf622276e2,
-        type: 3}
-      propertyPath: m_Color.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7476154159544246434, guid: 25e6df0840ee3434eb5d4dcf622276e2,
-        type: 3}
-      propertyPath: m_Color.g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7476154159544246434, guid: 25e6df0840ee3434eb5d4dcf622276e2,
-        type: 3}
-      propertyPath: m_Color.r
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7476154159544246434, guid: 25e6df0840ee3434eb5d4dcf622276e2,
-        type: 3}
-      propertyPath: m_DrawMode
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 25e6df0840ee3434eb5d4dcf622276e2, type: 3}

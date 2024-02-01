@@ -42,7 +42,7 @@ namespace MarsTS.Units {
 
 		protected Dictionary<string, ProjectileTurret> registeredTurrets = new Dictionary<string, ProjectileTurret>();
 
-		protected IAttackable AttackTarget {
+		/*protected IAttackable AttackTarget {
 			get {
 				return attackTarget;
 			}
@@ -74,7 +74,9 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected IAttackable attackTarget;
+		protected IAttackable attackTarget;*/
+
+		protected UnitReference<IAttackable> AttackTarget = new UnitReference<IAttackable>();
 
 		protected override void Awake () {
 			base.Awake();
@@ -91,14 +93,14 @@ namespace MarsTS.Units {
 		protected override void Update () {
 			base.Update();
 
-			if (attackTarget == null) return;
+			if (AttackTarget.Get == null) return;
 
-			if (registeredTurrets["turret_main"].IsInRange(AttackTarget)) {
+			if (registeredTurrets["turret_main"].IsInRange(AttackTarget.Get)) {
 				TrackedTarget = null;
 				currentPath = Path.Empty;
 			}
-			else if (!ReferenceEquals(TrackedTarget, attackTarget.GameObject.transform)) {
-				SetTarget(attackTarget.GameObject.transform);
+			else if (!ReferenceEquals(TrackedTarget, AttackTarget.GameObject.transform)) {
+				SetTarget(AttackTarget.GameObject.transform);
 			}
 		}
 
@@ -170,7 +172,7 @@ namespace MarsTS.Units {
 
 		protected void Attack (Commandlet order) {
 			if (order is Commandlet<IAttackable> deserialized) {
-				AttackTarget = deserialized.Target;
+				AttackTarget.Set(deserialized.Target, deserialized.Target.GameObject);
 
 				EntityCache.TryGet(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
@@ -195,7 +197,7 @@ namespace MarsTS.Units {
 
 				targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
 
-				AttackTarget = null;
+				AttackTarget.Set(null, null);
 			}
 		}
 

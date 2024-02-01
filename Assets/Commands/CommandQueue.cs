@@ -14,8 +14,11 @@ namespace MarsTS.Commands {
         public Commandlet[] Queue { get { return commandQueue.ToArray(); } }
         protected Queue<Commandlet> commandQueue;
 
-        public Commandlet[] Active { get { return activeCommands.ToArray();  } }
-        protected List<Commandlet> activeCommands;
+        public string[] Active { get { return activeCommands.ToArray();  } }
+        protected List<string> activeCommands;
+
+		public Dictionary<string, Commandlet> Cooldowns { get { return activeCooldowns; } }
+		protected Dictionary<string, Commandlet> activeCooldowns;
 
 		protected ISelectable parent;
 		protected EventAgent bus;
@@ -25,7 +28,8 @@ namespace MarsTS.Commands {
 			bus = GetComponent<EventAgent>();
 
 			commandQueue = new Queue<Commandlet>();
-			activeCommands = new List<Commandlet>();
+			activeCommands = new List<string>();
+			activeCooldowns = new Dictionary<string, Commandlet>();
 		}
 
 		protected virtual void Update () {
@@ -36,8 +40,6 @@ namespace MarsTS.Commands {
 
 				return;
 			}
-
-			
 		}
 
 		protected virtual void OrderComplete (CommandCompleteEvent _event) {
@@ -50,8 +52,8 @@ namespace MarsTS.Commands {
 
 			if (Current != null) {
 				CommandCompleteEvent _event = new CommandCompleteEvent(bus, Current, true, parent);
-				Current.Callback.Invoke(_event);
-				bus.Global(_event);
+				Current.OnComplete(this, _event);
+				//bus.Global(_event);
 			}
 
 			Current = null;
@@ -63,12 +65,17 @@ namespace MarsTS.Commands {
 		}
 
 		public virtual void Activate (Commandlet order) {
+			activeCommands.Add(order.Name);
+		}
+
+		public virtual void Cooldown (Commandlet order, float time) {
 
 		}
 
 		public virtual void Clear () {
 			CommandCompleteEvent _event = new CommandCompleteEvent(bus, Current, false, parent);
-			bus.Global(_event);
+			Current.OnComplete(this, _event);
+			//bus.Global(_event);
 			Current = null;
 		}
 	}

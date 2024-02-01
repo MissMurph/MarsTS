@@ -55,7 +55,7 @@ namespace MarsTS.Units {
 			bus = GetComponentInParent<EventAgent>();
 			parent = GetComponentInParent<ISelectable>();
 
-			foreach (Collider collider in transform.root.Find("Model").GetComponentsInChildren<Collider>()) {
+			foreach (Collider collider in parent.GameObject.transform.Find("Model").GetComponentsInChildren<Collider>()) {
 				Physics.IgnoreCollision(range, collider);
 			}
 

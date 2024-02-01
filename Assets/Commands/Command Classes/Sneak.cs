@@ -1,4 +1,7 @@
+using MarsTS.Events;
 using MarsTS.Players;
+using MarsTS.Teams;
+using MarsTS.Units;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,7 +20,25 @@ namespace MarsTS.Commands {
 		private string description;
 
 		public override void StartSelection () {
-			Player.Main.DeliverCommand(new Commandlet<bool>(Name, true, Player.Main), true);
+			int totalWithSneak = 0;
+			int totalSneakActive = 0;
+
+			//Inspect all selected to make all units using this ability match up with others that are active using
+			foreach (Roster rollup in Player.Selected.Values) {
+				if (rollup.Commands.Contains(Name)) {
+					totalWithSneak += rollup.Count;
+
+					foreach (ICommandable unit in rollup.Orderable) {
+						if (unit.Active.Length == 0) continue;
+
+						foreach (string activeCommand in unit.Active) {
+							if (activeCommand == Name) totalSneakActive++;
+						}
+					}
+				}
+			}
+
+			Player.Main.DeliverCommand(new Commandlet<bool>(Name, totalWithSneak > totalSneakActive, Player.Main), true);
 		}
 
 		public override CostEntry[] GetCost () {

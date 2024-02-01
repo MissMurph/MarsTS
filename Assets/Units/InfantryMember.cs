@@ -119,6 +119,8 @@ namespace MarsTS.Units {
 			set;
 		} = Path.Empty;
 
+		public string[] Active => throw new NotImplementedException();
+
 		private float angle;
 		protected int pathIndex;
 
@@ -181,6 +183,8 @@ namespace MarsTS.Units {
 		protected float currentDepositCooldown;
 
 		protected virtual void Awake () {
+			transform.parent = null;
+
 			body = GetComponent<Rigidbody>();
 			entityComponent = GetComponent<Entity>();
 			bus = GetComponent<EventAgent>();
@@ -385,7 +389,7 @@ namespace MarsTS.Units {
 		public void Order (Commandlet order, bool inclusive) {
 			switch (order.Name) {
 				case "sneak":
-					Sneak();
+					Sneak(order);
 					break;
 				case "attack":
 					Attack(order);
@@ -440,14 +444,15 @@ namespace MarsTS.Units {
 			CurrentCommand.Callback.Invoke(newEvent);
 		}
 
-		private void Sneak () {
-			if (isSneaking) {
-				isSneaking = false;
-				currentSpeed = moveSpeed;
-			}
-			else {
+		private void Sneak (Commandlet order) {
+			Commandlet<bool> deserialized = order as Commandlet<bool>;
+			if (deserialized.Target) {
 				isSneaking = true;
 				currentSpeed = sneakSpeed;
+			}
+			else {
+				isSneaking = false;
+				currentSpeed = moveSpeed;
 			}
 
 			bus.Local(new SneakEvent(bus, this, isSneaking));

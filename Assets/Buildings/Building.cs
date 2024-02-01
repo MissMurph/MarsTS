@@ -104,6 +104,8 @@ namespace MarsTS.Buildings {
 
 		public string RegistryType => "building";
 
+		public string[] Active => throw new NotImplementedException();
+
 		private Entity entityComponent;
 
 		protected EventAgent bus;

@@ -26,7 +26,7 @@ namespace MarsTS.Units {
 
 		public string UnitType { get { return type; } }
 
-		public string RegistryKey { get { return "unit:squad:" + UnitType; } }
+		public string RegistryKey { get { return "unit:" + UnitType; } }
 
 		public Faction Owner { get { return owner; } }
 
@@ -93,6 +93,8 @@ namespace MarsTS.Units {
 		}
 
 		public int MaxHealth { get { return members.Count * members[0].MaxHealth; } }
+
+		public string[] Active { get { return commands.Active; } }
 
 		public ResourceStorage storageComp;
 
@@ -196,8 +198,6 @@ namespace MarsTS.Units {
 		public void Order (Commandlet order, bool inclusive) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 
-			if (!inclusive) commands.Clear();
-
 			switch (order.Name) {
 				case "sneak":
 					commands.Activate(order);
@@ -226,15 +226,8 @@ namespace MarsTS.Units {
 				default:
 					return;
 			}
-
-			/*if (CurrentCommand != null) {
-				CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, true, this);
-				CurrentCommand.Callback.Invoke(_event);
-				bus.Global(_event);
-			}
-
-			CurrentCommand = null;*/
-			commands.Enqueue(order);
+			if (inclusive) commands.Enqueue(order);
+			else commands.Execute(order);
 		}
 
 		public Command Evaluate (ISelectable target) {

@@ -67,6 +67,10 @@ namespace MarsTS.Commands {
 			else throw new ArgumentException("Commandlet target type " + TargetType + " does not match given type " + typeof(T) + ", cannot return Commandlet!");
 		}
 
+		public virtual void OnComplete (CommandQueue queue, CommandCompleteEvent _event) {
+			Callback.Invoke(_event);
+		}
+
 		public abstract Commandlet Clone ();
 	}
 }

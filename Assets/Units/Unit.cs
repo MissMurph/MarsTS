@@ -107,6 +107,8 @@ namespace MarsTS.Units {
 			set;
 		} = Path.Empty;
 
+		public string[] Active => throw new NotImplementedException();
+
 		private float angle;
 		protected int pathIndex;
 

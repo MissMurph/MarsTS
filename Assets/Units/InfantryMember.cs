@@ -64,6 +64,10 @@ namespace MarsTS.Units {
 
 		public Commandlet[] CommandQueue { get { return squad.CommandQueue; } }
 
+		public List<string> Active => throw new NotImplementedException();
+
+		public List<Cooldown> Cooldowns => throw new NotImplementedException();
+
 		/*	Infantry Fields	*/
 
 		protected Entity entityComponent;
@@ -118,8 +122,6 @@ namespace MarsTS.Units {
 			get;
 			set;
 		} = Path.Empty;
-
-		public string[] Active => throw new NotImplementedException();
 
 		private float angle;
 		protected int pathIndex;
@@ -688,6 +690,10 @@ namespace MarsTS.Units {
 			foreach (GameObject hideable in hideables) {
 				hideable.SetActive(_event.Visible);
 			}
+		}
+
+		public bool CanCommand (string key) {
+			throw new NotImplementedException();
 		}
 	}
 }

@@ -2,14 +2,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 using MarsTS.World.Pathfinding;
 using MarsTS.Teams;
 using MarsTS.Entities;
 using MarsTS.Events;
-using MarsTS.Prefabs;
 using MarsTS.Commands;
 using MarsTS.UI;
 using MarsTS.Vision;
@@ -65,6 +62,10 @@ namespace MarsTS.Units {
 
 		public Commandlet[] CommandQueue { get { return commands.Queue; } }
 
+		public List<string> Active { get { return commands.Active; } }
+
+		public List<Cooldown> Cooldowns { get { return commands.Cooldowns; } }
+
 		//protected Queue<Commandlet> commandQueue = new Queue<Commandlet>();
 
 		protected CommandQueue commands;
@@ -106,8 +107,6 @@ namespace MarsTS.Units {
 			get;
 			set;
 		} = Path.Empty;
-
-		public string[] Active => throw new NotImplementedException();
 
 		private float angle;
 		protected int pathIndex;
@@ -335,6 +334,10 @@ namespace MarsTS.Units {
 			foreach (GameObject hideable in hideables) {
 				hideable.SetActive(_event.Visible);
 			}
+		}
+
+		public bool CanCommand (string key) {
+			throw new NotImplementedException();
 		}
 	}
 }

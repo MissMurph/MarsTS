@@ -71,6 +71,10 @@ namespace MarsTS.Commands {
 			Callback.Invoke(_event);
 		}
 
+		public virtual void OnStart (CommandQueue queue, CommandStartEvent _event) {
+
+		}
+
 		public abstract Commandlet Clone ();
 	}
 }

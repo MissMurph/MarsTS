@@ -63,6 +63,10 @@ namespace MarsTS.Buildings {
 
 		protected Queue<Commandlet> commandQueue = new Queue<Commandlet>();
 
+		public List<string> Active { get { return new(); } }
+
+		public List<Cooldown> Cooldowns => throw new NotImplementedException();
+
 		[SerializeField]
 		private string[] boundCommands;
 
@@ -103,8 +107,6 @@ namespace MarsTS.Buildings {
 		protected float timeToStep;
 
 		public string RegistryType => "building";
-
-		public string[] Active => throw new NotImplementedException();
 
 		private Entity entityComponent;
 
@@ -315,6 +317,10 @@ namespace MarsTS.Buildings {
 			}
 
 			//if (GameVision.WasVisited(gameObject, Player.Main.VisionMask)) bus.Global(new UnitVisibleEvent(bus, this, true));
+		}
+
+		public bool CanCommand (string key) {
+			throw new NotImplementedException();
 		}
 	}
 }

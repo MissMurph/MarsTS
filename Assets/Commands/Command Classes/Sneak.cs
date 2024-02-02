@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace MarsTS.Commands {
 
-    public class Sneak : Command {
+    public class Sneak : Command<bool> {
 		public override string Name { get { return "sneak"; } }
 
 		public override Type TargetType { get { return typeof(bool); } }
@@ -18,6 +18,12 @@ namespace MarsTS.Commands {
 
 		[SerializeField]
 		private string description;
+
+		[SerializeField]
+		private float deactivateCooldown;
+
+		[SerializeField]
+		private float reactivateCooldown;
 
 		public override void StartSelection () {
 			int totalWithSneak = 0;
@@ -29,7 +35,7 @@ namespace MarsTS.Commands {
 					totalWithSneak += rollup.Count;
 
 					foreach (ICommandable unit in rollup.Orderable) {
-						if (unit.Active.Length == 0) continue;
+						if (unit.Active.Count == 0) continue;
 
 						foreach (string activeCommand in unit.Active) {
 							if (activeCommand == Name) totalSneakActive++;
@@ -38,7 +44,7 @@ namespace MarsTS.Commands {
 				}
 			}
 
-			Player.Main.DeliverCommand(new Commandlet<bool>(Name, totalWithSneak > totalSneakActive, Player.Main), true);
+			Player.Main.DeliverCommand(Construct(totalWithSneak > totalSneakActive), true);
 		}
 
 		public override CostEntry[] GetCost () {
@@ -47,6 +53,33 @@ namespace MarsTS.Commands {
 
 		public override void CancelSelection () {
 			
+		}
+
+		public override Commandlet Construct (bool target) {
+			return new SneakCommandlet(Name, target, Player.Main, deactivateCooldown, reactivateCooldown);
+		}
+
+		private class SneakCommandlet : Commandlet<bool> {
+
+			private float deactivateCooldown;
+			private float reactivateCooldown;
+
+			public SneakCommandlet (string name, bool target, Faction commander, float _deactivateCooldown, float _reactivateCooldown) : base(name, target, commander) {
+				deactivateCooldown = _deactivateCooldown;
+				reactivateCooldown = _reactivateCooldown;
+			}
+
+			public override void OnComplete (CommandQueue queue, CommandCompleteEvent _event) {
+				base.OnComplete(queue, _event);
+
+				queue.Cooldown(this, reactivateCooldown);
+			}
+
+			public override void OnStart (CommandQueue queue, CommandStartEvent _event) {
+				base.OnStart(queue, _event);
+
+				queue.Cooldown(this, deactivateCooldown);
+			}
 		}
 	}
 }

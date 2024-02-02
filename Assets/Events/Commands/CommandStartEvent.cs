@@ -1,16 +1,14 @@
 using MarsTS.Commands;
+using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace MarsTS.Events {
 
-	public class CommandStartEvent : AbstractEvent {
-
-		public Commandlet Command { get; private set; }
-
-		public CommandStartEvent (EventAgent _source, Commandlet _command) : base("commandStarted", _source) {
-			Command = _command;
+	//Stinky
+	public class CommandStartEvent : CommandEvent {
+		public CommandStartEvent (EventAgent _source, Commandlet _command, ISelectable _unit) : base("Started", _source, _command, _unit) {
 		}
 	}
 }

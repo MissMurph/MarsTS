@@ -53,6 +53,10 @@ namespace MarsTS.Units {
 
 		public Commandlet[] CommandQueue { get { return commands.Queue; } }
 
+		public List<string> Active { get { return commands.Active; } }
+
+		public List<Cooldown> Cooldowns { get { return commands.Cooldowns; } }
+
 		[SerializeField]
 		private string[] boundCommands;
 
@@ -93,8 +97,6 @@ namespace MarsTS.Units {
 		}
 
 		public int MaxHealth { get { return members.Count * members[0].MaxHealth; } }
-
-		public string[] Active { get { return commands.Active; } }
 
 		public ResourceStorage storageComp;
 
@@ -163,6 +165,7 @@ namespace MarsTS.Units {
 			Transform lastCollider = selectionColliders[currentMemberCount - 1];
 
 			selectionColliders.Remove(lastCollider);
+			members.Remove(_event.Unit as InfantryMember);
 
 			Destroy(lastCollider.gameObject);
 
@@ -200,10 +203,7 @@ namespace MarsTS.Units {
 
 			switch (order.Name) {
 				case "sneak":
-					commands.Activate(order);
-					foreach (InfantryMember unit in members) {
-						unit.Order(order, false);
-					}
+					SquadSneak(order);
 					return;
 				case "attack":
 					
@@ -228,6 +228,17 @@ namespace MarsTS.Units {
 			}
 			if (inclusive) commands.Enqueue(order);
 			else commands.Execute(order);
+		}
+
+		private void SquadSneak (Commandlet order) {
+			if (!CanCommand(order.Name)) return;
+			Commandlet<bool> deserialized = order as Commandlet<bool>;
+
+			commands.Activate(order, deserialized.Target);
+
+			foreach (InfantryMember unit in members) {
+				unit.Order(order, false);
+			}
 		}
 
 		public Command Evaluate (ISelectable target) {
@@ -309,6 +320,10 @@ namespace MarsTS.Units {
 
 		public void Attack (int damage) {
 			throw new NotImplementedException();
+		}
+
+		public bool CanCommand (string key) {
+			return commands.CanCommand(key);
 		}
 	}
 }

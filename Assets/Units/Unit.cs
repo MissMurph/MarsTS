@@ -71,7 +71,7 @@ namespace MarsTS.Units {
 		protected CommandQueue commands;
 
 		[SerializeField]
-		private string[] boundCommands;
+		protected string[] boundCommands;
 
 		/*	Unit Fields	*/
 
@@ -336,8 +336,8 @@ namespace MarsTS.Units {
 			}
 		}
 
-		public bool CanCommand (string key) {
-			throw new NotImplementedException();
+		public virtual bool CanCommand (string key) {
+			return true;
 		}
 	}
 }

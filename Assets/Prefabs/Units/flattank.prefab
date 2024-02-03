@@ -246,7 +246,7 @@ MonoBehaviour:
   - {fileID: 420908014439938283}
   - {fileID: 3301224272326716992}
   - {fileID: 8554739113565525387}
-  topSpeed: 10
+  topSpeed: 7
   currentTopSpeed: 0
   acceleration: 800
   turnSpeed: 35

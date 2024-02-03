@@ -38,10 +38,20 @@ namespace MarsTS.Commands {
 			if (Current is null && commandQueue.TryDequeue(out Commandlet order)) {
 				Current = order;
 				order.Callback.AddListener(OrderComplete);
-				order.OnStart(this, new CommandStartEvent(bus, order, parent));
-				bus.Local(new CommandStartEvent(bus, order, parent));
+				CommandStartEvent _event = new CommandStartEvent(bus, order, parent);
+				order.OnStart(this, _event);
+				bus.Local(_event);
 
 				return;
+			}
+
+			if (Current is IWorkable workOrder) {
+				workOrder.CurrentWork += Time.deltaTime;
+				bus.Global(new CommandWorkEvent(bus, Current.Name, parent, workOrder));
+
+				if (workOrder.CurrentWork >= workOrder.WorkRequired) {
+					Current.OnComplete(this, new CommandCompleteEvent(bus, Current, false, parent));
+				}
 			}
 
 			foreach (Cooldown timer in activeCooldowns.Values) {
@@ -61,6 +71,7 @@ namespace MarsTS.Commands {
 		}
 
 		protected virtual void OrderComplete (CommandCompleteEvent _event) {
+			if (_event.Unit != parent) return;
 			Current = null;
 			bus.Global(_event);
 		}
@@ -69,9 +80,10 @@ namespace MarsTS.Commands {
 			commandQueue.Clear();
 
 			if (Current != null) {
+				if (!Current.CanInterrupt()) return;
+
 				CommandCompleteEvent _event = new CommandCompleteEvent(bus, Current, true, parent);
 				Current.OnComplete(this, _event);
-				//bus.Global(_event);
 			}
 
 			Current = null;

@@ -824,13 +824,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2962fd0d3944e7a4f9091e01070f4c2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  icon: {fileID: 21300000, guid: f82d11b462631ff47a8491a0abe59bf9, type: 3}
+  icon: {fileID: 21300000, guid: 2a09acf9ae2b1b243ad74d197cf5b49f, type: 3}
   IconColor: {r: 0, g: 0, b: 0, a: 0}
   Pointer:
     texture: {fileID: 0}
     target: {x: 0, y: 0}
   commandName: undeploy
   description: Orders the unit to undeploy and allow it to move again
+  deployTime: 5
 --- !u!1 &338673082
 GameObject:
   m_ObjectHideFlags: 0
@@ -1547,6 +1548,7 @@ MonoBehaviour:
     target: {x: 0, y: 0}
   commandName: deploy
   description: Orders the unit to deploy where it is
+  deployTime: 5
 --- !u!1001 &539685060
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5050,7 +5052,7 @@ PrefabInstance:
     - target: {fileID: 7248859610773361694, guid: b8ae55b487a53814988a1ce86421e8a1,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 28.77935
+      value: 20.2
       objectReference: {fileID: 0}
     - target: {fileID: 7248859610773361694, guid: b8ae55b487a53814988a1ce86421e8a1,
         type: 3}
@@ -5060,7 +5062,7 @@ PrefabInstance:
     - target: {fileID: 7248859610773361694, guid: b8ae55b487a53814988a1ce86421e8a1,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -48.38791
+      value: -18.5
       objectReference: {fileID: 0}
     - target: {fileID: 7248859610773361694, guid: b8ae55b487a53814988a1ce86421e8a1,
         type: 3}
@@ -6994,7 +6996,7 @@ PrefabInstance:
     - target: {fileID: 1214473942047108565, guid: 0b9093e2fbee662458f91f0ff9771aee,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 11.6
+      value: 58.4
       objectReference: {fileID: 0}
     - target: {fileID: 1214473942047108565, guid: 0b9093e2fbee662458f91f0ff9771aee,
         type: 3}
@@ -7004,7 +7006,7 @@ PrefabInstance:
     - target: {fileID: 1214473942047108565, guid: 0b9093e2fbee662458f91f0ff9771aee,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -74.3
+      value: -14
       objectReference: {fileID: 0}
     - target: {fileID: 1214473942047108565, guid: 0b9093e2fbee662458f91f0ff9771aee,
         type: 3}

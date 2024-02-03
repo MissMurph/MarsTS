@@ -481,7 +481,7 @@ MonoBehaviour:
   - {fileID: 9132473298732607384}
   - {fileID: 5233257112246688040}
   - {fileID: 715149214163300111}
-  topSpeed: 15
+  topSpeed: 10
   reverseSpeed: 5
   acceleration: 1000
   currentSpeed: 0

@@ -75,6 +75,10 @@ namespace MarsTS.Commands {
 
 		}
 
+		public virtual bool CanInterrupt () {
+			return true;
+		}
+
 		public abstract Commandlet Clone ();
 	}
 }

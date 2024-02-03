@@ -1,4 +1,6 @@
+using MarsTS.Events;
 using MarsTS.Players;
+using MarsTS.Units;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,7 +8,7 @@ using UnityEngine;
 
 namespace MarsTS.Commands {
 
-	public class Deploy : Command {
+	public class Deploy : Command<bool> {
 		public override string Name { get { return commandName; } }
 
 		[SerializeField]
@@ -19,8 +21,31 @@ namespace MarsTS.Commands {
 		[SerializeField]
 		private string description;
 
+		[SerializeField]
+		private float deployTime;
+
 		public override void StartSelection () {
-			Player.Main.DeliverCommand(new Commandlet<bool>(Name, true, Player.Main), Player.Include);
+			int totalCanDeploy = 0;
+			int totalDeployed = 0;
+
+			//Inspect all selected to make all units using this ability match up with others that are active using
+			foreach (Roster rollup in Player.Selected.Values) {
+				if (rollup.Commands.Contains(Name)) {
+					totalCanDeploy += rollup.Count;
+
+					foreach (ICommandable unit in rollup.Orderable) {
+						if (unit.Active.Count == 0) continue;
+
+						foreach (string activeCommand in unit.Active) {
+							if (activeCommand == Name) totalDeployed++;
+						}
+					}
+				}
+			}
+
+			Player.Main.DeliverCommand(Construct(totalCanDeploy > totalDeployed), Player.Include);
+
+			//Player.Main.DeliverCommand(new Commandlet<bool>(Name, true, Player.Main), Player.Include);
 		}
 
 		public override CostEntry[] GetCost () {
@@ -30,5 +55,41 @@ namespace MarsTS.Commands {
 		public override void CancelSelection () {
 
 		}
+
+		public override Commandlet Construct (bool _target) {
+			return new DeployCommandlet(Name, _target, deployTime);
+		}
+	}
+
+	public class DeployCommandlet : Commandlet<bool>, IWorkable {
+
+		public float WorkRequired { get; private set; }
+		public float CurrentWork { get; set; }
+
+		public DeployCommandlet (string _name, bool _status, float _workRequired) : base(_name, _status, Player.Main) {
+			WorkRequired = _workRequired;
+			CurrentWork = 0f;
+		}
+
+		public override void OnStart (CommandQueue queue, CommandStartEvent _event) {
+			base.OnStart(queue, _event);
+
+			queue.Cooldown(this, WorkRequired);
+		}
+
+		public override void OnComplete (CommandQueue queue, CommandCompleteEvent _event) {
+			base.OnComplete(queue, _event);
+
+			//queue.Activate(this, Target);
+		}
+
+		public override bool CanInterrupt () {
+			return false;
+		}
+	}
+
+	public interface IWorkable {
+		float WorkRequired { get; }
+		float CurrentWork { get; set; }
 	}
 }

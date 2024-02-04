@@ -80,11 +80,13 @@ namespace MarsTS.Commands {
 		}
 	}
 
-	public class ProductionCommandlet : Commandlet<GameObject> {
+	public class ProductionCommandlet : Commandlet<GameObject>, IProducable {
 
 		public int ProductionRequired { get; private set; }
 		public int ProductionProgress { get; set; }
 		public Dictionary<string, int> Cost { get; private set; }
+		public GameObject Product { get { return Target; } }
+		public override Command Command { get { return CommandRegistry.Get(Name + "/" + Product.name); } }
 
 		public ProductionCommandlet (string name, GameObject prefab, int timeRequired, CostEntry[] cost) : base(name, prefab, Player.Main) {
 			ProductionRequired = timeRequired;
@@ -95,13 +97,17 @@ namespace MarsTS.Commands {
 			foreach (CostEntry entry in cost) {
 				Cost[entry.key] = entry.amount;
 			}
-
-			Callback.AddListener(OnCancel);
 		}
 
-		private void OnCancel (CommandCompleteEvent _event) {
-			foreach (KeyValuePair<string, int> entry in Cost) {
-				Player.Main.Resource(entry.Key).Deposit(entry.Value);
+		public Commandlet Get () {
+			return this;
+		}
+
+		public override void OnComplete (CommandQueue queue, CommandCompleteEvent _event) {
+			if (_event.Canceled == true) {
+				foreach (KeyValuePair<string, int> entry in Cost) {
+					Player.Main.Resource(entry.Key).Deposit(entry.Value);
+				}
 			}
 		}
 	}
@@ -110,5 +116,13 @@ namespace MarsTS.Commands {
 	public class CostEntry {
 		public string key;
 		public int amount;
+	}
+
+	public interface IProducable {
+		public int ProductionRequired { get; }
+		public int ProductionProgress { get; set; }
+		public Dictionary<string, int> Cost { get; }
+		public GameObject Product { get; }
+		Commandlet Get ();
 	}
 }

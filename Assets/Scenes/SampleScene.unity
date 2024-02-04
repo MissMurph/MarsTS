@@ -821,7 +821,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 324886371}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2962fd0d3944e7a4f9091e01070f4c2b, type: 3}
+  m_Script: {fileID: 11500000, guid: adc6df472ab65ae4fb149cb14b80de7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   icon: {fileID: 21300000, guid: 2a09acf9ae2b1b243ad74d197cf5b49f, type: 3}
@@ -4259,7 +4259,7 @@ MonoBehaviour:
     target: {x: 0, y: 0}
   description: A slow moving unit that both constructs buildings and can repair units
   prefab: {fileID: 3050993961840164310, guid: c3590048fa9d52b45bcd9c4b3a8c11df, type: 3}
-  timeRequired: 120
+  timeRequired: 60
   cost:
   - key: resource_unit
     amount: 250
@@ -7233,7 +7233,7 @@ PrefabInstance:
     - target: {fileID: 3050993961840164311, guid: c3590048fa9d52b45bcd9c4b3a8c11df,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.02
+      value: -4.44
       objectReference: {fileID: 0}
     - target: {fileID: 3050993961840164311, guid: c3590048fa9d52b45bcd9c4b3a8c11df,
         type: 3}
@@ -7243,7 +7243,7 @@ PrefabInstance:
     - target: {fileID: 3050993961840164311, guid: c3590048fa9d52b45bcd9c4b3a8c11df,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -37.39
+      value: -37.05
       objectReference: {fileID: 0}
     - target: {fileID: 3050993961840164311, guid: c3590048fa9d52b45bcd9c4b3a8c11df,
         type: 3}
@@ -7317,7 +7317,7 @@ PrefabInstance:
     - target: {fileID: 7680554594384699939, guid: 5dfbcfa3d00d7a446bba498c0e40c53e,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -10.15
+      value: -9.28
       objectReference: {fileID: 0}
     - target: {fileID: 7680554594384699939, guid: 5dfbcfa3d00d7a446bba498c0e40c53e,
         type: 3}
@@ -7327,7 +7327,7 @@ PrefabInstance:
     - target: {fileID: 7680554594384699939, guid: 5dfbcfa3d00d7a446bba498c0e40c53e,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -43.58
+      value: -41.01
       objectReference: {fileID: 0}
     - target: {fileID: 7680554594384699939, guid: 5dfbcfa3d00d7a446bba498c0e40c53e,
         type: 3}
@@ -8075,6 +8075,41 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4753157223906513630, guid: d7c5d84192531db42bf9768732143f5a,
+        type: 3}
+      propertyPath: productionSpeed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6156048127010894750, guid: d7c5d84192531db42bf9768732143f5a,
+        type: 3}
+      propertyPath: m_BackSortingLayer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6156048127010894750, guid: d7c5d84192531db42bf9768732143f5a,
+        type: 3}
+      propertyPath: m_FrontSortingLayer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6156048127010894750, guid: d7c5d84192531db42bf9768732143f5a,
+        type: 3}
+      propertyPath: m_FrontSortingOrder
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6156048127010894750, guid: d7c5d84192531db42bf9768732143f5a,
+        type: 3}
+      propertyPath: m_BackSortingLayerID
+      value: 1053253323
+      objectReference: {fileID: 0}
+    - target: {fileID: 6156048127010894750, guid: d7c5d84192531db42bf9768732143f5a,
+        type: 3}
+      propertyPath: m_FrontSortingLayerID
+      value: 1053253323
+      objectReference: {fileID: 0}
+    - target: {fileID: 6156048127010894750, guid: d7c5d84192531db42bf9768732143f5a,
+        type: 3}
+      propertyPath: m_IsCustomRangeActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d7c5d84192531db42bf9768732143f5a, type: 3}
 --- !u!1001 &8328952519334718462
@@ -8102,7 +8137,7 @@ PrefabInstance:
     - target: {fileID: 3758000306492427156, guid: 90f452b211acc384b80839d8ea68f3f2,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -22.18
+      value: -36.65
       objectReference: {fileID: 0}
     - target: {fileID: 3758000306492427156, guid: 90f452b211acc384b80839d8ea68f3f2,
         type: 3}
@@ -8112,7 +8147,7 @@ PrefabInstance:
     - target: {fileID: 3758000306492427156, guid: 90f452b211acc384b80839d8ea68f3f2,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -26.76
+      value: -25.75
       objectReference: {fileID: 0}
     - target: {fileID: 3758000306492427156, guid: 90f452b211acc384b80839d8ea68f3f2,
         type: 3}

@@ -56,4 +56,9 @@ namespace MarsTS.Commands {
 
 		}
 	}
+
+	public class UpgradeCommandlet : ProductionCommandlet {
+		public UpgradeCommandlet (string name, GameObject prefab, int timeRequired, CostEntry[] cost) : base(name, prefab, timeRequired, cost) {
+		}
+	}
 }

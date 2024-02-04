@@ -10,6 +10,7 @@ using MarsTS.Events;
 using MarsTS.Commands;
 using MarsTS.UI;
 using MarsTS.Vision;
+using UnityEngine.ProBuilder;
 
 namespace MarsTS.Units {
 
@@ -337,7 +338,18 @@ namespace MarsTS.Units {
 		}
 
 		public virtual bool CanCommand (string key) {
-			return true;
+			bool canUse = false;
+
+			for (int i = 0; i < boundCommands.Length; i++) {
+				if (boundCommands[i] == key) break;
+
+				if (i >= boundCommands.Length - 1) return false;
+			}
+
+			if (commands.CanCommand(key)) canUse = true;
+			//if (production.CanCommand(key)) canUse = true;
+
+			return canUse;
 		}
 	}
 }

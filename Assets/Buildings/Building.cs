@@ -9,13 +9,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.UI.GridLayoutGroup;
 using MarsTS.UI;
 using MarsTS.Vision;
+using System.Linq;
 
 namespace MarsTS.Buildings {
 
-	public abstract class Building : MonoBehaviour, ISelectable, ITaggable<Building>, IRegistryObject<Building>, IAttackable, ICommandable {
+	public abstract class Building : MonoBehaviour, ISelectable, ITaggable<Building>, IAttackable, ICommandable {
 
 		public GameObject GameObject { get {  return gameObject;  } }
 
@@ -57,15 +57,17 @@ namespace MarsTS.Buildings {
 
 		/*	ICommandable Properties	*/
 
-		public Commandlet CurrentCommand { get; protected set; }
+		public Commandlet CurrentCommand { get { return commands.Current; } }
 
-		public Commandlet[] CommandQueue { get { return commandQueue.ToArray(); } }
+		public Commandlet[] CommandQueue { get { return commands.Queue; } }
 
-		protected Queue<Commandlet> commandQueue = new Queue<Commandlet>();
+		public List<string> Active { get { return commands.Active; } }
 
-		public List<string> Active { get { return new(); } }
+		public List<Cooldown> Cooldowns { get { return commands.Cooldowns; } }
 
-		public List<Cooldown> Cooldowns => throw new NotImplementedException();
+		protected CommandQueue commands;
+
+		protected ProductionQueue production;
 
 		[SerializeField]
 		private string[] boundCommands;
@@ -100,12 +102,6 @@ namespace MarsTS.Buildings {
 
 		/*	Upgrades	*/
 
-		//How many steps will occur per second
-		[SerializeField]
-		protected float productionSpeed;
-		protected float stepTime;
-		protected float timeToStep;
-
 		public string RegistryType => "building";
 
 		private Entity entityComponent;
@@ -121,6 +117,8 @@ namespace MarsTS.Buildings {
 			selectionCircle = transform.Find("SelectionCircle").gameObject;
 			selectionCircle.SetActive(false);
 			Health = 1;
+			commands = GetComponent<CommandQueue>();
+			production = GetComponent<ProductionQueue>();
 
 			bus = GetComponent<EventAgent>();
 			entityComponent = GetComponent<Entity>();
@@ -132,45 +130,16 @@ namespace MarsTS.Buildings {
 				Health = maxHealth * (int) (currentWork / constructionWork);
 			}
 			else model.localScale = Vector3.zero;
-
-			stepTime = 1f / productionSpeed;
-			timeToStep = stepTime;
 		}
 
 		protected virtual void Start () {
 			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 
+			bus.AddListener<CommandStartEvent>(ExecuteOrder);
+
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 			EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
 			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
-		}
-
-		protected virtual void Update () {
-			UpdateQueue();
-
-			if (CurrentCommand != null && CurrentCommand is ProductionCommandlet production && production.Name == "upgrade") {
-				timeToStep -= Time.deltaTime;
-
-				if (timeToStep <= 0) {
-					production.ProductionProgress++;
-
-					if (production.ProductionProgress >= production.ProductionRequired) {
-						Upgrade(production);
-					}
-					else bus.Global(ProductionEvent.Step(bus, this));
-
-					timeToStep += stepTime;
-				}
-			}
-		}
-
-		protected void UpdateQueue () {
-			if (CurrentCommand is null && commandQueue.TryDequeue(out Commandlet order)) {
-
-				CurrentCommand = order;
-
-				bus.Global(ProductionEvent.Started(bus, this));
-			}
 		}
 
 		private void OnVisionInit (VisionInitEvent _event) {
@@ -194,10 +163,16 @@ namespace MarsTS.Buildings {
 		}
 
 		protected virtual void Upgrade (Commandlet order) {
-			ProductionCommandlet production = order as ProductionCommandlet;
-			Instantiate(production.Target, transform, false);
-			CurrentCommand = null;
-			bus.Global(new ProductionCompleteEvent(bus, production.Target, this));
+			bus.AddListener<CommandCompleteEvent>(UpgradeComplete);
+		}
+
+		protected virtual void UpgradeComplete (CommandCompleteEvent _event) {
+			bus.RemoveListener<CommandCompleteEvent>(UpgradeComplete);
+
+			IProducable order = _event.Command as IProducable;
+			GameObject product = Instantiate(order.Product, transform, false);
+
+			bus.Global(new ProductionCompleteEvent(bus, product, this, production, order));
 		}
 
 		public string[] Commands () {
@@ -210,22 +185,25 @@ namespace MarsTS.Buildings {
 		public virtual void Order (Commandlet order, bool inclusive) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 
-			if (order.Name == "upgrade") {
-				commandQueue.Enqueue(order);
-				bus.Global(ProductionEvent.Queued(bus, this));
-				return;
+			switch (order.Name) {
+				case "upgrade":
+					production.Enqueue(order);
+					return;
+				default:
+					return;
 			}
-
-			ProcessOrder(order);
 		}
 
-		protected virtual void ProcessOrder (Commandlet order) {
-			switch (order.Name) {
+		protected virtual void ExecuteOrder (CommandStartEvent _event) {
+			switch (_event.Command.Name) {
 				case "cancelConstruction":
 					CancelConstruction();
 					break;
+				case "upgrade":
+					Upgrade(_event.Command);
+					break;
 				default:
-				break;
+					break;
 			}
 		}
 
@@ -288,10 +266,6 @@ namespace MarsTS.Buildings {
 			return CommandRegistry.Get("move");
 		}
 
-		public IRegistryObject<Building> GetRegistryEntry () {
-			throw new NotImplementedException();
-		}
-
 		public Commandlet Auto (ISelectable target) {
 			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
 		}
@@ -301,9 +275,7 @@ namespace MarsTS.Buildings {
 				HealthInfo info = _event.Info.Module<HealthInfo>("health");
 				info.CurrentUnit = this;
 
-				if (commandQueue.Count > 0) {
-					_event.Info.Module<ProductionInfo>("productionQueue").SetQueue(this, CurrentCommand as ProductionCommandlet, commandQueue.ToArray() as ProductionCommandlet[]);
-				}
+				_event.Info.Module<ProductionInfo>("productionQueue").SetQueue(this, production.Current as IProducable, production.Queue as IProducable[]);
 			}
 		}
 
@@ -320,7 +292,18 @@ namespace MarsTS.Buildings {
 		}
 
 		public bool CanCommand (string key) {
-			throw new NotImplementedException();
+			bool canUse = false;
+
+			for (int i = 0; i < boundCommands.Length; i++) {
+				if (boundCommands[i] == key) break;
+
+				if (i >= boundCommands.Length - 1) return false;
+			}
+
+			if (commands.CanCommand(key)) canUse = true;
+			if (production.CanCommand(key)) canUse = true;
+
+			return canUse;
 		}
 	}
 }

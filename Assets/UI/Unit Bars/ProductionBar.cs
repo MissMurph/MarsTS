@@ -18,7 +18,7 @@ namespace MarsTS.UI {
 				FillLevel = (float)_event.CurrentProduction.ProductionProgress / _event.CurrentProduction.ProductionRequired;
 			});
 
-			bus.AddListener<UnitProducedEvent>((_event) => {
+			bus.AddListener<ProductionCompleteEvent>((_event) => {
 				barRenderer.enabled = false;
 				FillLevel = 0f;
 			});

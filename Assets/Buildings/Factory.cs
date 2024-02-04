@@ -12,16 +12,6 @@ namespace MarsTS.Buildings {
 
     public class Factory : Building {
 
-		
-
-		//public Queue<ProductionCommandlet> ProductionQueue { get; protected set; } 
-
-		//public ProductionCommandlet CurrentProduction { get; protected set; }
-
-		//public override Commandlet CurrentCommand { get { return CurrentProduction; } }
-
-		//public override Commandlet[] CommandQueue { get { return ProductionQueue.ToArray(); } }
-
 		protected Queue<Commandlet> rallyOrders = new Queue<Commandlet>();
 
 		//This queue is required so that timing isn't broken with the Player selection code, if a unit calls its death
@@ -48,11 +38,9 @@ namespace MarsTS.Buildings {
 			base.Start();
 
 			exitOrder = CommandRegistry.Get<Move>("move").Construct(transform.position + (Vector3.forward * 10f));
-
-			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 		}
 
-		protected override void Update () {
+		/*protected override void Update () {
 			UpdateQueue();
 
 			if (CurrentCommand != null && CurrentCommand is ProductionCommandlet production) {
@@ -69,10 +57,17 @@ namespace MarsTS.Buildings {
 					timeToStep += stepTime;
 				}
 			}
+		}*/
+
+		protected virtual void Produce (CommandStartEvent _event) {
+			bus.AddListener<CommandCompleteEvent>(ProductionComplete);
 		}
 
-		protected virtual void ProduceUnit (ProductionCommandlet order) {
-			ISelectable newUnit = Instantiate(order.Target, transform.position + (Vector3.up), Quaternion.Euler(0f, 0f, 0f)).GetComponent<ISelectable>();
+		protected virtual void ProductionComplete (CommandCompleteEvent _event) {
+			bus.RemoveListener<CommandCompleteEvent>(ProductionComplete);
+
+			IProducable order = _event.Command as IProducable;
+			ISelectable newUnit = Instantiate(order.Product, transform.position + (Vector3.up), Quaternion.Euler(0f, 0f, 0f)).GetComponent<ISelectable>();
 
 			Collider[] unitColliders = newUnit.GameObject.transform.Find("Model").GetComponentsInChildren<Collider>();
 
@@ -94,34 +89,66 @@ namespace MarsTS.Buildings {
 				commandable.Order(newCommand.Clone(), true);
 			}
 
-			CurrentCommand = null;
-			bus.Global(new UnitProducedEvent(bus, newUnit, this));
+			//CurrentCommand = null;
+			bus.Global(new ProductionCompleteEvent(bus, newUnit.GameObject, this, production, order));
 		}
 
-		protected override void ProcessOrder (Commandlet order) {
+		public override void Order (Commandlet order, bool inclusive) {
+			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
+
 			switch (order.Name) {
+				case "stop":
+
+					break;
+				case "move":
+
+					break;
+				case "produce":
+					production.Enqueue(order);
+					break;
+				default:
+					base.Order(order, inclusive);
+					return;
+			}
+
+			if (inclusive) rallyOrders.Enqueue(order);
+			else {
+				rallyOrders.Clear();
+				rallyOrders.Enqueue(order);
+			}
+		}
+
+		protected override void ExecuteOrder (CommandStartEvent _event) {
+			switch (_event.Command.Name) {
+				case "produce":
+					Produce(_event);
+					break;
 				case "stop":
 					Stop();
 					break;
 				default:
-					base.ProcessOrder(order);
+					base.ExecuteOrder(_event);
 					break;
 			}
 		}
 
 		protected virtual void Stop () {
-			CommandCompleteEvent currentCancel = new CommandCompleteEvent(bus, CurrentCommand, true, this);
+			//CommandCompleteEvent currentCancel = new CommandCompleteEvent(bus, CurrentCommand, true, this);
 
-			CurrentCommand.Callback.Invoke(currentCancel);
+			//CurrentCommand.Callback.Invoke(currentCancel);
 
-			bus.Global(currentCancel);
+			//bus.Global(currentCancel);
 
-			foreach (Commandlet order in commandQueue) {
+			/*foreach (Commandlet order in commandQueue) {
 				order.Callback.Invoke(new CommandCompleteEvent(bus, order, true, this));
-			}
+			}*/
 
-			commandQueue.Clear();
-			CurrentCommand = null;
+			//commandQueue.Clear();
+			//CurrentCommand = null;
+
+			commands.Clear();
+			production.Clear();
+			rallyOrders.Clear();
 		}
 
 		protected void UnitExitCallback (CommandCompleteEvent _event) {
@@ -134,29 +161,6 @@ namespace MarsTS.Buildings {
 			}
 
 			_event.Command.Callback.RemoveListener(UnitExitCallback);
-		}
-
-		public override void Order (Commandlet order, bool inclusive) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
-
-			foreach (string command in rallyCommands) {
-				if (order.Name == command) {
-					if (inclusive) rallyOrders.Enqueue(order);
-					else {
-						rallyOrders.Clear();
-						rallyOrders.Enqueue(order);
-					}
-					return;
-				}
-			}
-
-			if (order.Name == "produce" || order.Name == "upgrade") {
-				commandQueue.Enqueue(order);
-				bus.Global(ProductionEvent.Queued(bus, this));
-				return;
-			}
-
-			ProcessOrder(order);
 		}
 	}
 }

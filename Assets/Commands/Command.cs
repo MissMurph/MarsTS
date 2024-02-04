@@ -60,7 +60,7 @@ namespace MarsTS.Commands {
 		public string Name { get; protected set; }
 		public Faction Commander { get; protected set; }
 		public UnityEvent<CommandCompleteEvent> Callback = new UnityEvent<CommandCompleteEvent>();
-		public Command Command { get { return CommandRegistry.Get(Name); } }
+		public virtual Command Command { get { return CommandRegistry.Get(Name); } }
 
 		public Commandlet<T> Get<T> () {
 			if (typeof(T).Equals(TargetType)) return this as Commandlet<T>;
@@ -72,6 +72,10 @@ namespace MarsTS.Commands {
 		}
 
 		public virtual void OnStart (CommandQueue queue, CommandStartEvent _event) {
+
+		}
+
+		public virtual void OnActivate (CommandQueue queue, CommandActiveEvent _event) {
 
 		}
 

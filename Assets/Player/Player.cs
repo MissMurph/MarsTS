@@ -190,6 +190,14 @@ namespace MarsTS.Players {
 			}
 		}
 
+		public void DistributeCommand (Commandlet packet, bool inclusive) {
+			foreach (KeyValuePair<string, Roster> entry in Selected) {
+				foreach (ICommandable orderable in entry.Value.Orderable) {
+					if (orderable.CanCommand(packet.Name)) ;
+				}
+			}
+		}
+
 		public void Alternate (InputAction.CallbackContext context) {
 			if (context.performed) alternate = true;
 			if (context.canceled) alternate = false;

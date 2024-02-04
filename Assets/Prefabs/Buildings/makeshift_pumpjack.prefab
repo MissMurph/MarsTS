@@ -1223,6 +1223,8 @@ GameObject:
   - component: {fileID: 5367866818507981617}
   - component: {fileID: 8638639003086698277}
   - component: {fileID: 2018745250206065248}
+  - component: {fileID: 7421492617111447454}
+  - component: {fileID: 3531387192427473891}
   m_Layer: 0
   m_Name: makeshift_pumpjack
   m_TagString: Untagged
@@ -1277,7 +1279,6 @@ MonoBehaviour:
   constructionCost:
   - key: resource_unit
     amount: 350
-  productionSpeed: 1
   visionObjects:
   - {fileID: 5481439600329218944}
   - {fileID: 5367866817302535497}
@@ -1340,6 +1341,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   visionRange: 1
   isSneaking: 0
+--- !u!114 &7421492617111447454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5367866818507981616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 866af88a2db170c42a48b68ed236afd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3531387192427473891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5367866818507981616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ec1573b00b570e41bd9eb6c4e1bb97d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  productionSpeed: 0
 --- !u!1 &5481439600329218944
 GameObject:
   m_ObjectHideFlags: 0

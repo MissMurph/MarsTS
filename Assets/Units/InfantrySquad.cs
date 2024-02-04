@@ -14,6 +14,7 @@ using static UnityEditor.Experimental.GraphView.Port;
 using UnityEngine.SocialPlatforms.Impl;
 using static UnityEngine.GraphicsBuffer;
 using UnityEditor.PackageManager;
+using UnityEngine.ProBuilder;
 
 namespace MarsTS.Units {
 
@@ -323,7 +324,18 @@ namespace MarsTS.Units {
 		}
 
 		public bool CanCommand (string key) {
-			return commands.CanCommand(key);
+			bool canUse = false;
+
+			for (int i = 0; i < boundCommands.Length; i++) {
+				if (boundCommands[i] == key) break;
+
+				if (i >= boundCommands.Length - 1) return false;
+			}
+
+			if (commands.CanCommand(key)) canUse = true;
+			//if (production.CanCommand(key)) canUse = true;
+
+			return canUse;
 		}
 	}
 }

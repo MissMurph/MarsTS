@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace MarsTS.Commands {
 
-	public class Deploy : Command<bool> {
+	public class Undeploy : Command<bool> {
 		public override string Name { get { return commandName; } }
 
 		[SerializeField]
@@ -37,15 +37,13 @@ namespace MarsTS.Commands {
 						if (unit.Active.Count == 0) continue;
 
 						foreach (string activeCommand in unit.Active) {
-							if (activeCommand == Name) totalDeployed++;
+							if (activeCommand == "deploy") totalDeployed++;
 						}
 					}
 				}
 			}
 
 			Player.Main.DeliverCommand(Construct(totalCanDeploy > totalDeployed), Player.Include);
-
-			//Player.Main.DeliverCommand(new Commandlet<bool>(Name, true, Player.Main), Player.Include);
 		}
 
 		public override CostEntry[] GetCost () {
@@ -57,16 +55,16 @@ namespace MarsTS.Commands {
 		}
 
 		public override Commandlet Construct (bool _target) {
-			return new DeployCommandlet(Name, _target, deployTime);
+			return new UndeployCommandlet(Name, _target, deployTime);
 		}
 	}
 
-	public class DeployCommandlet : Commandlet<bool>, IWorkable {
+	public class UndeployCommandlet : Commandlet<bool>, IWorkable {
 
 		public float WorkRequired { get; private set; }
 		public float CurrentWork { get; set; }
 
-		public DeployCommandlet (string _name, bool _status, float _workRequired) : base(_name, _status, Player.Main) {
+		public UndeployCommandlet (string _name, bool _status, float _workRequired) : base(_name, _status, Player.Main) {
 			WorkRequired = _workRequired;
 			CurrentWork = 0f;
 		}
@@ -78,18 +76,13 @@ namespace MarsTS.Commands {
 		}
 
 		public override void OnComplete (CommandQueue queue, CommandCompleteEvent _event) {
-			base.OnComplete(queue, _event);
+			queue.Deactivate("deploy");
 
-			queue.Activate(this, Target);
+			base.OnComplete(queue, _event);
 		}
 
 		public override bool CanInterrupt () {
 			return false;
 		}
-	}
-
-	public interface IWorkable {
-		float WorkRequired { get; }
-		float CurrentWork { get; set; }
 	}
 }

@@ -99,7 +99,7 @@ namespace MarsTS.UI {
 		}
 
 		private void Start () {
-			EventBus.AddListener<UnitProducedEvent>(OnUnitProduction);
+			EventBus.AddListener<ProductionCompleteEvent>(OnUnitProduction);
 			EventBus.AddListener<ProductionEvent>(OnProductionStep);
 			EventBus.AddListener<ProductionEvent>(OnProductionUpdate);
 		}
@@ -107,7 +107,7 @@ namespace MarsTS.UI {
 		private void OnProductionUpdate (ProductionEvent _event) {
 			if (_event.Name != "productionStarted" && _event.Name != "productionQueued") return;
 			if (ReferenceEquals(_event.Producer, currentUnit)) {
-				SetQueue(currentUnit, _event.CurrentProduction, _event.ProductionQueue);
+				SetQueue(currentUnit, _event.CurrentProduction, _event.Queue.Queue as IProducable[]);
 			}
 		}
 
@@ -119,10 +119,10 @@ namespace MarsTS.UI {
 			}
 		}
 
-		private void OnUnitProduction (UnitProducedEvent _event) {
+		private void OnUnitProduction (ProductionCompleteEvent _event) {
 			if (ReferenceEquals(_event.Producer, currentUnit)) {
-				ProductionCommandlet currentProd = _event.Producer.CurrentCommand as ProductionCommandlet;
-				ProductionCommandlet[] queue = _event.Producer.CommandQueue as ProductionCommandlet[];
+				IProducable currentProd = _event.CurrentProduction;
+				IProducable[] queue = _event.Queue.Queue as IProducable[];
 
 				if (currentProd != null && queue.Length > 0) {
 					SetQueue(currentUnit, currentProd, queue);
@@ -137,11 +137,11 @@ namespace MarsTS.UI {
 
 		
 
-		public void SetQueue (ICommandable unit, ProductionCommandlet current, ProductionCommandlet[] queue) {
+		public void SetQueue (ICommandable unit, IProducable current, IProducable[] queue) {
 			currentUnit = unit;
 
 			if (current != null) {
-				currentProdIcon.sprite = current.Command.Icon;
+				currentProdIcon.sprite = current.Get().Command.Icon;
 				currentProdIcon.transform.parent.gameObject.SetActive(true);
 				productionProgress.SetActive(true);
 
@@ -152,7 +152,7 @@ namespace MarsTS.UI {
 
 				for (int i = 0; i < orders; i++) {
 					if (i < queueIcons.Length) {
-						queueIcons[i].sprite = queue[i].Command.Icon;
+						queueIcons[i].sprite = queue[i].Get().Command.Icon;
 						queueObjects[i].SetActive(true);
 					}
 					else {

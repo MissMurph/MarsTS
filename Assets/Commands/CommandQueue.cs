@@ -9,7 +9,7 @@ namespace MarsTS.Commands {
 
     public class CommandQueue : MonoBehaviour {
         
-        public Commandlet Current { get; private set; }
+        public Commandlet Current { get; protected set; }
 
         public Commandlet[] Queue { get { return commandQueue.ToArray(); } }
         protected Queue<Commandlet> commandQueue;
@@ -20,6 +20,8 @@ namespace MarsTS.Commands {
 		public List<Cooldown> Cooldowns { get { return activeCooldowns.Values.ToList(); } }
 		protected Dictionary<string, Cooldown> activeCooldowns;
 		protected List<Cooldown> completedCooldowns;
+
+		public int Count { get { return Current is not null ? 1 + commandQueue.Count : 0; } }
 
 		protected ISelectable parent;
 		protected EventAgent bus;
@@ -97,15 +99,23 @@ namespace MarsTS.Commands {
 		public virtual void Activate (Commandlet order, bool status) {
 			if (status) {
 				activeCommands[order.Name] = order;
-				order.OnStart(this, new CommandStartEvent(bus, order, parent));
+				order.OnActivate(this, new CommandActiveEvent(bus, parent, order, status));
 			}
 			else if (activeCommands.TryGetValue(order.Name, out Commandlet toDeactivate)) {
-				CommandCompleteEvent _event = new CommandCompleteEvent(bus, Current, false, parent);
-				toDeactivate.OnComplete(this, _event);
-				activeCommands.Remove(order.Name);
+				CommandActiveEvent _event = new CommandActiveEvent(bus, parent, toDeactivate, status);
+				toDeactivate.OnActivate(this, _event);
+				activeCommands.Remove(toDeactivate.Name);
 			}
 
 			bus.Global(new CommandActiveEvent(bus, parent, order, status));
+		}
+
+		public virtual void Deactivate (string key) {
+			if (activeCommands.TryGetValue(key, out Commandlet toDeactivate)) {
+				CommandActiveEvent _event = new CommandActiveEvent(bus, parent, toDeactivate, false);
+				toDeactivate.OnActivate(this, _event);
+				activeCommands.Remove(toDeactivate.Name);
+			}
 		}
 
 		public virtual void Cooldown (Commandlet order, float time) {
@@ -113,9 +123,14 @@ namespace MarsTS.Commands {
 		}
 
 		public virtual void Clear () {
+			foreach (Commandlet order in commandQueue) {
+				order.OnComplete(this, new CommandCompleteEvent(bus, order, false, parent));
+			}
+
+			commandQueue.Clear();
+
 			CommandCompleteEvent _event = new CommandCompleteEvent(bus, Current, false, parent);
 			Current.OnComplete(this, _event);
-			//bus.Global(_event);
 			Current = null;
 		}
 

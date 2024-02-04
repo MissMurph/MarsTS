@@ -72,8 +72,8 @@ namespace MarsTS.Units {
 					Deploy(_event.Command);
 					break;
 				default:
-				base.ExecuteOrder(_event);
-				break;
+					base.ExecuteOrder(_event);
+					break;
 			}
 		}
 

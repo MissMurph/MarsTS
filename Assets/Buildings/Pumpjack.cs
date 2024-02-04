@@ -58,9 +58,7 @@ namespace MarsTS.Buildings {
 			bus.AddListener<EntityInitEvent>(OnEntityInit);
 		}
 
-		protected override void Update () {
-			base.Update();
-
+		protected void Update () {
 			if (Constructed && exploited != null) {
 				currentCooldown -= Time.deltaTime;
 
@@ -84,12 +82,6 @@ namespace MarsTS.Buildings {
 
 		public virtual bool CanHarvest (string resourceKey, ISelectable unit) {
 			return resourceKey == "oil" && (unit.Owner == Owner || unit.UnitType == "roughneck");
-		}
-
-		public override void Order (Commandlet order, bool inclusive) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
-
-			if (!Constructed) ProcessOrder(order);
 		}
 
 		private int Pump (int amount) {
@@ -131,11 +123,11 @@ namespace MarsTS.Buildings {
 				info.CurrentValue = stored;
 				info.MaxValue = capacity;
 
-				if (commandQueue.Count > 0) {
+				//if (commandQueue.Count > 0) {
 					//queue.SetQueue(this, CurrentCommand as ProductionCommandlet, commandQueue.ToArray() as ProductionCommandlet[]);
-					_event.Info.SetHide("storage");
-				}
-				else _event.Info.SetHide("productionQueue");
+					//_event.Info.SetHide("storage");
+				//}
+				//else _event.Info.SetHide("productionQueue");
 
 				//bus.AddListener<ProductionEvent>(OnProductionStart);
 			}

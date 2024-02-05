@@ -4259,7 +4259,7 @@ MonoBehaviour:
     target: {x: 0, y: 0}
   description: A slow moving unit that both constructs buildings and can repair units
   prefab: {fileID: 3050993961840164310, guid: c3590048fa9d52b45bcd9c4b3a8c11df, type: 3}
-  timeRequired: 60
+  timeRequired: 10
   cost:
   - key: resource_unit
     amount: 250
@@ -5350,7 +5350,7 @@ MonoBehaviour:
     target: {x: 0, y: 0}
   description: 
   prefab: {fileID: 209729225734903553, guid: be54849480c2569428938b526f60ec1e, type: 3}
-  timeRequired: 60
+  timeRequired: 10
   cost:
   - key: resource_unit
     amount: 150
@@ -8005,6 +8005,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 914151687094356909, guid: d7c5d84192531db42bf9768732143f5a,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4367344837201828623, guid: d7c5d84192531db42bf9768732143f5a,
         type: 3}
       propertyPath: m_Name
@@ -8078,6 +8083,11 @@ PrefabInstance:
     - target: {fileID: 4753157223906513630, guid: d7c5d84192531db42bf9768732143f5a,
         type: 3}
       propertyPath: productionSpeed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6156048127010894750, guid: d7c5d84192531db42bf9768732143f5a,
+        type: 3}
+      propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6156048127010894750, guid: d7c5d84192531db42bf9768732143f5a,

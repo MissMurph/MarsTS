@@ -36,13 +36,12 @@ namespace MarsTS.Vision {
 		}
 
 		protected override void OnVisionUpdate (VisionUpdateEvent _event) {
-			
-
 			if (isSneaking) {
 				int sneakMask = owner.VisionMask;
 
 				foreach (ISelectable unit in stealthSensor.InRange) {
 					if (unit.UnitType == "pumpjack") continue;
+					if (unit.Owner is null) continue;
 					sneakMask |= unit.Owner.VisionMask;
 				}
 

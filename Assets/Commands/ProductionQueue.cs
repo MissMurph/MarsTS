@@ -8,6 +8,19 @@ namespace MarsTS.Commands {
 
     public class ProductionQueue : CommandQueue {
 
+		public IProducable[] QueuedProduction {
+			get {
+				IProducable[] output = new IProducable[commandQueue.Count];
+				Commandlet[] originalQueue = commandQueue.ToArray();
+
+				for (int i = 0; i < commandQueue.Count; i++) {
+					output[i] = originalQueue[i] as IProducable;
+				}
+
+				return output;
+			}
+		}
+
 		//How many steps will occur per second
 		[SerializeField]
 		protected float productionSpeed;
@@ -18,7 +31,7 @@ namespace MarsTS.Commands {
 			base.Awake();
 
 			stepTime = 1f / productionSpeed;
-			timeToStep = stepTime;
+			timeToStep = 0f;
 		}
 
 		protected override void Update () {

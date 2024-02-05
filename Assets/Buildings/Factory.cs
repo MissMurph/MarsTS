@@ -32,6 +32,7 @@ namespace MarsTS.Buildings {
 			base.Awake();
 
 			colliders = new List<Collider>(model.GetComponentsInChildren<Collider>());
+			colliders.AddRange(transform.Find("Collider").GetComponentsInChildren<Collider>());
 		}
 
 		protected override void Start () {
@@ -40,31 +41,14 @@ namespace MarsTS.Buildings {
 			exitOrder = CommandRegistry.Get<Move>("move").Construct(transform.position + (Vector3.forward * 10f));
 		}
 
-		/*protected override void Update () {
-			UpdateQueue();
-
-			if (CurrentCommand != null && CurrentCommand is ProductionCommandlet production) {
-				timeToStep -= Time.deltaTime;
-
-				if (timeToStep <= 0) {
-					production.ProductionProgress++;
-
-					if (production.ProductionProgress >= production.ProductionRequired) {
-						ProduceUnit(production);
-					}
-					else bus.Global(ProductionEvent.Step(bus, this));
-
-					timeToStep += stepTime;
-				}
-			}
-		}*/
-
 		protected virtual void Produce (CommandStartEvent _event) {
 			bus.AddListener<CommandCompleteEvent>(ProductionComplete);
 		}
 
 		protected virtual void ProductionComplete (CommandCompleteEvent _event) {
 			bus.RemoveListener<CommandCompleteEvent>(ProductionComplete);
+
+			if (_event.CommandCancelled) return;
 
 			IProducable order = _event.Command as IProducable;
 			ISelectable newUnit = Instantiate(order.Product, transform.position + (Vector3.up), Quaternion.Euler(0f, 0f, 0f)).GetComponent<ISelectable>();
@@ -133,19 +117,6 @@ namespace MarsTS.Buildings {
 		}
 
 		protected virtual void Stop () {
-			//CommandCompleteEvent currentCancel = new CommandCompleteEvent(bus, CurrentCommand, true, this);
-
-			//CurrentCommand.Callback.Invoke(currentCancel);
-
-			//bus.Global(currentCancel);
-
-			/*foreach (Commandlet order in commandQueue) {
-				order.Callback.Invoke(new CommandCompleteEvent(bus, order, true, this));
-			}*/
-
-			//commandQueue.Clear();
-			//CurrentCommand = null;
-
 			commands.Clear();
 			production.Clear();
 			rallyOrders.Clear();

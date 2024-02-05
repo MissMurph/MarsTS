@@ -107,7 +107,7 @@ namespace MarsTS.UI {
 		private void OnProductionUpdate (ProductionEvent _event) {
 			if (_event.Name != "productionStarted" && _event.Name != "productionQueued") return;
 			if (ReferenceEquals(_event.Producer, currentUnit)) {
-				SetQueue(currentUnit, _event.CurrentProduction, _event.Queue.Queue as IProducable[]);
+				SetQueue(currentUnit, _event.CurrentProduction, _event.Queue.QueuedProduction);
 			}
 		}
 
@@ -122,7 +122,7 @@ namespace MarsTS.UI {
 		private void OnUnitProduction (ProductionCompleteEvent _event) {
 			if (ReferenceEquals(_event.Producer, currentUnit)) {
 				IProducable currentProd = _event.CurrentProduction;
-				IProducable[] queue = _event.Queue.Queue as IProducable[];
+				IProducable[] queue = _event.Queue.QueuedProduction;
 
 				if (currentProd != null && queue.Length > 0) {
 					SetQueue(currentUnit, currentProd, queue);

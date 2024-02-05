@@ -275,7 +275,7 @@ namespace MarsTS.Buildings {
 				HealthInfo info = _event.Info.Module<HealthInfo>("health");
 				info.CurrentUnit = this;
 
-				_event.Info.Module<ProductionInfo>("productionQueue").SetQueue(this, production.Current as IProducable, production.Queue as IProducable[]);
+				_event.Info.Module<ProductionInfo>("productionQueue").SetQueue(this, production.Current as IProducable, production.QueuedProduction);
 			}
 		}
 

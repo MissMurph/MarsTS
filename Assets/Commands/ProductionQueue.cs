@@ -42,7 +42,7 @@ namespace MarsTS.Commands {
 				CommandStartEvent _event = new CommandStartEvent(bus, order, parent);
 				order.OnStart(this, _event);
 
-				bus.Local(_event);
+				bus.Global(_event);
 				bus.Global(ProductionEvent.Started(bus, parent, this, Current as IProducable));
 
 				return;
@@ -79,13 +79,15 @@ namespace MarsTS.Commands {
 				return;
 			}
 
+			if (!orderSource.CanCommand(order.Command.Name)) return;
+
 			base.Enqueue(order);
 
 			bus.Global(ProductionEvent.Queued(bus, parent, this, Current as IProducable));
 		}
 
 		public override bool CanCommand (string key) {
-			if (Current != null && Current.Name == key && Current is UpgradeCommandlet) return false;
+			if (Current != null && Current.Command.Name == key && Current is UpgradeCommandlet) return false;
 
 			foreach (Commandlet order in Queue) {
 				if (order.Name == key && order is UpgradeCommandlet) {

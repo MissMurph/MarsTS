@@ -191,6 +191,23 @@ namespace MarsTS.Units {
 			}
 		}
 
+		public override void Order (Commandlet order, bool inclusive) {
+			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
+
+			switch (order.Name) {
+				case "harvest":
+					break;
+				case "deposit":
+					break;
+				default:
+					base.Order(order, inclusive);
+					return;
+			}
+
+			if (inclusive) commands.Enqueue(order);
+			else commands.Execute(order);
+		}
+
 		protected override void ExecuteOrder (CommandStartEvent _event) {
 			switch (_event.Command.Name) {
 				case "harvest":
@@ -244,9 +261,9 @@ namespace MarsTS.Units {
 			if (Stored <= 0) {
 				bus.RemoveListener<HarvesterDepositEvent>(OnDeposit);
 
-				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+				//CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
-				CurrentCommand.Callback.Invoke(newEvent);
+				//CurrentCommand.Callback.Invoke(newEvent);
 
 				DepositTarget = null;
 				TrackedTarget = null;
@@ -278,15 +295,15 @@ namespace MarsTS.Units {
 		//Could potentially move these to the actual Command Classes
 		private void OnExtraction (ResourceHarvestedEvent _event) {
 			if (Stored >= Capacity) {
-				bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
+				//bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
-				EntityCache.TryGet(_event.Deposit.GameObject.transform.root.name, out EventAgent targetBus);
+				//EntityCache.TryGet(_event.Deposit.GameObject.transform.root.name, out EventAgent targetBus);
 
-				targetBus.RemoveListener<EntityDeathEvent>(OnDepositDepleted);
+				//targetBus.RemoveListener<EntityDeathEvent>(OnDepositDepleted);
 
-				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+				//CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
-				CurrentCommand.Callback.Invoke(newEvent);
+				//CurrentCommand.Callback.Invoke(newEvent);
 
 				FindDepositable();
 			}

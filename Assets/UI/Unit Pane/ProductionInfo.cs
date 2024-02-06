@@ -128,14 +128,16 @@ namespace MarsTS.UI {
 					SetQueue(currentUnit, currentProd, queue);
 				}
 				else {
-					currentProdIcon.transform.parent.gameObject.SetActive(false);
-					overflow.transform.parent.gameObject.SetActive(false);
-					productionProgress.SetActive(false);
+					Deactivate();
 				}
 			}
 		}
 
-		
+		private void Deactivate () {
+			currentProdIcon.transform.parent.gameObject.SetActive(false);
+			overflow.transform.parent.gameObject.SetActive(false);
+			productionProgress.SetActive(false);
+		}
 
 		public void SetQueue (ICommandable unit, IProducable current, IProducable[] queue) {
 			currentUnit = unit;
@@ -167,6 +169,9 @@ namespace MarsTS.UI {
 						queueObjects[i].SetActive(false);
 					}
 				}
+			}
+			else {
+				Deactivate();
 			}
 		}
 	}

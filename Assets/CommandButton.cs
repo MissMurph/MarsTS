@@ -32,7 +32,9 @@ namespace MarsTS.UI {
         private void Start () {
             EventBus.AddListener<CommandActiveEvent>(OnCommandActivate);
             EventBus.AddListener<CooldownEvent>(OnCooldownUpdate);
-        }
+            EventBus.AddListener<CommandStartEvent>(OnCommandStart);
+
+		}
 
 		public void UpdateCommand (string key) {
             if (key == "") {
@@ -69,6 +71,18 @@ namespace MarsTS.UI {
         public void OnPointerExitButton () {
 
         }
+
+        private void OnCommandStart (CommandStartEvent _event) {
+			if (current is null) return;
+            if (_event.Command.Command.Name == current.Name) {
+
+                if (!Player.Main.HasSelected(_event.Unit)) return;
+                if (Player.UI.PrimarySelected != _event.Unit.RegistryKey) return;
+
+				EvaluateUsability();
+                EvaluateActivity();
+			}
+		}
 
         private void OnCommandActivate (CommandActiveEvent _event) {
             if (current is null) return;

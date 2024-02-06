@@ -33,7 +33,7 @@ namespace MarsTS.Commands {
 		}
 
 		public override Commandlet Construct (GameObject _target) {
-			return new ProductionCommandlet("upgrade", _target, timeRequired, cost);
+			return new UpgradeCommandlet("upgrade", _target, timeRequired, cost);
 		}
 
 		public override CostEntry[] GetCost () {

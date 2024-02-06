@@ -60,21 +60,21 @@ namespace MarsTS.Vision {
 		}
 
 		private void OnSelect (UnitSelectEvent _event) {
-			if (isSneaking && _event.Status) {
+			/*if (isSneaking && _event.Status) {
 				rangeIndicator.SetActive(true);
 			}
 			else {
 				rangeIndicator.SetActive(false);
-			}
+			}*/
 		}
 
 		private void OnHover (UnitHoverEvent _event) {
-			if (isSneaking && _event.Status) {
+			/*if (isSneaking && _event.Status) {
 				rangeIndicator.SetActive(true);
 			}
 			else {
 				rangeIndicator.SetActive(false);
-			}
+			}*/
 		}
 	}
 }

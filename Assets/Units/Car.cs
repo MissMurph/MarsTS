@@ -1,6 +1,7 @@
 using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
+using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.World;
 using System.Collections;
@@ -146,6 +147,21 @@ namespace MarsTS.Units {
 					body.AddRelativeForce(-body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
 				}
 			}
+		}
+
+		public override void Order (Commandlet order, bool inclusive) {
+			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
+
+			switch (order.Name) {
+				case "attack":
+					break;
+				default:
+					base.Order(order, inclusive);
+					return;
+			}
+
+			if (inclusive) commands.Enqueue(order);
+			else commands.Execute(order);
 		}
 
 		protected override void ExecuteOrder (CommandStartEvent _event) {

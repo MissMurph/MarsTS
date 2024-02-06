@@ -172,6 +172,14 @@ namespace MarsTS.Buildings {
 			IProducable order = _event.Command as IProducable;
 			GameObject product = Instantiate(order.Product, transform, false);
 
+			for (int i = 0; i < boundCommands.Length; i++) {
+				if (boundCommands[i] == _event.Command.Command.Name) {
+					boundCommands[i] = "";
+					bus.Global(new CommandsUpdatedEvent(bus, this, Commands()));
+					break;
+				}
+			}
+
 			bus.Global(new ProductionCompleteEvent(bus, product, this, production, order));
 		}
 
@@ -292,7 +300,7 @@ namespace MarsTS.Buildings {
 		}
 
 		public bool CanCommand (string key) {
-			bool canUse = false;
+			bool canUse = true;
 
 			for (int i = 0; i < boundCommands.Length; i++) {
 				if (boundCommands[i] == key) break;
@@ -300,8 +308,8 @@ namespace MarsTS.Buildings {
 				if (i >= boundCommands.Length - 1) return false;
 			}
 
-			if (commands.CanCommand(key)) canUse = true;
-			if (production.CanCommand(key)) canUse = true;
+			if (!commands.CanCommand(key)) canUse = false;
+			if (!production.CanCommand(key)) canUse = false;
 
 			return canUse;
 		}

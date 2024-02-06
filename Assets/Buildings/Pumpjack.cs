@@ -112,24 +112,13 @@ namespace MarsTS.Buildings {
 		}
 
 		protected override void OnUnitInfoDisplayed (UnitInfoEvent _event) {
+			base.OnUnitInfoDisplayed(_event);
+
 			if (ReferenceEquals(_event.Unit, this)) {
-				HealthInfo health = _event.Info.Module<HealthInfo>("health");
-				health.CurrentUnit = this;
-
-				//ProductionQueue queue = _event.Info.Module<ProductionQueue>("productionQueue");
-
 				StorageInfo info = _event.Info.Module<StorageInfo>("storage");
 				info.CurrentUnit = this;
 				info.CurrentValue = stored;
 				info.MaxValue = capacity;
-
-				//if (commandQueue.Count > 0) {
-					//queue.SetQueue(this, CurrentCommand as ProductionCommandlet, commandQueue.ToArray() as ProductionCommandlet[]);
-					//_event.Info.SetHide("storage");
-				//}
-				//else _event.Info.SetHide("productionQueue");
-
-				//bus.AddListener<ProductionEvent>(OnProductionStart);
 			}
 		}
 

@@ -24,10 +24,12 @@ namespace MarsTS.Commands {
 		public int Count { get { return Current is not null ? 1 + commandQueue.Count : 0; } }
 
 		protected ISelectable parent;
+		protected ICommandable orderSource;
 		protected EventAgent bus;
 
 		protected virtual void Awake () {
 			parent = GetComponent<ISelectable>();
+			orderSource = parent as ICommandable;
 			bus = GetComponent<EventAgent>();
 
 			commandQueue = new Queue<Commandlet>();
@@ -79,6 +81,7 @@ namespace MarsTS.Commands {
 		}
 
 		public virtual void Execute (Commandlet order) {
+			if (!orderSource.CanCommand(order.Command.Name)) return;
 			commandQueue.Clear();
 
 			if (Current != null) {
@@ -93,6 +96,7 @@ namespace MarsTS.Commands {
 		}
 
 		public virtual void Enqueue (Commandlet order) {
+			if (!orderSource.CanCommand(order.Command.Name)) return;
 			commandQueue.Enqueue(order);
 		}
 

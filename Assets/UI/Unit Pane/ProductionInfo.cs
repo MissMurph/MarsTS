@@ -137,6 +137,10 @@ namespace MarsTS.UI {
 			currentProdIcon.transform.parent.gameObject.SetActive(false);
 			overflow.transform.parent.gameObject.SetActive(false);
 			productionProgress.SetActive(false);
+
+			for (int i = 0; i < queueObjects.Length; i++) {
+				queueObjects[i].SetActive(false);
+			}
 		}
 
 		public void SetQueue (ICommandable unit, IProducable current, IProducable[] queue) {

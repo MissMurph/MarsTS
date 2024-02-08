@@ -5,12 +5,12 @@ using UnityEngine;
 
 namespace MarsTS.Events {
 
-	public class UnitVisibleEvent : SelectableEvent {
+	public class EntityVisibleEvent : SelectableEvent {
 
 		public bool Visible { get; private set; }
 		public string UnitName { get { return Unit.GameObject.name; } }
 
-		public UnitVisibleEvent (EventAgent _source, ISelectable _unit, bool _visible) : base("Visible", _source, _unit) {
+		public EntityVisibleEvent (EventAgent _source, ISelectable _unit, bool _visible) : base("Visible", _source, _unit) {
 			Visible = _visible;
 		}
 	}

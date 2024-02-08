@@ -55,7 +55,7 @@ namespace MarsTS.Units {
 				if (attackTarget != null) {
 					EntityCache.TryGet(attackTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
 					oldAgent.RemoveListener<EntityDeathEvent>((_event) => AttackTarget = null);
-					oldAgent.RemoveListener<UnitVisibleEvent>((_event) => {
+					oldAgent.RemoveListener<EntityVisibleEvent>((_event) => {
 						if (!_event.Visible) {
 							SetTarget(AttackTarget.GameObject.transform.position);
 							AttackTarget = null;
@@ -69,7 +69,7 @@ namespace MarsTS.Units {
 					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
 
 					agent.AddListener<EntityDeathEvent>((_event) => AttackTarget = null);
-					agent.AddListener<UnitVisibleEvent>((_event) => {
+					agent.AddListener<EntityVisibleEvent>((_event) => {
 						if (!_event.Visible) {
 							SetTarget(AttackTarget.GameObject.transform.position);
 							AttackTarget = null;

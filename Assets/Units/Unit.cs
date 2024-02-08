@@ -139,7 +139,7 @@ namespace MarsTS.Units {
 
 			transform.Find("SelectionCircle").GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 
-			bus.AddListener<UnitVisibleEvent>(OnVisionUpdate);
+			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
 			bus.AddListener<CommandStartEvent>(ExecuteOrder);
 
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
@@ -331,7 +331,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected virtual void OnVisionUpdate (UnitVisibleEvent _event) {
+		protected virtual void OnVisionUpdate (EntityVisibleEvent _event) {
 			foreach (GameObject hideable in hideables) {
 				hideable.SetActive(_event.Visible);
 			}

@@ -21,7 +21,7 @@ namespace MarsTS.Vision {
 
 		/*	Vision Properties	*/
 
-		public int Mask { get { return owner.ID; } }
+		public int Mask { get { return owner.VisionMask; } }
 
 		public int Range { get { return visionRange; } }
 
@@ -61,9 +61,7 @@ namespace MarsTS.Vision {
 		}
 
 		protected virtual void OnVisionUpdate (VisionUpdateEvent _event) {
-			visibleTo = GameVision.VisibleTo(gameObject);
-
-			bus.Global(new UnitVisibleEvent(bus, parent, (visibleTo & Player.Main.VisionMask) > 0));
+			bus.Global(new EntityVisibleEvent(bus, parent, GameVision.IsVisible(gameObject)));
 		}
 
 		private void OnOwnerChange (UnitOwnerChangeEvent _event) {
@@ -73,7 +71,7 @@ namespace MarsTS.Vision {
 		public VisionEntry Collect () {
 			return new VisionEntry {
 				gridPos = GameVision.GetGridPosFromWorldPos(transform.position),
-				range = visionRange,
+				range = Mathf.RoundToInt(visionRange / GameVision.NodeSize),
 				height = Mathf.RoundToInt(transform.position.y),
 				mask = Mask
 			};

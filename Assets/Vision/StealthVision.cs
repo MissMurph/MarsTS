@@ -51,7 +51,7 @@ namespace MarsTS.Vision {
 				visibleTo = GameVision.VisibleTo(gameObject);
 			}
 
-			bus.Global(new UnitVisibleEvent(bus, parent, (visibleTo & Player.Main.VisionMask) > 0));
+			bus.Global(new EntityVisibleEvent(bus, parent, (visibleTo & Player.Main.VisionMask) > 0));
 		}
 
 		private void OnSneak (SneakEvent _event) {

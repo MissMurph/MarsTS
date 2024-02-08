@@ -11,8 +11,6 @@ namespace MarsTS.Vision {
 
 		private static VisionRenderer instance;
 
-		private Player mainPlayer;
-
 		private GameVision vision;
 
 		private Texture2D render;
@@ -28,6 +26,14 @@ namespace MarsTS.Vision {
 
 		private Queue<Color[]> textureUpdates;
 
+		private bool dirty;
+		private bool doRender;
+
+		[SerializeField]
+		private float interpolation;
+
+		private float fixedDelta;
+
 		private void Awake () {
 			instance = this;
 
@@ -42,10 +48,12 @@ namespace MarsTS.Vision {
 
 			running = true;
 			Application.quitting += Quitting;
+
+			dirty = false;
+			doRender = false;
 		}
 
 		private void Start () {
-			mainPlayer = Player.Main;
 			fogMaterial.mainTexture = render;
 
 			ThreadStart workerThread = delegate { PrepareRender(); };
@@ -55,14 +63,21 @@ namespace MarsTS.Vision {
 		}
 
 		private void Update () {
-			if (textureUpdates.Count > 0) {
-				lock (textureUpdates) {
-					texture = textureUpdates.Dequeue();
-				}
+			if (dirty) {
+			//if (textureUpdates.Count > 0) {
+				//lock (textureUpdates) {
+				//	texture = textureUpdates.Dequeue();
+				//}
 
 				render.SetPixels(texture);
 				render.Apply();
+				dirty = false;
 			}
+		}
+
+		private void FixedUpdate () {
+			fixedDelta = Time.fixedDeltaTime;
+			doRender = true;
 		}
 
 		private void Quitting () {
@@ -71,38 +86,43 @@ namespace MarsTS.Vision {
 
 		private void PrepareRender () {
 			while (running) {
-				if (vision.Dirty) {
+				if (doRender) {
 					Render();
-					vision.Dirty = false;
+					//vision.Dirty = false;
+					doRender = false;
 				}
 			}
 		}
 
 		private void Render () {
-			Color[] newTexture = new Color[vision.GridSize.x * vision.GridSize.y];
+			//Color[] newTexture = new Color[vision.GridSize.x * vision.GridSize.y];
 
 			for (int x = 0; x < vision.GridSize.x; x++) {
 				for (int y = 0; y < vision.GridSize.y; y++) {
 					float redValue = 0f;
 
-					if ((vision.Nodes[x, y] & mainPlayer.VisionMask) == mainPlayer.VisionMask) {
+					if ((vision.Nodes[x, y] & vision.CurrentMask) == vision.CurrentMask) {
 						redValue = 1f;
 					}
-					else if ((vision.Visited[x, y] & mainPlayer.VisionMask) == mainPlayer.VisionMask) {
+					else if ((vision.Visited[x, y] & vision.CurrentMask) == vision.CurrentMask) {
 						redValue = 0.5f;
 					}
 
-					newTexture[x + y * vision.GridSize.x] = new Color(redValue, 0, 0, 1f);
+					redValue = Mathf.LerpUnclamped(texture[x + y * vision.GridSize.x].r, redValue, interpolation * fixedDelta);
+
+					texture[x + y * vision.GridSize.x] = new Color(redValue, 0, 0, 1f);
 				}
 			}
 
-			FinishedRender(newTexture);
+			//FinishedRender(newTexture);
+
+			dirty = true;
 		}
 
 		private void FinishedRender (Color[] texture) {
-			lock (textureUpdates) {
-				textureUpdates.Enqueue(texture);
-			}
+			//lock (textureUpdates) {
+				//textureUpdates.Enqueue(texture);
+			//}
 		}
 
 		private void OnDestroy () {

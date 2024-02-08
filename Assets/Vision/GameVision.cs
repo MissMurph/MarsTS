@@ -1,16 +1,27 @@
 using MarsTS.Events;
+using MarsTS.Players;
 using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Xml.Linq;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 namespace MarsTS.Vision {
 
     public class GameVision : MonoBehaviour {
 
         private static GameVision instance;
+
+		public int CurrentMask {
+			get {
+				return currentMask;
+			}
+		}
+
+		[SerializeField]
+		private int currentMask;
 
 		//2D array of bitmasks, determine which players can currently see the nodes
 		public int[,] Nodes { get; private set; }
@@ -94,6 +105,8 @@ namespace MarsTS.Vision {
 		private void Start () {
 			StartCoroutine(EnqueueUpdate());
 
+			currentMask = Player.Main.VisionMask;
+
 			EventBus.AddListener<EntityDeathEvent>(OnEntityDeath);
 
 			ThreadStart workerThread = delegate { ProcessUpdate(); };
@@ -115,11 +128,13 @@ namespace MarsTS.Vision {
 				}
 
 				Dirty = true;
+
 				if (!initialized) {
 					bus.Global(new VisionInitEvent(bus));
 					initialized = true;
 					return;
 				}
+
 				bus.Global(new VisionUpdateEvent(bus));
 			}
 		}
@@ -275,6 +290,17 @@ namespace MarsTS.Vision {
 			return instance.IsVisible(pos.x, pos.y, players);
 		}
 
+		public bool IsVisible (int x, int y) {
+			int test = Nodes[x, y];
+			bool test2 = (test & currentMask) > 0;
+			return test2;
+		}
+
+		public static bool IsVisible (GameObject _object) {
+			Vector2Int pos = GetGridPosFromWorldPos(_object.transform.position);
+			return instance.IsVisible(pos.x, pos.y);
+		}
+
 		public int VisibleTo (int x, int y) {
 			return Nodes[x, y];
 		}
@@ -298,6 +324,15 @@ namespace MarsTS.Vision {
 		public static bool WasVisited (GameObject _object, int players) {
 			Vector2Int pos = GetGridPosFromWorldPos(_object.transform.position);
 			return instance.WasVisited(pos.x, pos.y, players);
+		}
+
+		public static bool WasVisited (GameObject _object) {
+			Vector2Int pos = GetGridPosFromWorldPos(_object.transform.position);
+			return instance.WasVisited(pos.x, pos.y);
+		}
+
+		public bool WasVisited (int x, int y) {
+			return (Visited[x, y] & currentMask) > 0;
 		}
 
 		public static Vector2Int GetGridPosFromWorldPos (Vector3 worldPos) {

@@ -721,7 +721,7 @@ PrefabInstance:
     - target: {fileID: 5910861939855668350, guid: a41f1cc34e68f6f4d999b9fabb3db61f,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5910861939871708019, guid: a41f1cc34e68f6f4d999b9fabb3db61f,
         type: 3}
@@ -1713,7 +1713,7 @@ PrefabInstance:
     - target: {fileID: 5910861939855668350, guid: a41f1cc34e68f6f4d999b9fabb3db61f,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5910861939871708019, guid: a41f1cc34e68f6f4d999b9fabb3db61f,
         type: 3}
@@ -3004,6 +3004,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: scoutcar (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 5910861939855668350, guid: a41f1cc34e68f6f4d999b9fabb3db61f,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5910861939871708019, guid: a41f1cc34e68f6f4d999b9fabb3db61f,
         type: 3}
       propertyPath: m_RootOrder
@@ -3370,6 +3375,7 @@ GameObject:
   - component: {fileID: 1176459613}
   - component: {fileID: 1176459614}
   - component: {fileID: 1176459615}
+  - component: {fileID: 1176459616}
   m_Layer: 0
   m_Name: GameController
   m_TagString: GameController
@@ -3532,8 +3538,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e37d2f77521348549bb80f71d64245b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nodeSize: 1
-  GridSize: {x: 500, y: 500}
+  currentMask: 0
+  nodeSize: 2
+  GridSize: {x: 250, y: 250}
   visionUpdateTime: 0.25
   drawGizmos: 0
   Dirty: 0
@@ -3547,6 +3554,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cd61c04b718666a4681cce8c89516209, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fogMaterial: {fileID: 2100000, guid: 7e3f188c14c849141b075c3523abf481, type: 2}
+  interpolation: 10
+--- !u!114 &1176459616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1176459601}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 769ceffa0a4955440ae7c66ea6a8615b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   fogMaterial: {fileID: 2100000, guid: 7e3f188c14c849141b075c3523abf481, type: 2}
@@ -3909,7 +3930,7 @@ PrefabInstance:
     - target: {fileID: 452040235016441161, guid: 160c6e924a2b7dd428126aa4f46fd60b,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 452040235065412164, guid: 160c6e924a2b7dd428126aa4f46fd60b,
         type: 3}
@@ -5104,6 +5125,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: roughneckSquad (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 7248859610773361695, guid: b8ae55b487a53814988a1ce86421e8a1,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b8ae55b487a53814988a1ce86421e8a1, type: 3}
 --- !u!1 &1698717490
@@ -5918,7 +5944,7 @@ PrefabInstance:
     - target: {fileID: 1214473942990757588, guid: 0b9093e2fbee662458f91f0ff9771aee,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1668618752008114234, guid: 0b9093e2fbee662458f91f0ff9771aee,
         type: 3}
@@ -6404,7 +6430,7 @@ PrefabInstance:
     - target: {fileID: 452040235016441161, guid: 160c6e924a2b7dd428126aa4f46fd60b,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 452040235065412164, guid: 160c6e924a2b7dd428126aa4f46fd60b,
         type: 3}
@@ -6806,7 +6832,7 @@ PrefabInstance:
     - target: {fileID: 452040235016441161, guid: 160c6e924a2b7dd428126aa4f46fd60b,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 452040235065412164, guid: 160c6e924a2b7dd428126aa4f46fd60b,
         type: 3}
@@ -6921,7 +6947,7 @@ PrefabInstance:
     - target: {fileID: 5416129086686114800, guid: 7a5d6d2c04170114db84b35ea9452b40,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5416129086686114803, guid: 7a5d6d2c04170114db84b35ea9452b40,
         type: 3}
@@ -7056,22 +7082,7 @@ PrefabInstance:
     - target: {fileID: 1214473942990757588, guid: 0b9093e2fbee662458f91f0ff9771aee,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1668618752008114234, guid: 0b9093e2fbee662458f91f0ff9771aee,
-        type: 3}
-      propertyPath: m_FrontSortingLayer
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 1668618752008114234, guid: 0b9093e2fbee662458f91f0ff9771aee,
-        type: 3}
-      propertyPath: m_FrontSortingLayerID
-      value: 751620137
-      objectReference: {fileID: 0}
-    - target: {fileID: 1668618752008114234, guid: 0b9093e2fbee662458f91f0ff9771aee,
-        type: 3}
-      propertyPath: m_IsCustomRangeActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6520470998769435003, guid: 0b9093e2fbee662458f91f0ff9771aee,
         type: 3}
@@ -7223,7 +7234,7 @@ PrefabInstance:
     - target: {fileID: 3050993961840164310, guid: c3590048fa9d52b45bcd9c4b3a8c11df,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3050993961840164311, guid: c3590048fa9d52b45bcd9c4b3a8c11df,
         type: 3}
@@ -7309,6 +7320,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: tanker
       objectReference: {fileID: 0}
+    - target: {fileID: 7680554594384699938, guid: 5dfbcfa3d00d7a446bba498c0e40c53e,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7680554594384699939, guid: 5dfbcfa3d00d7a446bba498c0e40c53e,
         type: 3}
       propertyPath: m_RootOrder
@@ -7391,7 +7407,7 @@ PrefabInstance:
     - target: {fileID: 5910861939855668350, guid: a41f1cc34e68f6f4d999b9fabb3db61f,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5910861939871708019, guid: a41f1cc34e68f6f4d999b9fabb3db61f,
         type: 3}
@@ -7743,6 +7759,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: minerals
       objectReference: {fileID: 0}
+    - target: {fileID: 7104668611416931317, guid: 364ab05988600ae43b4b6de60a8ac94b,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7104668611416931318, guid: 364ab05988600ae43b4b6de60a8ac94b,
         type: 3}
       propertyPath: m_RootOrder
@@ -7871,6 +7892,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: roughneckSquad
+      objectReference: {fileID: 0}
+    - target: {fileID: 7248859610773361695, guid: b8ae55b487a53814988a1ce86421e8a1,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b8ae55b487a53814988a1ce86421e8a1, type: 3}
@@ -8044,6 +8070,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: scrapyard
+      objectReference: {fileID: 0}
+    - target: {fileID: 4367344837201828623, guid: d7c5d84192531db42bf9768732143f5a,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4367344837201828850, guid: d7c5d84192531db42bf9768732143f5a,
         type: 3}
@@ -8232,7 +8263,7 @@ PrefabInstance:
     - target: {fileID: 3758000306492427157, guid: 90f452b211acc384b80839d8ea68f3f2,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 90f452b211acc384b80839d8ea68f3f2, type: 3}

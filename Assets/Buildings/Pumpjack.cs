@@ -122,16 +122,6 @@ namespace MarsTS.Buildings {
 			}
 		}
 
-		private void OnProductionStart (ProductionEvent _event) {
-			if (_event.Name == "productionStarted") {
-				
-			}
-		}
-
-		private void OnProductionComplete (ProductionCompleteEvent _event) {
-
-		}
-
 		private void OnDestroy () {
 			if (exploited != null) exploited.Exploited = false;
 		}

@@ -22,7 +22,7 @@ namespace MarsTS.Units {
 			if (value != null) {
 				EntityCache.TryGet(unitObject.name + ":eventAgent", out EventAgent oldAgent);
 				oldAgent.RemoveListener<EntityDeathEvent>(OnEntityDeath);
-				oldAgent.RemoveListener<UnitVisibleEvent>(OnEntityVisible);
+				oldAgent.RemoveListener<EntityVisibleEvent>(OnEntityVisible);
 			}
 
 			value = newValue;
@@ -31,7 +31,7 @@ namespace MarsTS.Units {
 			if (value != null) {
 				EntityCache.TryGet(_unit.name + ":eventAgent", out EventAgent agent);
 				agent.AddListener<EntityDeathEvent>(OnEntityDeath);
-				agent.AddListener<UnitVisibleEvent>(OnEntityVisible);
+				agent.AddListener<EntityVisibleEvent>(OnEntityVisible);
 			}
 		}
 
@@ -39,7 +39,7 @@ namespace MarsTS.Units {
 			Set(null, null);
 		}
 
-		private void OnEntityVisible (UnitVisibleEvent _event) {
+		private void OnEntityVisible (EntityVisibleEvent _event) {
 			if (!_event.Visible) {
 				Set(null, null);
 			}

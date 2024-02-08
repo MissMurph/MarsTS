@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace MarsTS.Events {
 
-	public class BuildingVisibleEvent : UnitVisibleEvent {
+	public class BuildingVisibleEvent : EntityVisibleEvent {
 
 		public bool Visited { get; private set; }
 

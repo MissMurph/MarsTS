@@ -138,7 +138,7 @@ namespace MarsTS.Buildings {
 			bus.AddListener<CommandStartEvent>(ExecuteOrder);
 
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
-			EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
+			EventBus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
 			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
 		}
 
@@ -287,13 +287,12 @@ namespace MarsTS.Buildings {
 			}
 		}
 
-		protected virtual void OnVisionUpdate (VisionUpdateEvent _event) {
-			bool visible = GameVision.IsVisible(gameObject, Player.Main.VisionMask);
+		protected virtual void OnVisionUpdate (EntityVisibleEvent _event) {
+			bool visible = _event.Visible;
+			bool visited = GameVision.WasVisited(gameObject);
 
-			if (visible) {
-				foreach (GameObject hideable in visionObjects) {
-					hideable.SetActive(visible);
-				}
+			foreach (GameObject hideable in visionObjects) {
+				hideable.SetActive(visible);
 			}
 
 			//if (GameVision.WasVisited(gameObject, Player.Main.VisionMask)) bus.Global(new UnitVisibleEvent(bus, this, true));

@@ -886,7 +886,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4263937079519004398}
   - component: {fileID: 5010093942105715571}
-  - component: {fileID: 7482105289373246039}
+  - component: {fileID: 5603722288513159718}
   m_Layer: 0
   m_Name: SneakRangeIndicator
   m_TagString: Untagged
@@ -962,7 +962,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 2
   m_SpriteSortPoint: 0
---- !u!114 &7482105289373246039
+--- !u!114 &5603722288513159718
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -971,7 +971,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7942216869367903200}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 898366587cd3dd14a9720b3671835b16, type: 3}
+  m_Script: {fileID: 11500000, guid: ae0e0b7db931a034e8f9771172cba43a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &8084515869499035479

@@ -68,6 +68,8 @@ namespace MarsTS.Units {
 
 		public List<Cooldown> Cooldowns => throw new NotImplementedException();
 
+		public int Count => throw new NotImplementedException();
+
 		/*	Infantry Fields	*/
 
 		protected Entity entityComponent;

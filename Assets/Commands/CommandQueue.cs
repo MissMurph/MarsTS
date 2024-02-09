@@ -133,8 +133,11 @@ namespace MarsTS.Commands {
 
 			commandQueue.Clear();
 
-			CommandCompleteEvent _event = new CommandCompleteEvent(bus, Current, false, parent);
-			Current.OnComplete(this, _event);
+			if (Current != null) {
+				CommandCompleteEvent _event = new CommandCompleteEvent(bus, Current, false, parent);
+				Current.OnComplete(this, _event);
+			}
+
 			Current = null;
 		}
 

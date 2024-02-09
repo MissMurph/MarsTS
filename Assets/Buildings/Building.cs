@@ -57,13 +57,15 @@ namespace MarsTS.Buildings {
 
 		/*	ICommandable Properties	*/
 
-		public Commandlet CurrentCommand { get { return commands.Current; } }
+		public Commandlet CurrentCommand { get { return production.Current; } }
 
-		public Commandlet[] CommandQueue { get { return commands.Queue; } }
+		public Commandlet[] CommandQueue { get { return production.Queue; } }
 
 		public List<string> Active { get { return commands.Active; } }
 
 		public List<Cooldown> Cooldowns { get { return commands.Cooldowns; } }
+
+		public int Count { get { return production.Count; } }
 
 		protected CommandQueue commands;
 
@@ -197,6 +199,9 @@ namespace MarsTS.Buildings {
 				case "upgrade":
 					production.Enqueue(order);
 					return;
+				case "cancelConstruction":
+					CancelConstruction();
+					return;
 				default:
 					return;
 			}
@@ -204,9 +209,6 @@ namespace MarsTS.Buildings {
 
 		protected virtual void ExecuteOrder (CommandStartEvent _event) {
 			switch (_event.Command.Name) {
-				case "cancelConstruction":
-					CancelConstruction();
-					break;
 				case "upgrade":
 					Upgrade(_event.Command);
 					break;
@@ -297,6 +299,8 @@ namespace MarsTS.Buildings {
 
 		public bool CanCommand (string key) {
 			bool canUse = true;
+
+			if (!Constructed && key == "cancelConstruction") return true;
 
 			for (int i = 0; i < boundCommands.Length; i++) {
 				if (boundCommands[i] == key) break;

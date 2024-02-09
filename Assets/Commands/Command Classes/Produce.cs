@@ -47,7 +47,7 @@ namespace MarsTS.Commands {
 			}
 
 			if (canAfford) {
-				Player.Main.DeliverCommand(Construct(prefab), Player.Include);
+				Player.Main.DistributeCommand(Construct(prefab), Player.Include);
 
 				foreach (CostEntry entry in cost) {
 					Player.Main.Resource(entry.key).Withdraw(entry.amount);

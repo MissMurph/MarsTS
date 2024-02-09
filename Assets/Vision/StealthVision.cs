@@ -24,17 +24,6 @@ namespace MarsTS.Vision {
 			rangeIndicator = transform.Find("SneakRangeIndicator").gameObject;
 		}
 
-		protected override void Start () {
-			base.Start();
-
-			bus.AddListener<SneakEvent>(OnSneak);
-
-			bus.AddListener<UnitSelectEvent>(OnSelect);
-			bus.AddListener<UnitHoverEvent>(OnHover);
-
-			rangeIndicator.SetActive(false);
-		}
-
 		protected override void OnVisionUpdate (VisionUpdateEvent _event) {
 			if (isSneaking) {
 				int sneakMask = owner.VisionMask;
@@ -52,29 +41,6 @@ namespace MarsTS.Vision {
 			}
 
 			bus.Global(new EntityVisibleEvent(bus, parent, GameVision.IsVisible(gameObject)));
-		}
-
-		private void OnSneak (SneakEvent _event) {
-			isSneaking = _event.IsSneaking;
-			rangeIndicator.SetActive(_event.IsSneaking);
-		}
-
-		private void OnSelect (UnitSelectEvent _event) {
-			/*if (isSneaking && _event.Status) {
-				rangeIndicator.SetActive(true);
-			}
-			else {
-				rangeIndicator.SetActive(false);
-			}*/
-		}
-
-		private void OnHover (UnitHoverEvent _event) {
-			/*if (isSneaking && _event.Status) {
-				rangeIndicator.SetActive(true);
-			}
-			else {
-				rangeIndicator.SetActive(false);
-			}*/
 		}
 	}
 }

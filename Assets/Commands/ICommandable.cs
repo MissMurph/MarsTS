@@ -8,6 +8,7 @@ namespace MarsTS.Commands {
 		GameObject GameObject { get; }
 		Commandlet CurrentCommand { get; }
 		Commandlet[] CommandQueue { get; }
+		int Count { get; }
 		List<string> Active { get; }
 		List<Cooldown> Cooldowns { get; }
 		void Order (Commandlet order, bool inclusive);

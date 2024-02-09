@@ -240,7 +240,6 @@ MonoBehaviour:
   constructionCost:
   - key: resource_unit
     amount: 2000
-  productionSpeed: 5
   visionObjects:
   - {fileID: 8926580804881163808}
   - {fileID: 4367344839216842102}
@@ -301,6 +300,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ec1573b00b570e41bd9eb6c4e1bb97d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  productionSpeed: 0
 --- !u!1 &4367344837301277131
 GameObject:
   m_ObjectHideFlags: 0
@@ -1167,7 +1167,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 6ebcc69992350bb4c98d1a5bfa9702cc, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1251,7 +1251,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 6ebcc69992350bb4c98d1a5bfa9702cc, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

@@ -224,5 +224,12 @@ namespace MarsTS.Units {
 
 			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
 		}
+
+		public override bool CanCommand (string key) {
+			string[] splitKey = key.Split("/");
+			if (splitKey[0] == "construct") return true;
+
+			return base.CanCommand(key);
+		}
 	}
 }

@@ -6,6 +6,7 @@ using MarsTS.UI;
 using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace MarsTS.Buildings {
@@ -53,7 +54,9 @@ namespace MarsTS.Buildings {
 			IProducable order = _event.Command as IProducable;
 			ISelectable newUnit = Instantiate(order.Product, transform.position + (Vector3.up), Quaternion.Euler(0f, 0f, 0f)).GetComponent<ISelectable>();
 
-			Collider[] unitColliders = newUnit.GameObject.transform.Find("Model").GetComponentsInChildren<Collider>();
+			List<Collider> unitColliders = newUnit.GameObject.transform.Find("Model").GetComponentsInChildren<Collider>().ToList();
+			unitColliders.AddRange(newUnit.GameObject.transform.Find("Collider").GetComponentsInChildren<Collider>());
+			
 
 			foreach (Collider unitCollider in unitColliders) {
 				foreach (Collider buildingCollider in colliders) {

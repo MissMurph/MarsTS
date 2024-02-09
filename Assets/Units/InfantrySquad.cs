@@ -58,6 +58,8 @@ namespace MarsTS.Units {
 
 		public List<Cooldown> Cooldowns { get { return commands.Cooldowns; } }
 
+		public int Count { get { return commands.Count; } }
+
 		[SerializeField]
 		private string[] boundCommands;
 

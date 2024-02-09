@@ -192,8 +192,19 @@ namespace MarsTS.Players {
 
 		public void DistributeCommand (Commandlet packet, bool inclusive) {
 			foreach (KeyValuePair<string, Roster> entry in Selected) {
+				int lowestAmount = 999;
+				ICommandable lowestOrderable = null;
+
 				foreach (ICommandable orderable in entry.Value.Orderable) {
-					if (orderable.CanCommand(packet.Name)) ;
+					if (!orderable.CanCommand(packet.Command.Name)) continue;
+					if (orderable.Count < lowestAmount) {
+						lowestAmount = orderable.Count;
+						lowestOrderable = orderable;
+					}
+				}
+
+				if (lowestOrderable != null) {
+					lowestOrderable.Order(packet, inclusive);
 				}
 			}
 		}

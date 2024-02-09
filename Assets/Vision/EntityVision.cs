@@ -61,6 +61,8 @@ namespace MarsTS.Vision {
 		}
 
 		protected virtual void OnVisionUpdate (VisionUpdateEvent _event) {
+			visibleTo = GameVision.VisibleTo(gameObject);
+
 			bus.Global(new EntityVisibleEvent(bus, parent, GameVision.IsVisible(gameObject)));
 		}
 

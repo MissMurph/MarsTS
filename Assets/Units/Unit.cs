@@ -147,7 +147,7 @@ namespace MarsTS.Units {
 		}
 
 		private void OnVisionInit (VisionInitEvent _event) {
-			bool visible = GameVision.IsVisible(gameObject, Player.Main.VisionMask);
+			bool visible = GameVision.IsVisible(gameObject);
 
 			foreach (GameObject hideable in hideables) {
 				hideable.SetActive(visible);

@@ -136,14 +136,14 @@ namespace MarsTS.Buildings {
 			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 
 			bus.AddListener<CommandStartEvent>(ExecuteOrder);
+			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
 
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
-			EventBus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
 			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
 		}
 
 		private void OnVisionInit (VisionInitEvent _event) {
-			bool visible = GameVision.IsVisible(gameObject, Player.Main.VisionMask);
+			bool visible = GameVision.IsVisible(gameObject);
 
 			foreach (GameObject hideable in visionObjects) {
 				hideable.SetActive(visible);
@@ -288,14 +288,11 @@ namespace MarsTS.Buildings {
 		}
 
 		protected virtual void OnVisionUpdate (EntityVisibleEvent _event) {
-			bool visible = _event.Visible;
-			bool visited = GameVision.WasVisited(gameObject);
+			bool visible = _event.Visible | GameVision.WasVisited(gameObject);
 
 			foreach (GameObject hideable in visionObjects) {
 				hideable.SetActive(visible);
 			}
-
-			//if (GameVision.WasVisited(gameObject, Player.Main.VisionMask)) bus.Global(new UnitVisibleEvent(bus, this, true));
 		}
 
 		public bool CanCommand (string key) {

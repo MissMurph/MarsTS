@@ -291,14 +291,12 @@ namespace MarsTS.Vision {
 		}
 
 		public bool IsVisible (int x, int y) {
-			int test = Nodes[x, y];
-			bool test2 = (test & currentMask) > 0;
-			return test2;
+			return (Nodes[x, y] & currentMask) > 0;
 		}
 
 		public static bool IsVisible (GameObject _object) {
-			Vector2Int pos = GetGridPosFromWorldPos(_object.transform.position);
-			return instance.IsVisible(pos.x, pos.y);
+			//Vector2Int pos = GetGridPosFromWorldPos(_object.transform.position);
+			return IsVisible(_object, instance.currentMask);
 		}
 
 		public int VisibleTo (int x, int y) {

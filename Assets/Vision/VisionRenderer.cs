@@ -24,8 +24,6 @@ namespace MarsTS.Vision {
 
 		private bool running;
 
-		private Queue<Color[]> textureUpdates;
-
 		private bool dirty;
 		private bool doRender;
 
@@ -43,8 +41,6 @@ namespace MarsTS.Vision {
 			render.filterMode = FilterMode.Point;
 
 			texture = new Color[vision.GridSize.x * vision.GridSize.y];
-
-			textureUpdates = new Queue<Color[]>();
 
 			running = true;
 			Application.quitting += Quitting;
@@ -64,11 +60,6 @@ namespace MarsTS.Vision {
 
 		private void Update () {
 			if (dirty) {
-			//if (textureUpdates.Count > 0) {
-				//lock (textureUpdates) {
-				//	texture = textureUpdates.Dequeue();
-				//}
-
 				render.SetPixels(texture);
 				render.Apply();
 				dirty = false;
@@ -88,15 +79,12 @@ namespace MarsTS.Vision {
 			while (running) {
 				if (doRender) {
 					Render();
-					//vision.Dirty = false;
 					doRender = false;
 				}
 			}
 		}
 
 		private void Render () {
-			//Color[] newTexture = new Color[vision.GridSize.x * vision.GridSize.y];
-
 			for (int x = 0; x < vision.GridSize.x; x++) {
 				for (int y = 0; y < vision.GridSize.y; y++) {
 					float redValue = 0f;
@@ -114,15 +102,7 @@ namespace MarsTS.Vision {
 				}
 			}
 
-			//FinishedRender(newTexture);
-
 			dirty = true;
-		}
-
-		private void FinishedRender (Color[] texture) {
-			//lock (textureUpdates) {
-				//textureUpdates.Enqueue(texture);
-			//}
 		}
 
 		private void OnDestroy () {

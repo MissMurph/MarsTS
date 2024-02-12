@@ -12,8 +12,6 @@ namespace MarsTS.Vision {
 
         private SelectableSensor stealthSensor;
 
-		private GameObject rangeIndicator;
-
 		[SerializeField]
         private bool isSneaking;
 
@@ -21,7 +19,12 @@ namespace MarsTS.Vision {
 			base.Awake();
 
 			stealthSensor = transform.Find("SneakRange").GetComponent<SelectableSensor>();
-			rangeIndicator = transform.Find("SneakRangeIndicator").gameObject;
+		}
+
+		protected override void Start () {
+			base.Start();
+
+			bus.AddListener<SneakEvent>(OnSneak);
 		}
 
 		protected override void OnVisionUpdate (VisionUpdateEvent _event) {
@@ -41,6 +44,10 @@ namespace MarsTS.Vision {
 			}
 
 			bus.Global(new EntityVisibleEvent(bus, parent, GameVision.IsVisible(gameObject)));
+		}
+
+		private void OnSneak (SneakEvent _event) {
+			isSneaking = _event.IsSneaking;
 		}
 	}
 }

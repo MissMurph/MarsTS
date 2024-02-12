@@ -3965,7 +3965,7 @@ PrefabInstance:
     - target: {fileID: 452040235065412164, guid: 160c6e924a2b7dd428126aa4f46fd60b,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 17.78
+      value: 13.2
       objectReference: {fileID: 0}
     - target: {fileID: 452040235065412164, guid: 160c6e924a2b7dd428126aa4f46fd60b,
         type: 3}
@@ -3975,7 +3975,7 @@ PrefabInstance:
     - target: {fileID: 452040235065412164, guid: 160c6e924a2b7dd428126aa4f46fd60b,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 67.96
+      value: 58.6
       objectReference: {fileID: 0}
     - target: {fileID: 452040235065412164, guid: 160c6e924a2b7dd428126aa4f46fd60b,
         type: 3}
@@ -5560,6 +5560,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: pumpjack
+      objectReference: {fileID: 0}
+    - target: {fileID: 3668977583793415411, guid: 90807326f2b3c0a4fb6ada1169a4e440,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 90807326f2b3c0a4fb6ada1169a4e440, type: 3}

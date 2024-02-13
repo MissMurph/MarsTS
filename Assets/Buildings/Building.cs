@@ -9,12 +9,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.UI.GridLayoutGroup;
 using MarsTS.UI;
+using MarsTS.Vision;
+using System.Linq;
 
 namespace MarsTS.Buildings {
 
-	public abstract class Building : MonoBehaviour, ISelectable, ITaggable<Building>, IRegistryObject<Building>, IAttackable, ICommandable {
+	public abstract class Building : MonoBehaviour, ISelectable, ITaggable<Building>, IAttackable, ICommandable {
 
 		public GameObject GameObject { get {  return gameObject;  } }
 
@@ -56,9 +57,19 @@ namespace MarsTS.Buildings {
 
 		/*	ICommandable Properties	*/
 
-		public abstract Commandlet CurrentCommand { get; }
+		public Commandlet CurrentCommand { get { return production.Current; } }
 
-		public abstract Commandlet[] CommandQueue { get; }
+		public Commandlet[] CommandQueue { get { return production.Queue; } }
+
+		public List<string> Active { get { return commands.Active; } }
+
+		public List<Cooldown> Cooldowns { get { return commands.Cooldowns; } }
+
+		public int Count { get { return production.Count; } }
+
+		protected CommandQueue commands;
+
+		protected ProductionQueue production;
 
 		[SerializeField]
 		private string[] boundCommands;
@@ -91,6 +102,8 @@ namespace MarsTS.Buildings {
 
 		public CostEntry[] ConstructionCost { get { return constructionCost; } }
 
+		/*	Upgrades	*/
+
 		public string RegistryType => "building";
 
 		private Entity entityComponent;
@@ -99,10 +112,15 @@ namespace MarsTS.Buildings {
 
 		protected Transform model;
 
+		[SerializeField]
+		private GameObject[] visionObjects;
+
 		protected virtual void Awake () {
 			selectionCircle = transform.Find("SelectionCircle").gameObject;
 			selectionCircle.SetActive(false);
 			Health = 1;
+			commands = GetComponent<CommandQueue>();
+			production = GetComponent<ProductionQueue>();
 
 			bus = GetComponent<EventAgent>();
 			entityComponent = GetComponent<Entity>();
@@ -119,7 +137,19 @@ namespace MarsTS.Buildings {
 		protected virtual void Start () {
 			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 
+			bus.AddListener<CommandStartEvent>(ExecuteOrder);
+			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
+
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
+			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
+		}
+
+		private void OnVisionInit (VisionInitEvent _event) {
+			bool visible = GameVision.IsVisible(gameObject);
+
+			foreach (GameObject hideable in visionObjects) {
+				hideable.SetActive(visible);
+			}
 		}
 
 		protected virtual void CancelConstruction () {
@@ -134,6 +164,27 @@ namespace MarsTS.Buildings {
 			}
 		}
 
+		protected virtual void Upgrade (Commandlet order) {
+			bus.AddListener<CommandCompleteEvent>(UpgradeComplete);
+		}
+
+		protected virtual void UpgradeComplete (CommandCompleteEvent _event) {
+			bus.RemoveListener<CommandCompleteEvent>(UpgradeComplete);
+
+			IProducable order = _event.Command as IProducable;
+			GameObject product = Instantiate(order.Product, transform, false);
+
+			for (int i = 0; i < boundCommands.Length; i++) {
+				if (boundCommands[i] == _event.Command.Command.Name) {
+					boundCommands[i] = "";
+					bus.Global(new CommandsUpdatedEvent(bus, this, Commands()));
+					break;
+				}
+			}
+
+			bus.Global(new ProductionCompleteEvent(bus, product, this, production, order));
+		}
+
 		public string[] Commands () {
 			if (!Constructed) {
 				return new string[] { "cancelConstruction" };
@@ -141,17 +192,28 @@ namespace MarsTS.Buildings {
 			else return boundCommands;
 		}
 
-		public abstract void Enqueue (Commandlet order);
+		public virtual void Order (Commandlet order, bool inclusive) {
+			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 
-		public abstract void Execute (Commandlet order);
-
-		protected virtual void ProcessOrder (Commandlet order) {
 			switch (order.Name) {
+				case "upgrade":
+					production.Enqueue(order);
+					return;
 				case "cancelConstruction":
-				CancelConstruction();
-				break;
+					CancelConstruction();
+					return;
 				default:
-				break;
+					return;
+			}
+		}
+
+		protected virtual void ExecuteOrder (CommandStartEvent _event) {
+			switch (_event.Command.Name) {
+				case "upgrade":
+					Upgrade(_event.Command);
+					break;
+				default:
+					break;
 			}
 		}
 
@@ -165,18 +227,18 @@ namespace MarsTS.Buildings {
 		}
 
 		public void Select (bool status) {
-			selectionCircle.SetActive(status);
+			//selectionCircle.SetActive(status);
 			bus.Local(new UnitSelectEvent(bus, status));
 		}
 
 		public void Hover (bool status) {
 			//These are seperated due to the Player Selection Check
 			if (status) {
-				selectionCircle.SetActive(true);
+				//selectionCircle.SetActive(true);
 				bus.Local(new UnitHoverEvent(bus, status));
 			}
 			else if (!Player.Main.HasSelected(this)) {
-				selectionCircle.SetActive(false);
+				//selectionCircle.SetActive(false);
 				bus.Local(new UnitHoverEvent(bus, status));
 			}
 		}
@@ -194,7 +256,7 @@ namespace MarsTS.Buildings {
 
 				model.localScale = Vector3.one * progress;
 
-				bus.Global(new EntityHurtEvent(bus, this));
+				bus.Global(new UnitHurtEvent(bus, this));
 
 				if (progress >= 1f) bus.Global(new CommandsUpdatedEvent(bus, this, boundCommands));
 				return;
@@ -202,7 +264,7 @@ namespace MarsTS.Buildings {
 
 			if (damage < 0 && Health >= maxHealth) return;
 			Health -= damage;
-			bus.Global(new EntityHurtEvent(bus, this));
+			bus.Global(new UnitHurtEvent(bus, this));
 
 			if (Health <= 0) {
 				bus.Global(new EntityDeathEvent(bus, this));
@@ -214,10 +276,6 @@ namespace MarsTS.Buildings {
 			return CommandRegistry.Get("move");
 		}
 
-		public IRegistryObject<Building> GetRegistryEntry () {
-			throw new NotImplementedException();
-		}
-
 		public Commandlet Auto (ISelectable target) {
 			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
 		}
@@ -226,7 +284,34 @@ namespace MarsTS.Buildings {
 			if (ReferenceEquals(_event.Unit, this)) {
 				HealthInfo info = _event.Info.Module<HealthInfo>("health");
 				info.CurrentUnit = this;
+
+				_event.Info.Module<ProductionInfo>("productionQueue").SetQueue(this, production.Current as IProducable, production.QueuedProduction);
 			}
+		}
+
+		protected virtual void OnVisionUpdate (EntityVisibleEvent _event) {
+			bool visible = _event.Visible | GameVision.WasVisited(gameObject);
+
+			foreach (GameObject hideable in visionObjects) {
+				hideable.SetActive(visible);
+			}
+		}
+
+		public bool CanCommand (string key) {
+			bool canUse = true;
+
+			if (!Constructed && key == "cancelConstruction") return true;
+
+			for (int i = 0; i < boundCommands.Length; i++) {
+				if (boundCommands[i] == key) break;
+
+				if (i >= boundCommands.Length - 1) return false;
+			}
+
+			if (!commands.CanCommand(key)) canUse = false;
+			if (!production.CanCommand(key)) canUse = false;
+
+			return canUse;
 		}
 	}
 }

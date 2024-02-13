@@ -4,6 +4,7 @@ using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
+using MarsTS.UI;
 using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
@@ -42,9 +43,6 @@ namespace MarsTS.Units {
 		[Header("Turrets")]
 
 		protected Dictionary<string, HarvesterTurret> registeredTurrets = new Dictionary<string, HarvesterTurret>();
-
-		[SerializeField]
-		protected HarvesterTurret[] turretsToRegister;
 
 		public IHarvestable HarvestTarget {
 			get {
@@ -105,17 +103,20 @@ namespace MarsTS.Units {
 		protected float cooldown;
 		protected float currentCooldown;
 
+		private GroundDetection ground;
+
 		protected override void Awake () {
 			base.Awake();
 
 			storageComp = GetComponent<ResourceStorage>();
 			depositableDetector = GetComponentInChildren<DepositSensor>();
+			ground = GetComponent<GroundDetection>();
 
 			cooldown = 1f / depositRate;
 			depositAmount = Mathf.RoundToInt(depositRate * cooldown);
 			currentCooldown = cooldown;
 
-			foreach (HarvesterTurret turret in turretsToRegister) {
+			foreach (HarvesterTurret turret in GetComponentsInChildren<HarvesterTurret>()) {
 				registeredTurrets.TryAdd(turret.name, turret);
 			}
 		}
@@ -124,7 +125,7 @@ namespace MarsTS.Units {
 			base.Update();
 
 			if (DepositTarget != null) {
-				if (depositableDetector.IsInRange(DepositTarget)) {
+				if (depositableDetector.IsDetected(DepositTarget)) {
 					TrackedTarget = null;
 					currentPath = Path.Empty;
 
@@ -140,7 +141,7 @@ namespace MarsTS.Units {
 			}
 
 			if (HarvestTarget != null) {
-				if (registeredTurrets["turret_main"].IsInRange(HarvestTarget as ISelectable)) {
+				if (registeredTurrets["turret_main"].IsInRange(HarvestTarget)) {
 					TrackedTarget = null;
 					currentPath = Path.Empty;
 				}
@@ -151,46 +152,72 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void FixedUpdate () {
-			velocity = body.velocity.magnitude;
+			velocity = body.velocity.sqrMagnitude;
 
-			if (!currentPath.IsEmpty) {
-				Vector3 targetWaypoint = currentPath[pathIndex];
+			if (ground.Grounded) {
+				if (!currentPath.IsEmpty) {
+					Vector3 targetWaypoint = currentPath[pathIndex];
 
-				Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
-				float targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
+					Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
+					float targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
 
-				float newAngle = Mathf.MoveTowardsAngle(CurrentAngle, targetAngle, turnSpeed * Time.fixedDeltaTime);
-				body.MoveRotation(Quaternion.Euler(transform.rotation.x, newAngle, transform.rotation.z));
+					float newAngle = Mathf.MoveTowardsAngle(CurrentAngle, targetAngle, turnSpeed * Time.fixedDeltaTime);
+					body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, newAngle, transform.eulerAngles.z));
 
-				Vector3 currentVelocity = body.velocity;
-				Vector3 adjustedVelocity = transform.forward * currentVelocity.magnitude;
+					Vector3 currentVelocity = body.velocity;
+					Vector3 adjustedVelocity = Vector3.ProjectOnPlane(transform.forward, ground.Slope.normal);
 
-				if (Vector3.Angle(targetDirection, transform.forward) <= angleTolerance) {
-					float accelCap = 1f - (velocity / topSpeed);
+					adjustedVelocity *= currentVelocity.magnitude;
 
-					body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
+					if (Vector3.Angle(targetDirection, transform.forward) <= angleTolerance) {
+						float accelCap = 1f - (velocity / (topSpeed * topSpeed));
 
-					//Relative so it can take into account the forward vector of the car
-					body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
+						//This moves the velocity according to the rotation of the unit
+						body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
+
+						//Relative so it can take into account the forward vector of the car
+						body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
+					}
+
+					if (velocity > topSpeed * topSpeed) {
+						Vector3 direction = body.velocity.normalized;
+						direction *= topSpeed;
+						body.velocity = direction;
+					}
 				}
-			}
-			else if (velocity >= 0.5f) {
-				body.AddRelativeForce(-body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
+				else if (velocity >= 0.5f) {
+					body.AddRelativeForce(-body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
+				}
 			}
 		}
 
-		protected override void ProcessOrder (Commandlet order) {
+		public override void Order (Commandlet order, bool inclusive) {
+			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
+
 			switch (order.Name) {
 				case "harvest":
-					CurrentCommand = order;
-					Harvest(order);
 					break;
 				case "deposit":
-					CurrentCommand = order; 
-					Deposit(order);
 					break;
 				default:
-					base.ProcessOrder(order);
+					base.Order(order, inclusive);
+					return;
+			}
+
+			if (inclusive) commands.Enqueue(order);
+			else commands.Execute(order);
+		}
+
+		protected override void ExecuteOrder (CommandStartEvent _event) {
+			switch (_event.Command.Name) {
+				case "harvest":
+					Harvest(_event.Command);
+					break;
+				case "deposit":
+					Deposit(_event.Command);
+					break;
+				default:
+					base.ExecuteOrder(_event);
 					break;
 			}
 		}
@@ -203,7 +230,7 @@ namespace MarsTS.Units {
 			if (order is Commandlet<IHarvestable> deserialized) {
 				HarvestTarget = deserialized.Target;
 
-				bus.AddListener<HarvesterExtractionEvent>(OnExtraction);
+				bus.AddListener<ResourceHarvestedEvent>(OnExtraction);
 
 				EntityCache.TryGet(HarvestTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
@@ -226,7 +253,7 @@ namespace MarsTS.Units {
 
 		protected virtual void DepositResources () {
 			storageComp.Consume(DepositTarget.Deposit("resource_unit", depositAmount));
-			bus.Global(new HarvesterDepositEvent(bus, this, Stored, Capacity, DepositTarget));
+			bus.Global(new HarvesterDepositEvent(bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity, DepositTarget));
 			currentCooldown += cooldown;
 		}
 
@@ -234,18 +261,14 @@ namespace MarsTS.Units {
 			if (Stored <= 0) {
 				bus.RemoveListener<HarvesterDepositEvent>(OnDeposit);
 
-				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+				//CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
-				CurrentCommand.Callback.Invoke(newEvent);
-
-				bus.Global(newEvent);
-
-				CurrentCommand = null;
+				//CurrentCommand.Callback.Invoke(newEvent);
 
 				DepositTarget = null;
 				TrackedTarget = null;
 
-				if (HarvestTarget != null) Enqueue(CommandRegistry.Get<Harvest>("harvest").Construct(HarvestTarget));
+				//if (HarvestTarget != null) Order(CommandRegistry.Get<Harvest>("harvest").Construct(HarvestTarget));
 			}
 		}
 
@@ -262,46 +285,41 @@ namespace MarsTS.Units {
 			}
 
 			if (closestBank != null) {
-				Execute(CommandRegistry.Get<Deposit>("deposit").Construct(closestBank));
+				DepositTarget = closestBank;
+				TrackedTarget = DepositTarget.GameObject.transform;
+
+				bus.AddListener<HarvesterDepositEvent>(OnDeposit);
 			}
 		}
 
 		//Could potentially move these to the actual Command Classes
-		private void OnExtraction (HarvesterExtractionEvent _event) {
+		private void OnExtraction (ResourceHarvestedEvent _event) {
 			if (Stored >= Capacity) {
-				bus.RemoveListener<HarvesterExtractionEvent>(OnExtraction);
+				//bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
-				EntityCache.TryGet(_event.Deposit.GameObject.transform.root.name, out EventAgent targetBus);
+				//EntityCache.TryGet(_event.Deposit.GameObject.transform.root.name, out EventAgent targetBus);
 
-				targetBus.RemoveListener<EntityDeathEvent>(OnDepositDepleted);
+				//targetBus.RemoveListener<EntityDeathEvent>(OnDepositDepleted);
 
-				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+				//CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
-				CurrentCommand.Callback.Invoke(newEvent);
-
-				bus.Global(newEvent);
-
-				CurrentCommand = null;
+				//CurrentCommand.Callback.Invoke(newEvent);
 
 				FindDepositable();
 			}
 		}
 
 		private void OnDepositDepleted (EntityDeathEvent _event) {
-			bus.RemoveListener<HarvesterExtractionEvent>(OnExtraction);
+			bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
 			CurrentCommand.Callback.Invoke(newEvent);
-
-			bus.Global(newEvent);
-
-			CurrentCommand = null;
 		}
 
 		private void HarvestCancelled (CommandCompleteEvent _event) {
 			if (_event.Command is Commandlet<IHarvestable> deserialized && _event.CommandCancelled) {
-				bus.RemoveListener<HarvesterExtractionEvent>(OnExtraction);
+				bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
@@ -351,6 +369,17 @@ namespace MarsTS.Units {
 			}
 
 			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
+		}
+
+		protected override void OnUnitInfoDisplayed (UnitInfoEvent _event) {
+			base.OnUnitInfoDisplayed(_event);
+
+			if (ReferenceEquals(_event.Unit, this)) {
+				StorageInfo info = _event.Info.Module<StorageInfo>("storage");
+				info.CurrentUnit = this;
+				info.CurrentValue = Stored;
+				info.MaxValue = Capacity;
+			}
 		}
 	}
 }

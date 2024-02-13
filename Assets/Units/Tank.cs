@@ -1,7 +1,9 @@
 using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
+using MarsTS.Players;
 using MarsTS.Teams;
+using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,7 +15,10 @@ namespace MarsTS.Units {
 		[Header("Movement")]
 
 		[SerializeField]
-		private float topSpeed;
+		protected float topSpeed;
+
+		[SerializeField]
+		protected float currentTopSpeed;
 
 		[SerializeField]
 		private float acceleration;
@@ -33,14 +38,11 @@ namespace MarsTS.Units {
 
 		private float velocity;
 
-		[Header("Turrets")]
+		private GroundDetection ground;
 
-		protected Dictionary<string, AbstractTurret> registeredTurrets = new Dictionary<string, AbstractTurret>();
+		protected Dictionary<string, ProjectileTurret> registeredTurrets = new Dictionary<string, ProjectileTurret>();
 
-		[SerializeField]
-		protected AbstractTurret[] turretsToRegister;
-
-		protected IAttackable AttackTarget {
+		/*protected IAttackable AttackTarget {
 			get {
 				return attackTarget;
 			}
@@ -48,6 +50,12 @@ namespace MarsTS.Units {
 				if (attackTarget != null) {
 					EntityCache.TryGet(attackTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
 					oldAgent.RemoveListener<EntityDeathEvent>((_event) => AttackTarget = null);
+					oldAgent.RemoveListener<UnitVisibleEvent>((_event) => {
+						if (!_event.Visible) {
+							SetTarget(AttackTarget.GameObject.transform.position);
+							AttackTarget = null;
+						}
+					});
 				}
 
 				attackTarget = value;
@@ -56,15 +64,28 @@ namespace MarsTS.Units {
 					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
 
 					agent.AddListener<EntityDeathEvent>((_event) => AttackTarget = null);
+					agent.AddListener<UnitVisibleEvent>((_event) => {
+						if (!_event.Visible) {
+							SetTarget(AttackTarget.GameObject.transform.position);
+							AttackTarget = null;
+						}
+					});
 				}
 			}
 		}
 
-		protected IAttackable attackTarget;
+		protected IAttackable attackTarget;*/
+
+		protected UnitReference<IAttackable> AttackTarget = new UnitReference<IAttackable>();
 
 		protected override void Awake () {
 			base.Awake();
-			foreach (AbstractTurret turret in turretsToRegister) {
+
+			ground = GetComponent<GroundDetection>();
+
+			currentTopSpeed = topSpeed;
+
+			foreach (ProjectileTurret turret in GetComponentsInChildren<ProjectileTurret>()) {
 				registeredTurrets.TryAdd(turret.name, turret);
 			}
 		}
@@ -72,61 +93,86 @@ namespace MarsTS.Units {
 		protected override void Update () {
 			base.Update();
 
-			if (attackTarget == null) return;
+			if (AttackTarget.Get == null) return;
 
-			if (Vector3.Distance(attackTarget.GameObject.transform.position, transform.position) <= registeredTurrets["turret_main"].Range) {
+			if (registeredTurrets["turret_main"].IsInRange(AttackTarget.Get)) {
 				TrackedTarget = null;
 				currentPath = Path.Empty;
 			}
-			else if (!ReferenceEquals(TrackedTarget, attackTarget.GameObject.transform)) {
-				SetTarget(attackTarget.GameObject.transform);
+			else if (!ReferenceEquals(TrackedTarget, AttackTarget.GameObject.transform)) {
+				SetTarget(AttackTarget.GameObject.transform);
 			}
 		}
 
 		protected virtual void FixedUpdate () {
-			velocity = body.velocity.magnitude;
+			velocity = body.velocity.sqrMagnitude;
 
-			if (!currentPath.IsEmpty) {
-				Vector3 targetWaypoint = currentPath[pathIndex];
+			if (ground.Grounded) {
+				if (!currentPath.IsEmpty) {
+					Vector3 targetWaypoint = currentPath[pathIndex];
 
-				Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
-				float targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
+					Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
+					float targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
 
-				float newAngle = Mathf.MoveTowardsAngle(CurrentAngle, targetAngle, turnSpeed * Time.fixedDeltaTime);
-				body.MoveRotation(Quaternion.Euler(transform.rotation.x, newAngle, transform.rotation.z));
+					float newAngle = Mathf.MoveTowardsAngle(CurrentAngle, targetAngle, turnSpeed * Time.fixedDeltaTime);
+					body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, newAngle, transform.eulerAngles.z));
 
-				Vector3 currentVelocity = body.velocity;
-				Vector3 adjustedVelocity = transform.forward * currentVelocity.magnitude;
+					Vector3 currentVelocity = body.velocity;
+					Vector3 adjustedVelocity = Vector3.ProjectOnPlane(transform.forward, ground.Slope.normal);
 
-				if (Vector3.Angle(targetDirection, transform.forward) <= angleTolerance) {
-					float accelCap = 1f - (velocity / topSpeed);
+					adjustedVelocity *= currentVelocity.magnitude;
 
-					body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
+					if (Vector3.Angle(targetDirection, transform.forward) <= angleTolerance) {
+						float accelCap = 1f - (velocity / (currentTopSpeed * currentTopSpeed));
 
-					//Relative so it can take into account the forward vector of the car
-					body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
+						//This moves the velocity according to the rotation of the unit
+						body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
+
+						//Relative so it can take into account the forward vector of the car
+						body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
+					}
+
+					if (velocity > currentTopSpeed * currentTopSpeed) {
+						Vector3 direction = body.velocity.normalized;
+						direction *= currentTopSpeed;
+						body.velocity = direction;
+					}
 				}
-			}
-			else if (velocity >= 0.5f) {
-				body.AddRelativeForce(-body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
+				else if (velocity >= 0.5f) {
+					body.AddRelativeForce(-body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
+				}
 			}
 		}
 
-		protected override void ProcessOrder (Commandlet order) {
+		public override void Order (Commandlet order, bool inclusive) {
+			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
+
 			switch (order.Name) {
 				case "attack":
-					CurrentCommand = order;
-					Attack(order);
 					break;
 				default:
-					base.ProcessOrder(order);
+					base.Order(order, inclusive);
+					return;
+			}
+
+			if (inclusive) commands.Enqueue(order);
+			else commands.Execute(order);
+		}
+
+		protected override void ExecuteOrder (CommandStartEvent _event) {
+			switch (_event.Command.Name) {
+				case "attack":
+					Attack(_event.Command);
+					break;
+				default:
+					base.ExecuteOrder(_event);
 					break;
 			}
 		}
 
 		protected void Attack (Commandlet order) {
 			if (order is Commandlet<IAttackable> deserialized) {
-				AttackTarget = deserialized.Target;
+				AttackTarget.Set(deserialized.Target, deserialized.Target.GameObject);
 
 				EntityCache.TryGet(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
@@ -151,7 +197,7 @@ namespace MarsTS.Units {
 
 				targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
 
-				AttackTarget = null;
+				AttackTarget.Set(null, null);
 			}
 		}
 
@@ -164,9 +210,9 @@ namespace MarsTS.Units {
 
 			CurrentCommand.Callback.Invoke(newEvent);
 
-			bus.Global(newEvent);
+			
 
-			CurrentCommand = null;
+			//CurrentCommand = null;
 		}
 
 		public override Command Evaluate (ISelectable target) {

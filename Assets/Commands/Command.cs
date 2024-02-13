@@ -60,10 +60,27 @@ namespace MarsTS.Commands {
 		public string Name { get; protected set; }
 		public Faction Commander { get; protected set; }
 		public UnityEvent<CommandCompleteEvent> Callback = new UnityEvent<CommandCompleteEvent>();
+		public virtual Command Command { get { return CommandRegistry.Get(Name); } }
 
 		public Commandlet<T> Get<T> () {
 			if (typeof(T).Equals(TargetType)) return this as Commandlet<T>;
 			else throw new ArgumentException("Commandlet target type " + TargetType + " does not match given type " + typeof(T) + ", cannot return Commandlet!");
+		}
+
+		public virtual void OnComplete (CommandQueue queue, CommandCompleteEvent _event) {
+			Callback.Invoke(_event);
+		}
+
+		public virtual void OnStart (CommandQueue queue, CommandStartEvent _event) {
+
+		}
+
+		public virtual void OnActivate (CommandQueue queue, CommandActiveEvent _event) {
+
+		}
+
+		public virtual bool CanInterrupt () {
+			return true;
 		}
 
 		public abstract Commandlet Clone ();

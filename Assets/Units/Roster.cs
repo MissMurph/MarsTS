@@ -13,8 +13,22 @@ namespace MarsTS.Units {
         public string RegistryKey { get; private set; }
         public Type Type { get; private set; }
         public List<string> Commands { get; private set; }
+        public List<ICommandable> Orderable {
+            get {
+                if (commandables == null) return new();
+
+                List<ICommandable> output = new();
+
+                foreach (ICommandable commandable in commandables.Values) {
+                    output.Add(commandable);
+                }
+
+                return output;
+            }
+        }
 
 		private Dictionary<int, ISelectable> instances;
+        private Dictionary<int, ICommandable> commandables;
 
 		public int Count {
             get {
@@ -35,7 +49,12 @@ namespace MarsTS.Units {
 
             foreach (ISelectable unit in units) {
                 if (TryAdd(unit)) {
-                    if (Commands.Count == 0 && unit is ICommandable orderable) Commands.AddRange(orderable.Commands());
+                    if (unit is ICommandable orderable) {
+                        if (Commands.Count == 0) Commands.AddRange(orderable.Commands());
+						if (commandables == null) commandables = new Dictionary<int, ICommandable>();
+
+                        commandables[unit.ID] = orderable;
+                    }
                 }
             }
 		}
@@ -76,9 +95,12 @@ namespace MarsTS.Units {
 				return false;
 			}
 
-            if (Commands.Count == 0 && entity is ICommandable orderable) {
-                Commands.AddRange(orderable.Commands());
-            }
+            if (entity is ICommandable orderable) {
+                if (Commands.Count == 0) Commands.AddRange(orderable.Commands());
+				if (commandables == null) commandables = new Dictionary<int, ICommandable>();
+
+				commandables[entity.ID] = orderable;
+			}
 
             return true;
         }

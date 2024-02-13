@@ -77,9 +77,9 @@ namespace MarsTS.World.Pathfinding {
 		//NO LONGER
 		private Vector3[] SimplifyPath (List<Node> path) {
 			//We have to add the start position otherwise it's not returned
-			List<Vector3> waypoints = new List<Vector3> {
-				path[0].Position
-			};
+			List<Vector3> waypoints = new List<Vector3>();
+
+			if (path.Count > 0) waypoints.Add(path[0].Position);
 
 			Vector2 directionOld = Vector2.zero;
 

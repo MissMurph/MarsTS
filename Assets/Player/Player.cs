@@ -64,7 +64,9 @@ namespace MarsTS.Players {
 			alternate = false;
 		}
 
-		private void Start () {
+		protected override void Start () {
+			base.Start();
+
 			EventBus.AddListener<EntityDeathEvent>(OnEntityDeath);
 			EventBus.AddListener<EntityInitEvent>(OnEntityInit);
 		}
@@ -182,9 +184,27 @@ namespace MarsTS.Players {
 			foreach (KeyValuePair<string, Roster> entry in Selected) {
 				foreach (ISelectable unit in entry.Value.List()) {
 					if (unit is ICommandable orderable) {
-						if (inclusive) orderable.Enqueue(packet);
-						else orderable.Execute(packet);
+						orderable.Order(packet, inclusive);
 					}
+				}
+			}
+		}
+
+		public void DistributeCommand (Commandlet packet, bool inclusive) {
+			foreach (KeyValuePair<string, Roster> entry in Selected) {
+				int lowestAmount = 999;
+				ICommandable lowestOrderable = null;
+
+				foreach (ICommandable orderable in entry.Value.Orderable) {
+					if (!orderable.CanCommand(packet.Command.Name)) continue;
+					if (orderable.Count < lowestAmount) {
+						lowestAmount = orderable.Count;
+						lowestOrderable = orderable;
+					}
+				}
+
+				if (lowestOrderable != null) {
+					lowestOrderable.Order(packet, inclusive);
 				}
 			}
 		}

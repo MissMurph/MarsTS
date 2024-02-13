@@ -40,7 +40,7 @@ namespace MarsTS.World {
                 int finalAmount = extractor(availableAmount);
 
                 if (finalAmount > 0) {
-                    bus.Global(new ResourceHarvestedEvent(bus, this, finalAmount, resourceKey));
+                    bus.Global(new ResourceHarvestedEvent(bus, this, harvester, ResourceHarvestedEvent.Side.Deposit, finalAmount, resourceKey, StoredAmount, OriginalAmount));
                     attribute.Amount -= finalAmount;
                 }
 

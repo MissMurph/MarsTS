@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace MarsTS.Units {
 
-    public class HarvesterTurret : AbstractTurret {
+    public class HarvesterTurret : MonoBehaviour {
 
         //This is how many units per second
         [SerializeField]
@@ -21,8 +21,24 @@ namespace MarsTS.Units {
 
 		private ResourceStorage localStorage;
 
-		protected override void Awake () {
-			base.Awake();
+		[SerializeField]
+		private GameObject barrel;
+
+		public float Range { get { return sensor.Range; } }
+
+		private IHarvestable target;
+
+		private ISelectable parent;
+		private EventAgent bus;
+
+		private HarvestSensor sensor;
+
+		private void Awake () {
+			parent = GetComponentInParent<ISelectable>();
+			bus = GetComponentInParent<EventAgent>();
+			sensor = GetComponent<HarvestSensor>();
+
+			bus.AddListener<SensorUpdateEvent<IHarvestable>>(OnSensorUpdate);
 
 			localStorage = GetComponentInParent<ResourceStorage>();
 
@@ -36,24 +52,28 @@ namespace MarsTS.Units {
 			}
 
 			if (parent is ICommandable commandableUnit && commandableUnit.CurrentCommand != null && commandableUnit.CurrentCommand.Name == "harvest") {
-				Commandlet<IHarvestable> attackCommand = commandableUnit.CurrentCommand as Commandlet<IHarvestable>;
+				Commandlet<IHarvestable> harvestCommand = commandableUnit.CurrentCommand as Commandlet<IHarvestable>;
 
-				if (inRangeUnits.ContainsKey(attackCommand.Target.GameObject.name)) {
-					target = attackCommand.Target as ISelectable;
+				if (sensor.IsDetected(harvestCommand.Target)) {
+					target = harvestCommand.Target;
 				}
 			}
 
 			if (target == null) {
-				foreach (ISelectable unit in inRangeUnits.Values) {
-					if (unit is IHarvestable) {
-						target = unit;
-						break;
-					}
+				foreach (IHarvestable unit in sensor.Detected) {
+					target = unit;
+					break;
 				}
 			}
 
-			if (target != null && inRangeUnits.ContainsKey(target.GameObject.transform.root.name) && currentCooldown <= 0) {
+			if (target != null && sensor.IsDetected(target) && currentCooldown <= 0) {
 				Harvest();
+			}
+		}
+
+		private void FixedUpdate () {
+			if (target != null && sensor.IsDetected(target)) {
+				barrel.transform.LookAt(target.GameObject.transform, Vector3.up);
 			}
 		}
 
@@ -61,9 +81,24 @@ namespace MarsTS.Units {
 			IHarvestable harvestable = target as IHarvestable;
 
 			int harvested = harvestable.Harvest("resource_unit", parent, harvestAmount, localStorage.Submit);
-			bus.Global(new HarvesterExtractionEvent(bus, parent, localStorage.Amount, localStorage.Capacity, harvestable));
+			bus.Global(new ResourceHarvestedEvent(bus, harvestable, parent, ResourceHarvestedEvent.Side.Harvester, harvested, "resource_unit", localStorage.Amount, localStorage.Capacity));
 
 			currentCooldown += cooldown;
+		}
+
+		private void OnSensorUpdate (SensorUpdateEvent<IHarvestable> _event) {
+			if (_event.Detected == true) {
+				if (target == null) {
+					target = _event.Target;
+				}
+			}
+			else if (ReferenceEquals(_event.Target, target)) {
+				target = null;
+			}
+		}
+
+		public bool IsInRange (IHarvestable target) {
+			return sensor.IsDetected(target);
 		}
 	}
 }

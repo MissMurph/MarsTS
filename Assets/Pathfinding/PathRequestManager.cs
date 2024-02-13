@@ -12,12 +12,27 @@ namespace MarsTS.World.Pathfinding {
 		private static PathRequestManager instance;
 
 		private Queue<PathResult> results = new Queue<PathResult>();
+		private Queue<PathRequest> requests = new Queue<PathRequest>();
 
 		private Pathfinder localFinder;
+
+		private Thread currentThread;
+
+		private bool running;
 
 		private void Awake () {
 			instance = this;
 			localFinder = GetComponent<Pathfinder>();
+			running = true;
+
+			Application.quitting += Quitting;
+		}
+
+		private void Start () {
+			ThreadStart workerThread = delegate { ProcessRequests(); };
+
+			currentThread = new Thread(workerThread);
+			currentThread.Start();
 		}
 
 		private void Update () {
@@ -33,12 +48,28 @@ namespace MarsTS.World.Pathfinding {
 			}
 		}
 
-		public static void RequestPath (Vector3 origin, Vector3 target, Action<Path, bool> callback) {
-			ThreadStart threadStart = delegate {
-				instance.localFinder.FindPath(new PathRequest(origin, target, callback), instance.FinishedProcessingPath);
-			};
+		private void Quitting () {
+			running = false;
+		}
 
-			threadStart.Invoke();
+		public static void RequestPath (Vector3 origin, Vector3 target, Action<Path, bool> callback) {
+			lock (instance.requests) {
+				instance.requests.Enqueue(new PathRequest(origin, target, callback));
+			}
+		}
+
+		private void ProcessRequests () {
+			while (running) {
+				if (requests.Count > 0) {
+					PathRequest toProcess;
+
+					lock (requests) {
+						toProcess = requests.Dequeue();
+					}
+
+					instance.localFinder.FindPath(toProcess, instance.FinishedProcessingPath);
+				}
+			}
 		}
 
 		public void FinishedProcessingPath (PathResult result) {

@@ -81,14 +81,14 @@ namespace MarsTS.UI {
 		}
 
 		private void Start () {
-			EventBus.AddListener<EntityHurtEvent>(OnEntityHurt);
+			EventBus.AddListener<UnitHurtEvent>(OnEntityHurt);
 			EventBus.AddListener<EntityDeathEvent>(OnEntityDeath);
 		}
 
-		private void OnEntityHurt (EntityHurtEvent _event) {
-			if (ReferenceEquals(_event.Unit, CurrentUnit)) {
-				CurrentHealth = _event.Unit.Health;
-				MaxHealth = _event.Unit.MaxHealth;
+		private void OnEntityHurt (UnitHurtEvent _event) {
+			if (ReferenceEquals(_event.Targetable, CurrentUnit)) {
+				CurrentHealth = _event.Targetable.Health;
+				MaxHealth = _event.Targetable.MaxHealth;
 			}
 		}
 

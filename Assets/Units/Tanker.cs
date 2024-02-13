@@ -3,7 +3,6 @@ using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 namespace MarsTS.Units {
 
@@ -30,8 +29,6 @@ namespace MarsTS.Units {
 		}
 
 		protected override void Update () {
-			UpdateCommands();
-
 			if (!currentPath.IsEmpty) {
 				Vector3 targetWaypoint = currentPath[pathIndex];
 				float distance = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).magnitude;
@@ -47,7 +44,7 @@ namespace MarsTS.Units {
 			}
 
 			if (DepositTarget != null) {
-				if (depositableDetector.IsInRange(DepositTarget)) {
+				if (depositableDetector.IsDetected(DepositTarget)) {
 					TrackedTarget = null;
 					currentPath = Path.Empty;
 
@@ -63,7 +60,7 @@ namespace MarsTS.Units {
 			}
 
 			if (HarvestTarget != null) {
-				if (harvestableDetector.IsInRange(HarvestTarget)) {
+				if (harvestableDetector.IsDetected(HarvestTarget)) {
 					TrackedTarget = null;
 					currentPath = Path.Empty;
 
@@ -79,14 +76,14 @@ namespace MarsTS.Units {
 
 		private void SiphonOil () {
 			int harvested = HarvestTarget.Harvest("oil", this, harvestAmount, storageComp.Submit);
-			bus.Global(new HarvesterExtractionEvent(bus, this, Stored, Capacity, HarvestTarget));
+			bus.Global(new ResourceHarvestedEvent(bus, HarvestTarget, this, ResourceHarvestedEvent.Side.Harvester, harvested, "oil", Stored, Capacity));
 
 			currentHarvestCooldown += harvestCooldown;
 		}
 
 		protected override void DepositResources () {
 			storageComp.Consume(DepositTarget.Deposit("oil", depositAmount));
-			bus.Global(new HarvesterDepositEvent(bus, this, Stored, Capacity, DepositTarget));
+			bus.Global(new HarvesterDepositEvent(bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity, DepositTarget));
 			currentCooldown += cooldown;
 		}
 	}

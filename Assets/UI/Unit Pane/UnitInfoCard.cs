@@ -1,5 +1,6 @@
 using MarsTS.Events;
 using MarsTS.Units;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -9,6 +10,8 @@ using UnityEngine.UI;
 namespace MarsTS.UI {
 
     public class UnitInfoCard : MonoBehaviour {
+
+        private static UnitInfoCard instance;
 
         private Dictionary<string, IInfoModule> registered;
 
@@ -62,6 +65,14 @@ namespace MarsTS.UI {
             }
 
             return default;
+        }
+
+        public void SetHide (string key) {
+
+        }
+
+        public void SetShow (string key) {
+
         }
 
         public void Deactivate () {

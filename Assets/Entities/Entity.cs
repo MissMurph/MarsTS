@@ -47,7 +47,14 @@ namespace MarsTS.Entities {
 			if (id == 0) {
 				id = EntityCache.Register(this);
 				name = registryKey + ":" + id.ToString();
-				eventAgent.Global(new EntityInitEvent(this, eventAgent));
+
+				EntityInitEvent initCall = new EntityInitEvent(this, eventAgent);
+
+				initCall.Phase = Phase.Pre;
+				eventAgent.Global(initCall);
+
+				initCall.Phase = Phase.Post;
+				eventAgent.Global(initCall);
 			}
 		}
 

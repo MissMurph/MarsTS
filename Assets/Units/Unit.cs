@@ -2,16 +2,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 using MarsTS.World.Pathfinding;
 using MarsTS.Teams;
 using MarsTS.Entities;
 using MarsTS.Events;
-using MarsTS.Prefabs;
 using MarsTS.Commands;
 using MarsTS.UI;
+using MarsTS.Vision;
+using UnityEngine.ProBuilder;
 
 namespace MarsTS.Units {
 
@@ -26,10 +25,10 @@ namespace MarsTS.Units {
 		public int MaxHealth { get { return maxHealth; } }
 
 		[SerializeField]
-		private int maxHealth;
+		protected int maxHealth;
 
 		[SerializeField]
-		private int currentHealth;
+		protected int currentHealth;
 
 		/*	ISelectable Properties	*/
 		
@@ -60,14 +59,22 @@ namespace MarsTS.Units {
 
 		/*	ICommandable Properties	*/
 
-		public Commandlet CurrentCommand { get; protected set; }
+		public Commandlet CurrentCommand { get { return commands.Current; } }
 
-		public Commandlet[] CommandQueue { get { return commandQueue.ToArray(); } }
+		public Commandlet[] CommandQueue { get { return commands.Queue; } }
 
-		private Queue<Commandlet> commandQueue = new Queue<Commandlet>();
+		public List<string> Active { get { return commands.Active; } }
+
+		public List<Cooldown> Cooldowns { get { return commands.Cooldowns; } }
+
+		public int Count { get { return commands.Count; } }
+
+		//protected Queue<Commandlet> commandQueue = new Queue<Commandlet>();
+
+		protected CommandQueue commands;
 
 		[SerializeField]
-		private string[] boundCommands;
+		protected string[] boundCommands;
 
 		/*	Unit Fields	*/
 
@@ -107,8 +114,6 @@ namespace MarsTS.Units {
 		private float angle;
 		protected int pathIndex;
 
-		private GameObject selectionCircle;
-
 		protected Rigidbody body;
 
 		private const float minPathUpdateTime = .5f;
@@ -119,26 +124,39 @@ namespace MarsTS.Units {
 
 		protected EventAgent bus;
 
+		[SerializeField]
+		private GameObject[] hideables;
+
 		protected virtual void Awake () {
-			selectionCircle = transform.Find("SelectionCircle").gameObject;
-			selectionCircle.SetActive(false);
 			body = GetComponent<Rigidbody>();
 			entityComponent = GetComponent<Entity>();
 			bus = GetComponent<EventAgent>();
+			commands = GetComponent<CommandQueue>();
+
 			currentHealth = maxHealth;
 		}
 
 		protected virtual void Start () {
 			StartCoroutine(UpdatePath());
 
-			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
+			transform.Find("SelectionCircle").GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
+
+			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
+			bus.AddListener<CommandStartEvent>(ExecuteOrder);
 
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
+			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
+		}
+
+		private void OnVisionInit (VisionInitEvent _event) {
+			bool visible = GameVision.IsVisible(gameObject);
+
+			foreach (GameObject hideable in hideables) {
+				hideable.SetActive(visible);
+			}
 		}
 
 		protected virtual void Update () {
-			UpdateCommands();
-
 			if (!currentPath.IsEmpty) {
 				Vector3 targetWaypoint = currentPath[pathIndex];
 				float distance = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).magnitude;
@@ -151,28 +169,6 @@ namespace MarsTS.Units {
 					bus.Local(new PathCompleteEvent(bus, true));
 					currentPath = Path.Empty;
 				}
-			}
-		}
-
-		protected void UpdateCommands () {
-			if (CurrentCommand is null && commandQueue.TryDequeue(out Commandlet order)) {
-
-				ProcessOrder(order);
-			}
-		}
-
-		protected virtual void ProcessOrder (Commandlet order) {
-			switch (order.Name) {
-				case "move":
-				CurrentCommand = order;
-				Move(order);
-				break;
-				case "stop":
-				CurrentCommand = order;
-				Stop();
-				break;
-				default:
-				break;
 			}
 		}
 
@@ -196,12 +192,12 @@ namespace MarsTS.Units {
 			currentPath = Path.Empty;
 			target = null;
 
-			commandQueue.Clear();
+			commands.Clear();
 
-			CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, false, this);
-			bus.Global(_event);
+			//CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+			//bus.Global(_event);
 
-			CurrentCommand = null;
+			//CurrentCommand = null;
 		}
 
 		protected virtual void Move (Commandlet order) {
@@ -217,10 +213,6 @@ namespace MarsTS.Units {
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
 			CurrentCommand.Callback.Invoke(newEvent);
-
-			bus.Global(newEvent);
-
-			CurrentCommand = null;
 		}
 
 		protected IEnumerator UpdatePath () {
@@ -237,9 +229,6 @@ namespace MarsTS.Units {
 					PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
 					targetOldPos = target.position;
 				}
-				/*else if (!currentPath.IsEmpty) {
-					PathRequestManager.RequestPath(transform.position, currentPath.End, OnPathFound);
-				}*/
 			}
 		}
 
@@ -259,25 +248,33 @@ namespace MarsTS.Units {
 			}
 		}
 
-		public void Enqueue (Commandlet order) {
+		public virtual void Order (Commandlet order, bool inclusive) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
-			commandQueue.Enqueue(order);
+
+			switch (order.Name) {
+				case "move":
+					break;
+				case "stop":
+					break;
+				default:
+					return;
+			}
+
+			if (inclusive) commands.Enqueue(order);
+			else commands.Execute(order);
 		}
 
-		public void Execute (Commandlet order) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
-			commandQueue.Clear();
-
-			currentPath = Path.Empty;
-			target = null;
-
-			if (CurrentCommand != null) {
-				CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, true, this);
-				CurrentCommand.Callback.Invoke(_event);
-				bus.Global(_event);
+		protected virtual void ExecuteOrder (CommandStartEvent _event) {
+			switch (_event.Command.Name) {
+				case "move":
+					Move(_event.Command);
+					break;
+				case "stop":
+					Stop();
+					break;
+				default:
+					break;
 			}
-			CurrentCommand = null;
-			commandQueue.Enqueue(order);
 		}
 
 		public Unit Get () {
@@ -292,25 +289,25 @@ namespace MarsTS.Units {
 
 		public abstract Commandlet Auto (ISelectable target);
 
-		public void Select (bool status) {
-			selectionCircle.SetActive(status);
+		public virtual void Select (bool status) {
+			//selectionCircle.SetActive(status);
 			bus.Local(new UnitSelectEvent(bus, status));
 		}
 
-		public void Hover (bool status) {
+		public virtual void Hover (bool status) {
 			//These are seperated due to the Player Selection Check
 			if (status) {
-				selectionCircle.SetActive(true);
+				//selectionCircle.SetActive(true);
 				bus.Local(new UnitHoverEvent(bus, status));
 			}
 			else if (!Player.Main.HasSelected(this)) {
-				selectionCircle.SetActive(false);
+				//selectionCircle.SetActive(false);
 				bus.Local(new UnitHoverEvent(bus, status));
 			}
 		}
 
 		public Relationship GetRelationship (Faction other) {
-			return owner.GetRelationship(other);
+			return Owner.GetRelationship(other);
 		}
 
 		public bool SetOwner (Faction player) {
@@ -322,12 +319,11 @@ namespace MarsTS.Units {
 			if (damage < 0 && currentHealth >= maxHealth) return;
 			currentHealth -= damage;
 
-			bus.Global(new EntityHurtEvent(bus, this));
-
 			if (currentHealth <= 0) {
 				bus.Global(new EntityDeathEvent(bus, this));
 				Destroy(gameObject);
 			}
+			else bus.Global(new UnitHurtEvent(bus, this));
 		}
 
 		protected virtual void OnUnitInfoDisplayed (UnitInfoEvent _event) {
@@ -335,6 +331,27 @@ namespace MarsTS.Units {
 				HealthInfo info = _event.Info.Module<HealthInfo>("health");
 				info.CurrentUnit = this;
 			}
+		}
+
+		protected virtual void OnVisionUpdate (EntityVisibleEvent _event) {
+			foreach (GameObject hideable in hideables) {
+				hideable.SetActive(_event.Visible);
+			}
+		}
+
+		public virtual bool CanCommand (string key) {
+			bool canUse = false;
+
+			for (int i = 0; i < boundCommands.Length; i++) {
+				if (boundCommands[i] == key) break;
+
+				if (i >= boundCommands.Length - 1) return false;
+			}
+
+			if (commands.CanCommand(key)) canUse = true;
+			//if (production.CanCommand(key)) canUse = true;
+
+			return canUse;
 		}
 	}
 }

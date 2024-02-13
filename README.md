@@ -1,34 +1,34 @@
 # MarsTS
  This is a practise project dedicated to exploring traditional RTS mechanics & systems, inspired by games like Company of Heroes, Command & Conquer and Starcraft. It's intended to explore the desolate Martian surface with precise control of units and data oriented patterns to help organize the structure. It was spurred on by the idea of using delegates to switch commands and change the mouse's behavior which turned out to be a successful and quite fun exercise. This has now expanded to an indefinitely in progress playspace for myself to explore these systems.
 
- The game now features unit combat, building construction, unit production and even resource gathering, having shaped into almost all the essential bones for an RTS game.
+ The game now features unit combat, building construction, unit production, resource gathering, building upgrades, unit abilities and fog of war, having shaped into almost all the essential bones for an RTS game.
 
- ![Screenshot of a scout car, long tank & a flat tank cornering an enemy flat tank](/FolioImages/resourcing/unit_combat_2.png)
+ ![Gif of a tank assault climbing a ramp and engaging a small base with artillery and a constructor](https://i.imgur.com/yC9xHgz.gif)
+ ![Screenshot of a Mobile Artillery & Roughneck squad working together to destroy a tank without being detected](/FolioImages/ArtilleryAttackingExample.png)
 
  ## Key Features:
 
  ### Varied Unit Combat
- Unit Combat now features a variety of units with different strengths and weaknesses, creating varied gameplay and tactical decision making in how you utilise each unit. Currently there are 4 main units used for combat; the Scout Car, Flat Tank, Long Tank & Constructor. The scout car is fast, able to dodge projectiles from tanks and fire quickly, making it an excellent counter to the slower, long range artillery focused long tank, which is able to snipe flat tanks from afar. Flat tanks however are fast, deadly and precise, able to easily dispatch scout cars when in a group. All of these units can be supported by constructors to repair and sustain them in the battle, however constructors are incredibly slow, requiring encounters to push ahead and fall back when repairs are needed.
+ Unit Combat has been expanded upon even further with the implementation of Fog of War, now introducing units designed around the system to enhance tactical decision making. Roughnecks and their stealth add a new dimension to combat, capable of sneaking behind enemy lines if they keep their distance, able to co-ordinate with a Mobile Artillery deployed far away to use its massive attack range. Scout cars and flat tanks remain unchanged, making both far more powerful. With the need for artillery to deploy, scout cars have an easier time hunting them down and getting the jump on them, making tanks more valuable with their ability to quickly dispatch individual cars. The composition of an army now has major implications for the outcome of a battle, when combined with the repairing capabilities of a constructor a lot of strategic and tactical depth is easily created.
 
  ![Closeup screenshot of a large group of scout cars & tanks overwhelming enemy flat tanks](/FolioImages/resourcing/unit_combat_3.png)
 
- ### Building Construction
- Constructors primary use however is (unsurprisingly) constructing buildings. Currently there are 3 different buildings that can be built; the Scrapyard, Factory & Pumpjack. Scrapyards serve as your headquarters, you start with one with two turrets to defend it, and are incredibly expensive to build, but are able to support an entire army themelves. Factories are more specialized, with no defenses, limited durability and high cost, they're a high priority target but are able to produce units far quicker than the Scrapyard, and for precious Oil, are able to produce tanks.
+ ### Construction & Production
+ There are currently 4 different buildings, each filling a specific role; the Scrapyard, Factory, Pumpjack & Makeshift Pumpjack. The Scrapyards serve as your headquarters and can produce civilian units and the fast scout car, intended to be replaced by the Factory which can produce powerful military units, such as a Tank and Mobile Artillery, but costing far more oil than Scrapyard productions. The Pumpjack and its Makeshift variant are meant for harvesting this oil, the Makeshift variant however is constructed by the sneaky Roughneck infantry squad and can be upgraded with camo so its not easily visible from far away, facilitating hidden oil harvesting operations at the cost of harvest rate. All buildings support these upgrades and even research.
 
  ![Screenshot of a constructor unit building a Pumpjack over an oil deposit](/FolioImages/resourcing/building_construction.png)
- ![Screenshot of a constructor unit selected with a tooltip open for the Pumpjack construction](/FolioImages/resourcing/command_tooltip.png)
+ ![Screenshot of a constructor unit selected with a tooltip open for the Pumpjack construction](/FolioImages/resourcing/MakeShiftPumpjack.png)
 
  ### Resource Gathering
- Resource Harvesting comes currently in two varieties, with plenty of room to expand and play with for more unique levels. There's Resource Units, inspired by the Homeworld franchise it represents all the general materials needed to construct things, scrap, metal, rock, rubber, wire, etc. The second main resource is Oil, less plentiful than RUs it requires more specialized equipment to extract, needing a Pumpjack built on oil deposits before tanker trucks can collect it and deposit it in a player's base. Resource gathering requires transportation of resources before they enter the player's resource banks, requiring planning of supply lines and protecting them so resourcing operations don't get disrupted.
+ Resource Harvesting comes currently in two varieties, with plenty of room to expand and play with for more unique levels. There's Resource Units, inspired by the Homeworld franchise it represents all the general materials needed to construct things, scrap, metal, rock, rubber, wire, etc. The second main resource is Oil, less plentiful than RUs it requires more specialized equipment to extract, needing a Pumpjack built on oil deposits before tanker trucks can collect it and deposit it in a player's base. Resource gathering requires transportation of resources before they enter the player's resource banks, requiring planning of supply lines and protecting them so resourcing operations don't get disrupted. Resources can even be stolen from players, with the Roughnecks infantry able to siphon oil out of enemy Pumpjacks without being revealed in stealth, allowing for subversive but effective attacks on a targets economy.
 
- ![Screenshot of a tanker unit siphoning oil out of a pumpjac, with its headquarters it'll deposit into in the background](/FolioImages/resourcing/resource_gathering_2.png)
+ ![Screenshot of a tanker unit siphoning oil out of a pumpjack, with its headquarters it'll deposit into in the background](/FolioImages/resourcing/resource_gathering_2.png)
 
- ### Unit Production
- Units can be produced at the two largest buildings, the Factory & the Scrapyard. Scrapyards are host to a whole suite of blueprints for civilian units, such as the Constructor, Harvester & Tanker units, and is able to produce scout cars, but is quite slow to produce all of them; you want it constantly producing to maximize your resource utilization. Factories can produce things far quicker, at twice the speed of Scrapyards, and have access to more specialized manufacturing equipment allowing them to produce both long and flat tanks.
+ ### Fog of War
+ Fog of War has been implemented with a data oriented vision system. All units can see within a range around them, pseudo-raycasts are fired from the edges inwards to determine if any obstacles block the vision, creating a dynamic vision system that utilizes varied height in terrain. Units cannot see over cliffs, but can see and fire upon other units down them. This is utilized for two new units designed for the system; the Roughnecks and Mobile Artillery. The Roughnecks are capable of stealth, reducing the range with which they are visible, so they can creep on enemy units and get sight for the Mobile Artillery, which when deployed has a massive attack range and high damage, but a small range of vision. The vision is multi-threaded for both calculation and texture rendering and has been tested with over a thousand units simultaneously with little impact to performance.
 
- ![Screenshot of the scrapyard selected with an ongoing production and additional orders queued up, demonstrating the UI](/FolioImages/resourcing/production_queue.png)
-
- ![Screenshot of two harvesters moving back and forth between a Scrapyard & a minerals deposit, one of them is currently harvesting while the other is depositing into the scrapyard](/FolioImages/resourcing/resource_gathering.png)
+ ![Screenshot of a Roughneck Squad sneaking right next to a tank, remaining undetected](https://i.imgur.com/gtRyiZG.gif)
+ ![Gif of vision switching between the main player and enemy AI, showing the Roughneck Squad being revealed and hidden](https://i.imgur.com/BoHYJ2w.gif)
 
  ## Featured Systems:
 
@@ -50,9 +50,15 @@
  ![Screenshot of the Tank's physics-based movement code](/FolioImages/TankMovementImplementation.png)
 
  ### Multi-Threaded Pathfinding
- The pathfinding is multi-threaded, allowing me to be quite liberal in how I use it. Currently each Unit will update its path every 0.5 seconds using Unity's coroutines to request the path from a Singleton which will handle the multi-threading, keeping it strictly seperated from the main render thread. The pathfinding is my own implementation using Sebastian Lague's A* pathfinding method. I'm hoping to explore both thread pooling and Unity's NavMesh in the future and decide wether a custom A* implementation or the NavMesh would work best for this project.
+ The pathfinding's multi-threading has been vastly improved, attaining greater performance and further allowing me to be quite liberal in how I use it. Currently each Unit will update its path every 0.5 seconds using Unity's coroutines to request the path from a Singleton which will handle the multi-threading, keeping it strictly seperated from the main render thread. The pathfinding is my own implementation using a modified version of Sebastian Lague's A* pathfinding method to improve performance and reliability of the paths found. I'm hoping to explore both thread pooling and Unity's NavMesh in the future and decide wether a custom A* implementation or the NavMesh would work best for this project.
 
- ![Screenshot of the Pathfinding's Multi-Threading code](/FolioImages/PathFinding_MultiThreading.png)
+ ![Screenshot of the Pathfinding's Multi-Threading code](/FolioImages/PathFinding_MultiThreading2.png)
+
+ ### Multi-Threaded Vision
+ The Vision system is also multi-threaded, which brought a revamping of the pathfinding's multi-threading to improve with what I learnt making this system. Vision works by overlaying a grid of integers, each integer is used as a bit mask containing info on which players can see it or have visited it. Every unit that has a vision component attached will be tracked by the game vision, and 4 times a second the vision system will calculate every cell within range of each vision component and pseudo-raycast to determine if any terrain blocks line of sight to that cell. All of the cells are then assigned the bits representing players that can see them. This is all calculated in a constantly running secondary thread while a tertiary thread collects all the data and converts it into a texture every fixed update, allowing for interpolation between each frames texture to ease out the vision changes.
+
+ ![Screenshot of the Vision System's calculation algorithm](/FolioImages/VisionCalculation_Code.png)
+ ![Screenshot of the Vision Renderer's multi-threaded algorithm](/FolioImages/VisionRenderer_Code.png)
  
  ## Progress:
  - [ ] RTS Camera Controls
@@ -66,50 +72,70 @@
     - [x] Selection UI
         - [x] Multiple Unit Types
         - [x] Command Window
- - [ ] Unit Combat
+    - [x] Infantry Squads
+ - [x] Unit Combat
     - [x] Projectile Implementation
     - [x] Hitscan Implementation
-    - [ ] Abilities
+    - [x] Abilities
+       - [x] Active Effects
+       - [x] Worked Commands
     - [x] Repairing
  - [x] Unit Movement
     - [x] Physics-Based
     - [x] Car Implementation
         - [ ] Jumps
     - [x] Tank Implementation
+    - [x] Infantry Implementation
  - [ ] UI
     - [x] Selection UI
     - [x] Command Panel
        - [x] Command Tooltips
+          - [x] Command Costs
+       - [x] Activity
+       - [x] Cooldown
+       - [x] Usability
     - [x] Unit Bars
        - [x] Health Bars
        - [x] Building Construction Bars
        - [x] Unit production Bars
        - [x] Resources Stored Bars
-    - [ ] Waypoint Renderer
     - [x] Rendered Unit Icons
     - [x] Expanded Unit Info
        - [x] Production Queue
        - [x] Health Info
        - [x] Resource Deposit
-       - [ ] Resources Stored
+       - [x] Resources Stored
        - [ ] Current Command Info
     - [x] Player Resources
+    - [ ] Waypoint Renderer
     - [ ] Minimap
  - [x] Building
     - [x] Constructor Unit
     - [x] Factory
     - [x] Scrapyard
+    - [x] Pumpjack
+    - [x] Building Upgrades
     - [ ] Building Large Units
- - [x] Resource Gathering
+ - [x] Economy
     - [x] Harvester Unit
     - [x] Mineral Deposits
     - [x] Oil Deposits
     - [x] Pumpjack Building
+    - [x] Production & Construction Costs
  - [x] Unit Production
     - [x] Constructor Production
     - [x] Production Time
     - [x] Production Costs
     - [ ] Unit Upgrades
- - [ ] Fog of War
+ - [X] Fog of War
+    - [x] Raycasted Vision
+       - [x] Blocked by Terrain
+    - [x] Multi-Threading
+       - [x] Vision Calculation
+       - [x] Vision Rendering
+    - [x] Easing
+    - [x] Switching Player's Vision
+    - [x] Stealth
+    - [ ] Gaussian Blur
  - [ ] Networking
  - [ ] Enemy AI

@@ -13,6 +13,12 @@ namespace MarsTS.Teams {
 
         public Team Allegiance { get { return TeamCache.Team(this); } }
 
+		public int VisionMask { get { return Allegiance.VisionMask; } }
+
+		public int ID { get { return id; } }
+
+		private int id;
+
 		public List<PlayerResource> Resources {
 			get {
 				List<PlayerResource> output = new List<PlayerResource>();
@@ -34,6 +40,10 @@ namespace MarsTS.Teams {
 			foreach (PlayerResource toRegister in GetComponents<PlayerResource>()) {
 				resources[toRegister.Key] = toRegister;
 			}
+		}
+
+		protected virtual void Start () {
+			id = TeamCache.RegisterPlayer(this);
 		}
 
 		public PlayerResource Resource (string key) {

@@ -11,8 +11,11 @@ namespace MarsTS.UI {
 
 	public class CommandPanel : MonoBehaviour {
 
-		public Button[] registeredButton;
-		private Image[] registeredIcons;
+		//public Button[] registeredButton;
+		//private Image[] registeredIcons;
+
+		private CommandButton[] registeredButtons;
+
 		private string[] boundCommands;
 		private int buttonCount;
 
@@ -21,17 +24,14 @@ namespace MarsTS.UI {
 		private string currentlyTargetingCommand;
 
 		private void Awake () {
-			buttonCount = registeredButton.Length;
+			//buttonCount = registeredButtons.Length;
+
+			registeredButtons = GetComponentsInChildren<CommandButton>();
+			buttonCount = registeredButtons.Length;
+
 			boundCommands = new string[buttonCount];
 
 			tooltip = GetComponentInChildren<CommandTooltip>();
-
-			registeredIcons = new Image[buttonCount];
-
-			for (int i = 0; i < registeredButton.Length; i++) {
-				registeredIcons[i] = registeredButton[i].transform.Find("Icon").GetComponent<Image>();
-				registeredIcons[i].gameObject.SetActive(false);
-			}
 		}
 
 		private void Start () {
@@ -53,13 +53,15 @@ namespace MarsTS.UI {
 			for (int i = 0; i < buttonCount; i++) {
 				if (i >= commands.Length) {
 					boundCommands[i] = null;
-					registeredIcons[i].gameObject.SetActive(false);
+					//registeredIcons[i].gameObject.SetActive(false);
+					registeredButtons[i].UpdateCommand("");
 					continue;
 				}
 
 				boundCommands[i] = commands[i];
-				registeredIcons[i].gameObject.SetActive(true);
-				registeredIcons[i].sprite = CommandRegistry.Get(boundCommands[i]).Icon;
+				registeredButtons[i].UpdateCommand(commands[i]);
+				//registeredIcons[i].gameObject.SetActive(true);
+				//registeredIcons[i].sprite = CommandRegistry.Get(boundCommands[i]).Icon;
 			}
 		}
 
@@ -68,14 +70,16 @@ namespace MarsTS.UI {
 
 			for (int i = 0; i < commands.Length; i++) {
 				if (string.IsNullOrEmpty(commands[i])) {
-					registeredIcons[i].gameObject.SetActive(false);
+					//registeredIcons[i].gameObject.SetActive(false);
 					boundCommands[i] = null;
+					registeredButtons[i].UpdateCommand("");
 					continue;
 				}
 
 				boundCommands[i] = commands[i];
-				registeredIcons[i].gameObject.SetActive(true);
-				registeredIcons[i].sprite = CommandRegistry.Get(boundCommands[i]).Icon;
+				registeredButtons[i].UpdateCommand(commands[i]);
+				//registeredIcons[i].gameObject.SetActive(true);
+				//registeredIcons[i].sprite = CommandRegistry.Get(boundCommands[i]).Icon;
 			}
 		}
 

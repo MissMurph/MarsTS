@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace MarsTS.Prefabs {
 
-	public class UnitRegistry : PrefabRegistry<Unit> {
+	public class UnitRegistry : PrefabRegistry<ISelectable> {
 
 		private static UnitRegistry instance;
 
@@ -31,15 +31,15 @@ namespace MarsTS.Prefabs {
 		}
 
 		public override bool GetRegistryEntry<T> (string key, out T output) {
-			if (registeredClasses.TryGetValue(key, out Unit component) && component is T superType) {
+			if (registeredClasses.TryGetValue(key, out ISelectable component) && component is T superType) {
 				output = superType;
 				return true;
 			}
 			else throw new ArgumentException("Unit " + key + " not registered!");
 		}
 
-		public static Unit Unit (string key) {
-			instance.GetRegistryEntry<Unit>(key, out Unit output);
+		public static ISelectable Unit (string key) {
+			instance.GetRegistryEntry<ISelectable>(key, out ISelectable output);
 			return output;
 		}
 

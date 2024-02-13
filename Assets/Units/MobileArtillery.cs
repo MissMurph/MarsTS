@@ -11,7 +11,8 @@ namespace MarsTS.Units {
 
 	public class MobileArtillery : Tank {
 
-		private bool deployed = false;
+		[SerializeField]
+		private bool deployed;
 
 		private int deployCommandIndex;
 
@@ -24,6 +25,12 @@ namespace MarsTS.Units {
 					break;
 				}
 			}
+		}
+
+		protected override void Start () {
+			base.Start();
+
+			if (deployed) bus.Local(new DeployEvent(bus, this, deployed));
 		}
 
 		protected override void FixedUpdate () {

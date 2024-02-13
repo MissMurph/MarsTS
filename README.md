@@ -3,7 +3,8 @@
 
  The game now features unit combat, building construction, unit production, resource gathering, building upgrades, unit abilities and fog of war, having shaped into almost all the essential bones for an RTS game.
 
- ![Screenshot of a scout car, long tank & a flat tank cornering an enemy flat tank](/FolioImages/resourcing/unit_combat_2.png)
+ ![Gif of a tank assault climbing a ramp and engaging a small base with artillery and a constructor](https://i.imgur.com/yC9xHgz.gif)
+ ![Screenshot of a Mobile Artillery & Roughneck squad working together to destroy a tank without being detected](/FolioImages/ArtilleryAttackingExample.png)
 
  ## Key Features:
 
@@ -56,8 +57,8 @@
  ### Multi-Threaded Vision
  The Vision system is also multi-threaded, which brought a revamping of the pathfinding's multi-threading to improve with what I learnt making this system. Vision works by overlaying a grid of integers, each integer is used as a bit mask containing info on which players can see it or have visited it. Every unit that has a vision component attached will be tracked by the game vision, and 4 times a second the vision system will calculate every cell within range of each vision component and pseudo-raycast to determine if any terrain blocks line of sight to that cell. All of the cells are then assigned the bits representing players that can see them. This is all calculated in a constantly running secondary thread while a tertiary thread collects all the data and converts it into a texture every fixed update, allowing for interpolation between each frames texture to ease out the vision changes.
 
- ![Screenshot of the Vision System's calculation algorithm]()
- ![Screenshot of the Vision Renderer's multi-threaded algorithm]()
+ ![Screenshot of the Vision System's calculation algorithm](/FolioImages/VisionCalculation_Code.png)
+ ![Screenshot of the Vision Renderer's multi-threaded algorithm](/FolioImages/VisionRenderer_Code.png)
  
  ## Progress:
  - [ ] RTS Camera Controls

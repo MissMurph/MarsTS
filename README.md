@@ -26,8 +26,8 @@
  ### Fog of War
  Fog of War has been implemented with a data oriented vision system. All units can see within a range around them, pseudo-raycasts are fired from the edges inwards to determine if any obstacles block the vision, creating a dynamic vision system that utilizes varied height in terrain. Units cannot see over cliffs, but can see and fire upon other units down them. This is utilized for two new units designed for the system; the Roughnecks and Mobile Artillery. The Roughnecks are capable of stealth, reducing the range with which they are visible, so they can creep on enemy units and get sight for the Mobile Artillery, which when deployed has a massive attack range and high damage, but a small range of vision. The vision is multi-threaded for both calculation and texture rendering and has been tested with over a thousand units simultaneously with little impact to performance.
 
- ![Screenshot of a Roughneck Squad sneaking right next to a tank, remaining undetected](https://i.imgur.com/2TsXTbA.gif)
- ![Gif of vision switching between the main player and enemy AI, showing the Roughneck Squad being revealed and hidden](https://i.imgur.com/nqXkipl.gif)
+ ![Screenshot of a Roughneck Squad sneaking right next to a tank, remaining undetected](https://i.imgur.com/gtRyiZG.gif)
+ ![Gif of vision switching between the main player and enemy AI, showing the Roughneck Squad being revealed and hidden](https://i.imgur.com/BoHYJ2w.gif)
 
  ## Featured Systems:
 

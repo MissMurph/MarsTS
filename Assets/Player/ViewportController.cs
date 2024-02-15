@@ -9,18 +9,33 @@ namespace MarsTS.Players {
 
     public class ViewportController : MonoBehaviour {
 
+		/*	Movement	*/
+		[Header("Movement")]
+
 		[SerializeField]
 		private float cameraSpeed;
 		private float scaledCameraSpeed;
 
+		private Vector2 moveInput;
+
+		private Vector3 forwardsMotion;
+		private Vector3 horizontalMotion;
+
+		/*	Panning	*/
+		[Header("Movement")]
+
+		[SerializeField]
+		private float panSpeed;
+
+		private bool panning;
+
 		/*	Zooming	*/
+		[Header("Zooming")]
+
+		//x = minimum
+		//y = maximum
 		[SerializeField]
-		private float minHeight;
-		[SerializeField]
-		private float maxHeight;
-		[SerializeField]
-		private float targetHeight;
-		private float currentHeight;
+		private Vector2 zoomBounds;
 
 		[SerializeField]
 		private float zoomTime;
@@ -28,30 +43,47 @@ namespace MarsTS.Players {
 		[SerializeField]
 		private float zoomIncrement;
 
+		private float targetZoom;
+		private float currentZoom;
 		private float zoomSpeed;
 
-		private Vector2 moveDirection;
+		/*	Rotation	*/
+		[Header("Rotation")]
+
+		[SerializeField]
+		private Vector2 sensitivity;
+
+		//x = minimumm
+		//y = maximum
+		[SerializeField]
+		private Vector2 verticalLimits;
+
+		//x = horizontal default
+		//y = vertical default
+		[SerializeField]
+		private Vector2 defaultAngles;
+
+		private bool rotating;
+		private Vector2 lookDelta;
+
+		private float verticalAngle;
+		private float horizontalAngle;
+
+		/*	General	*/
 
 		private Transform cameraPos;
 		private Transform gimbal;
-
-		/*	Rotation	*/
-		private bool rotating;
 
 		private void Awake () {
 			cameraPos = GetComponentInChildren<Camera>().transform;
 			gimbal = transform.Find("CameraGimbal");
 
-			currentHeight = Mathf.Abs(cameraPos.localPosition.z);
-			targetHeight = currentHeight;
+			currentZoom = Mathf.Abs(cameraPos.localPosition.z);
+			targetZoom = currentZoom;
 		}
 
 		private void Update () {
-			scaledCameraSpeed = cameraSpeed * (currentHeight / maxHeight);
-
-			transform.position += (scaledCameraSpeed * Time.deltaTime * new Vector3(moveDirection.x, 0, moveDirection.y));
-
-			/*	Update Gimbal	*/
+			/*	Gimbal Height	*/
 
 			Ray groundRay = new Ray(transform.position, Vector3.down);
 
@@ -65,32 +97,71 @@ namespace MarsTS.Players {
 				gimbal.transform.position = newGimbalPos;
 			}
 
-			/*	Update Cam	*/
+			/*	Rotation	*/
+
+			if (rotating) {
+				horizontalAngle += lookDelta.x * sensitivity.x;
+				verticalAngle -= lookDelta.y * sensitivity.y;
+			}
+			else {
+				horizontalAngle = defaultAngles.x;
+				verticalAngle = defaultAngles.y;
+			}
+
+			verticalAngle = Mathf.Clamp(verticalAngle, verticalLimits.x, verticalLimits.y);
+			
+			transform.rotation = Quaternion.Euler(0, horizontalAngle, 0);
+			gimbal.localRotation = Quaternion.Euler(verticalAngle, 0, 0);
+
+			/*	Zooming	*/
 
 			Vector3 newCamPos = cameraPos.localPosition;
 
-			newCamPos.z = Mathf.SmoothDamp(cameraPos.localPosition.z, -targetHeight, ref zoomSpeed, zoomTime);
+			newCamPos.z = Mathf.SmoothDamp(cameraPos.localPosition.z, -targetZoom, ref zoomSpeed, zoomTime);
 
-			currentHeight = -newCamPos.z;
+			currentZoom = -newCamPos.z;
 
 			cameraPos.localPosition = newCamPos;
+
+			/*	Movement	*/
+
+			scaledCameraSpeed = cameraSpeed * (currentZoom / zoomBounds.y);
+
+			if (panning) {
+				forwardsMotion = -(transform.forward * lookDelta.y);
+				horizontalMotion = -(transform.right * lookDelta.x);
+
+				transform.position += panSpeed * Time.deltaTime * (forwardsMotion + horizontalMotion).normalized;
+			}
+			else {
+				forwardsMotion = transform.forward * moveInput.y;
+				horizontalMotion = transform.right * moveInput.x;
+
+				transform.position += scaledCameraSpeed * Time.deltaTime * (forwardsMotion + horizontalMotion).normalized;
+			}
 		}
 
 		public void Move (InputAction.CallbackContext context) {
-			moveDirection = context.ReadValue<Vector2>();
+			moveInput = context.ReadValue<Vector2>();
 		}
 
 		public void Scroll (InputAction.CallbackContext context) {
-			targetHeight -= context.ReadValue<Vector2>().y * zoomIncrement;
-			targetHeight = Mathf.Clamp(targetHeight, minHeight, maxHeight);
+			targetZoom -= context.ReadValue<Vector2>().y * zoomIncrement;
+			targetZoom = Mathf.Clamp(targetZoom, zoomBounds.x, zoomBounds.y);
 		}
 
 		public void Rotate (InputAction.CallbackContext context) {
+			if (context.performed) rotating = true;
+			if (context.canceled) rotating = false;
+		}
 
+		public void LookDelta (InputAction.CallbackContext context) {
+			lookDelta = context.ReadValue<Vector2>();
 		}
 
 		public void Grab (InputAction.CallbackContext context) {
-
+			if (context.performed) panning = true;
+			if (context.canceled) panning = false;
 		}
 	}
 }

@@ -40,7 +40,7 @@ namespace MarsTS.Units {
 		private string type;
 
 		[SerializeField]
-		private Faction owner;
+		protected Faction owner;
 
 		/*	ITaggable Properties	*/
 
@@ -61,31 +61,27 @@ namespace MarsTS.Units {
 		public int Count { get { return commands.Count; } }
 
 		[SerializeField]
-		private string[] boundCommands;
+		protected string[] boundCommands;
 
 		protected CommandQueue commands;
 
 		/*	InfantrySquad Fields	*/
 
-		private List<InfantryMember> members = new List<InfantryMember>();
-		private List<Transform> selectionColliders = new List<Transform>();
+		protected List<InfantryMember> members = new List<InfantryMember>();
+		protected List<Transform> selectionColliders = new List<Transform>();
 
-		private Entity entityComponent;
-
-		[SerializeField]
-		private int maxMembers;
+		protected Entity entityComponent;
 
 		[SerializeField]
-		private InfantryMember[] startingMembers;
+		protected int maxMembers;
 
 		[SerializeField]
-		private GameObject selectionColliderPrefab;
+		protected InfantryMember[] startingMembers;
 
-		private EventAgent bus;
+		[SerializeField]
+		protected GameObject selectionColliderPrefab;
 
-		public int Stored { get { return storageComp.Amount; } }
-
-		public int Capacity { get { return storageComp.Capacity; } }
+		protected EventAgent bus;
 
 		public int Health {
 			get {
@@ -101,65 +97,44 @@ namespace MarsTS.Units {
 
 		public int MaxHealth { get { return members.Count * members[0].MaxHealth; } }
 
-		public ResourceStorage storageComp;
-
-		private Transform resourceBar;
-
-		private void Awake () {
-			foreach (InfantryMember unit in startingMembers) {
-				unit.SetOwner(owner);
-				unit.squad = this;
-
-				Transform newSelectionCollider = Instantiate(selectionColliderPrefab, transform).transform;
-				newSelectionCollider.position = unit.transform.position;
-				selectionColliders.Add(newSelectionCollider);
-
-				members.Add(unit);
-
-				EventAgent unitEvents = unit.GetComponent<EventAgent>();
-				unitEvents.AddListener<EntityDeathEvent>(OnMemberDeath);
-				unitEvents.AddListener<UnitHurtEvent>(OnMemberHurt);
-				unitEvents.AddListener<ResourceHarvestedEvent>(OnMemberHarvest);
-				unitEvents.AddListener<HarvesterDepositEvent>(OnMemberDeposit);
-			}
-
+		protected virtual void Awake () {
 			entityComponent = GetComponent<Entity>();
 			bus = GetComponent<EventAgent>();
-			storageComp = GetComponent<ResourceStorage>();
 			commands = GetComponent<CommandQueue>();
-			resourceBar = transform.Find("BarOrientation");
+
+			foreach (InfantryMember unit in startingMembers) {
+				InitializeMember(unit);
+			}
 		}
 
-		private void Start () {
+		protected virtual void Start () {
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
-			bus.AddListener<EntityInitEvent>(OnEntityInit);
 			bus.AddListener<CommandStartEvent>(ExecuteOrder);
 		}
 
-		private void OnEntityInit (EntityInitEvent _event) {
-			
-		}
-
-		private void Update () {
-			//if (!initialized) return;
-
-			resourceBar.transform.position = members[0].transform.position;
-
+		protected virtual void Update () {
 			for (int i = 0; i < members.Count; i++) {
 				selectionColliders[i].transform.position = members[i].transform.position;
 			}
 		}
 
+		protected virtual void InitializeMember (InfantryMember unit) {
+			unit.SetOwner(owner);
+			unit.squad = this;
+
+			Transform newSelectionCollider = Instantiate(selectionColliderPrefab, transform).transform;
+			newSelectionCollider.position = unit.transform.position;
+			selectionColliders.Add(newSelectionCollider);
+
+			members.Add(unit);
+
+			EventAgent unitEvents = unit.GetComponent<EventAgent>();
+			unitEvents.AddListener<EntityDeathEvent>(OnMemberDeath);
+			unitEvents.AddListener<UnitHurtEvent>(OnMemberHurt);
+		}
+
 		private void OnMemberHurt (UnitHurtEvent _event) {
 			bus.Global(new UnitHurtEvent(bus, this));
-		}
-
-		public void OnMemberHarvest (ResourceHarvestedEvent _event) {
-			bus.Global(new ResourceHarvestedEvent(bus, _event.Deposit, this, ResourceHarvestedEvent.Side.Harvester, _event.HarvestAmount, _event.Resource, Stored, Capacity));
-		}
-
-		public void OnMemberDeposit (HarvesterDepositEvent _event) {
-			bus.Global(new HarvesterDepositEvent(bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity, _event.Bank));
 		}
 
 		private void OnMemberDeath (EntityDeathEvent _event) {
@@ -179,47 +154,19 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void ExecuteOrder (CommandStartEvent _event) {
-			/*switch (order.Name) {
-				case "move":
-				//CurrentCommand = order;
-				DistributeOrder(order);
-				break;
-				case "stop":
-				//CurrentCommand = order;
-				DistributeOrder(order);
-				break;
-				default:
-				break;
-			}*/
-
 			foreach (InfantryMember unit in members) {
 				unit.Order(_event.Command, false);
 			}
 		}
 
-		public string[] Commands () {
+		public virtual string[] Commands () {
 			return boundCommands;
 		}
 
-		public void Order (Commandlet order, bool inclusive) {
+		public  virtual void Order (Commandlet order, bool inclusive) {
 			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
 
 			switch (order.Name) {
-				case "sneak":
-					SquadSneak(order);
-					return;
-				case "attack":
-					
-					break;
-				case "repair":
-					
-					break;
-				case "harvest":
-					
-					break;
-				case "deposit":
-					
-					break;
 				case "move":
 
 					break;
@@ -233,54 +180,11 @@ namespace MarsTS.Units {
 			else commands.Execute(order);
 		}
 
-		private void SquadSneak (Commandlet order) {
-			if (!CanCommand(order.Name)) return;
-			Commandlet<bool> deserialized = order as Commandlet<bool>;
-
-			commands.Activate(order, deserialized.Target);
-
-			foreach (InfantryMember unit in members) {
-				unit.Order(order, false);
-			}
-		}
-
-		public Command Evaluate (ISelectable target) {
-			if (target is IHarvestable harvestable
-				&& Stored < Capacity
-				&& harvestable.StoredAmount > 0
-				&& harvestable.CanHarvest(storageComp.Resource, this)) {
-				return CommandRegistry.Get("harvest");
-			}
-
-			if (target is IDepositable
-				&& Stored > 0) {
-				return CommandRegistry.Get("deposit");
-			}
-
-			if (target is IAttackable && target.GetRelationship(owner) == Relationship.Hostile) {
-				return CommandRegistry.Get("attack");
-			}
-
+		public virtual Command Evaluate (ISelectable target) {
 			return CommandRegistry.Get("move");
 		}
 
-		public Commandlet Auto (ISelectable target) {
-			if (target is IHarvestable harvestable
-				&& Stored < Capacity
-				&& harvestable.StoredAmount > 0
-				&& harvestable.CanHarvest(storageComp.Resource, this)) {
-				return CommandRegistry.Get<Harvest>("harvest").Construct(harvestable);
-			}
-
-			if (target is IDepositable depositable
-				&& Stored > 0) {
-				return CommandRegistry.Get<Deposit>("deposit").Construct(depositable);
-			}
-
-			if (target is IAttackable attackable && target.GetRelationship(owner) == Relationship.Hostile) {
-				return CommandRegistry.Get<Attack>("attack").Construct(attackable);
-			}
-
+		public virtual Commandlet Auto (ISelectable target) {
 			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
 		}
 
@@ -313,11 +217,6 @@ namespace MarsTS.Units {
 			if (ReferenceEquals(_event.Unit, this)) {
 				HealthInfo info = _event.Info.Module<HealthInfo>("health");
 				info.CurrentUnit = this;
-
-				StorageInfo storage = _event.Info.Module<StorageInfo>("storage");
-				storage.CurrentUnit = this;
-				storage.CurrentValue = Stored;
-				storage.MaxValue = Capacity;
 			}
 		}
 
@@ -325,7 +224,7 @@ namespace MarsTS.Units {
 			throw new NotImplementedException();
 		}
 
-		public bool CanCommand (string key) {
+		public virtual bool CanCommand (string key) {
 			bool canUse = false;
 
 			for (int i = 0; i < boundCommands.Length; i++) {

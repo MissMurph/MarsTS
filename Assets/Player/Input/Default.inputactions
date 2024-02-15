@@ -85,6 +85,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "LookDelta",
+                    "type": "PassThrough",
+                    "id": "19570635-42aa-4eab-aa34-60055315ce0b",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -245,7 +254,7 @@
                 {
                     "name": "",
                     "id": "6fb13eac-e7a5-4889-a574-ce171fa7444f",
-                    "path": "<Keyboard>/space",
+                    "path": "<Keyboard>/alt",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -272,6 +281,17 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Scroll",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d91fcf50-76f0-4c3d-be0e-551254b791ff",
+                    "path": "<Pointer>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "LookDelta",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

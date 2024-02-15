@@ -42,40 +42,6 @@ namespace MarsTS.Units {
 
 		protected Dictionary<string, ProjectileTurret> registeredTurrets = new Dictionary<string, ProjectileTurret>();
 
-		/*protected IAttackable AttackTarget {
-			get {
-				return attackTarget;
-			}
-			set {
-				if (attackTarget != null) {
-					EntityCache.TryGet(attackTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
-					oldAgent.RemoveListener<EntityDeathEvent>((_event) => AttackTarget = null);
-					oldAgent.RemoveListener<UnitVisibleEvent>((_event) => {
-						if (!_event.Visible) {
-							SetTarget(AttackTarget.GameObject.transform.position);
-							AttackTarget = null;
-						}
-					});
-				}
-
-				attackTarget = value;
-
-				if (value != null) {
-					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
-
-					agent.AddListener<EntityDeathEvent>((_event) => AttackTarget = null);
-					agent.AddListener<UnitVisibleEvent>((_event) => {
-						if (!_event.Visible) {
-							SetTarget(AttackTarget.GameObject.transform.position);
-							AttackTarget = null;
-						}
-					});
-				}
-			}
-		}
-
-		protected IAttackable attackTarget;*/
-
 		protected UnitReference<IAttackable> AttackTarget = new UnitReference<IAttackable>();
 
 		protected override void Awake () {

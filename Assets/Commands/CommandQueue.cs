@@ -71,6 +71,10 @@ namespace MarsTS.Commands {
 				bus.Global(new CooldownEvent(bus, toRemove.commandName, parent, toRemove));
 			}
 
+			foreach (Commandlet active in activeCommands.Values) {
+				active.OnUpdate(this);
+			}
+
 			completedCooldowns = new();
 		}
 

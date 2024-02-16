@@ -3,7 +3,11 @@ guid: 70960d52ead898c49a454400c17518d0
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - icon: {instanceID: 0}
+  - owner: {instanceID: 0}
+  - selectionColliderPrefab: {fileID: 9214751274111025718, guid: 72ffa4fa3b209e145b96035530e816d6,
+      type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

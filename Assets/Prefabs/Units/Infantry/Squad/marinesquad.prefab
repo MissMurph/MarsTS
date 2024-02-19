@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8069000943633701447}
   - component: {fileID: 8069000943633701444}
   - component: {fileID: 8069000943633701446}
-  - component: {fileID: 8069000943633701448}
+  - component: {fileID: 5651113232441273719}
   m_Layer: 0
   m_Name: marinesquad
   m_TagString: Untagged
@@ -95,7 +95,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  registryKey: roughneckSquad
+  registryKey: marinesquad
 --- !u!54 &8069000943633701446
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -112,7 +112,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &8069000943633701448
+--- !u!114 &5651113232441273719
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -121,7 +121,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8069000943633701443}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 866af88a2db170c42a48b68ed236afd1, type: 3}
+  m_Script: {fileID: 11500000, guid: aa50a09a2c869d444814da064d137434, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &1849632758294720935

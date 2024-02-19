@@ -67,6 +67,18 @@ namespace MarsTS.Units {
 
 		/*	InfantrySquad Fields	*/
 
+		public List<ISelectable> Members {
+			get {
+				List<ISelectable> output = new();
+
+				foreach (InfantryMember unit in members) {
+					output.Add(unit);
+				}
+
+				return output;
+			}
+		}
+
 		protected List<InfantryMember> members = new List<InfantryMember>();
 		protected List<Transform> selectionColliders = new List<Transform>();
 

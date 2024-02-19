@@ -17,8 +17,8 @@ namespace MarsTS.Units {
 
 					break;
 				case "adrenaline":
-
-					break;
+					SquadBoost(order);
+					return;
 				default:
 					base.Order(order, inclusive);
 					return;

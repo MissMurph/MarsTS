@@ -502,7 +502,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  registryKey: roughneck
+  registryKey: marine
 --- !u!114 &4068115413929702530
 MonoBehaviour:
   m_ObjectHideFlags: 0

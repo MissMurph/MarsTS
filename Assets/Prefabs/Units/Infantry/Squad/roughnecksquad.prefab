@@ -59,7 +59,7 @@ GameObject:
   - component: {fileID: 7248859610773361688}
   - component: {fileID: 7248859610773361690}
   - component: {fileID: 7248859610773361685}
-  - component: {fileID: 7248859610773361684}
+  - component: {fileID: 3952897844252921977}
   m_Layer: 0
   m_Name: roughnecksquad
   m_TagString: Untagged
@@ -178,7 +178,7 @@ MonoBehaviour:
   startingValue: 0
   capacity: 500
   resourceKey: oil
---- !u!114 &7248859610773361684
+--- !u!114 &3952897844252921977
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -187,7 +187,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7248859610773361695}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 866af88a2db170c42a48b68ed236afd1, type: 3}
+  m_Script: {fileID: 11500000, guid: aa50a09a2c869d444814da064d137434, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &7248859611045217353

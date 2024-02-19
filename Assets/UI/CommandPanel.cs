@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using MarsTS.Events;
 
 namespace MarsTS.UI {
 
@@ -20,6 +21,7 @@ namespace MarsTS.UI {
 		private int buttonCount;
 
 		private CommandTooltip tooltip;
+		private int currentTooltip;
 
 		private string currentlyTargetingCommand;
 
@@ -39,7 +41,7 @@ namespace MarsTS.UI {
 		}
 
 		public void Press (int index) {
-			if (boundCommands[index] is null) return;
+			if (boundCommands[index] is null || boundCommands[index] == "") return;
 
 			if (currentlyTargetingCommand != null) CommandRegistry.Get(currentlyTargetingCommand).CancelSelection();
 
@@ -53,15 +55,20 @@ namespace MarsTS.UI {
 			for (int i = 0; i < buttonCount; i++) {
 				if (i >= commands.Length) {
 					boundCommands[i] = null;
-					//registeredIcons[i].gameObject.SetActive(false);
 					registeredButtons[i].UpdateCommand("");
 					continue;
 				}
 
 				boundCommands[i] = commands[i];
 				registeredButtons[i].UpdateCommand(commands[i]);
-				//registeredIcons[i].gameObject.SetActive(true);
-				//registeredIcons[i].sprite = CommandRegistry.Get(boundCommands[i]).Icon;
+			}
+
+			if (currentTooltip > -1 && boundCommands[currentTooltip] != null && boundCommands[currentTooltip] != "") {
+				tooltip.ShowCommand(boundCommands[currentTooltip]);
+				tooltip.gameObject.SetActive(true);
+			}
+			else {
+				tooltip.gameObject.SetActive(false);
 			}
 		}
 
@@ -70,7 +77,6 @@ namespace MarsTS.UI {
 
 			for (int i = 0; i < commands.Length; i++) {
 				if (string.IsNullOrEmpty(commands[i])) {
-					//registeredIcons[i].gameObject.SetActive(false);
 					boundCommands[i] = null;
 					registeredButtons[i].UpdateCommand("");
 					continue;
@@ -78,13 +84,12 @@ namespace MarsTS.UI {
 
 				boundCommands[i] = commands[i];
 				registeredButtons[i].UpdateCommand(commands[i]);
-				//registeredIcons[i].gameObject.SetActive(true);
-				//registeredIcons[i].sprite = CommandRegistry.Get(boundCommands[i]).Icon;
 			}
 		}
 
 		public void OnPointerEnterButton (int index) {
-			if (boundCommands[index] != null) {
+			if (boundCommands[index] != null && boundCommands[index] != "") {
+				currentTooltip = index;
 				tooltip.ShowCommand(boundCommands[index]);
 				tooltip.gameObject.SetActive(true);
 			}
@@ -92,6 +97,7 @@ namespace MarsTS.UI {
 
 		public void OnPointerExitButton (int index) {
 			tooltip.gameObject.SetActive(false);
+			currentTooltip = -1;
 		}
 	}
 }

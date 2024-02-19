@@ -14,6 +14,8 @@ namespace MarsTS.Players {
 
 		[SerializeField]
 		private float cameraSpeed;
+		[SerializeField]
+		private float movementInterpolation;
 		private float scaledCameraSpeed;
 
 		private Vector2 moveInput;
@@ -21,13 +23,21 @@ namespace MarsTS.Players {
 		private Vector3 forwardsMotion;
 		private Vector3 horizontalMotion;
 
+		private Vector3 newPosition;
+
+		/*	Gimbal	*/
+		private Transform gimbal;
+		private float targetHeight;
+
 		/*	Panning	*/
-		[Header("Movement")]
+		[Header("Panning")]
 
 		[SerializeField]
 		private float panSpeed;
 
 		private bool panning;
+		private Vector3 panStart;
+		private Vector3 panCurrent;
 
 		/*	Zooming	*/
 		[Header("Zooming")]
@@ -63,16 +73,24 @@ namespace MarsTS.Players {
 		[SerializeField]
 		private Vector2 defaultAngles;
 
+		[SerializeField]
+		private float rotationInterpolation;
+
 		private bool rotating;
 		private Vector2 lookDelta;
 
 		private float verticalAngle;
 		private float horizontalAngle;
 
+		//y axis
+		private Quaternion yaw;
+		//x axis
+		private Quaternion pitch;
+
 		/*	General	*/
 
 		private Transform cameraPos;
-		private Transform gimbal;
+		
 
 		private void Awake () {
 			cameraPos = GetComponentInChildren<Camera>().transform;
@@ -80,25 +98,28 @@ namespace MarsTS.Players {
 
 			currentZoom = Mathf.Abs(cameraPos.localPosition.z);
 			targetZoom = currentZoom;
+
+			newPosition = transform.position;
 		}
 
 		private void Update () {
-			/*	Gimbal Height	*/
+			UpdateGimbal();
+			UpdateRotation();
+			UpdateZoom();
+			UpdatePosition();
+		}
 
+		private void UpdateGimbal () {
 			Ray groundRay = new Ray(transform.position, Vector3.down);
 
-			if (Physics.Raycast(groundRay, out RaycastHit hit, 1000f, GameWorld.WalkableMask)) {
-				Vector3 newGimbalPos = gimbal.position;
-
-				//newGimbalPos.y = Mathf.SmoothDamp(gimbal.position.y, hit.point.y, ref zoomSpeed, zoomTime);
-
-				newGimbalPos.y = hit.point.y;
-
-				gimbal.transform.position = newGimbalPos;
+			if (Physics.Raycast(groundRay, out RaycastHit gimbalHit, 1000f, GameWorld.WalkableMask)) {
+				targetHeight = gimbalHit.point.y;
 			}
 
-			/*	Rotation	*/
+			gimbal.transform.position = Vector3.Lerp(gimbal.transform.position, new Vector3(transform.position.x, targetHeight, transform.position.z), Time.deltaTime * movementInterpolation);
+		}
 
+		private void UpdateRotation () {
 			if (rotating) {
 				horizontalAngle += lookDelta.x * sensitivity.x;
 				verticalAngle -= lookDelta.y * sensitivity.y;
@@ -109,12 +130,15 @@ namespace MarsTS.Players {
 			}
 
 			verticalAngle = Mathf.Clamp(verticalAngle, verticalLimits.x, verticalLimits.y);
-			
-			transform.rotation = Quaternion.Euler(0, horizontalAngle, 0);
-			gimbal.localRotation = Quaternion.Euler(verticalAngle, 0, 0);
 
-			/*	Zooming	*/
+			yaw = Quaternion.Euler(0, horizontalAngle, 0);
+			pitch = Quaternion.Euler(verticalAngle, 0, 0);
 
+			transform.rotation = Quaternion.Lerp(transform.rotation, yaw, Time.deltaTime * rotationInterpolation);
+			gimbal.localRotation = Quaternion.Lerp(gimbal.localRotation, pitch, Time.deltaTime * rotationInterpolation);
+		}
+
+		private void UpdateZoom () {
 			Vector3 newCamPos = cameraPos.localPosition;
 
 			newCamPos.z = Mathf.SmoothDamp(cameraPos.localPosition.z, -targetZoom, ref zoomSpeed, zoomTime);
@@ -122,25 +146,37 @@ namespace MarsTS.Players {
 			currentZoom = -newCamPos.z;
 
 			cameraPos.localPosition = newCamPos;
+		}
 
-			/*	Movement	*/
+		private void UpdatePosition () {
+			if (panning && !rotating) {
+				Plane plane = new Plane(Vector3.up, Vector3.zero);
 
-			scaledCameraSpeed = cameraSpeed * (currentZoom / zoomBounds.y);
+				Ray ray = Player.ViewPort.ScreenPointToRay(Player.MousePos);
 
-			if (panning) {
-				forwardsMotion = -(transform.forward * lookDelta.y);
-				horizontalMotion = -(transform.right * lookDelta.x);
+				float entry;
 
-				transform.position += panSpeed * Time.deltaTime * (forwardsMotion + horizontalMotion).normalized;
+				if (plane.Raycast(ray, out entry)) {
+					panCurrent = ray.GetPoint(entry);
+
+					newPosition = transform.position + panStart - panCurrent;
+				}
 			}
 			else {
+				scaledCameraSpeed = cameraSpeed * (currentZoom / zoomBounds.y);
+
 				forwardsMotion = transform.forward * moveInput.y;
 				horizontalMotion = transform.right * moveInput.x;
 
-				transform.position += scaledCameraSpeed * Time.deltaTime * (forwardsMotion + horizontalMotion).normalized;
+				newPosition += (forwardsMotion + horizontalMotion).normalized * scaledCameraSpeed * Time.deltaTime;
 			}
-		}
 
+			newPosition.x = Mathf.Clamp(newPosition.x, -(GameWorld.WorldSize.x / 2), GameWorld.WorldSize.x / 2);
+			newPosition.z = Mathf.Clamp(newPosition.z, -(GameWorld.WorldSize.y / 2), GameWorld.WorldSize.y / 2);
+
+			transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime * movementInterpolation);
+		}
+		
 		public void Move (InputAction.CallbackContext context) {
 			moveInput = context.ReadValue<Vector2>();
 		}
@@ -160,7 +196,18 @@ namespace MarsTS.Players {
 		}
 
 		public void Grab (InputAction.CallbackContext context) {
-			if (context.performed) panning = true;
+			if (context.performed && !Player.UI.IsHovering) {
+				Plane plane = new Plane(Vector3.up, Vector3.zero);
+
+				Ray ray = Player.ViewPort.ScreenPointToRay(Player.MousePos);
+
+				float entry;
+
+				if (plane.Raycast(ray, out entry)) {
+					panStart = ray.GetPoint(entry);
+					panning = true;
+				}
+			}
 			if (context.canceled) panning = false;
 		}
 	}

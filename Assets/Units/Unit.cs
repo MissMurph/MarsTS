@@ -133,7 +133,9 @@ namespace MarsTS.Units {
 			bus = GetComponent<EventAgent>();
 			commands = GetComponent<CommandQueue>();
 
-			currentHealth = maxHealth;
+			if (currentHealth <= 0) {
+				currentHealth = maxHealth;
+			}
 		}
 
 		protected virtual void Start () {

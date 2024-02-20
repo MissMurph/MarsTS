@@ -3,6 +3,7 @@ using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players.Input;
+using MarsTS.Research;
 using MarsTS.Teams;
 using MarsTS.UI;
 using MarsTS.Units;
@@ -229,6 +230,10 @@ namespace MarsTS.Players {
 				&& unitComponent is IDepositable deserialized) {
 				depositables.Add(deserialized);
 			}
+		}
+
+		public static void SubmitResearch (Technology product) {
+			instance.research[product.name] = product;
 		}
 
 		private void OnDestroy () {

@@ -12,6 +12,7 @@ using UnityEngine;
 using MarsTS.UI;
 using MarsTS.Vision;
 using System.Linq;
+using MarsTS.Research;
 
 namespace MarsTS.Buildings {
 
@@ -142,6 +143,7 @@ namespace MarsTS.Buildings {
 
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
+			EventBus.AddListener<ResearchCompleteEvent>(OnGlobalResearchComplete) ;
 		}
 
 		private void OnVisionInit (VisionInitEvent _event) {
@@ -185,6 +187,34 @@ namespace MarsTS.Buildings {
 			bus.Global(new ProductionCompleteEvent(bus, product, this, production, order));
 		}
 
+		protected virtual void Research (Commandlet order) {
+			bus.AddListener<CommandCompleteEvent>(ResearchComplete);
+		}
+
+		protected virtual void ResearchComplete (CommandCompleteEvent _event) {
+			bus.RemoveListener<CommandCompleteEvent>(ResearchComplete);
+
+			IProducable order = _event.Command as IProducable;
+			Technology product = Instantiate(order.Product, owner.transform, false).GetComponent<Technology>();
+			Player.SubmitResearch(product);
+
+			for (int i = 0; i < boundCommands.Length; i++) {
+				if (boundCommands[i] == _event.Command.Command.Name) {
+					boundCommands[i] = "";
+					bus.Global(new CommandsUpdatedEvent(bus, this, Commands()));
+					break;
+				}
+			}
+
+			bus.Global(new ResearchCompleteEvent(bus, product, this, production, order));
+		}
+
+		protected virtual void OnGlobalResearchComplete (ResearchCompleteEvent _event) {
+			for (int i = 0; i < boundCommands.Length; i++) {
+				if (_event.CurrentProduction.Get().Command.Name == boundCommands[i]) boundCommands[i] = "";
+			}
+		}
+
 		public string[] Commands () {
 			if (!Constructed) {
 				return new string[] { "cancelConstruction" };
@@ -202,6 +232,9 @@ namespace MarsTS.Buildings {
 				case "cancelConstruction":
 					CancelConstruction();
 					return;
+				case "research":
+					production.Enqueue(order);
+					return;
 				default:
 					return;
 			}
@@ -211,6 +244,9 @@ namespace MarsTS.Buildings {
 			switch (_event.Command.Name) {
 				case "upgrade":
 					Upgrade(_event.Command);
+					break;
+				case "research":
+					Research(_event.Command);
 					break;
 				default:
 					break;

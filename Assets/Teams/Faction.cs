@@ -1,5 +1,6 @@
 using MarsTS.Entities;
 using MarsTS.Players;
+using MarsTS.Research;
 using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
@@ -33,9 +34,12 @@ namespace MarsTS.Teams {
 
 		private Dictionary<string, PlayerResource> resources;
 
+		protected Dictionary<string, Technology> research;
+
 		protected virtual void Awake () {
             ownedUnits = new Dictionary<string, Roster>();
 			resources = new Dictionary<string, PlayerResource>();
+			research = new Dictionary<string, Technology>();
 
 			foreach (PlayerResource toRegister in GetComponents<PlayerResource>()) {
 				resources[toRegister.Key] = toRegister;
@@ -60,6 +64,10 @@ namespace MarsTS.Teams {
 			if (TeamCache.Team(other).Id == 0) return Relationship.Neutral;
 			if (TeamCache.Team(other).Id == Allegiance.Id) return Relationship.Friendly;
 			return Relationship.Hostile;
+		}
+
+		public bool IsResearched (string key) {
+			return research.ContainsKey(key);
 		}
 	}
 }

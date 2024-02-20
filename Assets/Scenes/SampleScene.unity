@@ -4046,6 +4046,7 @@ Transform:
   - {fileID: 503538189}
   - {fileID: 324886372}
   - {fileID: 908557411}
+  - {fileID: 1588164113}
   m_Father: {fileID: 1176459603}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4294,6 +4295,62 @@ MonoBehaviour:
     - 
     - 
     - 
+--- !u!1 &1089502769
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1089502770}
+  - component: {fileID: 1089502771}
+  m_Layer: 0
+  m_Name: AdrenalineTech
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1089502770
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1089502769}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1588164113}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1089502771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1089502769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c1ee859aac9953418ccac7e7d48b02e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  icon: {fileID: 21300000, guid: 1c57408398d2d2f4abb4dd578854f4f4, type: 3}
+  IconColor: {r: 0, g: 0, b: 0, a: 0}
+  Pointer:
+    texture: {fileID: 0}
+    target: {x: 0, y: 0}
+  description: Unlocks the Adrenaline ability for Marines, which gives them +50%
+    movement speed for a short time
+  prefab: {fileID: 1170798382936629016, guid: 0d3dc3b5ff50c944f87f499e26467bb3, type: 3}
+  timeRequired: 10
+  cost:
+  - key: resource_unit
+    amount: 200
 --- !u!1001 &1117180863
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6279,6 +6336,38 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1531191214}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1588164112
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1588164113}
+  m_Layer: 0
+  m_Name: Research
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1588164113
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1588164112}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1089502770}
+  m_Father: {fileID: 989160902}
+  m_RootOrder: 15
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1681768850
 GameObject:
   m_ObjectHideFlags: 0
@@ -6715,9 +6804,10 @@ MonoBehaviour:
   Pointer:
     texture: {fileID: 0}
     target: {x: 0, y: 0}
-  description: 
+  description: Upgrades the pumpjack with camoflage, making it hidden beyond a certain
+    range
   prefab: {fileID: 209729225734903553, guid: be54849480c2569428938b526f60ec1e, type: 3}
-  timeRequired: 10
+  timeRequired: 25
   cost:
   - key: resource_unit
     amount: 150
@@ -9308,9 +9398,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3783528036778069153}
+  - component: {fileID: 6655006851211423809}
   - component: {fileID: 3783528036778069155}
   - component: {fileID: 3783528036778069084}
-  - component: {fileID: 3783528036778069152}
   - component: {fileID: 6655006851211423808}
   - component: {fileID: 6419697558757048345}
   - component: {fileID: 3676307631819578694}
@@ -9322,37 +9412,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &3783528036778069152
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3783528036778069085}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0345fd9d70add34699e7a3f1b42fa35, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 500
-  icon: {fileID: 21300000, guid: 4e0dc8ebe193b5241ab53cb683e802fa, type: 3}
-  type: barracks
-  owner: {fileID: 963194230}
-  boundCommands:
-  - produce/marinesquad
-  constructionWork: 100
-  currentWork: 100
-  ghost: {fileID: 5300347722092395766, guid: 4191f665be7da1d478f0619eb973c086, type: 3}
-  constructionCost:
-  - key: resource_unit
-    amount: 400
-  visionObjects:
-  - {fileID: 8357471153436848498}
-  - {fileID: 3783528038252778020}
-  - {fileID: 3783528036714202777}
-  - {fileID: 4455431174682023829}
-  rallyCommands: []
-  queueInfo: {fileID: 0}
 --- !u!4 &3783528036778069153
 Transform:
   m_ObjectHideFlags: 0
@@ -10180,6 +10239,43 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &6655006851211423809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3783528036778069085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 604f8fd98aec5da4285be20acdbf20d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 350
+  icon: {fileID: 0}
+  type: barracks
+  owner: {fileID: 963194230}
+  boundCommands:
+  - produce/marinesquad
+  - 
+  - 
+  - 
+  - 
+  - 
+  - research/adrenaline
+  constructionWork: 75
+  currentWork: 75
+  ghost: {fileID: 0}
+  constructionCost:
+  - key: resource_unit
+    amount: 400
+  visionObjects:
+  - {fileID: 3783528036714202777}
+  - {fileID: 3783528038252778020}
+  - {fileID: 4455431174682023829}
+  - {fileID: 8357471153436848498}
+  rallyCommands: []
+  queueInfo: {fileID: 0}
 --- !u!331 &6734160648770364620
 SpriteMask:
   m_ObjectHideFlags: 0

@@ -54,5 +54,13 @@ namespace MarsTS.Units {
 
 			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
 		}
+
+		public override bool CanCommand (string key) {
+			if (key == "adrenaline") {
+				return owner.IsResearched("research/adrenaline");
+			}
+
+			return base.CanCommand(key);
+		}
 	}
 }

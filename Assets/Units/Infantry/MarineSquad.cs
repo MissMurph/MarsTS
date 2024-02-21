@@ -1,4 +1,5 @@
 using MarsTS.Commands;
+using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
 using System.Collections;
@@ -28,14 +29,28 @@ namespace MarsTS.Units {
 			else commands.Execute(order);
 		}
 
+		/*	Adrenaline	*/
+
 		private void SquadBoost (Commandlet order) {
 			if (!CanCommand(order.Name)) return;
 			Commandlet<bool> deserialized = order as Commandlet<bool>;
 
 			commands.Activate(order, deserialized.Target);
 
-			foreach (InfantryMember unit in members) {
-				unit.Order(order, false);
+			bus.AddListener<CommandActiveEvent>(AdrenalineComplete);
+
+			foreach (MemberEntry entry in members.Values) {
+				entry.member.Order(order, false);
+			}
+		}
+
+		private void AdrenalineComplete (CommandActiveEvent _event) {
+			bus.RemoveListener<CommandActiveEvent>(AdrenalineComplete);
+
+			if (!_event.Activity) {
+				foreach (MemberEntry entry in members.Values) {
+					entry.bus.Local(_event);
+				}
 			}
 		}
 
@@ -57,7 +72,7 @@ namespace MarsTS.Units {
 
 		public override bool CanCommand (string key) {
 			if (key == "adrenaline") {
-				return owner.IsResearched("research/adrenaline");
+				return owner.IsResearched("adrenaline");
 			}
 
 			return base.CanCommand(key);

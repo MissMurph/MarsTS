@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.WSA;
 using static UnityEngine.UI.GridLayoutGroup;
 
 namespace MarsTS.Units {
@@ -33,11 +34,14 @@ namespace MarsTS.Units {
 		protected override void Update () {
 			base.Update();
 
-			resourceBar.transform.position = members[0].transform.position;
+			foreach (MemberEntry entry in members.Values) {
+				resourceBar.transform.position = entry.member.transform.position;
+				break;
+			}
 		}
 
-		protected override void InitializeMember (InfantryMember unit) {
-			base.InitializeMember(unit);
+		protected override void RegisterMember (InfantryMember unit) {
+			base.RegisterMember(unit);
 
 			EventAgent unitEvents = unit.GetComponent<EventAgent>();
 			unitEvents.AddListener<ResourceHarvestedEvent>(OnMemberHarvest);
@@ -86,8 +90,8 @@ namespace MarsTS.Units {
 
 			commands.Activate(order, deserialized.Target);
 
-			foreach (InfantryMember unit in members) {
-				unit.Order(order, false);
+			foreach (MemberEntry entry in members.Values) {
+				entry.member.Order(order, false);
 			}
 		}
 

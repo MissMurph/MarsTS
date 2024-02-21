@@ -52,7 +52,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 681e25f1d1cdcba479e9a760c1926e67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 7b310fd733c4d954b9820f3acefc223d, type: 3}
   type: marinesquad
   owner: {fileID: 0}
   boundCommands:

@@ -15,6 +15,7 @@ using UnityEngine.SocialPlatforms.Impl;
 using static UnityEngine.GraphicsBuffer;
 using UnityEditor.PackageManager;
 using UnityEngine.ProBuilder;
+using static UnityEngine.UI.CanvasScaler;
 
 namespace MarsTS.Units {
 
@@ -71,16 +72,15 @@ namespace MarsTS.Units {
 			get {
 				List<ISelectable> output = new();
 
-				foreach (InfantryMember unit in members) {
-					output.Add(unit);
+				foreach (MemberEntry unitEntry in members.Values) {
+					output.Add(unitEntry.member);
 				}
 
 				return output;
 			}
 		}
 
-		protected List<InfantryMember> members = new List<InfantryMember>();
-		protected List<Transform> selectionColliders = new List<Transform>();
+		protected Dictionary<string, MemberEntry> members = new Dictionary<string, MemberEntry>();
 
 		protected Entity entityComponent;
 
@@ -99,15 +99,25 @@ namespace MarsTS.Units {
 			get {
 				int current = 0;
 
-				foreach (InfantryMember member in members) {
-					current += member.Health;
+				foreach (MemberEntry unitEntry in members.Values) {
+					current += unitEntry.member.Health;
 				}
 
 				return current;
 			}
 		}
 
-		public int MaxHealth { get { return members.Count * members[0].MaxHealth; } }
+		public int MaxHealth { 
+			get {
+				int max = 0;
+
+				foreach (MemberEntry unitEntry in members.Values) {
+					max += unitEntry.member.MaxHealth;
+				}
+
+				return max;
+			} 
+		}
 
 		protected virtual void Awake () {
 			entityComponent = GetComponent<Entity>();
@@ -115,7 +125,7 @@ namespace MarsTS.Units {
 			commands = GetComponent<CommandQueue>();
 
 			foreach (InfantryMember unit in startingMembers) {
-				InitializeMember(unit);
+				RegisterMember(unit);
 			}
 		}
 
@@ -125,24 +135,34 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void Update () {
-			for (int i = 0; i < members.Count; i++) {
-				selectionColliders[i].transform.position = members[i].transform.position;
+			foreach (MemberEntry entry in members.Values) {
+				entry.selectionCollider.transform.position = entry.member.transform.position;
 			}
 		}
 
-		protected virtual void InitializeMember (InfantryMember unit) {
+		protected virtual void RegisterMember (InfantryMember unit) {
 			unit.SetOwner(owner);
 			unit.squad = this;
-
-			Transform newSelectionCollider = Instantiate(selectionColliderPrefab, transform).transform;
-			newSelectionCollider.position = unit.transform.position;
-			selectionColliders.Add(newSelectionCollider);
-
-			members.Add(unit);
 
 			EventAgent unitEvents = unit.GetComponent<EventAgent>();
 			unitEvents.AddListener<EntityDeathEvent>(OnMemberDeath);
 			unitEvents.AddListener<UnitHurtEvent>(OnMemberHurt);
+			unitEvents.AddListener<EntityInitEvent>(OnMemberInit);
+		}
+
+		protected virtual void OnMemberInit (EntityInitEvent _event) {
+			if (_event.Phase == Phase.Post) return;
+			MemberEntry newEntry = new MemberEntry();
+
+			Transform newSelectionCollider = Instantiate(selectionColliderPrefab, transform).transform;
+			newSelectionCollider.position = _event.ParentEntity.gameObject.transform.position;
+
+			newEntry.key = _event.ParentEntity.gameObject.name;
+			newEntry.member = _event.ParentEntity.Get<InfantryMember>("selectable");
+			newEntry.selectionCollider = newSelectionCollider;
+			newEntry.bus = _event.Source;
+
+			members[newEntry.key] = newEntry;
 		}
 
 		private void OnMemberHurt (UnitHurtEvent _event) {
@@ -150,14 +170,11 @@ namespace MarsTS.Units {
 		}
 
 		private void OnMemberDeath (EntityDeathEvent _event) {
-			int currentMemberCount = members.Count;
+			MemberEntry deadEntry = members[_event.Unit.GameObject.name];
 
-			Transform lastCollider = selectionColliders[currentMemberCount - 1];
+			members.Remove(deadEntry.key);
 
-			selectionColliders.Remove(lastCollider);
-			members.Remove(_event.Unit as InfantryMember);
-
-			Destroy(lastCollider.gameObject);
+			Destroy(deadEntry.selectionCollider.gameObject);
 
 			if (members.Count <= 0) {
 				bus.Global(new EntityDeathEvent(bus, this));
@@ -166,8 +183,8 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void ExecuteOrder (CommandStartEvent _event) {
-			foreach (InfantryMember unit in members) {
-				unit.Order(_event.Command, false);
+			foreach (MemberEntry entry in members.Values) {
+				entry.member.Order(_event.Command, false);
 			}
 		}
 
@@ -209,14 +226,14 @@ namespace MarsTS.Units {
 		}
 
 		public void Hover (bool status) {
-			foreach (InfantryMember unit in members) {
-				unit.Hover(status);
+			foreach (MemberEntry entry in members.Values) {
+				entry.member.Hover(status);
 			}
 		}
 
 		public void Select (bool status) {
-			foreach (InfantryMember unit in members) {
-				unit.Select(status);
+			foreach (MemberEntry entry in members.Values) {
+				entry.member.Select(status);
 			}
 		}
 
@@ -250,5 +267,12 @@ namespace MarsTS.Units {
 
 			return canUse;
 		}
+	}
+
+	public class MemberEntry {
+		public string key;
+		public InfantryMember member;
+		public Transform selectionCollider;
+		public EventAgent bus;
 	}
 }

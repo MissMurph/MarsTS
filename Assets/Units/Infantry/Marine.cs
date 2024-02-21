@@ -73,8 +73,6 @@ namespace MarsTS.Units {
 
 		//Could potentially move these to the actual Command Classes
 		private void AttackCancelled (CommandCompleteEvent _event) {
-			//bus.RemoveListener<CommandCompleteEvent>(AttackCancelled);
-
 			if (_event.Command is Commandlet<IAttackable> deserialized) {
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 

@@ -133,11 +133,11 @@ namespace MarsTS.Units {
 		private GameObject[] hideables;
 
 		protected virtual void Awake () {
-			transform.parent = null;
-
 			body = GetComponent<Rigidbody>();
 			entityComponent = GetComponent<Entity>();
 			bus = GetComponent<EventAgent>();
+
+			bus.AddListener<EntityInitEvent>(OnEntityInit);
 
 			currentHealth = maxHealth;
 
@@ -163,6 +163,12 @@ namespace MarsTS.Units {
 			foreach (GameObject hideable in hideables) {
 				hideable.SetActive(visible);
 			}
+		}
+
+		protected virtual void OnEntityInit (EntityInitEvent _event) {
+			if (_event.Phase == Phase.Post) return;
+
+			transform.parent = null;
 		}
 
 		protected virtual void Update () {

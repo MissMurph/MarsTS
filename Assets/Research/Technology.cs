@@ -6,6 +6,6 @@ namespace MarsTS.Research {
 
     public class Technology : MonoBehaviour {
 
-        
+        public string key;
     }
 }

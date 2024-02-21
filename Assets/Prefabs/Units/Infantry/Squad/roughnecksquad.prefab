@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd88b885457ea1b478b55fb5275fe5cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  icon: {fileID: 21300000, guid: 2267b8fb27649754bb6389657306f0e0, type: 3}
+  icon: {fileID: 21300000, guid: f8d43440bd0a937419c871c849f90618, type: 3}
   type: roughnecksquad
   owner: {fileID: 0}
   boundCommands:

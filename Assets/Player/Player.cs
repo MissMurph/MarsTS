@@ -233,7 +233,7 @@ namespace MarsTS.Players {
 		}
 
 		public static void SubmitResearch (Technology product) {
-			instance.research[product.name] = product;
+			instance.research[product.key] = product;
 		}
 
 		private void OnDestroy () {

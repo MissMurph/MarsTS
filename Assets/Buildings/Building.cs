@@ -207,6 +207,7 @@ namespace MarsTS.Buildings {
 			}
 
 			bus.Global(new ResearchCompleteEvent(bus, product, this, production, order));
+			bus.Global(new ProductionCompleteEvent(bus, product.gameObject, this, production, order));
 		}
 
 		protected virtual void OnGlobalResearchComplete (ResearchCompleteEvent _event) {

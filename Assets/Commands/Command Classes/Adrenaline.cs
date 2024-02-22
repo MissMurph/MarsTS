@@ -66,20 +66,20 @@ namespace MarsTS.Commands {
 	public class AdrenalineCommandlet : Commandlet<bool> {
 
 		private float duration;
-		private float remainingDuration;
+		//private float remainingDuration;
 
 		private float cooldown;
 
 		public AdrenalineCommandlet (string _name, float _duration, float _cooldown, bool _status) : base(_name, _status, Player.Main) {
 			duration = _duration;
-			remainingDuration = _duration;
+			//remainingDuration = _duration;
 			cooldown = _cooldown;
 		}
 
 		public override void OnUpdate (CommandQueue queue) {
-			remainingDuration -= Time.deltaTime;
+			//remainingDuration -= Time.deltaTime;
 
-			if (remainingDuration <= 0) queue.Activate(this, false);
+			//if (remainingDuration <= 0) queue.Activate(this, false);
 		}
 
 		public override void OnActivate (CommandQueue queue, CommandActiveEvent _event) {

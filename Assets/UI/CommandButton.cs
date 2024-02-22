@@ -132,7 +132,7 @@ namespace MarsTS.UI {
             float cooldownDuration = 0f;
 
 			foreach (ICommandable unit in Player.Selected[Player.UI.PrimarySelected].Orderable) {
-                foreach (Cooldown activeCooldown in unit.Cooldowns) {
+                foreach (Timer activeCooldown in unit.Cooldowns) {
 					if (activeCooldown.commandName == current.Name) {
                         coolingDown = true;
                         cooldownDuration = activeCooldown.duration;

@@ -44,6 +44,10 @@ namespace MarsTS.Teams {
 			foreach (PlayerResource toRegister in GetComponents<PlayerResource>()) {
 				resources[toRegister.Key] = toRegister;
 			}
+
+			foreach (Technology startingTech in GetComponentsInChildren<Technology>()) {
+				research[startingTech.key] = startingTech;
+			}
 		}
 
 		protected virtual void Start () {

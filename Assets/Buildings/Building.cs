@@ -64,7 +64,7 @@ namespace MarsTS.Buildings {
 
 		public List<string> Active { get { return commands.Active; } }
 
-		public List<Cooldown> Cooldowns { get { return commands.Cooldowns; } }
+		public List<Timer> Cooldowns { get { return commands.Cooldowns; } }
 
 		public int Count { get { return production.Count; } }
 
@@ -299,6 +299,7 @@ namespace MarsTS.Buildings {
 				return;
 			}
 
+			if (Health <= 0) return;
 			if (damage < 0 && Health >= maxHealth) return;
 			Health -= damage;
 			bus.Global(new UnitHurtEvent(bus, this));

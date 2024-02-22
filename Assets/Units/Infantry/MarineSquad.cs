@@ -37,7 +37,7 @@ namespace MarsTS.Units {
 
 			commands.Activate(order, deserialized.Target);
 
-			bus.AddListener<CommandActiveEvent>(AdrenalineComplete);
+			bus.AddListener<CooldownEvent>(AdrenalineCooldown);
 
 			foreach (MemberEntry entry in members.Values) {
 				entry.member.Order(order, false);
@@ -51,6 +51,18 @@ namespace MarsTS.Units {
 				foreach (MemberEntry entry in members.Values) {
 					entry.bus.Local(_event);
 				}
+			}
+		}
+
+		private void AdrenalineCooldown (CooldownEvent _event) {
+			if (commands.Active.Contains(_event.CommandKey) && _event.Complete) {
+				bus.RemoveListener<CooldownEvent>(AdrenalineCooldown);
+
+				foreach (MemberEntry entry in members.Values) {
+					entry.bus.Local(_event);
+				}
+
+				commands.Deactivate(_event.CommandKey);
 			}
 		}
 

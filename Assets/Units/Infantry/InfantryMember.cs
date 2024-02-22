@@ -66,7 +66,7 @@ namespace MarsTS.Units {
 
 		public List<string> Active => throw new NotImplementedException();
 
-		public List<Cooldown> Cooldowns => throw new NotImplementedException();
+		public List<Timer> Cooldowns => throw new NotImplementedException();
 
 		public int Count => throw new NotImplementedException();
 
@@ -335,6 +335,7 @@ namespace MarsTS.Units {
 		}
 
 		public void Attack (int damage) {
+			if (Health <= 0) return;
 			if (damage < 0 && currentHealth >= maxHealth) return;
 			currentHealth -= damage;
 

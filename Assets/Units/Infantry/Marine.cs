@@ -103,7 +103,7 @@ namespace MarsTS.Units {
 			if (deserialized.Target) {
 				currentSpeed = adrenoSpeed;
 
-				bus.AddListener<CommandActiveEvent>(AdrenalineComplete);
+				bus.AddListener<CooldownEvent>(AdrenalineCooldown);
 			}
 		}
 
@@ -113,6 +113,12 @@ namespace MarsTS.Units {
 			if (!_event.Activity) {
 				currentSpeed = moveSpeed;
 			}
+		}
+
+		private void AdrenalineCooldown (CooldownEvent _event) {
+			bus.RemoveListener<CooldownEvent>(AdrenalineCooldown);
+
+			currentSpeed = moveSpeed;
 		}
 	}
 }

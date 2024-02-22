@@ -57,7 +57,7 @@ namespace MarsTS.Units {
 
 		public List<string> Active { get { return commands.Active; } }
 
-		public List<Cooldown> Cooldowns { get { return commands.Cooldowns; } }
+		public List<Timer> Cooldowns { get { return commands.Cooldowns; } }
 
 		public int Count { get { return commands.Count; } }
 

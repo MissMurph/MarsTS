@@ -65,7 +65,7 @@ namespace MarsTS.Units {
 
 		public List<string> Active { get { return commands.Active; } }
 
-		public List<Cooldown> Cooldowns { get { return commands.Cooldowns; } }
+		public List<Timer> Cooldowns { get { return commands.Cooldowns; } }
 
 		public int Count { get { return commands.Count; } }
 
@@ -318,6 +318,7 @@ namespace MarsTS.Units {
 		}
 
 		public void Attack (int damage) {
+			if (Health <= 0) return;
 			if (damage < 0 && currentHealth >= maxHealth) return;
 			currentHealth -= damage;
 

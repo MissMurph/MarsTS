@@ -10,7 +10,7 @@ namespace MarsTS.Commands {
 		Commandlet[] CommandQueue { get; }
 		int Count { get; }
 		List<string> Active { get; }
-		List<Cooldown> Cooldowns { get; }
+		List<Timer> Cooldowns { get; }
 		void Order (Commandlet order, bool inclusive);
 		Command Evaluate (ISelectable target);
 		Commandlet Auto (ISelectable target);

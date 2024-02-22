@@ -23,7 +23,7 @@ TagManager:
   - Sensor
   - Entity
   - BuildingGhost
-  - 
+  - MiniMap
   - Fog
   - Groundable
   - 

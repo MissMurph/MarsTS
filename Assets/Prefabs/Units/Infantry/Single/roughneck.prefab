@@ -136,7 +136,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 6ebcc69992350bb4c98d1a5bfa9702cc, type: 2}
+  - {fileID: 2100000, guid: 63d1a981ce93d254790e90f24592572c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -212,7 +212,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 974687869533868369}
-  - component: {fileID: 6530777804225079036}
+  - component: {fileID: 6170492456115223497}
   - component: {fileID: 441177838}
   - component: {fileID: 2568549571465963630}
   - component: {fileID: 7105517119134726626}
@@ -249,7 +249,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6530777804225079036
+--- !u!114 &6170492456115223497
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -258,7 +258,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 974687869533868368}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 659929b9fa4601449835a01ac9899774, type: 3}
+  m_Script: {fileID: 11500000, guid: f898798f90ea9984ab67b93e79f23bcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
@@ -268,7 +268,6 @@ MonoBehaviour:
   owner: {fileID: 0}
   squad: {fileID: 0}
   moveSpeed: 3
-  sneakSpeed: 2
   waypointCompletionDistance: 1.5
   hideables:
   - {fileID: 5392394301502405319}
@@ -278,6 +277,7 @@ MonoBehaviour:
   repairRate: 1
   harvestRate: 1
   depositRate: 1
+  sneakSpeed: 2
 --- !u!54 &441177838
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -690,8 +690,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5324777579292228260}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.203, y: -0.163, z: 0.479}
-  m_LocalScale: {x: 0.2, y: 0.2, z: 1}
+  m_LocalPosition: {x: 0.203, y: -0.163, z: 0.313}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1378696796842981069}

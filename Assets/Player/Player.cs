@@ -3,6 +3,7 @@ using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players.Input;
+using MarsTS.Research;
 using MarsTS.Teams;
 using MarsTS.UI;
 using MarsTS.Units;
@@ -46,11 +47,6 @@ namespace MarsTS.Players {
 		public static List<IDepositable> Depositables { get { return instance.depositables; } }
 		private List<IDepositable> depositables = new List<IDepositable>();
 
-		[SerializeField]
-		private float cameraSpeed;
-
-		private Vector2 moveDirection;
-
 		private ISelectable currentHover;
 
 		protected override void Awake () {
@@ -72,8 +68,6 @@ namespace MarsTS.Players {
 		}
 
 		private void Update () {
-			transform.position = transform.position + (cameraSpeed * Time.deltaTime * new Vector3(moveDirection.x, 0, moveDirection.y));
-
 			Ray ray = ViewPort.ScreenPointToRay(cursorPos);
 
 			if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)) {
@@ -90,10 +84,6 @@ namespace MarsTS.Players {
 		}
 
 		/*	Input Functions	*/
-
-		public void Move (InputAction.CallbackContext context) {
-			moveDirection = context.ReadValue<Vector2>();
-		}
 
 		public void Look (InputAction.CallbackContext context) {
 			cursorPos = context.ReadValue<Vector2>();
@@ -240,6 +230,10 @@ namespace MarsTS.Players {
 				&& unitComponent is IDepositable deserialized) {
 				depositables.Add(deserialized);
 			}
+		}
+
+		public static void SubmitResearch (Technology product) {
+			instance.research[product.key] = product;
 		}
 
 		private void OnDestroy () {

@@ -136,7 +136,7 @@ namespace MarsTS.Buildings {
 		}
 
 		protected virtual void Start () {
-			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
+			//selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 
 			bus.AddListener<CommandStartEvent>(ExecuteOrder);
 			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);

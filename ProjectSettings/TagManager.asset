@@ -52,3 +52,6 @@ TagManager:
   - name: AttackCircles
     uniqueID: 751620137
     locked: 0
+  - name: MiniMap
+    uniqueID: 2448859559
+    locked: 0

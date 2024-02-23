@@ -75,7 +75,7 @@ namespace MarsTS.World {
 		}
 
 		private void Start () {
-			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
+			//selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 			startingAmount = attribute.Amount;
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 		}

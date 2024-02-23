@@ -141,7 +141,7 @@ namespace MarsTS.Units {
 		protected virtual void Start () {
 			StartCoroutine(UpdatePath());
 
-			transform.Find("SelectionCircle").GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
+			//transform.Find("SelectionCircle").GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 
 			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
 			bus.AddListener<CommandStartEvent>(ExecuteOrder);

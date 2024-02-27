@@ -7,6 +7,10 @@ namespace MarsTS.UI {
 
     public class MinimapViewBounds : MonoBehaviour {
 
+		//LineRenderer aligns sprite to attached camera, so the renderer component needs to be attached
+		//to the mini map camera in order to align the sprite with that camera specifically
+		//This means we need to convert local positions back to global when setting
+		[SerializeField]
 		private LineRenderer lineRenderer;
 
 		[SerializeField]
@@ -15,7 +19,7 @@ namespace MarsTS.UI {
 		private Plane groundPlane;
 
 		private void Awake () {
-			lineRenderer = GetComponent<LineRenderer>();
+			//lineRenderer = GetComponent<LineRenderer>();
 			corners = new Vector3[4];
 
 			//At -1 cus the world is weirdly at -1
@@ -25,29 +29,36 @@ namespace MarsTS.UI {
 		private void Update () {
 			UpdateCorners();
 
-			lineRenderer.SetPositions(corners);
+			for (int i = 0; i < corners.Length; i++) {
+				lineRenderer.SetPosition(i, transform.TransformPoint(corners[i]));
+			}
+
+			//lineRenderer.SetPositions(corners);
 		}
 
 		private void UpdateCorners () {
-			corners[0] = GetCorner(Vector2.up);
-			corners[1] = GetCorner(Vector2.one);
-			corners[2] = GetCorner(Vector2.right);
-			corners[3] = GetCorner(Vector2.zero);
+			corners[0] = GetCorner(Vector2.up, 0);
+			corners[1] = GetCorner(Vector2.one, 1);
+			corners[2] = GetCorner(Vector2.right, 2);
+			corners[3] = GetCorner(Vector2.zero, 3);
 		}
 
-		private Vector3 GetCorner (Vector2 position) {
+		private Vector3 GetCorner (Vector2 position, int index) {
 			Ray ray = Player.ViewPort.ViewportPointToRay(position);
+			Vector3 output = new Vector3();
 
 			if (groundPlane.Raycast(ray, out float distance)) {
-				return ray.GetPoint(distance);
+				//By storing these as local positions, when the camera moves, even if out of the bounds
+				//The points still move with the camera, fixing the NAN errors
+				output = transform.InverseTransformPoint(ray.GetPoint(distance));
 			}
 			else {
-				return new Vector3();
+				output = corners[index];
 			}
 
 			//Debug.DrawLine(ray.origin, ray.GetPoint(distance), Color.cyan, 1f);
 
-			
+			return output;
 		}
 	}
 }

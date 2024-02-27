@@ -6,6 +6,7 @@ TagManager:
   tags:
   - PrimaryPlayer
   - Unit
+  - MinimapCam
   layers:
   - Default
   - TransparentFX

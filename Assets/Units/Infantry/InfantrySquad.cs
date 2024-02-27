@@ -148,6 +148,7 @@ namespace MarsTS.Units {
 			unitEvents.AddListener<EntityDeathEvent>(OnMemberDeath);
 			unitEvents.AddListener<UnitHurtEvent>(OnMemberHurt);
 			unitEvents.AddListener<EntityInitEvent>(OnMemberInit);
+			unitEvents.AddListener<EntityVisibleEvent>(OnMemberVisionUpdate);
 		}
 
 		protected virtual void OnMemberInit (EntityInitEvent _event) {
@@ -179,6 +180,12 @@ namespace MarsTS.Units {
 			if (members.Count <= 0) {
 				bus.Global(new EntityDeathEvent(bus, this));
 				Destroy(gameObject);
+			}
+		}
+
+		private void OnMemberVisionUpdate (EntityVisibleEvent _event) {
+			if (members.TryGetValue(_event.UnitName, out MemberEntry entry)) {
+				entry.selectionCollider.gameObject.SetActive(_event.Visible);
 			}
 		}
 

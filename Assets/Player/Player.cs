@@ -35,6 +35,9 @@ namespace MarsTS.Players {
 		public static Vector2 MousePos { get { return instance.cursorPos; } }
 		private Vector2 cursorPos;
 
+		public static ViewportController PlayerControls { get { return instance.cameraControls; } }
+		private ViewportController cameraControls;
+
 		public static bool Include { get { return instance.alternate; } }
 		private bool alternate;
 
@@ -57,6 +60,8 @@ namespace MarsTS.Players {
 			inputController = GetComponent<InputHandler>();
 			eventAgent = GetComponent<EventAgent>();
 			uiController = GetComponent<UIController>();
+			cameraControls = GetComponent<ViewportController>();
+
 			alternate = false;
 		}
 

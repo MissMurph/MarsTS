@@ -79,7 +79,7 @@ namespace MarsTS.Units {
 				&& entityComp.TryGet(out T target)) {
 				EventAgent targetBus = entityComp.Get<EventAgent>("eventAgent");
 
-				targetBus.AddListener<EntityDeathEvent>((_event) => OutOfRange(_event.Unit.GameObject.name));
+				targetBus.AddListener<UnitDeathEvent>((_event) => OutOfRange(_event.Unit.GameObject.name));
 				//targetBus.AddListener<UnitVisibleEvent>((_event) => OnVisionUpdate(_event));
 
 				inRange[other.transform.root.name] = target;
@@ -126,7 +126,7 @@ namespace MarsTS.Units {
 
 			EventAgent targetBus = entityComp.Get<EventAgent>("eventAgent");
 
-			targetBus.RemoveListener<EntityDeathEvent>((_event) => OutOfRange(_event.Unit.GameObject.name));
+			targetBus.RemoveListener<UnitDeathEvent>((_event) => OutOfRange(_event.Unit.GameObject.name));
 			//targetBus.RemoveListener<UnitVisibleEvent>((_event) => OnVisionUpdate(_event));
 
 			T toRemove = inRange[name];

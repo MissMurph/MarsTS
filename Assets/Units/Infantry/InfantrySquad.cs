@@ -145,7 +145,7 @@ namespace MarsTS.Units {
 			unit.squad = this;
 
 			EventAgent unitEvents = unit.GetComponent<EventAgent>();
-			unitEvents.AddListener<EntityDeathEvent>(OnMemberDeath);
+			unitEvents.AddListener<UnitDeathEvent>(OnMemberDeath);
 			unitEvents.AddListener<UnitHurtEvent>(OnMemberHurt);
 			unitEvents.AddListener<EntityInitEvent>(OnMemberInit);
 			unitEvents.AddListener<EntityVisibleEvent>(OnMemberVisionUpdate);
@@ -170,7 +170,7 @@ namespace MarsTS.Units {
 			bus.Global(new UnitHurtEvent(bus, this));
 		}
 
-		private void OnMemberDeath (EntityDeathEvent _event) {
+		private void OnMemberDeath (UnitDeathEvent _event) {
 			MemberEntry deadEntry = members[_event.Unit.GameObject.name];
 
 			members.Remove(deadEntry.key);
@@ -178,7 +178,7 @@ namespace MarsTS.Units {
 			Destroy(deadEntry.selectionCollider.gameObject);
 
 			if (members.Count <= 0) {
-				bus.Global(new EntityDeathEvent(bus, this));
+				bus.Global(new UnitDeathEvent(bus, this));
 				Destroy(gameObject);
 			}
 		}

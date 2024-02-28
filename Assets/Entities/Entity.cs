@@ -87,5 +87,9 @@ namespace MarsTS.Entities {
 
 			return default;
 		}
+
+		private void OnDestroy () {
+			eventAgent.Global(new EntityDestroyEvent(eventAgent, this));
+		}
 	}
 }

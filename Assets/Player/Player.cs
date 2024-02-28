@@ -68,7 +68,7 @@ namespace MarsTS.Players {
 		protected override void Start () {
 			base.Start();
 
-			EventBus.AddListener<EntityDeathEvent>(OnEntityDeath);
+			EventBus.AddListener<UnitDeathEvent>(OnEntityDeath);
 			EventBus.AddListener<EntityInitEvent>(OnEntityInit);
 		}
 
@@ -209,7 +209,7 @@ namespace MarsTS.Players {
 			if (context.canceled) alternate = false;
 		}
 
-		private void OnEntityDeath (EntityDeathEvent _event) {
+		private void OnEntityDeath (UnitDeathEvent _event) {
 			string key = _event.Unit.RegistryKey;
 
 			if (Selected.TryGetValue(key, out Roster unitRoster) && unitRoster.Contains(_event.Unit.ID)) {

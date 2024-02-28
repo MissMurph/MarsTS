@@ -51,7 +51,7 @@ namespace MarsTS.Units {
 			set {
 				if (harvestTarget != null) {
 					EntityCache.TryGet(harvestTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
-					oldAgent.RemoveListener<EntityDeathEvent>((_event) => HarvestTarget = null);
+					oldAgent.RemoveListener<UnitDeathEvent>((_event) => HarvestTarget = null);
 				}
 
 				harvestTarget = value;
@@ -59,7 +59,7 @@ namespace MarsTS.Units {
 				if (value != null) {
 					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
 
-					agent.AddListener<EntityDeathEvent>((_event) => HarvestTarget = null);
+					agent.AddListener<UnitDeathEvent>((_event) => HarvestTarget = null);
 				}
 			}
 		}
@@ -73,14 +73,14 @@ namespace MarsTS.Units {
 			set {
 				if (depositTarget != null) {
 					EntityCache.TryGet(depositTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
-					oldAgent.RemoveListener<EntityDeathEvent>((_event) => DepositTarget = null);
+					oldAgent.RemoveListener<UnitDeathEvent>((_event) => DepositTarget = null);
 				}
 
 				depositTarget = value;
 
 				if (value != null) {
 					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
-					agent.AddListener<EntityDeathEvent>((_event) => DepositTarget = null);
+					agent.AddListener<UnitDeathEvent>((_event) => DepositTarget = null);
 				}
 			}
 		}
@@ -234,7 +234,7 @@ namespace MarsTS.Units {
 
 				EntityCache.TryGet(HarvestTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
-				targetBus.AddListener<EntityDeathEvent>(OnDepositDepleted);
+				targetBus.AddListener<UnitDeathEvent>(OnDepositDepleted);
 
 				order.Callback.AddListener(HarvestCancelled);
 			}
@@ -309,7 +309,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		private void OnDepositDepleted (EntityDeathEvent _event) {
+		private void OnDepositDepleted (UnitDeathEvent _event) {
 			bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
@@ -323,7 +323,7 @@ namespace MarsTS.Units {
 
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
-				targetBus.RemoveListener<EntityDeathEvent>(OnDepositDepleted);
+				targetBus.RemoveListener<UnitDeathEvent>(OnDepositDepleted);
 
 				HarvestTarget = null;
 				DepositTarget = null;

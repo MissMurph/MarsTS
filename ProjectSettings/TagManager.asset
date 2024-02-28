@@ -7,6 +7,8 @@ TagManager:
   - PrimaryPlayer
   - Unit
   - MinimapCam
+  - Infantry
+  - Vehicle
   layers:
   - Default
   - TransparentFX

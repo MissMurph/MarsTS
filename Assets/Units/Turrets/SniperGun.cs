@@ -1,18 +1,33 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.ProBuilder;
 
-public class SniperGun : MonoBehaviour
-{
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+namespace MarsTS.Units {
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public class SniperGun : ProjectileTurret {
+
+		//This damage is added to the attack whenever infantry is hit
+		[SerializeField]
+		protected int bonusDamage;
+
+		protected override void Fire () {
+			Vector3 direction = (target.GameObject.transform.position - transform.position).normalized;
+
+			Projectile bullet = Instantiate(projectile, barrel.transform.position, Quaternion.Euler(Vector3.zero)).GetComponent<Projectile>();
+
+			bullet.transform.LookAt(target.GameObject.transform.position);
+
+			bullet.Init(parent, OnHit);
+
+			currentCooldown += cooldown;
+		}
+
+		protected virtual void OnHit (bool result, IAttackable hit) {
+			if (hit.GameObject.tag == "Infantry") {
+				hit.Attack(damage + bonusDamage);
+			}
+			else hit.Attack(damage);
+		}
+	}
 }

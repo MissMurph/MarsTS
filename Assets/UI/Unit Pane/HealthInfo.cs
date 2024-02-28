@@ -82,7 +82,7 @@ namespace MarsTS.UI {
 
 		private void Start () {
 			EventBus.AddListener<UnitHurtEvent>(OnEntityHurt);
-			EventBus.AddListener<EntityDeathEvent>(OnEntityDeath);
+			EventBus.AddListener<UnitDeathEvent>(OnEntityDeath);
 		}
 
 		private void OnEntityHurt (UnitHurtEvent _event) {
@@ -92,7 +92,7 @@ namespace MarsTS.UI {
 			}
 		}
 
-		private void OnEntityDeath (EntityDeathEvent _event) {
+		private void OnEntityDeath (UnitDeathEvent _event) {
 			if (ReferenceEquals(_event.Unit, CurrentUnit)) {
 				CurrentUnit = null;
 			}

@@ -92,7 +92,7 @@ namespace MarsTS.Units {
 			set {
 				if (target != null) {
 					EntityCache.TryGet(target.gameObject.name + ":eventAgent", out EventAgent oldAgent);
-					oldAgent.RemoveListener<EntityDeathEvent>((_event) => TrackedTarget = null);
+					oldAgent.RemoveListener<UnitDeathEvent>((_event) => TrackedTarget = null);
 				}
 
 				target = value;
@@ -100,7 +100,7 @@ namespace MarsTS.Units {
 				if (value != null) {
 					EntityCache.TryGet(value.gameObject.name + ":eventAgent", out EventAgent agent);
 
-					agent.AddListener<EntityDeathEvent>((_event) => TrackedTarget = null);
+					agent.AddListener<UnitDeathEvent>((_event) => TrackedTarget = null);
 
 					SetTarget(value);
 				}
@@ -340,7 +340,7 @@ namespace MarsTS.Units {
 			currentHealth -= damage;
 
 			if (currentHealth <= 0) {
-				bus.Global(new EntityDeathEvent(bus, this));
+				bus.Global(new UnitDeathEvent(bus, this));
 				Destroy(gameObject);
 			}
 			else bus.Global(new UnitHurtEvent(bus, this));

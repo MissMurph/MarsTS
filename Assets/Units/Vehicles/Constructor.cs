@@ -46,7 +46,7 @@ namespace MarsTS.Units {
 			set {
 				if (repairTarget != null) {
 					EntityCache.TryGet(repairTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
-					oldAgent.RemoveListener<EntityDeathEvent>((_event) => repairTarget = null);
+					oldAgent.RemoveListener<UnitDeathEvent>((_event) => repairTarget = null);
 				}
 
 				repairTarget = value;
@@ -54,7 +54,7 @@ namespace MarsTS.Units {
 				if (value != null) {
 					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
 
-					agent.AddListener<EntityDeathEvent>((_event) => repairTarget = null);
+					agent.AddListener<UnitDeathEvent>((_event) => repairTarget = null);
 				}
 			}
 		}
@@ -162,7 +162,7 @@ namespace MarsTS.Units {
 					EntityCache.TryGet(RepairTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
 					targetBus.AddListener<UnitHurtEvent>(OnTargetHealed);
-					targetBus.AddListener<EntityDeathEvent>(OnTargetDeath);
+					targetBus.AddListener<UnitDeathEvent>(OnTargetDeath);
 
 					order.Callback.AddListener(RepairCancelled);
 				}
@@ -182,10 +182,10 @@ namespace MarsTS.Units {
 			}
 		}
 
-		private void OnTargetDeath (EntityDeathEvent _event) {
+		private void OnTargetDeath (UnitDeathEvent _event) {
 			EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
 
-			targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, true, this);
 
@@ -199,7 +199,7 @@ namespace MarsTS.Units {
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.RemoveListener<UnitHurtEvent>(OnTargetHealed);
-				targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
 				RepairTarget = null;
 			}

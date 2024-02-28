@@ -156,7 +156,7 @@ namespace MarsTS.Buildings {
 
 		protected virtual void CancelConstruction () {
 			if (!Constructed) {
-				bus.Global(new EntityDeathEvent(bus, this));
+				bus.Global(new UnitDeathEvent(bus, this));
 
 				foreach (CostEntry materialCost in ConstructionCost) {
 					Player.Main.Resource(materialCost.key).Deposit(materialCost.amount);
@@ -305,7 +305,7 @@ namespace MarsTS.Buildings {
 			bus.Global(new UnitHurtEvent(bus, this));
 
 			if (Health <= 0) {
-				bus.Global(new EntityDeathEvent(bus, this));
+				bus.Global(new UnitDeathEvent(bus, this));
 				Destroy(gameObject, 0.1f);
 			}
 		}

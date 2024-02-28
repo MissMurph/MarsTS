@@ -142,7 +142,7 @@ namespace MarsTS.Units {
 
 				EntityCache.TryGet(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
-				targetBus.AddListener<EntityDeathEvent>(OnTargetDeath);
+				targetBus.AddListener<UnitDeathEvent>(OnTargetDeath);
 
 				order.Callback.AddListener(AttackCancelled);
 			}
@@ -161,16 +161,16 @@ namespace MarsTS.Units {
 			if (_event.Command is Commandlet<IAttackable> deserialized && _event.CommandCancelled) {
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
-				targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
 				AttackTarget.Set(null, null);
 			}
 		}
 
-		private void OnTargetDeath (EntityDeathEvent _event) {
+		private void OnTargetDeath (UnitDeathEvent _event) {
 			EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
 
-			targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 

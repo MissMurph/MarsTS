@@ -107,7 +107,8 @@ namespace MarsTS.Vision {
 
 			currentMask = Player.Main.VisionMask;
 
-			EventBus.AddListener<EntityDeathEvent>(OnEntityDeath);
+			//EventBus.AddListener<UnitDeathEvent>(OnUnitDeath);
+			EventBus.AddListener<EntityDestroyEvent>(OnEntityDestroyed);
 
 			ThreadStart workerThread = delegate { ProcessUpdate(); };
 
@@ -351,9 +352,15 @@ namespace MarsTS.Vision {
 			return instance.BottomLeft + new Vector3(gridPos.x * instance.nodeSize + (instance.nodeSize / 2), 0, gridPos.y * instance.nodeSize + (instance.nodeSize / 2));
 		}
 
-		private void OnEntityDeath (EntityDeathEvent _event) {
+		private void OnUnitDeath (UnitDeathEvent _event) {
 			if (registeredVision.TryGetValue(_event.Unit.GameObject.name, out EntityVision vision)) {
 				registeredVision.Remove(_event.Unit.GameObject.name);
+			}
+		}
+
+		private void OnEntityDestroyed (EntityDestroyEvent _event) {
+			if (registeredVision.TryGetValue(_event.Entity.gameObject.name, out EntityVision vision)) {
+				registeredVision.Remove(_event.Entity.gameObject.name);
 			}
 		}
 

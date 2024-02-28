@@ -8,10 +8,10 @@ namespace MarsTS.Units {
     public class ProjectileTurret : MonoBehaviour {
 
 		[SerializeField]
-		private GameObject projectile;
+		protected GameObject projectile;
 
 		[SerializeField]
-		private int damage;
+		protected int damage;
 
 		[SerializeField]
 		protected float cooldown;
@@ -78,7 +78,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected void Fire () {
+		protected virtual void Fire () {
 			Vector3 direction = (target.GameObject.transform.position - transform.position).normalized;
 
 			Projectile bullet = Instantiate(projectile, barrel.transform.position, Quaternion.Euler(Vector3.zero)).GetComponent<Projectile>();

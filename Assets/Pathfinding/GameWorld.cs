@@ -48,6 +48,10 @@ namespace MarsTS.World {
 		private LayerMask environmentMask;
 		public static LayerMask EnvironmentMask { get { return instance.environmentMask; } }
 
+		[SerializeField]
+		private LayerMask entityLayer;
+		public static LayerMask EntityMask { get { return instance.entityLayer; } }
+
 		public int MaxGridSize {
 			get {
 				return gridSize.x * gridSize.y;

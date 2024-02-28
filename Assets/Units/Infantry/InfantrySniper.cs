@@ -20,9 +20,17 @@ namespace MarsTS.Units {
 		[SerializeField]
 		private float sneakSpeed;
 
+		[SerializeField]
+		private float flareRange;
+
+		[SerializeField]
+		private GameObject flarePrefab;
+
 		protected GroundDetection ground;
 		
 		protected UnitReference<IAttackable> AttackTarget = new UnitReference<IAttackable>();
+
+		protected Vector3 flareTarget;
 
 		private ProjectileTurret equippedWeapon;
 
@@ -52,6 +60,18 @@ namespace MarsTS.Units {
 					SetTarget(AttackTarget.GameObject.transform);
 				}
 			}
+
+			/*if (flareTarget != null) {
+				if ((flareTarget - transform.position).sqrMagnitude < (flareRange * flareRange)) {
+					TrackedTarget = null;
+					currentPath = Path.Empty;
+
+					FireFlare(flareTarget);
+				}
+				else {
+					SetTarget(flareTarget);
+				}
+			}*/
 		}
 
 		protected virtual void FixedUpdate () {
@@ -85,6 +105,8 @@ namespace MarsTS.Units {
 				case "sneak":
 					Sneak(order);
 					break;
+				case "flare":
+					break;
 				default:
 					base.Order(order, inclusive);
 					return;
@@ -98,6 +120,9 @@ namespace MarsTS.Units {
 			switch (_event.Command.Name) {
 				case "attack":
 					Attack(_event.Command);
+					break;
+				case "flare":
+					Flare(_event.Command);
 					break;
 				default:
 					base.ExecuteOrder(_event);
@@ -114,7 +139,7 @@ namespace MarsTS.Units {
 
 				EntityCache.TryGet(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
-				targetBus.AddListener<EntityDeathEvent>(OnTargetDeath);
+				targetBus.AddListener<UnitDeathEvent>(OnTargetDeath);
 
 				order.Callback.AddListener(AttackCancelled);
 			}
@@ -125,17 +150,17 @@ namespace MarsTS.Units {
 			if (_event.Command is Commandlet<IAttackable> deserialized) {
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
-				targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
 				AttackTarget.Set(null, null);
 				TrackedTarget = null;
 			}
 		}
 
-		private void OnTargetDeath (EntityDeathEvent _event) {
+		private void OnTargetDeath (UnitDeathEvent _event) {
 			EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
 
-			targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, true, this);
 
@@ -157,6 +182,23 @@ namespace MarsTS.Units {
 			}
 
 			bus.Local(new SneakEvent(bus, this, isSneaking));
+		}
+
+		/*	Flare	*/
+		private void Flare (Commandlet order) {
+			Commandlet<Vector3> deserialized = order as Commandlet<Vector3>;
+
+			flareTarget = deserialized.Target;
+
+			SetTarget(flareTarget);
+		}
+
+		private void FireFlare (Vector3 position) {
+			Instantiate(flarePrefab);
+
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, true, this);
+
+			CurrentCommand.OnComplete(commands, newEvent);
 		}
 
 		public override Command Evaluate (ISelectable target) {

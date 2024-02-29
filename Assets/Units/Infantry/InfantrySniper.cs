@@ -61,17 +61,17 @@ namespace MarsTS.Units {
 				}
 			}
 
-			/*if (flareTarget != null) {
+			if (CurrentCommand != null && CurrentCommand.Name == "flare") {
 				if ((flareTarget - transform.position).sqrMagnitude < (flareRange * flareRange)) {
 					TrackedTarget = null;
 					currentPath = Path.Empty;
 
 					FireFlare(flareTarget);
 				}
-				else {
+				/*else {
 					SetTarget(flareTarget);
-				}
-			}*/
+				}*/
+			}
 		}
 
 		protected virtual void FixedUpdate () {
@@ -194,11 +194,14 @@ namespace MarsTS.Units {
 		}
 
 		private void FireFlare (Vector3 position) {
-			Instantiate(flarePrefab);
+			Flare firedFlare = Instantiate(flarePrefab, position, Quaternion.Euler(Vector3.zero)).GetComponent<Flare>();
+			firedFlare.Init(this);
 
-			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, true, this);
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
 			CurrentCommand.OnComplete(commands, newEvent);
+
+			Stop();
 		}
 
 		public override Command Evaluate (ISelectable target) {

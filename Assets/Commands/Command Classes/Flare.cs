@@ -89,7 +89,7 @@ namespace MarsTS.Commands {
 		}
 
 		public override Commandlet Construct (Vector3 _target) {
-			return base.Construct(_target);
+			return new FlareCommandlet(Name, _target, Player.Main, cooldown);
 		}
 
 		protected virtual void OnOrder (InputAction.CallbackContext context) {

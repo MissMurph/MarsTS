@@ -1,6 +1,8 @@
 using MarsTS.Entities;
 using MarsTS.Events;
+using MarsTS.Players;
 using MarsTS.Teams;
+using MarsTS.UI;
 using MarsTS.Vision;
 using System;
 using System.Collections;
@@ -9,30 +11,50 @@ using UnityEngine;
 
 namespace MarsTS.Units {
 
-    public class Flare : MonoBehaviour, ISelectable, ITaggable<Flare> {
+    public class Flare : MonoBehaviour, ISelectable, ITaggable<Flare>, IAttackable {
 
         [SerializeField]
         private float lifeTime;
+
+		private float currentLifeTime;
 
 		private EventAgent bus;
 
 		[SerializeField]
 		private GameObject[] hideables;
 
-		public GameObject GameObject => throw new System.NotImplementedException();
+		public GameObject GameObject { get { return gameObject; } }
 
-		public int ID => throw new System.NotImplementedException();
+		/*	IAttackable Properties	*/
 
-		public string UnitType => throw new System.NotImplementedException();
+		public int Health { get { return currentHealth; } }
 
-		public string RegistryKey => throw new System.NotImplementedException();
+		public int MaxHealth { get { return maxHealth; } }
+
+		protected int maxHealth = 100;
+
+		protected int currentHealth;
+
+		/*	ISelectable Properties	*/
+
+		public int ID { get { return entityComponent.ID; } }
+
+		public string UnitType { get { return type; } }
+
+		public string RegistryKey { get { return "misc:" + UnitType; } }
+
+		public Sprite Icon { get { return icon; } }
 
 		public Faction Owner { get { return owner; } }
 
 		[SerializeField]
 		private Faction owner;
 
-		public Sprite Icon => throw new System.NotImplementedException();
+		[SerializeField]
+		private string type;
+
+		[SerializeField]
+		private Sprite icon;
 
 		/*	ITaggable Properties	*/
 
@@ -42,13 +64,20 @@ namespace MarsTS.Units {
 
 		private ISelectable parent;
 
+		private Entity entityComponent;
+
 		private void Awake () {
 			bus = GetComponent<EventAgent>();
+			entityComponent = GetComponent<Entity>();
+
+			currentHealth = maxHealth;
+			currentLifeTime = lifeTime;
 		}
 
 		private void Start () {
 			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
 
+			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
 		}
 
@@ -66,10 +95,13 @@ namespace MarsTS.Units {
 		}
 
 		private void Update () {
-			lifeTime -= Time.deltaTime;
+			currentLifeTime -= Time.deltaTime;
+			currentHealth = Mathf.RoundToInt(maxHealth * (currentLifeTime / lifeTime));
 
-			if (lifeTime <= 0) {
-				//bus.Global(new EntityDeathEvent(bus, this));
+			bus.Global(new UnitHurtEvent(bus, this));
+
+			if (currentLifeTime <= 0) {
+				bus.Global(new UnitDeathEvent(bus, this));
 				Destroy(gameObject);
 			}
 		}
@@ -81,22 +113,40 @@ namespace MarsTS.Units {
 		}
 
 		public void Select (bool status) {
-			throw new System.NotImplementedException();
+			bus.Local(new UnitSelectEvent(bus, status));
 		}
 
 		public void Hover (bool status) {
-			throw new System.NotImplementedException();
+			//These are seperated due to the Player Selection Check
+			if (status) {
+				bus.Local(new UnitHoverEvent(bus, status));
+			}
+			else if (!Player.Main.HasSelected(this)) {
+				bus.Local(new UnitHoverEvent(bus, status));
+			}
 		}
 
-		public Relationship GetRelationship (Faction player) {
-			throw new System.NotImplementedException();
+		public Relationship GetRelationship (Faction other) {
+			return Owner.GetRelationship(other);
 		}
 
 		public bool SetOwner (Faction player) {
-			throw new System.NotImplementedException();
+			owner = player;
+			return true;
 		}
 
 		public Flare Get () {
+			return this;
+		}
+
+		private void OnUnitInfoDisplayed (UnitInfoEvent _event) {
+			if (ReferenceEquals(_event.Unit, this)) {
+				HealthInfo info = _event.Info.Module<HealthInfo>("health");
+				info.CurrentUnit = this;
+			}
+		}
+
+		public void Attack (int damage) {
 			throw new NotImplementedException();
 		}
 	}

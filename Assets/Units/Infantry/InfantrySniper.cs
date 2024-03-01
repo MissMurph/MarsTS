@@ -172,6 +172,7 @@ namespace MarsTS.Units {
 		/*	Sneak	*/
 		private void Sneak (Commandlet order) {
 			Commandlet<bool> deserialized = order as Commandlet<bool>;
+
 			if (deserialized.Target) {
 				isSneaking = true;
 				currentSpeed = sneakSpeed;
@@ -180,6 +181,8 @@ namespace MarsTS.Units {
 				isSneaking = false;
 				currentSpeed = baseSpeed;
 			}
+
+			commands.Activate(order, deserialized.Target);
 
 			bus.Local(new SneakEvent(bus, this, isSneaking));
 		}

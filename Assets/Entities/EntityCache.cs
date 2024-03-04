@@ -110,6 +110,7 @@ namespace MarsTS.Entities {
 		}
 
 		private void OnEntityDestroyed (EntityDestroyEvent _event) {
+			if (instance == null) return;
 			if (TryGet(_event.Entity.gameObject.name, out Entity found)) {
 				Dictionary<int, Entity> map = GetMap(found.Key);
 				map.Remove(found.ID);

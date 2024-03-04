@@ -22,12 +22,12 @@ namespace MarsTS.Buildings {
 
 		/*	IAttackable Properties	*/
 
-		public int Health { get; protected set; }
+		public virtual int Health { get; protected set; }
 
-		public int MaxHealth { get { return maxHealth; } }
+		public virtual int MaxHealth { get { return maxHealth; } }
 
 		[SerializeField]
-		private int maxHealth;
+		protected int maxHealth;
 
 		/*	ISelectable Properties	*/
 
@@ -73,19 +73,17 @@ namespace MarsTS.Buildings {
 		protected ProductionQueue production;
 
 		[SerializeField]
-		private string[] boundCommands;
+		protected string[] boundCommands;
 
 		/*	Building Fields	*/
-
-		private GameObject selectionCircle;
 
 		[Header("Construction")]
 
 		[SerializeField]
-		private int constructionWork;
+		protected int constructionWork;
 
 		[SerializeField]
-		private int currentWork;
+		protected int currentWork;
 
 		[SerializeField]
 		private GameObject ghost;
@@ -107,18 +105,16 @@ namespace MarsTS.Buildings {
 
 		public string RegistryType => "building";
 
-		private Entity entityComponent;
+		protected Entity entityComponent;
 
 		protected EventAgent bus;
 
 		protected Transform model;
 
 		[SerializeField]
-		private GameObject[] visionObjects;
+		protected GameObject[] visionObjects;
 
 		protected virtual void Awake () {
-			selectionCircle = transform.Find("SelectionCircle").gameObject;
-			selectionCircle.SetActive(false);
 			Health = 1;
 			commands = GetComponent<CommandQueue>();
 			production = GetComponent<ProductionQueue>();
@@ -263,12 +259,12 @@ namespace MarsTS.Buildings {
 			return result;
 		}
 
-		public void Select (bool status) {
+		public virtual void Select (bool status) {
 			//selectionCircle.SetActive(status);
 			bus.Local(new UnitSelectEvent(bus, status));
 		}
 
-		public void Hover (bool status) {
+		public virtual void Hover (bool status) {
 			//These are seperated due to the Player Selection Check
 			if (status) {
 				//selectionCircle.SetActive(true);
@@ -285,11 +281,15 @@ namespace MarsTS.Buildings {
 			return true;
 		}
 
-		public void Attack (int damage) {
+		public virtual void Attack (int damage) {
 			if (currentWork < constructionWork && damage < 0) {
+				float previousProgress = (float)currentWork / constructionWork;
+
 				currentWork -= damage;
+
 				float progress = (float)currentWork / constructionWork;
-				Health = (int)(maxHealth * progress);
+
+				Health += Mathf.RoundToInt(maxHealth * (progress - previousProgress));
 
 				model.localScale = Vector3.one * progress;
 

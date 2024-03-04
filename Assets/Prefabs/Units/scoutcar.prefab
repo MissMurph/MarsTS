@@ -400,7 +400,7 @@ GameObject:
   - component: {fileID: 3606357447327319206}
   m_Layer: 0
   m_Name: scoutcar
-  m_TagString: Unit
+  m_TagString: Vehicle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

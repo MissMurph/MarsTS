@@ -28,6 +28,8 @@ namespace MarsTS.Vision {
 		}
 
 		protected override void OnVisionUpdate (VisionUpdateEvent _event) {
+			if (_event.Phase == Phase.Post) return;
+
 			if (isSneaking) {
 				int sneakMask = owner.VisionMask;
 

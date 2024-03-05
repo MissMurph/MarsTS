@@ -136,7 +136,15 @@ namespace MarsTS.Vision {
 					return;
 				}
 
-				bus.Global(new VisionUpdateEvent(bus));
+				VisionUpdateEvent _event = new VisionUpdateEvent(bus);
+
+				_event.Phase = Phase.Pre;
+
+				bus.Global(_event);
+
+				_event.Phase = Phase.Post;
+
+				bus.Global(_event);
 			}
 		}
 
@@ -293,6 +301,11 @@ namespace MarsTS.Vision {
 
 		public bool IsVisible (int x, int y) {
 			return (Nodes[x, y] & currentMask) > 0;
+		}
+
+		public static bool IsVisible (Vector3 pos, int players) {
+			Vector2Int coords = GetGridPosFromWorldPos(pos);
+			return instance.IsVisible(coords.x, coords.y, players);
 		}
 
 		public static bool IsVisible (GameObject _object) {

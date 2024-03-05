@@ -111,6 +111,7 @@ MonoBehaviour:
   - harvest
   - repair
   - construct/makeshift_pumpjack
+  - construct/landmines
   maxMembers: 5
   startingMembers:
   - {fileID: 4376980068627800920}

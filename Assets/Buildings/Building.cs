@@ -62,9 +62,17 @@ namespace MarsTS.Buildings {
 
 		public Commandlet[] CommandQueue { get { return production.Queue; } }
 
-		public List<string> Active { get { return commands.Active; } }
+		public List<string> Active { 
+			get { 
+				return commands != null ? commands.Active : new(); 
+			} 
+		}
 
-		public List<Timer> Cooldowns { get { return commands.Cooldowns; } }
+		public List<Timer> Cooldowns { 
+			get { 
+				return commands != null ? commands.Cooldowns : new(); 
+			} 
+		}
 
 		public int Count { get { return production.Count; } }
 
@@ -101,6 +109,8 @@ namespace MarsTS.Buildings {
 
 		public CostEntry[] ConstructionCost { get { return constructionCost; } }
 
+		protected int healthPerConstructionPoint;
+
 		/*	Upgrades	*/
 
 		public string RegistryType => "building";
@@ -115,12 +125,13 @@ namespace MarsTS.Buildings {
 		protected GameObject[] visionObjects;
 
 		protected virtual void Awake () {
-			Health = 1;
+			Health = 0;
+			bus = GetComponent<EventAgent>();
+			entityComponent = GetComponent<Entity>();
 			commands = GetComponent<CommandQueue>();
 			production = GetComponent<ProductionQueue>();
 
-			bus = GetComponent<EventAgent>();
-			entityComponent = GetComponent<Entity>();
+			healthPerConstructionPoint = MaxHealth / constructionWork;
 
 			model = transform.Find("Model");
 
@@ -283,13 +294,11 @@ namespace MarsTS.Buildings {
 
 		public virtual void Attack (int damage) {
 			if (currentWork < constructionWork && damage < 0) {
-				float previousProgress = (float)currentWork / constructionWork;
-
 				currentWork -= damage;
 
 				float progress = (float)currentWork / constructionWork;
 
-				Health += Mathf.RoundToInt(maxHealth * (progress - previousProgress));
+				Health += healthPerConstructionPoint;
 
 				model.localScale = Vector3.one * progress;
 

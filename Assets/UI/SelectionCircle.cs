@@ -24,6 +24,8 @@ namespace MarsTS.UI {
 			mask = GetComponentInChildren<SpriteMask>();
 			parent = GetComponentInParent<ISelectable>();
 			matBlock = new MaterialPropertyBlock();
+
+			bus.AddListener<EntityInitEvent>(OnEntityInit);
 		}
 
 		private void Start () {
@@ -31,12 +33,16 @@ namespace MarsTS.UI {
 			bus.AddListener<UnitHoverEvent>(OnHover);
 			bus.AddListener<UnitOwnerChangeEvent>(OnTeamChange);
 
+			circleRenderer.enabled = false;
+			mask.enabled = false;
+		}
+
+		private void OnEntityInit (EntityInitEvent _event) {
+			if (_event.Phase == Phase.Pre) return;
+
 			circleRenderer.GetPropertyBlock(matBlock);
 			matBlock.SetColor("_Color", parent.GetRelationship(Player.Main).Colour());
 			circleRenderer.SetPropertyBlock(matBlock);
-
-			circleRenderer.enabled = false;
-			mask.enabled = false;
 		}
 
 		private void OnTeamChange (UnitOwnerChangeEvent _event) {

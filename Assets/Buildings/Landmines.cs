@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem.HID;
 
 namespace MarsTS.Buildings {
 
@@ -46,11 +47,13 @@ namespace MarsTS.Buildings {
 
 
 		protected override void Awake () {
-			Health = 1;
+			Health = 0;
 			commands = GetComponent<CommandQueue>();
 
 			bus = GetComponent<EventAgent>();
 			entityComponent = GetComponent<Entity>();
+
+			
 
 			childMines = new Dictionary<string, Landmine>();
 			entityColliders = new Dictionary<string, Collider>();
@@ -61,22 +64,24 @@ namespace MarsTS.Buildings {
 			collectiveMaxHealth = 0;
 
 			foreach (Landmine child in foundChildren) {
+				healthPerConstructionPoint = child.MaxHealth / constructionWork;
 				collectiveMaxHealth += child.MaxHealth;
 				RegisterMine(child);
 			}
-        }
+		}
 
 		protected override void Start () {
 			base.Start();
+
+			
 		}
 
 		private void RegisterMine (Landmine child) {
-			child.SetOwner(owner);
-
 			EventAgent unitEvents = child.GetComponent<EventAgent>();
 			unitEvents.AddListener<EntityInitEvent>(OnChildInit);
 			unitEvents.AddListener<UnitDeathEvent>(OnMineDestroyed);
 			unitEvents.AddListener<UnitHurtEvent>(OnChildHurt);
+			unitEvents.AddListener<EntityVisibleEvent>(OnChildVisionUpdate);
 
 			child.SetConstructionProgress(currentWork);
 
@@ -94,8 +99,10 @@ namespace MarsTS.Buildings {
 
 			childMines[_event.ParentEntity.gameObject.name] = _event.ParentEntity.Get<Landmine>("selectable");
 
-			Collider newEntityCollider = Instantiate(entityColliderPrefab, _event.ParentEntity.gameObject.transform.localPosition, _event.ParentEntity.gameObject.transform.localRotation, transform).GetComponent<Collider>();
-			Transform newSelectionCollider = Instantiate(selectionColliderPrefab, _event.ParentEntity.gameObject.transform.localPosition, _event.ParentEntity.gameObject.transform.localRotation, transform).transform;
+			childMines[_event.ParentEntity.gameObject.name].SetOwner(owner);
+
+			Collider newEntityCollider = Instantiate(entityColliderPrefab, _event.ParentEntity.gameObject.transform.position, _event.ParentEntity.gameObject.transform.rotation, transform).GetComponent<Collider>();
+			Transform newSelectionCollider = Instantiate(selectionColliderPrefab, _event.ParentEntity.gameObject.transform.position, _event.ParentEntity.gameObject.transform.rotation, transform).transform;
 
 			entityColliders[_event.ParentEntity.gameObject.name] = newEntityCollider;
 			selectionColliders[_event.ParentEntity.gameObject.name] = newSelectionCollider;
@@ -128,6 +135,12 @@ namespace MarsTS.Buildings {
 			bus.Global(new UnitHurtEvent(bus, this));
 		}
 
+		private void OnChildVisionUpdate (EntityVisibleEvent _event) {
+			if (selectionColliders.TryGetValue(_event.UnitName, out Transform collider)) {
+				collider.gameObject.SetActive(_event.Visible);
+			}
+		}
+
 		public override void Hover (bool status) {
 			foreach (Landmine child in childMines.Values) {
 				child.Hover(status);
@@ -142,13 +155,11 @@ namespace MarsTS.Buildings {
 
 		public override void Attack (int damage) {
 			if (currentWork < constructionWork && damage < 0) {
-				float previousProgress = (float)currentWork / constructionWork;
-
 				currentWork -= damage;
 
 				float progress = (float)currentWork / constructionWork;
 
-				base.Health += Mathf.RoundToInt(maxHealth * (progress - previousProgress));
+				base.Health += healthPerConstructionPoint;
 
 				model.localScale = Vector3.one * progress;
 

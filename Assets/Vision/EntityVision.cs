@@ -25,7 +25,7 @@ namespace MarsTS.Vision {
 
 		public int Range { get { return visionRange; } }
 
-		public int VisibleTo { get { return visibleTo; } }
+		public int VisibleTo { get { return visibleTo; } set { visibleTo = value; } }
 
 		[SerializeField]
 		private int visionRange;
@@ -52,7 +52,7 @@ namespace MarsTS.Vision {
 		}
 
 		private void OnEntityInit (EntityInitEvent _event) {
-			if (_event.Phase == Phase.Pre) {
+			if (_event.Phase == Phase.Post) {
 				GameVision.Register(gameObject.name, this);
 
 				parent = _event.ParentEntity.Get<ISelectable>("selectable");
@@ -61,6 +61,8 @@ namespace MarsTS.Vision {
 		}
 
 		protected virtual void OnVisionUpdate (VisionUpdateEvent _event) {
+			if (_event.Phase == Phase.Post) return;
+
 			visibleTo = GameVision.VisibleTo(gameObject);
 
 			bus.Global(new EntityVisibleEvent(bus, parent, GameVision.IsVisible(gameObject)));

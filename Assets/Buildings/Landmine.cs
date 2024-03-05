@@ -23,18 +23,14 @@ namespace MarsTS.Buildings {
 			explosion.gameObject.SetActive(false);
 		}
 
-		protected void OnTriggerEnter (Collider other) {
-			if (!Constructed) return;
+		public void Detonate () {
+			explosion.Init(damage, Owner);
+			explosion.gameObject.SetActive(true);
+			explosion.transform.SetParent(null, true);
 
-			if (EntityCache.TryGet(other.transform.root.name, out IAttackable unit) && other.transform.root.tag == "Vehicle") {
-				if (unit.GetRelationship(Owner) != Teams.Relationship.Owned && unit.GetRelationship(Owner) != Teams.Relationship.Friendly) {
-					explosion.Init(damage, Owner);
-					explosion.gameObject.SetActive(true);
-					explosion.transform.SetParent(null, true);
+			bus.Global(new UnitDeathEvent(bus, this));
 
-					Destroy(gameObject);
-				}
-			}
+			Destroy(gameObject);
 		}
 
 		public void SetConstructionProgress (int progress) {

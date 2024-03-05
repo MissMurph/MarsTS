@@ -23,12 +23,18 @@ namespace MarsTS.UI {
 			bus = GetComponentInParent<EventAgent>();
 			parent = GetComponentInParent<ISelectable>();
 			matBlock = new MaterialPropertyBlock();
+
+			bus.AddListener<EntityInitEvent>(OnEntityInit);
 		}
 
 		private void Start () {
 			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
 			bus.AddListener<UnitOwnerChangeEvent>(OnTeamChange);
 			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
+		}
+
+		private void OnEntityInit (EntityInitEvent _event) {
+			if (_event.Phase == Phase.Pre) return;
 
 			iconRenderer.GetPropertyBlock(matBlock);
 			matBlock.SetColor("_Color", parent.GetRelationship(Player.Main).Colour());

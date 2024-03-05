@@ -49,7 +49,7 @@ namespace MarsTS.Units {
 
 		protected bool initialized;
 
-		protected void Awake () {
+		protected virtual void Awake () {
 			range = GetComponent<SphereCollider>();
 			range.enabled = false;
 			bus = GetComponentInParent<EventAgent>();
@@ -62,7 +62,7 @@ namespace MarsTS.Units {
 			bus.AddListener<EntityInitEvent>(OnEntityInit);
 		}
 
-		protected void Start () {
+		protected virtual void Start () {
 			EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
 		}
 

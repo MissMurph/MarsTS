@@ -150,19 +150,7 @@ namespace MarsTS.Units {
 		protected virtual void Start () {
 			StartCoroutine(UpdatePath());
 
-			//transform.Find("SelectionCircle").GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
-
 			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
-
-			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
-		}
-
-		private void OnVisionInit (VisionInitEvent _event) {
-			bool visible = GameVision.IsVisible(gameObject);
-
-			foreach (GameObject hideable in hideables) {
-				hideable.SetActive(visible);
-			}
 		}
 
 		protected virtual void OnEntityInit (EntityInitEvent _event) {

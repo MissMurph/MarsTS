@@ -9,23 +9,10 @@ namespace MarsTS.Vision {
 
     public class StealthSensor : AbstractSensor<ISelectable> {
 
-
-
-		protected override void OnVisionUpdate (VisionUpdateEvent _event) {
+		protected virtual void OnOtherEntityVisibleEvent (EntityVisibleCheckEvent _event) {
 			if (_event.Phase == Phase.Pre) return;
 
-			foreach (ISelectable unit in inRange.Values) {
-				if (GameVision.IsVisible(unit.GameObject.transform.position, parent.Owner.VisionMask)) {
-					EntityCache.TryGet(unit.GameObject.name, out Entity entityComp);
-					EventAgent targetBus = entityComp.Get<EventAgent>("eventAgent");
-
-
-				}
-			}
-		}
-
-		protected virtual void OnOtherEntityVisibleEvent (EntityVisibleEvent _event) {
-
+			_event.VisibleTo |= parent.Owner.VisionMask;
 		}
 
 		protected override void OnTriggerEnter (Collider other) {
@@ -36,7 +23,7 @@ namespace MarsTS.Vision {
 				EventAgent targetBus = entityComp.Get<EventAgent>("eventAgent");
 
 				targetBus.AddListener<UnitDeathEvent>((_event) => OutOfRange(_event.Unit.GameObject.name));
-				targetBus.AddListener<EntityVisibleEvent>(OnOtherEntityVisibleEvent);
+				targetBus.AddListener<EntityVisibleCheckEvent>(OnOtherEntityVisibleEvent);
 
 				inRange[other.transform.root.name] = target;
 
@@ -49,6 +36,26 @@ namespace MarsTS.Vision {
 
 		public override bool IsDetected (ISelectable unit) {
 			return IsDetected(unit.GameObject.transform.root.name);
+		}
+
+		protected override void OutOfRange (string name) {
+			if (!inRange.ContainsKey(name)) return;
+
+			EntityCache.TryGet(name, out Entity entityComp);
+
+			EventAgent targetBus = entityComp.Get<EventAgent>("eventAgent");
+
+			targetBus.RemoveListener<UnitDeathEvent>((_event) => OutOfRange(_event.Unit.GameObject.name));
+			targetBus.RemoveListener<EntityVisibleCheckEvent>(OnOtherEntityVisibleEvent);
+
+			ISelectable toRemove = inRange[name];
+
+			if (detected.ContainsKey(name)) {
+				detected.Remove(name);
+				bus.Local(new SensorUpdateEvent<ISelectable>(bus, toRemove, false));
+			}
+
+			inRange.Remove(name);
 		}
 	}
 }

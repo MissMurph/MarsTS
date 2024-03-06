@@ -147,15 +147,6 @@ namespace MarsTS.Units {
 			bus.AddListener<CommandStartEvent>(ExecuteOrder);
 
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
-			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
-		}
-
-		private void OnVisionInit (VisionInitEvent _event) {
-			bool visible = GameVision.IsVisible(gameObject);
-
-			foreach (GameObject hideable in hideables) {
-				hideable.SetActive(visible);
-			}
 		}
 
 		protected virtual void Update () {

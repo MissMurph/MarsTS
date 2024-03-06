@@ -205,6 +205,8 @@ namespace MarsTS.Units {
 		}
 
 		private void OnTargetDeath (UnitDeathEvent _event) {
+			if (CurrentCommand == null) return;
+
 			EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
 
 			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);

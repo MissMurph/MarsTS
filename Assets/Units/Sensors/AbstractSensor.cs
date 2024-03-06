@@ -80,7 +80,6 @@ namespace MarsTS.Units {
 				EventAgent targetBus = entityComp.Get<EventAgent>("eventAgent");
 
 				targetBus.AddListener<UnitDeathEvent>((_event) => OutOfRange(_event.Unit.GameObject.name));
-				//targetBus.AddListener<UnitVisibleEvent>((_event) => OnVisionUpdate(_event));
 
 				inRange[other.transform.root.name] = target;
 
@@ -113,6 +112,10 @@ namespace MarsTS.Units {
 			}
 		}
 
+		protected virtual void OnUnitDeath (UnitDeathEvent _event) {
+			OutOfRange(_event.Unit.GameObject.name);
+		}
+
 		public virtual bool IsDetected (string name) {
 			return detected.ContainsKey(name);
 		}
@@ -126,8 +129,7 @@ namespace MarsTS.Units {
 
 			EventAgent targetBus = entityComp.Get<EventAgent>("eventAgent");
 
-			targetBus.RemoveListener<UnitDeathEvent>((_event) => OutOfRange(_event.Unit.GameObject.name));
-			//targetBus.RemoveListener<UnitVisibleEvent>((_event) => OnVisionUpdate(_event));
+			targetBus.RemoveListener<UnitDeathEvent>(OnUnitDeath);
 
 			T toRemove = inRange[name];
 

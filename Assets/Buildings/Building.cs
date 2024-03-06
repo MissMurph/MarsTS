@@ -149,16 +149,7 @@ namespace MarsTS.Buildings {
 			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
 
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
-			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
 			EventBus.AddListener<ResearchCompleteEvent>(OnGlobalResearchComplete) ;
-		}
-
-		private void OnVisionInit (VisionInitEvent _event) {
-			bool visible = GameVision.IsVisible(gameObject);
-
-			foreach (GameObject hideable in visionObjects) {
-				hideable.SetActive(visible);
-			}
 		}
 
 		protected virtual void CancelConstruction () {

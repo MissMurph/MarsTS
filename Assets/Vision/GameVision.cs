@@ -142,9 +142,9 @@ namespace MarsTS.Vision {
 
 				bus.Global(_event);
 
-				_event.Phase = Phase.Post;
+				//_event.Phase = Phase.Post;
 
-				bus.Global(_event);
+				//bus.Global(_event);
 			}
 		}
 
@@ -163,6 +163,7 @@ namespace MarsTS.Vision {
 				List<VisionEntry> sources = new List<VisionEntry>();
 
 				foreach (EntityVision vision in registeredVision.Values) {
+					if (vision.Range <= 0) continue;
 					sources.Add(vision.Collect());
 				}
 

@@ -22,7 +22,7 @@ namespace MarsTS.Vision {
 				&& entityComp.TryGet(out ISelectable target)) {
 				EventAgent targetBus = entityComp.Get<EventAgent>("eventAgent");
 
-				targetBus.AddListener<UnitDeathEvent>((_event) => OutOfRange(_event.Unit.GameObject.name));
+				targetBus.AddListener<EntityDestroyEvent>(OnEntityDestroy);
 				targetBus.AddListener<EntityVisibleCheckEvent>(OnOtherEntityVisibleEvent);
 
 				inRange[other.transform.root.name] = target;
@@ -38,24 +38,22 @@ namespace MarsTS.Vision {
 			return IsDetected(unit.GameObject.transform.root.name);
 		}
 
-		protected override void OutOfRange (string name) {
-			if (!inRange.ContainsKey(name)) return;
+		protected override void OutOfRange (Entity destroyed) {
+			if (!inRange.ContainsKey(destroyed.name)) return;
 
-			EntityCache.TryGet(name, out Entity entityComp);
+			EventAgent targetBus = destroyed.Get<EventAgent>("eventAgent");
 
-			EventAgent targetBus = entityComp.Get<EventAgent>("eventAgent");
-
-			targetBus.RemoveListener<UnitDeathEvent>((_event) => OutOfRange(_event.Unit.GameObject.name));
+			targetBus.RemoveListener<EntityDestroyEvent>(OnEntityDestroy);
 			targetBus.RemoveListener<EntityVisibleCheckEvent>(OnOtherEntityVisibleEvent);
 
-			ISelectable toRemove = inRange[name];
+			ISelectable toRemove = inRange[destroyed.name];
 
-			if (detected.ContainsKey(name)) {
-				detected.Remove(name);
+			if (detected.ContainsKey(destroyed.name)) {
+				detected.Remove(destroyed.name);
 				bus.Local(new SensorUpdateEvent<ISelectable>(bus, toRemove, false));
 			}
 
-			inRange.Remove(name);
+			inRange.Remove(destroyed.name);
 		}
 	}
 }

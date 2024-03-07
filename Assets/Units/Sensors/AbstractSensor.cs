@@ -55,7 +55,7 @@ namespace MarsTS.Units {
 			bus = GetComponentInParent<EventAgent>();
 			parent = GetComponentInParent<ISelectable>();
 
-			foreach (Collider collider in parent.GameObject.transform.Find("Model").GetComponentsInChildren<Collider>()) {
+			foreach (Collider collider in transform.root.GetComponentsInChildren<Collider>()) {
 				Physics.IgnoreCollision(range, collider);
 			}
 
@@ -79,7 +79,7 @@ namespace MarsTS.Units {
 				&& entityComp.TryGet(out T target)) {
 				EventAgent targetBus = entityComp.Get<EventAgent>("eventAgent");
 
-				targetBus.AddListener<UnitDeathEvent>((_event) => OutOfRange(_event.Unit.GameObject.name));
+				targetBus.AddListener<EntityDestroyEvent>(OnEntityDestroy);
 
 				inRange[other.transform.root.name] = target;
 
@@ -93,8 +93,8 @@ namespace MarsTS.Units {
 		protected virtual void OnTriggerExit (Collider other) {
 			if (!initialized) return;
 
-			if (EntityCache.TryGet(other.transform.root.name, out T target)) {
-				OutOfRange(other.transform.root.name);
+			if (EntityCache.TryGet(other.transform.root.name, out Entity target)) {
+				OutOfRange(target);
 			}
 		}
 
@@ -112,8 +112,8 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected virtual void OnUnitDeath (UnitDeathEvent _event) {
-			OutOfRange(_event.Unit.GameObject.name);
+		protected virtual void OnEntityDestroy (EntityDestroyEvent _event) {
+			OutOfRange(_event.Entity);
 		}
 
 		public virtual bool IsDetected (string name) {
@@ -122,23 +122,21 @@ namespace MarsTS.Units {
 
 		public abstract bool IsDetected (T unit);
 
-		protected virtual void OutOfRange (string name) {
-			if (!inRange.ContainsKey(name)) return;
+		protected virtual void OutOfRange (Entity destroyed) {
+			if (!inRange.ContainsKey(destroyed.name)) return;
 
-			EntityCache.TryGet(name, out Entity entityComp);
+			EventAgent targetBus = destroyed.Get<EventAgent>("eventAgent");
 
-			EventAgent targetBus = entityComp.Get<EventAgent>("eventAgent");
+			targetBus.RemoveListener<EntityDestroyEvent>(OnEntityDestroy);
 
-			targetBus.RemoveListener<UnitDeathEvent>(OnUnitDeath);
+			T toRemove = inRange[destroyed.name];
 
-			T toRemove = inRange[name];
-
-			if (detected.ContainsKey(name)) {
-				detected.Remove(name);
+			if (detected.ContainsKey(destroyed.name)) {
+				detected.Remove(destroyed.name);
 				bus.Local(new SensorUpdateEvent<T>(bus, toRemove, false));
 			}
 			
-			inRange.Remove(name);
+			inRange.Remove(destroyed.name);
 		}
 	}
 }

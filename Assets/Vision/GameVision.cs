@@ -142,9 +142,9 @@ namespace MarsTS.Vision {
 
 				bus.Global(_event);
 
-				//_event.Phase = Phase.Post;
+				_event.Phase = Phase.Post;
 
-				//bus.Global(_event);
+				bus.Global(_event);
 			}
 		}
 

@@ -16,6 +16,7 @@ using static UnityEngine.GraphicsBuffer;
 using UnityEditor.PackageManager;
 using UnityEngine.ProBuilder;
 using static UnityEngine.UI.CanvasScaler;
+using MarsTS.Vision;
 
 namespace MarsTS.Units {
 
@@ -93,7 +94,14 @@ namespace MarsTS.Units {
 		[SerializeField]
 		protected GameObject selectionColliderPrefab;
 
+		[SerializeField]
+		protected GameObject dummyColliderPrefab;
+
 		protected EventAgent bus;
+
+		protected Vector3 squadAvgPos;
+
+		protected SquadVisionParser squadVisibility;
 
 		public int Health {
 			get {
@@ -123,6 +131,7 @@ namespace MarsTS.Units {
 			entityComponent = GetComponent<Entity>();
 			bus = GetComponent<EventAgent>();
 			commands = GetComponent<CommandQueue>();
+			squadVisibility = GetComponent<SquadVisionParser>();
 
 			foreach (InfantryMember unit in startingMembers) {
 				RegisterMember(unit);
@@ -135,9 +144,17 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void Update () {
+			transform.position = squadAvgPos;
+
+			squadAvgPos = Vector3.zero;
+
 			foreach (MemberEntry entry in members.Values) {
 				entry.selectionCollider.transform.position = entry.member.transform.position;
+				entry.detectableCollider.transform.position = entry.member.transform.position;
+				squadAvgPos += entry.member.transform.position;
 			}
+
+			squadAvgPos /= members.Count;
 		}
 
 		protected virtual void RegisterMember (InfantryMember unit) {
@@ -149,6 +166,8 @@ namespace MarsTS.Units {
 			unitEvents.AddListener<UnitHurtEvent>(OnMemberHurt);
 			unitEvents.AddListener<EntityInitEvent>(OnMemberInit);
 			unitEvents.AddListener<EntityVisibleEvent>(OnMemberVisionUpdate);
+
+			squadVisibility.RegisterMember(unit);
 		}
 
 		protected virtual void OnMemberInit (EntityInitEvent _event) {
@@ -156,11 +175,15 @@ namespace MarsTS.Units {
 			MemberEntry newEntry = new MemberEntry();
 
 			Transform newSelectionCollider = Instantiate(selectionColliderPrefab, transform).transform;
-			newSelectionCollider.position = _event.ParentEntity.gameObject.transform.position;
+			newSelectionCollider.position = _event.ParentEntity.transform.position;
 
-			newEntry.key = _event.ParentEntity.gameObject.name;
+			Transform dummyCollider = Instantiate(dummyColliderPrefab, transform).transform;
+			dummyCollider.position = _event.ParentEntity.transform.position;
+
+			newEntry.key = _event.ParentEntity.name;
 			newEntry.member = _event.ParentEntity.Get<InfantryMember>("selectable");
 			newEntry.selectionCollider = newSelectionCollider;
+			newEntry.detectableCollider = dummyCollider;
 			newEntry.bus = _event.Source;
 
 			members[newEntry.key] = newEntry;
@@ -176,16 +199,23 @@ namespace MarsTS.Units {
 			members.Remove(deadEntry.key);
 
 			Destroy(deadEntry.selectionCollider.gameObject);
+			Destroy(deadEntry.detectableCollider.gameObject);
 
 			if (members.Count <= 0) {
 				bus.Global(new UnitDeathEvent(bus, this));
 				Destroy(gameObject);
+			}
+			else {
+				foreach (MemberEntry entry in members.Values) {
+					entry.detectableCollider.transform.position = Vector3.down * 1000f;
+				}
 			}
 		}
 
 		private void OnMemberVisionUpdate (EntityVisibleEvent _event) {
 			if (members.TryGetValue(_event.UnitName, out MemberEntry entry)) {
 				entry.selectionCollider.gameObject.SetActive(_event.Visible);
+				//entry.detectableCollider.gameObject.SetActive(_event.Visible);
 			}
 		}
 
@@ -280,6 +310,7 @@ namespace MarsTS.Units {
 		public string key;
 		public InfantryMember member;
 		public Transform selectionCollider;
+		public Transform detectableCollider;
 		public EventAgent bus;
 	}
 }

@@ -67,7 +67,7 @@ namespace MarsTS.Vision {
 			}
 		}
 
-		private void OnVisionUpdate (VisionUpdateEvent _event) {
+		protected virtual void OnVisionUpdate (VisionUpdateEvent _event) {
 			if (_event.Phase == Phase.Pre) {
 				int visibility = GameVision.VisibleTo(gameObject);
 

@@ -32,14 +32,12 @@ namespace MarsTS.Commands {
 				Vector2 cursorPos = Player.MousePos;
 				Ray ray = Player.ViewPort.ScreenPointToRay(cursorPos);
 
-				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask) 
-					&& EntityCache.TryGet(hit.collider.transform.parent.name + ":selectable", out ISelectable unit)
-					&& unit is IAttackable target) {
-					Player.Main.DeliverCommand(Construct(target), Player.Include);
+				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.EntityMask) 
+					&& EntityCache.TryGet(hit.collider.transform.parent.name, out IAttackable unit)) {
+					Player.Main.DeliverCommand(Construct(unit), Player.Include);
 				}
 
-				Player.Input.Release("Select");
-				Player.UI.ResetCursor();
+				CancelSelection();
 			}
 		}
 

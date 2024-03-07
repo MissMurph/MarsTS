@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 8069000943633701444}
   - component: {fileID: 8069000943633701446}
   - component: {fileID: 5651113232441273719}
+  - component: {fileID: 7690480986813558171}
   m_Layer: 0
   m_Name: marinesquad
   m_TagString: Untagged
@@ -71,6 +72,8 @@ MonoBehaviour:
   - {fileID: 5876642139797191825}
   selectionColliderPrefab: {fileID: 9214751274111025718, guid: 72ffa4fa3b209e145b96035530e816d6,
     type: 3}
+  dummyColliderPrefab: {fileID: 8232080259298972479, guid: 768b1ff8a3ec9d0439b13efbf8c84b65,
+    type: 3}
 --- !u!114 &8069000943633701447
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -124,6 +127,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa50a09a2c869d444814da064d137434, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7690480986813558171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8069000943633701443}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf285caa1c9190b48b4302348763e1bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visionRange: 0
 --- !u!1001 &1849632758294720935
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -127,6 +127,8 @@ namespace MarsTS.Units {
 			} 
 		}
 
+		protected List<GameObject> dummysToDestroy = new List<GameObject>();
+
 		protected virtual void Awake () {
 			entityComponent = GetComponent<Entity>();
 			bus = GetComponent<EventAgent>();
@@ -199,16 +201,19 @@ namespace MarsTS.Units {
 			members.Remove(deadEntry.key);
 
 			Destroy(deadEntry.selectionCollider.gameObject);
-			Destroy(deadEntry.detectableCollider.gameObject);
+			deadEntry.detectableCollider.position = Vector3.down * 1000f;
+			dummysToDestroy.Add(deadEntry.detectableCollider.gameObject);
+
+
 
 			if (members.Count <= 0) {
 				bus.Global(new UnitDeathEvent(bus, this));
 				Destroy(gameObject);
 			}
 			else {
-				foreach (MemberEntry entry in members.Values) {
+				/*foreach (MemberEntry entry in members.Values) {
 					entry.detectableCollider.transform.position = Vector3.down * 1000f;
-				}
+				}*/
 			}
 		}
 

@@ -11,12 +11,12 @@ namespace MarsTS.Units {
 		[SerializeField]
 		protected int bonusDamage;
 
-		protected override void Fire () {
-			Vector3 direction = (target.GameObject.transform.position - transform.position).normalized;
+		protected override void Fire (Vector3 position) {
+			Vector3 direction = (position - transform.position).normalized;
 
 			Projectile bullet = Instantiate(projectile, barrel.transform.position, Quaternion.Euler(Vector3.zero)).GetComponent<Projectile>();
 
-			bullet.transform.LookAt(target.GameObject.transform.position);
+			bullet.transform.LookAt(position);
 
 			bullet.Init(parent, OnHit);
 

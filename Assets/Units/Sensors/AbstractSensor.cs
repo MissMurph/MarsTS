@@ -37,11 +37,25 @@ namespace MarsTS.Units {
 			}
 		}
 
+		public List<GameObject> InRangeColliders {
+			get {
+				List<GameObject> output = new List<GameObject>();
+
+				foreach (GameObject collider in colliders.Values) {
+					output.Add(collider);
+				}
+
+				return output;
+			}
+		}
+
 		protected SphereCollider range;
 
 		protected Dictionary<string, T> inRange = new Dictionary<string, T>();
 
 		protected Dictionary<string, T> detected = new Dictionary<string, T>();
+
+		protected Dictionary<string, GameObject> colliders = new Dictionary<string, GameObject>();
 
 		protected ISelectable parent;
 
@@ -82,6 +96,7 @@ namespace MarsTS.Units {
 				targetBus.AddListener<EntityDestroyEvent>(OnEntityDestroy);
 
 				inRange[other.transform.root.name] = target;
+				colliders[other.transform.root.name] = other.gameObject;
 
 				if (GameVision.IsVisible(other.transform.root.gameObject, parent.Owner.VisionMask)) {
 					detected[other.transform.root.name] = target;
@@ -137,6 +152,15 @@ namespace MarsTS.Units {
 			}
 			
 			inRange.Remove(destroyed.name);
+			colliders.Remove(destroyed.name);
+		}
+
+		public GameObject GetDetectedCollider (string key) {
+			if (colliders.TryGetValue(key, out GameObject collider)) {
+				return collider;
+			}
+
+			return null;
 		}
 	}
 }

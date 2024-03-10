@@ -2,6 +2,7 @@ using MarsTS.Commands;
 using MarsTS.Events;
 using MarsTS.Teams;
 using UnityEngine;
+using static UnityEngine.UI.CanvasScaler;
 
 namespace MarsTS.Units {
 
@@ -56,7 +57,7 @@ namespace MarsTS.Units {
 
 				foreach (IAttackable unit in sensor.Detected) {
 					if (unit.GetRelationship(parent.Owner) == Relationship.Hostile) {
-						float newDistance = Vector3.Distance(unit.GameObject.transform.position, transform.position);
+						float newDistance = Vector3.Distance(sensor.GetDetectedCollider(unit.GameObject.name).transform.position, transform.position);
 
 						if (newDistance < distance) {
 							currentClosest = unit;
@@ -68,22 +69,22 @@ namespace MarsTS.Units {
 			}
 
 			if (target != null && sensor.IsDetected(target) && currentCooldown <= 0) {
-				Fire();
+				Fire(sensor.GetDetectedCollider(target.GameObject.name).transform.position);
 			}
 		}
 
 		private void FixedUpdate () {
 			if (target != null && sensor.IsDetected(target)) {
-				barrel.transform.LookAt(target.GameObject.transform, Vector3.up);
+				barrel.transform.LookAt(sensor.GetDetectedCollider(target.GameObject.name).transform.position, Vector3.up);
 			}
 		}
 
-		protected virtual void Fire () {
-			Vector3 direction = (target.GameObject.transform.position - transform.position).normalized;
+		protected virtual void Fire (Vector3 position) {
+			Vector3 direction = (position - transform.position).normalized;
 
 			Projectile bullet = Instantiate(projectile, barrel.transform.position, Quaternion.Euler(Vector3.zero)).GetComponent<Projectile>();
 
-			bullet.transform.LookAt(target.GameObject.transform.position);
+			bullet.transform.LookAt(position);
 
 			bullet.Init(parent, (success, unit) => { if (success) unit.Attack(damage); });
 

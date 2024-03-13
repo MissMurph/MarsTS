@@ -1101,6 +1101,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 877395198076713563}
+  - component: {fileID: 2108699871225555271}
   - component: {fileID: 6880396740299351880}
   - component: {fileID: 2231832128873410652}
   - component: {fileID: 4257794674411325755}
@@ -1126,6 +1127,19 @@ Transform:
   m_Father: {fileID: 4002054096274699912}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2108699871225555271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5640820679163534342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8966469e6d6aa834596512a8de4d1143, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  researchKey: thermalVision
 --- !u!54 &6880396740299351880
 Rigidbody:
   m_ObjectHideFlags: 0

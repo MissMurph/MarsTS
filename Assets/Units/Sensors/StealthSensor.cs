@@ -9,8 +9,10 @@ namespace MarsTS.Vision {
 
     public class StealthSensor : AbstractSensor<ISelectable> {
 
+		public bool Detecting { get; set; }
+
 		protected virtual void OnOtherEntityVisibleEvent (EntityVisibleCheckEvent _event) {
-			if (_event.Phase == Phase.Pre) return;
+			if (!Detecting || _event.Phase == Phase.Pre) return;
 
 			_event.VisibleTo |= parent.Owner.VisionMask;
 		}

@@ -73,6 +73,15 @@ namespace MarsTS.Events {
 			else throw new ArgumentException("Agent " + agentID + " not registered with Event Bus, cannot Subscribe to local events!");
 		}
 
+		public static void RemoveListener<T> (UnityAction<T> func) where T : AbstractEvent {
+			if (instance.globalListeners.TryGetValue(typeof(T), out UnityEventBase _event)) {
+				UnityEvent<T> deserialized = _event as UnityEvent<T>;
+
+				deserialized.RemoveListener(func);
+				return;
+			}
+		}
+
 		public static int RegisterAgent (EventAgent source) {
 			if (source.ID != 0) throw new ArgumentException("Agent " + source.ID + " already registered with Event Bus " + instance.name);
 

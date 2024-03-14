@@ -131,7 +131,7 @@ namespace MarsTS.Buildings {
 			commands = GetComponent<CommandQueue>();
 			production = GetComponent<ProductionQueue>();
 
-			healthPerConstructionPoint = MaxHealth / constructionWork;
+			healthPerConstructionPoint = Mathf.RoundToInt((float)MaxHealth / constructionWork);
 
 			model = transform.Find("Model");
 
@@ -290,6 +290,8 @@ namespace MarsTS.Buildings {
 				float progress = (float)currentWork / constructionWork;
 
 				Health += healthPerConstructionPoint;
+
+				Health = Mathf.Clamp(Health, 0, MaxHealth);
 
 				model.localScale = Vector3.one * progress;
 

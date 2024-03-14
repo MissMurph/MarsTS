@@ -86,8 +86,14 @@ namespace MarsTS.Units {
 			depositCooldown = 1f / depositRate;
 			depositAmount = Mathf.RoundToInt(depositRate * depositCooldown);
 			currentDepositCooldown = depositCooldown;
+		}
+
+		protected override void OnEntityInit (EntityInitEvent _event) {
+			if (_event.Phase == Phase.Post) return;
 
 			roughneckSquad = squad as RoughneckSquad;
+
+			base.OnEntityInit(_event);
 		}
 
 		protected override void Update () {
@@ -317,7 +323,7 @@ namespace MarsTS.Units {
 		}
 
 		private void HarvestCancelled (CommandCompleteEvent _event) {
-			if (_event.Command is Commandlet<IHarvestable> deserialized && _event.CommandCancelled) {
+			if (_event.Command is Commandlet<IHarvestable> deserialized) {
 				bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);

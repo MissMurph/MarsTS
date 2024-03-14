@@ -211,9 +211,9 @@ namespace MarsTS.Units {
 				Destroy(gameObject);
 			}
 			else {
-				/*foreach (MemberEntry entry in members.Values) {
+				foreach (MemberEntry entry in members.Values) {
 					entry.detectableCollider.transform.position = Vector3.down * 1000f;
-				}*/
+				}
 			}
 		}
 

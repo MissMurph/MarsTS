@@ -314,7 +314,7 @@ GameObject:
   - component: {fileID: 669137645337638381}
   m_Layer: 0
   m_Name: mobile_artillery
-  m_TagString: Unit
+  m_TagString: Vehicle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

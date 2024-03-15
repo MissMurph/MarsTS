@@ -17,6 +17,7 @@ namespace MarsTS.Buildings {
         private Dictionary<string, Landmine> childMines;
 		private Dictionary<string, Collider> entityColliders;
 		private Dictionary<string, Transform> selectionColliders;
+		private Dictionary<string, Transform> detectableColliders;
 
 		private int collectiveMaxHealth;
 
@@ -25,6 +26,9 @@ namespace MarsTS.Buildings {
 
 		[SerializeField]
 		private GameObject selectionColliderPrefab;
+
+		[SerializeField]
+		private GameObject dummyColliderPrefab;
 
 		public override int MaxHealth { get { return collectiveMaxHealth; } }
 
@@ -53,11 +57,10 @@ namespace MarsTS.Buildings {
 			bus = GetComponent<EventAgent>();
 			entityComponent = GetComponent<Entity>();
 
-			
-
 			childMines = new Dictionary<string, Landmine>();
 			entityColliders = new Dictionary<string, Collider>();
 			selectionColliders = new Dictionary<string, Transform>();
+			detectableColliders = new Dictionary<string, Transform>();
 
 			Landmine[] foundChildren = GetComponentsInChildren<Landmine>();
 
@@ -103,9 +106,11 @@ namespace MarsTS.Buildings {
 
 			Collider newEntityCollider = Instantiate(entityColliderPrefab, _event.ParentEntity.gameObject.transform.position, _event.ParentEntity.gameObject.transform.rotation, transform).GetComponent<Collider>();
 			Transform newSelectionCollider = Instantiate(selectionColliderPrefab, _event.ParentEntity.gameObject.transform.position, _event.ParentEntity.gameObject.transform.rotation, transform).transform;
+			Transform newDummyCollider = Instantiate(dummyColliderPrefab, _event.ParentEntity.gameObject.transform.position, _event.ParentEntity.gameObject.transform.rotation, transform).transform;
 
 			entityColliders[_event.ParentEntity.gameObject.name] = newEntityCollider;
 			selectionColliders[_event.ParentEntity.gameObject.name] = newSelectionCollider;
+			detectableColliders[_event.ParentEntity.gameObject.name] = newDummyCollider;
 
 			if (currentWork >= constructionWork) {
 				newEntityCollider.isTrigger = true;

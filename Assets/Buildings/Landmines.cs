@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem.HID;
+using static UnityEngine.UI.CanvasScaler;
 
 namespace MarsTS.Buildings {
 
@@ -49,6 +50,7 @@ namespace MarsTS.Buildings {
 			}
 		}
 
+		//private List<GameObject> dummysToDestroy = new List<GameObject>();
 
 		protected override void Awake () {
 			Health = 0;
@@ -73,10 +75,10 @@ namespace MarsTS.Buildings {
 			}
 		}
 
-		protected override void Start () {
-			base.Start();
-
-			
+		private void LateUpdate () {
+			foreach (KeyValuePair<string, Transform> dummy in detectableColliders) {
+				dummy.Value.position = childMines[dummy.Key].transform.position;
+			}
 		}
 
 		private void RegisterMine (Landmine child) {
@@ -95,6 +97,8 @@ namespace MarsTS.Buildings {
 				Health = maxHealth * (int)(currentWork / constructionWork);
 			}
 			else model.localScale = Vector3.zero;
+
+			bus.Local(new SquadRegisterEvent(bus, this, child));
 		}
 
 		private void OnChildInit (EntityInitEvent _event) {
@@ -126,12 +130,19 @@ namespace MarsTS.Buildings {
 			childMines.Remove(key);
 
 			Destroy(selectionColliders[key].gameObject);
+			detectableColliders[key].position = Vector3.down * 1000f;
 
 			selectionColliders.Remove(key);
+			detectableColliders.Remove(key);
 
 			if (childMines.Count <= 0) {
 				bus.Global(new UnitDeathEvent(bus, this));
 				Destroy(gameObject);
+			}
+			else {
+				foreach (Transform dummy in detectableColliders.Values) {
+					dummy.position = Vector3.down * 1000f;
+				}
 			}
 		}
 

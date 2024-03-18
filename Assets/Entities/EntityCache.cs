@@ -73,6 +73,11 @@ namespace MarsTS.Entities {
 		//name:instanceID:componentKey
 		//tank:236:unit
 		public static bool TryGet<T> (string name, out T output) {
+			if (instance == null) {
+				output = default(T);
+				return false;
+			}
+
 			string[] split = name.Split(':');
 
 			if (!(split.Length > 1)) {

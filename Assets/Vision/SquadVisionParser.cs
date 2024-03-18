@@ -1,3 +1,4 @@
+using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Units;
 using System.Collections;
@@ -12,12 +13,18 @@ namespace MarsTS.Vision {
 
 		private Dictionary<string, EntityVision> squadVision = new Dictionary<string, EntityVision>();
 
+		protected override void Awake () {
+			base.Awake();
+
+			bus.AddListener<SquadRegisterEvent>(OnMemberRegister);
+		}
+
 		protected override void Start () {
 			EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
 		}
 
-		public void RegisterMember (InfantryMember member) {
-			EventAgent unitEvents = member.GetComponent<EventAgent>();
+		public void OnMemberRegister (SquadRegisterEvent _event) {
+			EventAgent unitEvents = _event.RegisteredMember.GameObject.GetComponent<EventAgent>();
 			unitEvents.AddListener<UnitDeathEvent>(OnMemberDeath);
 			unitEvents.AddListener<EntityInitEvent>(OnMemberInit);
 		}

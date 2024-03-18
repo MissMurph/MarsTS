@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.Vision {
+namespace MarsTS.Units {
 
     public class StealthSensor : AbstractSensor<ISelectable> {
 
@@ -28,11 +28,6 @@ namespace MarsTS.Vision {
 				targetBus.AddListener<EntityVisibleCheckEvent>(OnOtherEntityVisibleEvent);
 
 				inRange[other.transform.root.name] = target;
-
-				/*if (GameVision.IsVisible(other.transform.root.gameObject, parent.Owner.VisionMask)) {
-					detected[other.transform.root.name] = target;
-					bus.Local(new SensorUpdateEvent<ISelectable>(bus, target, true));
-				}*/
 			}
 		}
 
@@ -40,22 +35,22 @@ namespace MarsTS.Vision {
 			return IsDetected(unit.GameObject.transform.root.name);
 		}
 
-		protected override void OutOfRange (Entity destroyed) {
-			if (!inRange.ContainsKey(destroyed.name)) return;
+		protected override void OutOfRange (string key) {
+			if (!inRange.ContainsKey(key)) return;
 
-			EventAgent targetBus = destroyed.Get<EventAgent>("eventAgent");
+			EntityCache.TryGet(key, out EventAgent targetBus);
 
 			targetBus.RemoveListener<EntityDestroyEvent>(OnEntityDestroy);
 			targetBus.RemoveListener<EntityVisibleCheckEvent>(OnOtherEntityVisibleEvent);
 
-			ISelectable toRemove = inRange[destroyed.name];
+			ISelectable toRemove = inRange[key];
 
-			if (detected.ContainsKey(destroyed.name)) {
-				detected.Remove(destroyed.name);
+			if (detected.ContainsKey(key)) {
+				detected.Remove(key);
 				bus.Local(new SensorUpdateEvent<ISelectable>(bus, toRemove, false));
 			}
 
-			inRange.Remove(destroyed.name);
+			inRange.Remove(key);
 		}
 	}
 }

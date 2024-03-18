@@ -127,7 +127,7 @@ namespace MarsTS.Units {
 			} 
 		}
 
-		protected List<GameObject> dummysToDestroy = new List<GameObject>();
+		//protected List<GameObject> dummysToDestroy = new List<GameObject>();
 
 		protected virtual void Awake () {
 			entityComponent = GetComponent<Entity>();
@@ -169,7 +169,7 @@ namespace MarsTS.Units {
 			unitEvents.AddListener<EntityInitEvent>(OnMemberInit);
 			unitEvents.AddListener<EntityVisibleEvent>(OnMemberVisionUpdate);
 
-			squadVisibility.RegisterMember(unit);
+			bus.Local(new SquadRegisterEvent(bus, this, unit));
 		}
 
 		protected virtual void OnMemberInit (EntityInitEvent _event) {
@@ -202,7 +202,7 @@ namespace MarsTS.Units {
 
 			Destroy(deadEntry.selectionCollider.gameObject);
 			deadEntry.detectableCollider.position = Vector3.down * 1000f;
-			dummysToDestroy.Add(deadEntry.detectableCollider.gameObject);
+			//dummysToDestroy.Add(deadEntry.detectableCollider.gameObject);
 
 
 

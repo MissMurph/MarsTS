@@ -503,7 +503,8 @@ MonoBehaviour:
   - {fileID: 4205034278657575528}
   - {fileID: 4205034279205641941}
   - {fileID: 3678981151888939876}
-  - {fileID: 0}
+  - {fileID: 927940549579293319}
+  - {fileID: 3435736271746223417}
   rallyCommands: []
   queueInfo: {fileID: 0}
 --- !u!114 &4205034278533087314
@@ -986,6 +987,12 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 879353327169486773}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &3435736271746223417 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2565425467006218892, guid: d85bb61c56b6e1c40b2f9c82c2b9b261,
+    type: 3}
+  m_PrefabInstance: {fileID: 879353327169486773}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4656465101009625782
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1065,6 +1072,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 25e6df0840ee3434eb5d4dcf622276e2, type: 3}
+--- !u!1 &927940549579293319 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5512304058434871345, guid: 25e6df0840ee3434eb5d4dcf622276e2,
+    type: 3}
+  m_PrefabInstance: {fileID: 4656465101009625782}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6481899241186523017 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1831631696989345087, guid: 25e6df0840ee3434eb5d4dcf622276e2,

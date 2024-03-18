@@ -296,9 +296,10 @@ MonoBehaviour:
   waypointCompletionDistance: 1.5
   hideables:
   - {fileID: 8131615845077966110}
-  - {fileID: 0}
+  - {fileID: 7174380211335698083}
   - {fileID: 1650932915938315928}
   - {fileID: 5265135628690425364}
+  - {fileID: 8701507854193979955}
   baseSpeed: 4
   currentSpeed: 0
   sneakSpeed: 4
@@ -1297,6 +1298,12 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 3454023005698913938}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &7174380211335698083 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5512304058434871345, guid: 25e6df0840ee3434eb5d4dcf622276e2,
+    type: 3}
+  m_PrefabInstance: {fileID: 3454023005698913938}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6583083518268899519
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1379,6 +1386,12 @@ PrefabInstance:
 --- !u!4 &5234437469790134864 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1441075677451281135, guid: d85bb61c56b6e1c40b2f9c82c2b9b261,
+    type: 3}
+  m_PrefabInstance: {fileID: 6583083518268899519}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8701507854193979955 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2565425467006218892, guid: d85bb61c56b6e1c40b2f9c82c2b9b261,
     type: 3}
   m_PrefabInstance: {fileID: 6583083518268899519}
   m_PrefabAsset: {fileID: 0}

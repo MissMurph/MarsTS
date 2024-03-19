@@ -12,6 +12,7 @@ using UnityEngine;
 using MarsTS.UI;
 using MarsTS.Vision;
 using System.Linq;
+using MarsTS.Research;
 
 namespace MarsTS.Buildings {
 
@@ -21,12 +22,12 @@ namespace MarsTS.Buildings {
 
 		/*	IAttackable Properties	*/
 
-		public int Health { get; protected set; }
+		public virtual int Health { get; protected set; }
 
-		public int MaxHealth { get { return maxHealth; } }
+		public virtual int MaxHealth { get { return maxHealth; } }
 
 		[SerializeField]
-		private int maxHealth;
+		protected int maxHealth;
 
 		/*	ISelectable Properties	*/
 
@@ -61,9 +62,17 @@ namespace MarsTS.Buildings {
 
 		public Commandlet[] CommandQueue { get { return production.Queue; } }
 
-		public List<string> Active { get { return commands.Active; } }
+		public List<string> Active { 
+			get { 
+				return commands != null ? commands.Active : new(); 
+			} 
+		}
 
-		public List<Cooldown> Cooldowns { get { return commands.Cooldowns; } }
+		public List<Timer> Cooldowns { 
+			get { 
+				return commands != null ? commands.Cooldowns : new(); 
+			} 
+		}
 
 		public int Count { get { return production.Count; } }
 
@@ -72,19 +81,17 @@ namespace MarsTS.Buildings {
 		protected ProductionQueue production;
 
 		[SerializeField]
-		private string[] boundCommands;
+		protected string[] boundCommands;
 
 		/*	Building Fields	*/
-
-		private GameObject selectionCircle;
 
 		[Header("Construction")]
 
 		[SerializeField]
-		private int constructionWork;
+		protected int constructionWork;
 
 		[SerializeField]
-		private int currentWork;
+		protected int currentWork;
 
 		[SerializeField]
 		private GameObject ghost;
@@ -102,28 +109,29 @@ namespace MarsTS.Buildings {
 
 		public CostEntry[] ConstructionCost { get { return constructionCost; } }
 
+		protected int healthPerConstructionPoint;
+
 		/*	Upgrades	*/
 
 		public string RegistryType => "building";
 
-		private Entity entityComponent;
+		protected Entity entityComponent;
 
 		protected EventAgent bus;
 
 		protected Transform model;
 
 		[SerializeField]
-		private GameObject[] visionObjects;
+		protected GameObject[] visionObjects;
 
 		protected virtual void Awake () {
-			selectionCircle = transform.Find("SelectionCircle").gameObject;
-			selectionCircle.SetActive(false);
-			Health = 1;
+			Health = 0;
+			bus = GetComponent<EventAgent>();
+			entityComponent = GetComponent<Entity>();
 			commands = GetComponent<CommandQueue>();
 			production = GetComponent<ProductionQueue>();
 
-			bus = GetComponent<EventAgent>();
-			entityComponent = GetComponent<Entity>();
+			healthPerConstructionPoint = Mathf.RoundToInt((float)MaxHealth / constructionWork);
 
 			model = transform.Find("Model");
 
@@ -135,26 +143,18 @@ namespace MarsTS.Buildings {
 		}
 
 		protected virtual void Start () {
-			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
+			//selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 
 			bus.AddListener<CommandStartEvent>(ExecuteOrder);
 			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
 
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
-			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
-		}
-
-		private void OnVisionInit (VisionInitEvent _event) {
-			bool visible = GameVision.IsVisible(gameObject);
-
-			foreach (GameObject hideable in visionObjects) {
-				hideable.SetActive(visible);
-			}
+			EventBus.AddListener<ResearchCompleteEvent>(OnGlobalResearchComplete) ;
 		}
 
 		protected virtual void CancelConstruction () {
 			if (!Constructed) {
-				bus.Global(new EntityDeathEvent(bus, this));
+				bus.Global(new UnitDeathEvent(bus, this));
 
 				foreach (CostEntry materialCost in ConstructionCost) {
 					Player.Main.Resource(materialCost.key).Deposit(materialCost.amount);
@@ -185,6 +185,35 @@ namespace MarsTS.Buildings {
 			bus.Global(new ProductionCompleteEvent(bus, product, this, production, order));
 		}
 
+		protected virtual void Research (Commandlet order) {
+			bus.AddListener<CommandCompleteEvent>(ResearchComplete);
+		}
+
+		protected virtual void ResearchComplete (CommandCompleteEvent _event) {
+			bus.RemoveListener<CommandCompleteEvent>(ResearchComplete);
+
+			IProducable order = _event.Command as IProducable;
+			Technology product = Instantiate(order.Product, owner.transform, false).GetComponent<Technology>();
+			Player.SubmitResearch(product);
+
+			for (int i = 0; i < boundCommands.Length; i++) {
+				if (boundCommands[i] == _event.Command.Command.Name) {
+					boundCommands[i] = "";
+					bus.Global(new CommandsUpdatedEvent(bus, this, Commands()));
+					break;
+				}
+			}
+
+			bus.Global(new ResearchCompleteEvent(bus, product, this, production, order));
+			bus.Global(new ProductionCompleteEvent(bus, product.gameObject, this, production, order));
+		}
+
+		protected virtual void OnGlobalResearchComplete (ResearchCompleteEvent _event) {
+			for (int i = 0; i < boundCommands.Length; i++) {
+				if (_event.CurrentProduction.Get().Command.Name == boundCommands[i]) boundCommands[i] = "";
+			}
+		}
+
 		public string[] Commands () {
 			if (!Constructed) {
 				return new string[] { "cancelConstruction" };
@@ -202,6 +231,9 @@ namespace MarsTS.Buildings {
 				case "cancelConstruction":
 					CancelConstruction();
 					return;
+				case "research":
+					production.Enqueue(order);
+					return;
 				default:
 					return;
 			}
@@ -211,6 +243,9 @@ namespace MarsTS.Buildings {
 			switch (_event.Command.Name) {
 				case "upgrade":
 					Upgrade(_event.Command);
+					break;
+				case "research":
+					Research(_event.Command);
 					break;
 				default:
 					break;
@@ -226,12 +261,12 @@ namespace MarsTS.Buildings {
 			return result;
 		}
 
-		public void Select (bool status) {
+		public virtual void Select (bool status) {
 			//selectionCircle.SetActive(status);
 			bus.Local(new UnitSelectEvent(bus, status));
 		}
 
-		public void Hover (bool status) {
+		public virtual void Hover (bool status) {
 			//These are seperated due to the Player Selection Check
 			if (status) {
 				//selectionCircle.SetActive(true);
@@ -248,11 +283,15 @@ namespace MarsTS.Buildings {
 			return true;
 		}
 
-		public void Attack (int damage) {
+		public virtual void Attack (int damage) {
 			if (currentWork < constructionWork && damage < 0) {
 				currentWork -= damage;
+
 				float progress = (float)currentWork / constructionWork;
-				Health = (int)(maxHealth * progress);
+
+				Health += healthPerConstructionPoint;
+
+				Health = Mathf.Clamp(Health, 0, MaxHealth);
 
 				model.localScale = Vector3.one * progress;
 
@@ -262,12 +301,13 @@ namespace MarsTS.Buildings {
 				return;
 			}
 
+			if (Health <= 0) return;
 			if (damage < 0 && Health >= maxHealth) return;
 			Health -= damage;
 			bus.Global(new UnitHurtEvent(bus, this));
 
 			if (Health <= 0) {
-				bus.Global(new EntityDeathEvent(bus, this));
+				bus.Global(new UnitDeathEvent(bus, this));
 				Destroy(gameObject, 0.1f);
 			}
 		}

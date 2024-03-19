@@ -79,6 +79,10 @@ namespace MarsTS.Commands {
 
 		}
 
+		public virtual void OnUpdate (CommandQueue queue) {
+
+		}
+
 		public virtual bool CanInterrupt () {
 			return true;
 		}

@@ -65,7 +65,7 @@ namespace MarsTS.Units {
 
 		public List<string> Active { get { return commands.Active; } }
 
-		public List<Cooldown> Cooldowns { get { return commands.Cooldowns; } }
+		public List<Timer> Cooldowns { get { return commands.Cooldowns; } }
 
 		public int Count { get { return commands.Count; } }
 
@@ -87,7 +87,7 @@ namespace MarsTS.Units {
 			set {
 				if (target != null) {
 					EntityCache.TryGet(target.gameObject.name + ":eventAgent", out EventAgent oldAgent);
-					oldAgent.RemoveListener<EntityDeathEvent>((_event) => TrackedTarget = null);
+					oldAgent.RemoveListener<UnitDeathEvent>((_event) => TrackedTarget = null);
 				}
 
 				target = value;
@@ -95,7 +95,7 @@ namespace MarsTS.Units {
 				if (value != null) {
 					EntityCache.TryGet(value.gameObject.name + ":eventAgent", out EventAgent agent);
 
-					agent.AddListener<EntityDeathEvent>((_event) => TrackedTarget = null);
+					agent.AddListener<UnitDeathEvent>((_event) => TrackedTarget = null);
 
 					SetTarget(value);
 				}
@@ -133,27 +133,20 @@ namespace MarsTS.Units {
 			bus = GetComponent<EventAgent>();
 			commands = GetComponent<CommandQueue>();
 
-			currentHealth = maxHealth;
+			if (currentHealth <= 0) {
+				currentHealth = maxHealth;
+			}
 		}
 
 		protected virtual void Start () {
 			StartCoroutine(UpdatePath());
 
-			transform.Find("SelectionCircle").GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
+			//transform.Find("SelectionCircle").GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 
 			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
 			bus.AddListener<CommandStartEvent>(ExecuteOrder);
 
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
-			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
-		}
-
-		private void OnVisionInit (VisionInitEvent _event) {
-			bool visible = GameVision.IsVisible(gameObject);
-
-			foreach (GameObject hideable in hideables) {
-				hideable.SetActive(visible);
-			}
 		}
 
 		protected virtual void Update () {
@@ -316,11 +309,12 @@ namespace MarsTS.Units {
 		}
 
 		public void Attack (int damage) {
+			if (Health <= 0) return;
 			if (damage < 0 && currentHealth >= maxHealth) return;
 			currentHealth -= damage;
 
 			if (currentHealth <= 0) {
-				bus.Global(new EntityDeathEvent(bus, this));
+				bus.Global(new UnitDeathEvent(bus, this));
 				Destroy(gameObject);
 			}
 			else bus.Global(new UnitHurtEvent(bus, this));

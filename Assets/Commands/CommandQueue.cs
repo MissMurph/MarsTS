@@ -15,11 +15,11 @@ namespace MarsTS.Commands {
         protected Queue<Commandlet> commandQueue;
 
         public List<string> Active { get { return activeCommands.Keys.ToList();  } }
-        protected Dictionary<string, Commandlet> activeCommands;
+		protected Dictionary<string, Commandlet> activeCommands;
 
-		public List<Cooldown> Cooldowns { get { return activeCooldowns.Values.ToList(); } }
-		protected Dictionary<string, Cooldown> activeCooldowns;
-		protected List<Cooldown> completedCooldowns;
+		public List<Timer> Cooldowns { get { return activeCooldowns.Values.ToList(); } }
+		protected Dictionary<string, Timer> activeCooldowns;
+		protected List<Timer> completedCooldowns;
 
 		public int Count { get { return Current is not null ? 1 + commandQueue.Count : 0; } }
 
@@ -33,9 +33,11 @@ namespace MarsTS.Commands {
 			bus = GetComponent<EventAgent>();
 
 			commandQueue = new Queue<Commandlet>();
+
 			activeCommands = new Dictionary<string, Commandlet>();
-			activeCooldowns = new Dictionary<string, Cooldown>();
-			completedCooldowns = new List<Cooldown>();
+
+			activeCooldowns = new Dictionary<string, Timer>();
+			completedCooldowns = new List<Timer>();
 		}
 
 		protected virtual void Update () {
@@ -58,17 +60,24 @@ namespace MarsTS.Commands {
 				}
 			}
 
-			foreach (Cooldown timer in activeCooldowns.Values) {
-				timer.timeRemaining -= Time.deltaTime;
+			foreach (Timer cooldown in activeCooldowns.Values) {
+				cooldown.timeRemaining -= Time.deltaTime;
 
-				if (timer.timeRemaining <= 0) completedCooldowns.Add(timer);
+				if (cooldown.timeRemaining <= 0) {
+					completedCooldowns.Add(cooldown);
+					continue;
+				}
 
-				bus.Global(new CooldownEvent(bus, timer.commandName, parent, timer));
+				bus.Global(new CooldownEvent(bus, cooldown.commandName, parent, cooldown));
 			}
 
-			foreach (Cooldown toRemove in completedCooldowns) {
-				activeCooldowns.Remove(toRemove.commandName);
-				bus.Global(new CooldownEvent(bus, toRemove.commandName, parent, toRemove));
+			foreach (Timer expiredCooldown in completedCooldowns) {
+				activeCooldowns.Remove(expiredCooldown.commandName);
+				bus.Global(new CooldownEvent(bus, expiredCooldown.commandName, parent, expiredCooldown));
+			}
+
+			foreach (Commandlet active in activeCommands.Values.ToArray()) {
+				active.OnUpdate(this);
 			}
 
 			completedCooldowns = new();
@@ -119,11 +128,12 @@ namespace MarsTS.Commands {
 				CommandActiveEvent _event = new CommandActiveEvent(bus, parent, toDeactivate, false);
 				toDeactivate.OnActivate(this, _event);
 				activeCommands.Remove(toDeactivate.Name);
+				bus.Global(_event);
 			}
 		}
 
 		public virtual void Cooldown (Commandlet order, float time) {
-			activeCooldowns[order.Name] = new Cooldown { commandName = order.Name, duration = time, timeRemaining = time };
+			activeCooldowns[order.Name] = new Timer { commandName = order.Name, duration = time, timeRemaining = time };
 		}
 
 		public virtual void Clear () {
@@ -146,7 +156,7 @@ namespace MarsTS.Commands {
 		}
 	}
 
-	public class Cooldown {
+	public class Timer {
 		public string commandName;
 		public float duration;
 		public float timeRemaining;

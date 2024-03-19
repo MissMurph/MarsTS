@@ -25,7 +25,7 @@ namespace MarsTS.Vision {
 
 		public int Range { get { return visionRange; } }
 
-		public int VisibleTo { get { return visibleTo; } }
+		public int VisibleTo { get { return visibleTo; } set { visibleTo = value; } }
 
 		[SerializeField]
 		private int visionRange;
@@ -49,10 +49,17 @@ namespace MarsTS.Vision {
 
 		protected virtual void Start () {
 			EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
+			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
+		}
+
+		private void OnVisionInit (VisionInitEvent _event) {
+			visibleTo = GameVision.VisibleTo(gameObject);
+
+			bus.Global(new EntityVisibleEvent(bus, parent, GameVision.IsVisible(gameObject)));
 		}
 
 		private void OnEntityInit (EntityInitEvent _event) {
-			if (_event.Phase == Phase.Pre) {
+			if (_event.Phase == Phase.Post) {
 				GameVision.Register(gameObject.name, this);
 
 				parent = _event.ParentEntity.Get<ISelectable>("selectable");
@@ -61,9 +68,38 @@ namespace MarsTS.Vision {
 		}
 
 		protected virtual void OnVisionUpdate (VisionUpdateEvent _event) {
-			visibleTo = GameVision.VisibleTo(gameObject);
+			if (_event.Phase == Phase.Pre) {
+				int visibility = GameVision.VisibleTo(gameObject);
 
-			bus.Global(new EntityVisibleEvent(bus, parent, GameVision.IsVisible(gameObject)));
+				EntityVisibleCheckEvent checkEvent = new EntityVisibleCheckEvent(bus, parent, visibility);
+				checkEvent.Phase = Phase.Pre;
+
+				//Here local components can intercept the visibility status and change it before it's applied
+				bus.Global(checkEvent);
+				
+				checkEvent.Phase = Phase.Post;
+
+				//Here global objects can intercept the visibilty status and modify it further
+				bus.Global(checkEvent);
+
+				visibleTo = checkEvent.VisibleTo;
+
+				UpdateEntityVisibility();
+			}
+		}
+
+		private void UpdateEntityVisibility () {
+			EntityVisibleEvent entityEvent = new EntityVisibleEvent(bus, parent, GameVision.IsVisible(gameObject));
+
+			entityEvent.Phase = Phase.Pre;
+
+			//Posting here allows other components to modify the units visibility
+			bus.Global(entityEvent);
+
+			entityEvent.Phase = Phase.Post;
+
+			//Posting here is where the entity updates all its objects
+			bus.Global(entityEvent);
 		}
 
 		private void OnOwnerChange (UnitOwnerChangeEvent _event) {

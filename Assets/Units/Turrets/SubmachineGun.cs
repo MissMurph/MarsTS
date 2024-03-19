@@ -43,7 +43,7 @@ namespace MarsTS.Units {
 
 				foreach (IAttackable unit in sensor.Detected) {
 					if (unit.GetRelationship(parent.Owner) == Relationship.Hostile) {
-						float newDistance = Vector3.Distance(unit.GameObject.transform.position, transform.position);
+						float newDistance = Vector3.Distance(sensor.GetDetectedCollider(unit.GameObject.name).transform.position, transform.position);
 
 						if (newDistance < distance) {
 							currentClosest = unit;
@@ -54,7 +54,7 @@ namespace MarsTS.Units {
 			}
 
 			if (!isSneaking && target != null && sensor.IsDetected(target) && currentBurstCooldown <= 0 && currentCooldown <= 0) {
-				Fire();
+				Fire(sensor.GetDetectedCollider(target.GameObject.name).transform.position);
 				firedCount++;
 
 				if (firedCount >= burstCount) {

@@ -33,7 +33,7 @@ namespace MarsTS.UI {
 		private void OnSneak (SneakEvent _event) {
 			isSneaking = _event.IsSneaking;
 
-			SetRendering(true);
+			SetRendering(isSneaking);
 		}
 
 		private void OnSelect (UnitSelectEvent _event) {

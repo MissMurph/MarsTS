@@ -38,8 +38,7 @@ namespace MarsTS.Commands {
 					Player.Main.DeliverCommand(Construct(hit.point), Player.Include);
 				}
 
-				Player.Input.Release("Select");
-				Player.UI.ResetCursor();
+				CancelSelection();
 			}
 		}
 
@@ -52,6 +51,7 @@ namespace MarsTS.Commands {
 
 		public override void CancelSelection () {
 			Player.Input.Release("Select");
+			Player.Input.Release("Order");
 			Player.UI.ResetCursor();
 		}
 	}

@@ -107,7 +107,8 @@ namespace MarsTS.Vision {
 
 			currentMask = Player.Main.VisionMask;
 
-			EventBus.AddListener<EntityDeathEvent>(OnEntityDeath);
+			//EventBus.AddListener<UnitDeathEvent>(OnUnitDeath);
+			EventBus.AddListener<EntityDestroyEvent>(OnEntityDestroyed);
 
 			ThreadStart workerThread = delegate { ProcessUpdate(); };
 
@@ -135,7 +136,15 @@ namespace MarsTS.Vision {
 					return;
 				}
 
-				bus.Global(new VisionUpdateEvent(bus));
+				VisionUpdateEvent _event = new VisionUpdateEvent(bus);
+
+				_event.Phase = Phase.Pre;
+
+				bus.Global(_event);
+
+				_event.Phase = Phase.Post;
+
+				bus.Global(_event);
 			}
 		}
 
@@ -154,6 +163,7 @@ namespace MarsTS.Vision {
 				List<VisionEntry> sources = new List<VisionEntry>();
 
 				foreach (EntityVision vision in registeredVision.Values) {
+					if (vision.Range <= 0) continue;
 					sources.Add(vision.Collect());
 				}
 
@@ -294,6 +304,11 @@ namespace MarsTS.Vision {
 			return (Nodes[x, y] & currentMask) > 0;
 		}
 
+		public static bool IsVisible (Vector3 pos, int players) {
+			Vector2Int coords = GetGridPosFromWorldPos(pos);
+			return instance.IsVisible(coords.x, coords.y, players);
+		}
+
 		public static bool IsVisible (GameObject _object) {
 			//Vector2Int pos = GetGridPosFromWorldPos(_object.transform.position);
 			return IsVisible(_object, instance.currentMask);
@@ -351,9 +366,15 @@ namespace MarsTS.Vision {
 			return instance.BottomLeft + new Vector3(gridPos.x * instance.nodeSize + (instance.nodeSize / 2), 0, gridPos.y * instance.nodeSize + (instance.nodeSize / 2));
 		}
 
-		private void OnEntityDeath (EntityDeathEvent _event) {
+		private void OnUnitDeath (UnitDeathEvent _event) {
 			if (registeredVision.TryGetValue(_event.Unit.GameObject.name, out EntityVision vision)) {
 				registeredVision.Remove(_event.Unit.GameObject.name);
+			}
+		}
+
+		private void OnEntityDestroyed (EntityDestroyEvent _event) {
+			if (registeredVision.TryGetValue(_event.Entity.gameObject.name, out EntityVision vision)) {
+				registeredVision.Remove(_event.Entity.gameObject.name);
 			}
 		}
 

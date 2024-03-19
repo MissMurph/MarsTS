@@ -28,11 +28,12 @@ namespace MarsTS.Events {
 			nameAtlas = new Dictionary<string, int>();
 			controllerAgent = GetComponent<EventAgent>();
 
-			AddListener<EntityDeathEvent>(OnEntityDeath);
+			AddListener<EntityDestroyEvent>(OnEntityDeath);
 		}
 
 		//Fires events to all listeners registered for this event type
 		public static T Global<T> (T postedEvent) where T : AbstractEvent {
+			if (instance == null) return null;
 			if (!instance.registeredAgents.ContainsKey(postedEvent.Source.ID)) throw new ArgumentException("Event " + postedEvent.Name + " fired from unregistered agent " + postedEvent.Source.ID + " on object " + postedEvent.Source.name);
 			if (instance.globalListeners.TryGetValue(typeof(T), out UnityEventBase value)) {
 				UnityEvent<T> superType = (UnityEvent<T>)value;
@@ -72,6 +73,15 @@ namespace MarsTS.Events {
 			else throw new ArgumentException("Agent " + agentID + " not registered with Event Bus, cannot Subscribe to local events!");
 		}
 
+		public static void RemoveListener<T> (UnityAction<T> func) where T : AbstractEvent {
+			if (instance.globalListeners.TryGetValue(typeof(T), out UnityEventBase _event)) {
+				UnityEvent<T> deserialized = _event as UnityEvent<T>;
+
+				deserialized.RemoveListener(func);
+				return;
+			}
+		}
+
 		public static int RegisterAgent (EventAgent source) {
 			if (source.ID != 0) throw new ArgumentException("Agent " + source.ID + " already registered with Event Bus " + instance.name);
 
@@ -91,7 +101,7 @@ namespace MarsTS.Events {
 			else throw new ArgumentException("Agent " + name + " not registered with Event Bus");
 		}
 
-		private static void OnEntityDeath (EntityDeathEvent _event) {
+		private static void OnEntityDeath (EntityDestroyEvent _event) {
 			instance.registeredAgents.Remove(_event.Source.ID);
 		}
 

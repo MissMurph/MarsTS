@@ -3,6 +3,7 @@ using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players.Input;
+using MarsTS.Research;
 using MarsTS.Teams;
 using MarsTS.UI;
 using MarsTS.Units;
@@ -34,6 +35,9 @@ namespace MarsTS.Players {
 		public static Vector2 MousePos { get { return instance.cursorPos; } }
 		private Vector2 cursorPos;
 
+		public static ViewportController PlayerControls { get { return instance.cameraControls; } }
+		private ViewportController cameraControls;
+
 		public static bool Include { get { return instance.alternate; } }
 		private bool alternate;
 
@@ -46,11 +50,6 @@ namespace MarsTS.Players {
 		public static List<IDepositable> Depositables { get { return instance.depositables; } }
 		private List<IDepositable> depositables = new List<IDepositable>();
 
-		[SerializeField]
-		private float cameraSpeed;
-
-		private Vector2 moveDirection;
-
 		private ISelectable currentHover;
 
 		protected override void Awake () {
@@ -61,19 +60,19 @@ namespace MarsTS.Players {
 			inputController = GetComponent<InputHandler>();
 			eventAgent = GetComponent<EventAgent>();
 			uiController = GetComponent<UIController>();
+			cameraControls = GetComponent<ViewportController>();
+
 			alternate = false;
 		}
 
 		protected override void Start () {
 			base.Start();
 
-			EventBus.AddListener<EntityDeathEvent>(OnEntityDeath);
+			EventBus.AddListener<UnitDeathEvent>(OnEntityDeath);
 			EventBus.AddListener<EntityInitEvent>(OnEntityInit);
 		}
 
 		private void Update () {
-			transform.position = transform.position + (cameraSpeed * Time.deltaTime * new Vector3(moveDirection.x, 0, moveDirection.y));
-
 			Ray ray = ViewPort.ScreenPointToRay(cursorPos);
 
 			if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)) {
@@ -90,10 +89,6 @@ namespace MarsTS.Players {
 		}
 
 		/*	Input Functions	*/
-
-		public void Move (InputAction.CallbackContext context) {
-			moveDirection = context.ReadValue<Vector2>();
-		}
 
 		public void Look (InputAction.CallbackContext context) {
 			cursorPos = context.ReadValue<Vector2>();
@@ -214,7 +209,7 @@ namespace MarsTS.Players {
 			if (context.canceled) alternate = false;
 		}
 
-		private void OnEntityDeath (EntityDeathEvent _event) {
+		private void OnEntityDeath (UnitDeathEvent _event) {
 			string key = _event.Unit.RegistryKey;
 
 			if (Selected.TryGetValue(key, out Roster unitRoster) && unitRoster.Contains(_event.Unit.ID)) {
@@ -240,6 +235,10 @@ namespace MarsTS.Players {
 				&& unitComponent is IDepositable deserialized) {
 				depositables.Add(deserialized);
 			}
+		}
+
+		public static void SubmitResearch (Technology product) {
+			instance.research[product.key] = product;
 		}
 
 		private void OnDestroy () {

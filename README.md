@@ -3,21 +3,24 @@
 
  The game now features unit combat, building construction, unit production, resource gathering, building upgrades, unit abilities and fog of war, having shaped into almost all the essential bones for an RTS game.
 
+ Check out the progress on [YouTube](https://youtu.be/oH_a0BXCyEg?si=Nhc6f10-q449hgtc).
+
  ![Gif of a tank assault climbing a ramp and engaging a small base with artillery and a constructor](https://i.imgur.com/yC9xHgz.gif)
  ![Screenshot of a Mobile Artillery & Roughneck squad working together to destroy a tank without being detected](/FolioImages/ArtilleryAttackingExample.png)
 
  ## Key Features:
 
  ### Varied Unit Combat
- Unit Combat has been expanded upon even further with the implementation of Fog of War, now introducing units designed around the system to enhance tactical decision making. Roughnecks and their stealth add a new dimension to combat, capable of sneaking behind enemy lines if they keep their distance, able to co-ordinate with a Mobile Artillery deployed far away to use its massive attack range. Scout cars and flat tanks remain unchanged, making both far more powerful. With the need for artillery to deploy, scout cars have an easier time hunting them down and getting the jump on them, making tanks more valuable with their ability to quickly dispatch individual cars. The composition of an army now has major implications for the outcome of a battle, when combined with the repairing capabilities of a constructor a lot of strategic and tactical depth is easily created.
+ Unit Combat continues to evolve, with each feature branch a new unit is being added to further build on the variety, with a focus on units that can effectively utilize introduced features. Now featuring Marines, the Sniper & Landmines, there are multiple paths a player can take to take on an enemy's army with an effective utilization of stealth as a mechanic. Snipers can be upgraded with Thermal Vision to detect enemy units in stealth, of which there are Landmines, a new building constructed by Roughnecks to improve their guerilla warfare ambushing abilities. Combined with the tanks, a devestating army with multiple roles can now be produced, creating greater strategic decision making, with more units and variety on the way. Composition of your army has a real impact on all stages of play.
 
+ ![Closeup screenshot of a Sniper picking off nearby marines](/FolioImages/SniperAttacking.png)
  ![Closeup screenshot of a large group of scout cars & tanks overwhelming enemy flat tanks](/FolioImages/resourcing/unit_combat_3.png)
 
- ### Construction & Production
- There are currently 4 different buildings, each filling a specific role; the Scrapyard, Factory, Pumpjack & Makeshift Pumpjack. The Scrapyards serve as your headquarters and can produce civilian units and the fast scout car, intended to be replaced by the Factory which can produce powerful military units, such as a Tank and Mobile Artillery, but costing far more oil than Scrapyard productions. The Pumpjack and its Makeshift variant are meant for harvesting this oil, the Makeshift variant however is constructed by the sneaky Roughneck infantry squad and can be upgraded with camo so its not easily visible from far away, facilitating hidden oil harvesting operations at the cost of harvest rate. All buildings support these upgrades and even research.
+ ### Construction, Production & Research
+ There are currently 4 different buildings, each filling a specific role; the Scrapyard, Factory, Pumpjack & Makeshift Pumpjack. The Scrapyards serve as your headquarters and can produce civilian units and the fast scout car, intended to be replaced by the Factory which can produce powerful military units, such as a Tank and Mobile Artillery, but costing far more oil than Scrapyard productions. The Pumpjack and its Makeshift variant are meant for harvesting this oil, the Makeshift variant however is constructed by the sneaky Roughneck infantry squad and can be upgraded with camo so its not easily visible from far away, facilitating hidden oil harvesting operations at the cost of harvest rate. All buildings support these upgrades and even research which can improve their performance and the power of existing units.
 
  ![Screenshot of a constructor unit building a Pumpjack over an oil deposit](/FolioImages/resourcing/building_construction.png)
- ![Screenshot of a constructor unit selected with a tooltip open for the Pumpjack construction](/FolioImages/resourcing/MakeShiftPumpjack.png)
+ ![Screenshot of a constructor unit selected with a tooltip open for the Pumpjack construction](/FolioImages/MakeShiftPumpjack.png)
 
  ### Resource Gathering
  Resource Harvesting comes currently in two varieties, with plenty of room to expand and play with for more unique levels. There's Resource Units, inspired by the Homeworld franchise it represents all the general materials needed to construct things, scrap, metal, rock, rubber, wire, etc. The second main resource is Oil, less plentiful than RUs it requires more specialized equipment to extract, needing a Pumpjack built on oil deposits before tanker trucks can collect it and deposit it in a player's base. Resource gathering requires transportation of resources before they enter the player's resource banks, requiring planning of supply lines and protecting them so resourcing operations don't get disrupted. Resources can even be stolen from players, with the Roughnecks infantry able to siphon oil out of enemy Pumpjacks without being revealed in stealth, allowing for subversive but effective attacks on a targets economy.
@@ -61,11 +64,12 @@
  ![Screenshot of the Vision Renderer's multi-threaded algorithm](/FolioImages/VisionRenderer_Code.png)
  
  ## Progress:
- - [ ] RTS Camera Controls
+ - [x] RTS Camera Controls
     - [x] WASD Movement
-    - [ ] Zooming
-    - [ ] Rotation
-    - [ ] Smoothing
+    - [x] Zooming
+    - [x] Rotation
+    - [x] Mouse Panning
+    - [x] Smoothing
  - [x] Unit Selection & Teams
     - [x] Unit Relationships
     - [x] Exclusive Team Selection
@@ -108,7 +112,7 @@
        - [ ] Current Command Info
     - [x] Player Resources
     - [ ] Waypoint Renderer
-    - [ ] Minimap
+    - [x] Minimap
  - [x] Building
     - [x] Constructor Unit
     - [x] Factory
@@ -127,6 +131,10 @@
     - [x] Production Time
     - [x] Production Costs
     - [ ] Unit Upgrades
+ - [x] Research
+    - [x] Building Technology
+    - [x] Unit Technology
+    - [ ] Stat Improvements
  - [X] Fog of War
     - [x] Raycasted Vision
        - [x] Blocked by Terrain

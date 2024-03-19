@@ -29,11 +29,15 @@ namespace MarsTS.Buildings {
 		[SerializeField]
 		private GameObject queueInfo;
 
+		private Transform spawnPoint;
+
 		protected override void Awake () {
 			base.Awake();
 
-			colliders = new List<Collider>(model.GetComponentsInChildren<Collider>());
-			colliders.AddRange(transform.Find("Collider").GetComponentsInChildren<Collider>());
+			//colliders = new List<Collider>(model.GetComponentsInChildren<Collider>());
+			//colliders.AddRange(transform.Find("Collider").GetComponentsInChildren<Collider>());
+
+			spawnPoint = transform.Find("SpawnPoint");
 		}
 
 		protected override void Start () {
@@ -52,17 +56,19 @@ namespace MarsTS.Buildings {
 			if (_event.CommandCancelled) return;
 
 			IProducable order = _event.Command as IProducable;
-			ISelectable newUnit = Instantiate(order.Product, transform.position + (Vector3.up), Quaternion.Euler(0f, 0f, 0f)).GetComponent<ISelectable>();
+			ISelectable newUnit = Instantiate(order.Product, spawnPoint.position + (Vector3.up), Quaternion.Euler(0f, 0f, 0f)).GetComponent<ISelectable>();
 
-			List<Collider> unitColliders = newUnit.GameObject.transform.Find("Model").GetComponentsInChildren<Collider>().ToList();
-			unitColliders.AddRange(newUnit.GameObject.transform.Find("Collider").GetComponentsInChildren<Collider>());
-			
+			//List<Collider> unitColliders = newUnit.GameObject.transform.Find("Model").GetComponentsInChildren<Collider>().ToList();
+			//unitColliders.AddRange(newUnit.GameObject.transform.Find("Collider").GetComponentsInChildren<Collider>());
+
+			/*List<Collider> unitColliders = newUnit.GameObject.GetComponentsInChildren<Collider>().ToList();
+
 
 			foreach (Collider unitCollider in unitColliders) {
 				foreach (Collider buildingCollider in colliders) {
 					Physics.IgnoreCollision(unitCollider, buildingCollider, true);
 				}
-			}
+			}*/
 
 			newUnit.SetOwner(owner);
 
@@ -126,7 +132,7 @@ namespace MarsTS.Buildings {
 		}
 
 		protected void UnitExitCallback (CommandCompleteEvent _event) {
-			Collider[] unitColliders = _event.Unit.GameObject.transform.Find("Model").GetComponentsInChildren<Collider>();
+			/*Collider[] unitColliders = _event.Unit.GameObject.transform.Find("Model").GetComponentsInChildren<Collider>();
 
 			foreach (Collider unitCollider in unitColliders) {
 				foreach (Collider buildingCollider in colliders) {
@@ -134,7 +140,7 @@ namespace MarsTS.Buildings {
 				}
 			}
 
-			_event.Command.Callback.RemoveListener(UnitExitCallback);
+			_event.Command.Callback.RemoveListener(UnitExitCallback);*/
 		}
 	}
 }

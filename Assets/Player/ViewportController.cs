@@ -23,7 +23,7 @@ namespace MarsTS.Players {
 		private Vector3 forwardsMotion;
 		private Vector3 horizontalMotion;
 
-		private Vector3 newPosition;
+		public Vector3 TargetPosition;
 
 		/*	Gimbal	*/
 		private Transform gimbal;
@@ -99,7 +99,7 @@ namespace MarsTS.Players {
 			currentZoom = Mathf.Abs(cameraPos.localPosition.z);
 			targetZoom = currentZoom;
 
-			newPosition = transform.position;
+			TargetPosition = transform.position;
 		}
 
 		private void Update () {
@@ -159,7 +159,7 @@ namespace MarsTS.Players {
 				if (plane.Raycast(ray, out entry)) {
 					panCurrent = ray.GetPoint(entry);
 
-					newPosition = transform.position + panStart - panCurrent;
+					TargetPosition = transform.position + panStart - panCurrent;
 				}
 			}
 			else {
@@ -168,13 +168,13 @@ namespace MarsTS.Players {
 				forwardsMotion = transform.forward * moveInput.y;
 				horizontalMotion = transform.right * moveInput.x;
 
-				newPosition += (forwardsMotion + horizontalMotion).normalized * scaledCameraSpeed * Time.deltaTime;
+				TargetPosition += (forwardsMotion + horizontalMotion).normalized * scaledCameraSpeed * Time.deltaTime;
 			}
 
-			newPosition.x = Mathf.Clamp(newPosition.x, -(GameWorld.WorldSize.x / 2), GameWorld.WorldSize.x / 2);
-			newPosition.z = Mathf.Clamp(newPosition.z, -(GameWorld.WorldSize.y / 2), GameWorld.WorldSize.y / 2);
+			TargetPosition.x = Mathf.Clamp(TargetPosition.x, -(GameWorld.WorldSize.x / 2), GameWorld.WorldSize.x / 2);
+			TargetPosition.z = Mathf.Clamp(TargetPosition.z, -(GameWorld.WorldSize.y / 2), GameWorld.WorldSize.y / 2);
 
-			transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime * movementInterpolation);
+			transform.position = Vector3.Lerp(transform.position, TargetPosition, Time.deltaTime * movementInterpolation);
 		}
 		
 		public void Move (InputAction.CallbackContext context) {

@@ -86,8 +86,14 @@ namespace MarsTS.Units {
 			depositCooldown = 1f / depositRate;
 			depositAmount = Mathf.RoundToInt(depositRate * depositCooldown);
 			currentDepositCooldown = depositCooldown;
+		}
+
+		protected override void OnEntityInit (EntityInitEvent _event) {
+			if (_event.Phase == Phase.Post) return;
 
 			roughneckSquad = squad as RoughneckSquad;
+
+			base.OnEntityInit(_event);
 		}
 
 		protected override void Update () {
@@ -184,7 +190,7 @@ namespace MarsTS.Units {
 
 				EntityCache.TryGet(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
-				targetBus.AddListener<EntityDeathEvent>(OnTargetDeath);
+				targetBus.AddListener<UnitDeathEvent>(OnTargetDeath);
 
 				order.Callback.AddListener(AttackCancelled);
 			}
@@ -197,17 +203,19 @@ namespace MarsTS.Units {
 			if (_event.Command is Commandlet<IAttackable> deserialized && _event.CommandCancelled) {
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
-				targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
 				AttackTarget.Set(null, null);
 				TrackedTarget = null;
 			}
 		}
 
-		private void OnTargetDeath (EntityDeathEvent _event) {
+		private void OnTargetDeath (UnitDeathEvent _event) {
+			if (CurrentCommand == null) return;
+
 			EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
 
-			targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, true, this);
 
@@ -242,7 +250,7 @@ namespace MarsTS.Units {
 					EntityCache.TryGet(RepairTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
 					targetBus.AddListener<UnitHurtEvent>(OnTargetHealed);
-					targetBus.AddListener<EntityDeathEvent>(OnTargetDeath);
+					targetBus.AddListener<UnitDeathEvent>(OnTargetDeath);
 
 					order.Callback.AddListener(RepairCancelled);
 				}
@@ -250,11 +258,11 @@ namespace MarsTS.Units {
 		}
 
 		private void RepairCancelled (CommandCompleteEvent _event) {
-			if (_event.Command is Commandlet<IAttackable> deserialized && _event.CommandCancelled) {
+			if (_event.Command is Commandlet<IAttackable> deserialized) {
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.RemoveListener<UnitHurtEvent>(OnTargetHealed);
-				targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
 				RepairTarget.Set(null, null);
 				TrackedTarget = null;
@@ -262,6 +270,8 @@ namespace MarsTS.Units {
 		}
 
 		private void OnTargetHealed (UnitHurtEvent _event) {
+			if (CurrentCommand == null) return;
+
 			if (_event.Targetable.Health >= _event.Targetable.MaxHealth) {
 				EntityCache.TryGet(_event.Targetable.GameObject.transform.root.name, out EventAgent targetBus);
 
@@ -270,7 +280,6 @@ namespace MarsTS.Units {
 				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
 				CurrentCommand.Callback.Invoke(newEvent);
-				RepairTarget.Set(null, null);
 			}
 		}
 
@@ -283,19 +292,21 @@ namespace MarsTS.Units {
 
 				EntityCache.TryGet(HarvestTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
-				targetBus.AddListener<EntityDeathEvent>(OnDepositDepleted);
+				targetBus.AddListener<UnitDeathEvent>(OnDepositDepleted);
 
 				order.Callback.AddListener(HarvestCancelled);
 			}
 		}
 
 		private void OnExtraction (ResourceHarvestedEvent _event) {
+			if (CurrentCommand == null) return;
+
 			if (roughneckSquad.Stored >= roughneckSquad.Capacity) {
 				bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
 				EntityCache.TryGet(_event.Deposit.GameObject.transform.root.name, out EventAgent targetBus);
 
-				targetBus.RemoveListener<EntityDeathEvent>(OnDepositDepleted);
+				targetBus.RemoveListener<UnitDeathEvent>(OnDepositDepleted);
 
 				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
@@ -303,7 +314,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		private void OnDepositDepleted (EntityDeathEvent _event) {
+		private void OnDepositDepleted (UnitDeathEvent _event) {
 			bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
@@ -312,12 +323,12 @@ namespace MarsTS.Units {
 		}
 
 		private void HarvestCancelled (CommandCompleteEvent _event) {
-			if (_event.Command is Commandlet<IHarvestable> deserialized && _event.CommandCancelled) {
+			if (_event.Command is Commandlet<IHarvestable> deserialized) {
 				bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
-				targetBus.RemoveListener<EntityDeathEvent>(OnDepositDepleted);
+				targetBus.RemoveListener<UnitDeathEvent>(OnDepositDepleted);
 
 				HarvestTarget.Set(null, null);
 				DepositTarget.Set(null, null);
@@ -346,6 +357,8 @@ namespace MarsTS.Units {
 		}
 
 		private void OnDeposit (HarvesterDepositEvent _event) {
+			if (CurrentCommand == null) return;
+
 			if (roughneckSquad.Stored <= 0) {
 				bus.RemoveListener<HarvesterDepositEvent>(OnDeposit);
 

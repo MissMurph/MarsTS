@@ -40,7 +40,10 @@ namespace MarsTS.Entities {
 		private void Awake () {
 			instance = this;
 			instanceMap = new Dictionary<string, Dictionary<int, Entity>>();
+		}
 
+		private void Start () {
+			EventBus.AddListener<EntityDestroyEvent>(OnEntityDestroyed);
 		}
 
 		public static bool TryGet (string name, out Entity output) {
@@ -70,6 +73,11 @@ namespace MarsTS.Entities {
 		//name:instanceID:componentKey
 		//tank:236:unit
 		public static bool TryGet<T> (string name, out T output) {
+			if (instance == null) {
+				output = default(T);
+				return false;
+			}
+
 			string[] split = name.Split(':');
 
 			if (!(split.Length > 1)) {
@@ -104,6 +112,14 @@ namespace MarsTS.Entities {
 			Dictionary<int, Entity> map = instanceMap.GetValueOrDefault(key, new Dictionary<int, Entity>());
 			if (!instanceMap.ContainsKey(key)) instanceMap.Add(key, map);
 			return map;
+		}
+
+		private void OnEntityDestroyed (EntityDestroyEvent _event) {
+			if (instance == null) return;
+			if (TryGet(_event.Entity.gameObject.name, out Entity found)) {
+				Dictionary<int, Entity> map = GetMap(found.Key);
+				map.Remove(found.ID);
+			}
 		}
 
 		private void OnDestroy () {

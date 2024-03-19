@@ -75,7 +75,7 @@ namespace MarsTS.World {
 		}
 
 		private void Start () {
-			selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
+			//selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
 			startingAmount = attribute.Amount;
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 		}
@@ -104,7 +104,7 @@ namespace MarsTS.World {
 			}
 			
 			if (StoredAmount <= 0) {
-				bus.Global(new EntityDeathEvent(bus, this));
+				bus.Global(new UnitDeathEvent(bus, this));
 				Destroy(gameObject, 0.01f);
 			}
 

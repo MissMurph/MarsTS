@@ -30,7 +30,13 @@ namespace MarsTS.Units {
 
 		private void Update () {
 			if (initialized) {
+				Vector3 oldPos = transform.position;
+
 				transform.position += transform.forward * speed * Time.deltaTime;
+
+				if (Physics.Raycast(oldPos, transform.position - oldPos, out RaycastHit hit, (speed * Time.deltaTime), GameWorld.EntityMask)) {
+					OnTriggerEnter(hit.collider);
+				}
 
 				lifeTime -= Time.deltaTime;
 

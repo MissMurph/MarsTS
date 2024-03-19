@@ -24,9 +24,13 @@ namespace MarsTS.UI {
 			bus.AddListener<UnitHurtEvent>((_event) => {
 				FillLevel = (float)_event.Targetable.Health / _event.Targetable.MaxHealth;
 
-				if (FillLevel <= 1f) {
+				if (FillLevel < 1f) {
 					hurt = true;
 					barRenderer.enabled = true;
+				}
+				else {
+					hurt = false;
+					barRenderer.enabled = false;
 				}
 			});
 

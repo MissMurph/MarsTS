@@ -145,5 +145,11 @@ namespace MarsTS.Units {
 				storage.MaxValue = Capacity;
 			}
 		}
+
+		public override bool CanCommand (string key) {
+			if (key == "deposit") return true;
+
+			return base.CanCommand(key);
+		}
 	}
 }

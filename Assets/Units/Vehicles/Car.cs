@@ -54,7 +54,7 @@ namespace MarsTS.Units {
 			set {
 				if (attackTarget != null) {
 					EntityCache.TryGet(attackTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
-					oldAgent.RemoveListener<EntityDeathEvent>((_event) => AttackTarget = null);
+					oldAgent.RemoveListener<UnitDeathEvent>((_event) => AttackTarget = null);
 					oldAgent.RemoveListener<EntityVisibleEvent>((_event) => {
 						if (!_event.Visible) {
 							SetTarget(AttackTarget.GameObject.transform.position);
@@ -68,7 +68,7 @@ namespace MarsTS.Units {
 				if (value != null) {
 					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
 
-					agent.AddListener<EntityDeathEvent>((_event) => AttackTarget = null);
+					agent.AddListener<UnitDeathEvent>((_event) => AttackTarget = null);
 					agent.AddListener<EntityVisibleEvent>((_event) => {
 						if (!_event.Visible) {
 							SetTarget(AttackTarget.GameObject.transform.position);
@@ -181,7 +181,7 @@ namespace MarsTS.Units {
 
 				EntityCache.TryGet(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
-				targetBus.AddListener<EntityDeathEvent>(OnTargetDeath);
+				targetBus.AddListener<UnitDeathEvent>(OnTargetDeath);
 
 				order.Callback.AddListener(AttackCancelled);
 			}
@@ -191,16 +191,16 @@ namespace MarsTS.Units {
 			if (_event.Command is Commandlet<IAttackable> deserialized && _event.CommandCancelled) {
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
-				targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
 				AttackTarget = null;
 			}
 		}
 
-		private void OnTargetDeath (EntityDeathEvent _event) {
+		private void OnTargetDeath (UnitDeathEvent _event) {
 			EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
 
-			targetBus.RemoveListener<EntityDeathEvent>(OnTargetDeath);
+			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 

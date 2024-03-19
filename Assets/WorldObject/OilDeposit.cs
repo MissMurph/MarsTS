@@ -45,7 +45,7 @@ namespace MarsTS.World {
                 }
 
                 if (StoredAmount <= 0) {
-                    bus.Global(new EntityDeathEvent(bus, this));
+                    bus.Global(new UnitDeathEvent(bus, this));
                     Destroy(gameObject, 0.01f);
                 }
 

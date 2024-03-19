@@ -11,7 +11,7 @@ namespace MarsTS.UI {
 		private void Start () {
 			IAttackable parent = GetComponentInParent<IAttackable>();
 
-			if (parent.Health == 1) {
+			if (parent.Health <= 1) {
 				FillLevel = 0f;
 
 				barRenderer.enabled = true;

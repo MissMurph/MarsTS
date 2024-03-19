@@ -32,7 +32,7 @@ namespace MarsTS.UI {
 		}
 
 		private void Start () {
-            EventBus.AddListener<EntityDeathEvent>(OnEntityDeath);
+            EventBus.AddListener<UnitDeathEvent>(OnEntityDeath);
             Deactivate();
 		}
 
@@ -48,7 +48,7 @@ namespace MarsTS.UI {
             name.gameObject.SetActive(true);
 		}
 
-        private void OnEntityDeath (EntityDeathEvent _event) {
+        private void OnEntityDeath (UnitDeathEvent _event) {
 			if (ReferenceEquals(_event.Unit, currentUnit)) {
 				currentUnit = null;
                 Deactivate();

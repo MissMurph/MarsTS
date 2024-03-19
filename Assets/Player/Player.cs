@@ -35,6 +35,9 @@ namespace MarsTS.Players {
 		public static Vector2 MousePos { get { return instance.cursorPos; } }
 		private Vector2 cursorPos;
 
+		public static ViewportController PlayerControls { get { return instance.cameraControls; } }
+		private ViewportController cameraControls;
+
 		public static bool Include { get { return instance.alternate; } }
 		private bool alternate;
 
@@ -57,13 +60,15 @@ namespace MarsTS.Players {
 			inputController = GetComponent<InputHandler>();
 			eventAgent = GetComponent<EventAgent>();
 			uiController = GetComponent<UIController>();
+			cameraControls = GetComponent<ViewportController>();
+
 			alternate = false;
 		}
 
 		protected override void Start () {
 			base.Start();
 
-			EventBus.AddListener<EntityDeathEvent>(OnEntityDeath);
+			EventBus.AddListener<UnitDeathEvent>(OnEntityDeath);
 			EventBus.AddListener<EntityInitEvent>(OnEntityInit);
 		}
 
@@ -204,7 +209,7 @@ namespace MarsTS.Players {
 			if (context.canceled) alternate = false;
 		}
 
-		private void OnEntityDeath (EntityDeathEvent _event) {
+		private void OnEntityDeath (UnitDeathEvent _event) {
 			string key = _event.Unit.RegistryKey;
 
 			if (Selected.TryGetValue(key, out Roster unitRoster) && unitRoster.Contains(_event.Unit.ID)) {

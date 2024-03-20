@@ -22,7 +22,7 @@ namespace MarsTS.Commands {
 			bool canAfford = true;
 
 			foreach (CostEntry entry in cost) {
-				if (Player.Main.Resource(entry.key).Amount < entry.amount) {
+				if (Player.Commander.Resource(entry.key).Amount < entry.amount) {
 					canAfford = false;
 					break;
 				}
@@ -62,7 +62,7 @@ namespace MarsTS.Commands {
 				bool canAfford = true;
 
 				foreach (CostEntry entry in cost) {
-					if (Player.Main.Resource(entry.key).Amount < entry.amount) {
+					if (Player.Commander.Resource(entry.key).Amount < entry.amount) {
 						canAfford = false;
 						break;
 					}
@@ -70,7 +70,7 @@ namespace MarsTS.Commands {
 
 				if (canAfford && ghostComp.Legal) {
 					Building newBuilding = Instantiate(building, snapper.Snap.transform.position, Quaternion.Euler(Vector3.zero)).GetComponent<Building>();
-					newBuilding.SetOwner(Player.Main);
+					newBuilding.SetOwner(Player.Commander);
 
 					newBuilding.GetComponent<EventAgent>().AddListener<EntityInitEvent>((_event) => {
 						if (_event.Phase == Phase.Pre) return;
@@ -84,7 +84,7 @@ namespace MarsTS.Commands {
 					Player.Input.Release("Order");
 
 					foreach (CostEntry entry in cost) {
-						Player.Main.Resource(entry.key).Withdraw(entry.amount);
+						Player.Commander.Resource(entry.key).Withdraw(entry.amount);
 					}
 				}
 			}

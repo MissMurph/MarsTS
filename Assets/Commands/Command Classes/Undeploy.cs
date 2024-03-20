@@ -64,7 +64,7 @@ namespace MarsTS.Commands {
 		public float WorkRequired { get; private set; }
 		public float CurrentWork { get; set; }
 
-		public UndeployCommandlet (string _name, bool _status, float _workRequired) : base(_name, _status, Player.Main) {
+		public UndeployCommandlet (string _name, bool _status, float _workRequired) : base(_name, _status, Player.Commander) {
 			WorkRequired = _workRequired;
 			CurrentWork = 0f;
 		}

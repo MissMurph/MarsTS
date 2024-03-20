@@ -21,8 +21,11 @@ namespace MarsTS.UI {
 
 		private void Start () {
 			EventBus.AddListener<ResourceUpdateEvent>(OnPlayerResourceUpdate);
+			EventBus.AddListener<PlayerInitEvent>(OnPlayerInit);
+		}
 
-			foreach (PlayerResource used in Player.Main.Resources) {
+		private void OnPlayerInit (PlayerInitEvent _event) {
+			foreach (PlayerResource used in Player.Commander.Resources) {
 				GameObject newCounter = Instantiate(CounterPrefab, transform);
 
 				RectTransform counterRect = newCounter.transform as RectTransform;

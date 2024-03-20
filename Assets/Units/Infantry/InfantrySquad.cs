@@ -10,12 +10,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.Port;
-using UnityEngine.SocialPlatforms.Impl;
-using static UnityEngine.GraphicsBuffer;
-using UnityEditor.PackageManager;
-using UnityEngine.ProBuilder;
-using static UnityEngine.UI.CanvasScaler;
 using MarsTS.Vision;
 
 namespace MarsTS.Units {
@@ -235,7 +229,7 @@ namespace MarsTS.Units {
 		}
 
 		public  virtual void Order (Commandlet order, bool inclusive) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
+			if (!GetRelationship(order.Commander).Equals(Relationship.Owned)) return;
 
 			switch (order.Name) {
 				case "move":

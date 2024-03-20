@@ -10,10 +10,8 @@ namespace MarsTS.UI {
 		//LineRenderer aligns sprite to attached camera, so the renderer component needs to be attached
 		//to the mini map camera in order to align the sprite with that camera specifically
 		//This means we need to convert local positions back to global when setting
-		[SerializeField]
 		private LineRenderer lineRenderer;
 
-		[SerializeField]
 		private Vector3[] corners;
 
 		private Plane groundPlane;
@@ -24,6 +22,10 @@ namespace MarsTS.UI {
 
 			//At -1 cus the world is weirdly at -1
 			groundPlane = new Plane(Vector3.up, new Vector3(0, -1, 0));
+		}
+
+		private void Start () {
+			lineRenderer = GameObject.FindGameObjectWithTag("ViewportRenderer").GetComponent<LineRenderer>();
 		}
 
 		private void Update () {

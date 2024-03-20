@@ -14,7 +14,7 @@ namespace MarsTS.Commands {
 	public abstract class Command<T> : Command {
 
 		public virtual Commandlet Construct (T _target) {
-			return new Commandlet<T>(Name, _target, Player.Main);
+			return new Commandlet<T>(Name, _target, Player.Commander);
 		}
 		
 		public override Type TargetType { get { return typeof(T); } }

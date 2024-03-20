@@ -19,7 +19,7 @@ namespace MarsTS.Commands {
 		private string description;
 
 		public override void StartSelection () {
-			Player.Main.DeliverCommand(new Commandlet<bool>(Name, true, Player.Main), Player.Include);
+			Player.Main.DeliverCommand(new Commandlet<bool>(Name, true, Player.Commander), Player.Include);
 		}
 
 		public override CostEntry[] GetCost () {

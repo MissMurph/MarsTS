@@ -56,7 +56,7 @@ namespace MarsTS.Commands {
 		}
 
 		public override Commandlet Construct (bool target) {
-			return new SneakCommandlet(Name, target, Player.Main, deactivateCooldown, reactivateCooldown);
+			return new SneakCommandlet(Name, target, Player.Commander, deactivateCooldown, reactivateCooldown);
 		}
 
 		private class SneakCommandlet : Commandlet<bool> {

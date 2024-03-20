@@ -97,7 +97,7 @@ namespace MarsTS.Units {
 		}
 
 		public override void Order (Commandlet order, bool inclusive) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
+			if (!GetRelationship(Player.Commander).Equals(Relationship.Owned)) return;
 
 			switch (order.Name) {
 				case "attack":

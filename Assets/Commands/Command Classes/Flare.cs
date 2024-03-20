@@ -35,7 +35,7 @@ namespace MarsTS.Commands {
 			bool canAfford = true;
 
 			foreach (CostEntry entry in cost) {
-				if (Player.Main.Resource(entry.key).Amount < entry.amount) {
+				if (Player.Commander.Resource(entry.key).Amount < entry.amount) {
 					canAfford = false;
 					break;
 				}
@@ -66,7 +66,7 @@ namespace MarsTS.Commands {
 					bool canAfford = true;
 
 					foreach (CostEntry entry in cost) {
-						if (Player.Main.Resource(entry.key).Amount < entry.amount) {
+						if (Player.Commander.Resource(entry.key).Amount < entry.amount) {
 							canAfford = false;
 							break;
 						}
@@ -81,7 +81,7 @@ namespace MarsTS.Commands {
 						Player.Input.Release("Order");
 
 						foreach (CostEntry entry in cost) {
-							Player.Main.Resource(entry.key).Withdraw(entry.amount);
+							Player.Commander.Resource(entry.key).Withdraw(entry.amount);
 						}
 					}
 				}
@@ -89,7 +89,7 @@ namespace MarsTS.Commands {
 		}
 
 		public override Commandlet Construct (Vector3 _target) {
-			return new FlareCommandlet(Name, _target, Player.Main, cooldown);
+			return new FlareCommandlet(Name, _target, Player.Commander, cooldown);
 		}
 
 		protected virtual void OnOrder (InputAction.CallbackContext context) {

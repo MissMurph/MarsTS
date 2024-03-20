@@ -40,7 +40,7 @@ namespace MarsTS.Commands {
 			bool canAfford = true;
 
 			foreach (CostEntry entry in cost) {
-				if (Player.Main.Resource(entry.key).Amount < entry.amount) {
+				if (Player.Commander.Resource(entry.key).Amount < entry.amount) {
 					canAfford = false;
 					break;
 				}
@@ -50,7 +50,7 @@ namespace MarsTS.Commands {
 				Player.Main.DistributeCommand(Construct(prefab), Player.Include);
 
 				foreach (CostEntry entry in cost) {
-					Player.Main.Resource(entry.key).Withdraw(entry.amount);
+					Player.Commander.Resource(entry.key).Withdraw(entry.amount);
 				}
 			}
 		}
@@ -88,7 +88,7 @@ namespace MarsTS.Commands {
 		public GameObject Product { get { return Target; } }
 		public override Command Command { get { return CommandRegistry.Get(Name + "/" + Product.name); } }
 
-		public ProductionCommandlet (string name, GameObject prefab, int timeRequired, CostEntry[] cost) : base(name, prefab, Player.Main) {
+		public ProductionCommandlet (string name, GameObject prefab, int timeRequired, CostEntry[] cost) : base(name, prefab, Player.Commander) {
 			ProductionRequired = timeRequired;
 			ProductionProgress = 0;
 
@@ -106,7 +106,7 @@ namespace MarsTS.Commands {
 		public override void OnComplete (CommandQueue queue, CommandCompleteEvent _event) {
 			if (_event.CommandCancelled) {
 				foreach (KeyValuePair<string, int> entry in Cost) {
-					Player.Main.Resource(entry.Key).Deposit(entry.Value);
+					Player.Commander.Resource(entry.Key).Deposit(entry.Value);
 				}
 			}
 

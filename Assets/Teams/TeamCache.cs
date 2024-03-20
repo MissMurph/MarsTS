@@ -11,6 +11,10 @@ namespace MarsTS.Teams {
 
 		internal static TeamCache instance;
 
+		private Dictionary<int, Team> teamMap;
+		private Dictionary<Faction, int> playerMap;
+		private Dictionary<int, Faction> players;
+
 		[SerializeField]
 		private Team[] startingTeams;
 
@@ -38,10 +42,6 @@ namespace MarsTS.Teams {
 				return output;
 			}
 		}
-
-		private Dictionary<int, Team> teamMap;
-		private Dictionary<Faction, int> playerMap;
-		private Dictionary<int, Faction> players;
 
 		public static Team Observer {
 			get {
@@ -76,6 +76,18 @@ namespace MarsTS.Teams {
 
 		public static Team Team (Faction player) {
 			return instance.teamMap[instance.playerMap[player]];
+		}
+
+		public static void SetTeams () {
+			instance.RollTeams();
+		}
+
+		private void RollTeams () {
+			foreach (Faction player in players.Values) {
+				int id = teamMap.Count;
+				teamMap[id] = new Team { Id = id, Members = new List<Faction>() { player } };
+				playerMap[player] = id;
+			}
 		}
 
 		private void OnDestroy () {

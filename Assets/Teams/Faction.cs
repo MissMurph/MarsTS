@@ -73,5 +73,9 @@ namespace MarsTS.Teams {
 		public bool IsResearched (string key) {
 			return research.ContainsKey(key);
 		}
+
+		public void SubmitResearch (Technology product) {
+			research[product.key] = product;
+		}
 	}
 }

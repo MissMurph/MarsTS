@@ -41,13 +41,13 @@ namespace MarsTS.UI {
 			if (_event.Phase == Phase.Pre) return;
 
 			circleRenderer.GetPropertyBlock(matBlock);
-			matBlock.SetColor("_Color", parent.GetRelationship(Player.Main).Colour());
+			matBlock.SetColor("_Color", parent.GetRelationship(Player.Commander).Colour());
 			circleRenderer.SetPropertyBlock(matBlock);
 		}
 
 		private void OnTeamChange (UnitOwnerChangeEvent _event) {
 			circleRenderer.GetPropertyBlock(matBlock);
-			matBlock.SetColor("_Color", parent.GetRelationship(Player.Main).Colour());
+			matBlock.SetColor("_Color", parent.GetRelationship(Player.Commander).Colour());
 			circleRenderer.SetPropertyBlock(matBlock);
 		}
 

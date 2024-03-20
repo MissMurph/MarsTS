@@ -106,6 +106,8 @@ namespace MarsTS.UI {
 		}
 
 		private void Start () {
+			canvasRaycaster = GameObject.FindGameObjectWithTag("Canvas").GetComponent<GraphicRaycaster>();
+			selectionSquare = canvasRaycaster.transform.Find("SelectionSquare").transform as RectTransform;
 			commandPanel = GameObject.Find("Command Zone").GetComponent<CommandPanel>();
 			unitPane = GameObject.Find("Unit Pane").GetComponent<UnitPane>();
 			EventBus.AddListener<PlayerSelectEvent>(OnSelection);

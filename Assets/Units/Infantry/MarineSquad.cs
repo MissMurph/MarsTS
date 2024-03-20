@@ -11,7 +11,7 @@ namespace MarsTS.Units {
     public class MarineSquad : InfantrySquad {
 
 		public override void Order (Commandlet order, bool inclusive) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
+			if (!GetRelationship(order.Commander).Equals(Relationship.Owned)) return;
 
 			switch (order.Name) {
 				case "attack":

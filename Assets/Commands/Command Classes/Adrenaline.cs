@@ -70,7 +70,7 @@ namespace MarsTS.Commands {
 
 		private float cooldown;
 
-		public AdrenalineCommandlet (string _name, float _duration, float _cooldown, bool _status) : base(_name, _status, Player.Main) {
+		public AdrenalineCommandlet (string _name, float _duration, float _cooldown, bool _status) : base(_name, _status, Player.Commander) {
 			duration = _duration;
 			//remainingDuration = _duration;
 			cooldown = _cooldown;

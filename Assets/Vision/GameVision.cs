@@ -105,15 +105,20 @@ namespace MarsTS.Vision {
 		private void Start () {
 			StartCoroutine(EnqueueUpdate());
 
-			currentMask = Player.Main.VisionMask;
+			currentMask = 0;
 
 			//EventBus.AddListener<UnitDeathEvent>(OnUnitDeath);
 			EventBus.AddListener<EntityDestroyEvent>(OnEntityDestroyed);
+			EventBus.AddListener<PlayerInitEvent>(OnPlayerInit);
 
 			ThreadStart workerThread = delegate { ProcessUpdate(); };
 
 			currentThread = new Thread(workerThread);
 			currentThread.Start();
+		}
+
+		private void OnPlayerInit (PlayerInitEvent _event) {
+			currentMask = Player.Commander.VisionMask;
 		}
 
 		private void Update () {

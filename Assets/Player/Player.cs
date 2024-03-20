@@ -11,6 +11,7 @@ using MarsTS.World;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -18,10 +19,13 @@ using UnityEngine.InputSystem.HID;
 
 namespace MarsTS.Players {
 
-	public class Player : Faction {
+	public class Player : MonoBehaviour {
 
 		public static Player Main { get { return instance; } }
 		private static Player instance;
+
+		public static Faction Commander { get { return instance.commander; } }
+		private Faction commander;
 
 		public static Dictionary<string, Roster> Selected { get { return instance.selected; } }
 		private Dictionary<string, Roster> selected = new Dictionary<string, Roster>();
@@ -52,24 +56,22 @@ namespace MarsTS.Players {
 
 		private ISelectable currentHover;
 
-		protected override void Awake () {
-			base.Awake();
-
+		private void Start () {
 			instance = this;
-			view = GetComponentInChildren<Camera>();
+
+			eventAgent = GetComponentInParent<EventAgent>();
+			commander = GetComponentInParent<Faction>();
+			
 			inputController = GetComponent<InputHandler>();
-			eventAgent = GetComponent<EventAgent>();
 			uiController = GetComponent<UIController>();
 			cameraControls = GetComponent<ViewportController>();
 
-			alternate = false;
-		}
-
-		protected override void Start () {
-			base.Start();
+			view = GetComponentInChildren<Camera>();
 
 			EventBus.AddListener<UnitDeathEvent>(OnEntityDeath);
 			EventBus.AddListener<EntityInitEvent>(OnEntityInit);
+
+			alternate = false;
 		}
 
 		private void Update () {
@@ -238,7 +240,7 @@ namespace MarsTS.Players {
 		}
 
 		public static void SubmitResearch (Technology product) {
-			instance.research[product.key] = product;
+			Commander.SubmitResearch(product);
 		}
 
 		private void OnDestroy () {

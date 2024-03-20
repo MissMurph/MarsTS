@@ -157,7 +157,7 @@ namespace MarsTS.Buildings {
 				bus.Global(new UnitDeathEvent(bus, this));
 
 				foreach (CostEntry materialCost in ConstructionCost) {
-					Player.Main.Resource(materialCost.key).Deposit(materialCost.amount);
+					Player.Commander.Resource(materialCost.key).Deposit(materialCost.amount);
 				}
 
 				Destroy(gameObject, 0.1f);
@@ -222,7 +222,7 @@ namespace MarsTS.Buildings {
 		}
 
 		public virtual void Order (Commandlet order, bool inclusive) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
+			if (!GetRelationship(order.Commander).Equals(Relationship.Owned)) return;
 
 			switch (order.Name) {
 				case "upgrade":

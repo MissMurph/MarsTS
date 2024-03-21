@@ -45,8 +45,8 @@ namespace MarsTS.Players {
 		public static bool Include { get { return instance.alternate; } }
 		private bool alternate;
 
-		public static EventAgent EventAgent { get { return instance.eventAgent; } }
-		private EventAgent eventAgent;
+		public static EventAgent EventAgent { get { return instance.bus; } }
+		private EventAgent bus;
 
 		public static UIController UI { get { return instance.uiController; } }
 		private UIController uiController;
@@ -59,7 +59,7 @@ namespace MarsTS.Players {
 		private void Start () {
 			instance = this;
 
-			eventAgent = GetComponentInParent<EventAgent>();
+			bus = GetComponentInParent<EventAgent>();
 			commander = GetComponentInParent<Faction>();
 			
 			inputController = GetComponent<InputHandler>();
@@ -72,6 +72,8 @@ namespace MarsTS.Players {
 			EventBus.AddListener<EntityInitEvent>(OnEntityInit);
 
 			alternate = false;
+
+			bus.Global(new PlayerInitEvent(bus));
 		}
 
 		private void Update () {

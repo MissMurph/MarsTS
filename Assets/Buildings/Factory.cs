@@ -70,7 +70,7 @@ namespace MarsTS.Buildings {
 				}
 			}*/
 
-			newUnit.SetOwner(owner);
+			newUnit.SetOwner(Owner);
 
 			ICommandable commandable = newUnit as ICommandable;
 

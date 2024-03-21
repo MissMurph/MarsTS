@@ -106,7 +106,7 @@ namespace MarsTS.Buildings {
 
 			childMines[_event.ParentEntity.gameObject.name] = _event.ParentEntity.Get<Landmine>("selectable");
 
-			childMines[_event.ParentEntity.gameObject.name].SetOwner(owner);
+			childMines[_event.ParentEntity.gameObject.name].SetOwner(Owner);
 
 			Collider newEntityCollider = Instantiate(entityColliderPrefab, _event.ParentEntity.gameObject.transform.position, _event.ParentEntity.gameObject.transform.rotation, transform).GetComponent<Collider>();
 			Transform newSelectionCollider = Instantiate(selectionColliderPrefab, _event.ParentEntity.gameObject.transform.position, _event.ParentEntity.gameObject.transform.rotation, transform).transform;

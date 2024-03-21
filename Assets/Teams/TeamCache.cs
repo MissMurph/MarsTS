@@ -1,34 +1,30 @@
-using MarsTS.Players;
+using MarsTS.Events;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 namespace MarsTS.Teams {
-	public class TeamCache : MonoBehaviour {
+	public class TeamCache : NetworkBehaviour {
 
 		internal static TeamCache instance;
 
 		private Dictionary<int, Team> teamMap;
-		private Dictionary<Faction, int> playerMap;
-		private Dictionary<int, Faction> players;
+		private Dictionary<int, Faction> factions;
+		private Dictionary<int, int> factionsToTeamsMap;
+		private Dictionary<ulong, int> playersToFactionsMap;
 
 		[SerializeField]
-		private Team[] startingTeams;
+		private Faction factionPrefab;
 
 		[SerializeField]
-		private Faction[] startingObservers;
+		private NetworkObject headquartersPrefab;
 
 		[SerializeField]
-		internal Material ownedMaterial;
-		[SerializeField]
-		internal Material friendlyMaterial;
-		[SerializeField]
-		internal Material neutralMaterial;
-		[SerializeField]
-		internal Material enemyMaterial;
+		private Transform[] startPositions;
+
+		private EventAgent bus;
 
 		//This will output all Player teams, not the Observer team
 		public static List<Team> Teams {
@@ -43,6 +39,12 @@ namespace MarsTS.Teams {
 			}
 		}
 
+		public static List<Faction> Players {
+			get {
+				return instance.factions.Values.ToList();
+			}
+		}
+
 		public static Team Observer {
 			get {
 				return instance.teamMap[0];
@@ -51,61 +53,108 @@ namespace MarsTS.Teams {
 
 		private void Awake () {
 			instance = this;
-			playerMap = new Dictionary<Faction, int>();
-			teamMap = new Dictionary<int, Team>();
-			players = new Dictionary<int, Faction>();
-			teamMap[0] = new Team { Id = 0, Members = new List<Faction>() };
-			teamMap[0].Members.AddRange(startingObservers);
-
-			foreach (Team team in startingTeams) {
-				team.Id = teamMap.Count;
-				teamMap[team.Id] = team;
-
-				foreach (Faction member in team.Members) {
-					playerMap[member] = team.Id;
-				}
-			}
-		}
-
-		public static int RegisterPlayer (Faction player) {
-			int id = Mathf.RoundToInt(Mathf.Pow(2, instance.players.Count));
 			
-			if (!instance.players.TryAdd(id, player)) Debug.LogError("Player " + id + " could not be registered! Check the generated ID!");
-			return id;
+			bus = GetComponent<EventAgent>();
+
+			teamMap = new Dictionary<int, Team>();
+			factions = new Dictionary<int, Faction>();
+			factionsToTeamsMap = new Dictionary<int, int>();
+			playersToFactionsMap = new Dictionary<ulong, int>();
+
+			Debug.Log("teams instanced");
+
+			teamMap[0] = new Team { Id = 0, Members = new List<int>() };
 		}
+
+		public static void Init (ulong[] players) {
+			instance.InitTeams(players);
+		}
+
+		private void InitTeams (ulong[] players) {
+			int count = 0;
+
+			foreach (ulong id in players) {
+				int factionID = Mathf.RoundToInt(Mathf.Pow(2, count));
+
+				Faction playerFaction = Instantiate(factionPrefab);
+
+				NetworkObject networkFaction = playerFaction.GetComponent<NetworkObject>();
+				networkFaction.SpawnWithOwnership(id);
+
+				playerFaction.InitClientRpc(id, factionID, teamMap.Count);
+
+				count++;
+			}
+
+			Debug.Log(factions.Count);
+
+			//bus.Global(new TeamsInitEvent(bus));
+		}
+
+		/*[ClientRpc]
+		private void ConfigureTeamClientRpc (ulong playerID, int factionID, int teamID) {
+			CreateFactionInstance(playerID, factionID, teamID);
+		}*/
+
+		public void CreateFactionInstance (ulong playerID, Faction playerFaction, int teamID) {
+			Team newTeam = new Team() { Id = teamID, Members = new List<int>() { playerFaction.ID } };
+
+			teamMap[teamID] = newTeam;
+			factions[playerFaction.ID] = playerFaction;
+			playersToFactionsMap[playerID] = playerFaction.ID;
+			factionsToTeamsMap[playerFaction.ID] = newTeam.Id;
+
+			Debug.Log(playerFaction.ID + " configured");
+		}
+
+		public static void RegisterFaction (ulong playerID, Faction playerFaction, int teamID) {
+			instance.CreateFactionInstance(playerID, playerFaction, teamID);
+		}
+
+		/*public static int RegisterPlayer (Faction player) {
+			int id = Mathf.RoundToInt(Mathf.Pow(2, instance.factions.Count));
+			
+			if (!instance.factions.TryAdd(id, player)) Debug.LogError("Player " + id + " could not be registered! Check the generated ID!");
+			return id;
+		}*/
 
 		public static Team Team (Faction player) {
-			return instance.teamMap[instance.playerMap[player]];
+			return instance.teamMap[instance.factionsToTeamsMap[player.ID]];
 		}
 
-		public static void SetTeams () {
+		public static Faction Faction (int factionID) {
+			return instance.factions[factionID];
+		}
+
+		/*public static void SetTeams () {
 			instance.RollTeams();
 		}
 
 		private void RollTeams () {
-			foreach (Faction player in players.Values) {
+			foreach (Faction player in factions.Values) {
 				int id = teamMap.Count;
 				teamMap[id] = new Team { Id = id, Members = new List<Faction>() { player } };
-				playerMap[player] = id;
+				factionsToTeamsMap[player.ID] = id;
 			}
-		}
+		}*/
 
-		private void OnDestroy () {
+		public override void OnDestroy () {
+			base.OnDestroy();
 			instance = null;
 		}
 	}
 
 	[Serializable]
-	public class Team {
+	public struct Team {
 		public int Id { get; internal set; }
-		public List<Faction> Members;
+		public List<int> Members;
 
 		public int VisionMask {
 			get {
 				int output = 0;
 
-				foreach (Faction player in Members) {
-					output |= player.ID;
+				foreach (int id in Members) {
+					output |= id;
 				}
 
 				return output;
@@ -114,15 +163,6 @@ namespace MarsTS.Teams {
 	}
 
 	static class RelationshipExtensions {
-		public static Material Material (this Relationship relationship) {
-			switch (relationship) {
-				case Relationship.Owned: return TeamCache.instance.ownedMaterial;
-				case Relationship.Friendly: return TeamCache.instance.friendlyMaterial;
-				case Relationship.Hostile: return TeamCache.instance.enemyMaterial;
-				default: return TeamCache.instance.neutralMaterial;
-			}
-		}
-
 		public static Color Colour (this Relationship relationship) {
 			switch (relationship) {
 				case Relationship.Owned: return Color.green;

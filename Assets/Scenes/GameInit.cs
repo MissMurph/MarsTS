@@ -4,6 +4,7 @@ using MarsTS.UI;
 using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -23,7 +24,10 @@ namespace MarsTS {
 		[SerializeField]
 		private NetworkObject headquartersPrefab;
 
-		private Dictionary<ulong, Faction> players = new Dictionary<ulong, Faction>();
+		[SerializeField]
+		private NetworkObject teamCachePrefab;
+
+		private Dictionary<ulong, GameObject> players = new Dictionary<ulong, GameObject>();
 
 		private EventAgent bus;
 
@@ -34,6 +38,8 @@ namespace MarsTS {
 		private void Start () {
 			NetworkManager.Singleton.OnServerStarted += OnServerStart;
 			NetworkManager.Singleton.OnClientStarted += OnClientStart;
+
+			EventBus.AddListener<TeamsInitEvent>(SpawnHeadquarters);
 		}
 
 		private void OnClientStart () {
@@ -51,7 +57,7 @@ namespace MarsTS {
 		}
 
 		private void OnClientConnected (ulong id) {
-			players[id] = NetworkManager.Singleton.ConnectedClients[id].PlayerObject.GetComponent<Faction>();
+			players[id] = NetworkManager.Singleton.ConnectedClients[id].PlayerObject.gameObject;
 		}
 
 		private void OnGameStart () {
@@ -60,25 +66,26 @@ namespace MarsTS {
 
 		[ServerRpc]
 		private void TransmitGameStartServerRpc () {
-			TeamCache.SetTeams();
+			//TeamCache.SetTeams();
 			
-			int count = 0;
+			//int count = 0;
 
-			foreach (Faction player in players.Values) {
-				NetworkObject hqNetwork = Instantiate(headquartersPrefab, startPositions[count].position, startPositions[count].rotation);
-				ISelectable hq = hqNetwork.GetComponent<ISelectable>();
-				hqNetwork.Spawn();
-				hq.SetOwner(player);
+			
 
-				count++;
-			}
+			Instantiate(teamCachePrefab, transform).Spawn();
 
-			TransmitStartVisionClientRpc();
+			TeamCache.Init(players.Keys.ToArray());
 		}
 
-		[ClientRpc]
-		private void TransmitStartVisionClientRpc () {
-			bus.Global(new PlayerInitEvent(bus));
+		private void SpawnHeadquarters (TeamsInitEvent _event) {
+			List<Faction> players = TeamCache.Players;
+
+			for (int i = 0; i < players.Count; i++) {
+				NetworkObject hqNetwork = Instantiate(headquartersPrefab, startPositions[i].position, startPositions[i].rotation);
+				ISelectable hq = hqNetwork.GetComponent<ISelectable>();
+				hqNetwork.Spawn();
+				hq.SetOwner(players[i]);
+			}
 		}
 	}
 }

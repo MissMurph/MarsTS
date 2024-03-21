@@ -4,11 +4,12 @@ using MarsTS.Research;
 using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Teams {
 
-    public class Faction : MonoBehaviour {
+    public class Faction : NetworkBehaviour {
 
         private Dictionary<string, Roster> ownedUnits;
 
@@ -18,7 +19,9 @@ namespace MarsTS.Teams {
 
 		public int ID { get { return id; } }
 
-		private int id;
+		private int id = -1;
+
+		public bool IsHuman { get { return true; } }
 
 		public List<PlayerResource> Resources {
 			get {
@@ -50,8 +53,17 @@ namespace MarsTS.Teams {
 			}
 		}
 
-		protected virtual void Start () {
-			id = TeamCache.RegisterPlayer(this);
+		[ClientRpc]
+		public void InitClientRpc (ulong playerID, int factionID, int teamID) {
+			InitClient(playerID, factionID, teamID);
+		}
+
+		private void InitClient (ulong playerID, int factionID, int teamID) {
+			Debug.Log("called rpc");
+
+			id = factionID;
+
+			TeamCache.RegisterFaction(playerID, this, teamID);
 		}
 
 		public PlayerResource Resource (string key) {

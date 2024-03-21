@@ -4,9 +4,7 @@ using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
-using System.Xml.Linq;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 namespace MarsTS.Vision {
 
@@ -72,7 +70,7 @@ namespace MarsTS.Vision {
 		private void Awake () {
 			instance = this;
 
-			bus = GetComponent<EventAgent>();
+			bus = GetComponentInParent<EventAgent>();
 
 			registeredVision = new Dictionary<string, EntityVision>();
 			results = new Queue<int[,]>();
@@ -107,7 +105,6 @@ namespace MarsTS.Vision {
 
 			currentMask = 0;
 
-			//EventBus.AddListener<UnitDeathEvent>(OnUnitDeath);
 			EventBus.AddListener<EntityDestroyEvent>(OnEntityDestroyed);
 			EventBus.AddListener<PlayerInitEvent>(OnPlayerInit);
 
@@ -369,12 +366,6 @@ namespace MarsTS.Vision {
 
 		public static Vector3 WorldPosFromGridPos (Vector2Int gridPos) {
 			return instance.BottomLeft + new Vector3(gridPos.x * instance.nodeSize + (instance.nodeSize / 2), 0, gridPos.y * instance.nodeSize + (instance.nodeSize / 2));
-		}
-
-		private void OnUnitDeath (UnitDeathEvent _event) {
-			if (registeredVision.TryGetValue(_event.Unit.GameObject.name, out EntityVision vision)) {
-				registeredVision.Remove(_event.Unit.GameObject.name);
-			}
 		}
 
 		private void OnEntityDestroyed (EntityDestroyEvent _event) {

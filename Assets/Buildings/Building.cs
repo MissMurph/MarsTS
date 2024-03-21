@@ -13,10 +13,11 @@ using MarsTS.UI;
 using MarsTS.Vision;
 using System.Linq;
 using MarsTS.Research;
+using Unity.Netcode;
 
 namespace MarsTS.Buildings {
 
-	public abstract class Building : MonoBehaviour, ISelectable, ITaggable<Building>, IAttackable, ICommandable {
+	public abstract class Building : NetworkBehaviour, ISelectable, ITaggable<Building>, IAttackable, ICommandable {
 
 		public GameObject GameObject { get {  return gameObject;  } }
 
@@ -39,7 +40,7 @@ namespace MarsTS.Buildings {
 
 		public Sprite Icon { get { return icon; } }
 
-		public Faction Owner { get { return owner; } }
+		public Faction Owner { get { return TeamCache.Faction(owner.Value); } }
 
 		[SerializeField]
 		private Sprite icon;
@@ -47,8 +48,11 @@ namespace MarsTS.Buildings {
 		[SerializeField]
 		private string type;
 
+		//[SerializeField]
+		//protected Faction owner;
+
 		[SerializeField]
-		protected Faction owner;
+		protected NetworkVariable<int> owner = new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
 
 		/*	ITaggable Properties	*/
 
@@ -193,7 +197,7 @@ namespace MarsTS.Buildings {
 			bus.RemoveListener<CommandCompleteEvent>(ResearchComplete);
 
 			IProducable order = _event.Command as IProducable;
-			Technology product = Instantiate(order.Product, owner.transform, false).GetComponent<Technology>();
+			Technology product = Instantiate(order.Product, Owner.transform, false).GetComponent<Technology>();
 			Player.SubmitResearch(product);
 
 			for (int i = 0; i < boundCommands.Length; i++) {
@@ -257,7 +261,7 @@ namespace MarsTS.Buildings {
 		}
 
 		public Relationship GetRelationship (Faction other) {
-			Relationship result = owner.GetRelationship(other);
+			Relationship result = Owner.GetRelationship(other);
 			return result;
 		}
 
@@ -279,7 +283,7 @@ namespace MarsTS.Buildings {
 		}
 
 		public bool SetOwner (Faction player) {
-			owner = player;
+			owner.Value = player.ID;
 			return true;
 		}
 

@@ -122,7 +122,8 @@ namespace MarsTS.Buildings {
 			}
 		}
 
-		private void OnDestroy () {
+		public override void OnDestroy () {
+			base.OnDestroy();
 			if (exploited != null) exploited.Exploited = false;
 		}
 	}

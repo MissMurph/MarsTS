@@ -47,7 +47,7 @@ namespace MarsTS.UI {
 
 			currentlyTargetingCommand = boundCommands[index];
 
-			Command bound = CommandRegistry.Get(boundCommands[index]);
+			CommandFactory bound = CommandRegistry.Get(boundCommands[index]);
 			bound.StartSelection();
 		}
 

@@ -10,7 +10,7 @@ using UnityEngine.InputSystem;
 
 namespace MarsTS.Commands {
 
-    public class Flare : Command<Vector3> {
+    public class Flare : CommandFactory<Vector3> {
 
 		public override string Name { get { return "flare"; } }
 
@@ -73,7 +73,7 @@ namespace MarsTS.Commands {
 					}
 
 					if (canAfford) {
-						Player.Main.DistributeCommand(Construct(hit.point), Player.Include);
+						//Player.Main.DistributeCommand(Construct(hit.point), Player.Include);
 
 						Destroy(markerTransform.gameObject);
 
@@ -88,9 +88,9 @@ namespace MarsTS.Commands {
 			}
 		}
 
-		public override Commandlet Construct (Vector3 _target) {
+		/*public override Commandlet Construct (Vector3 _target) {
 			return new FlareCommandlet(Name, _target, Player.Commander, cooldown);
-		}
+		}*/
 
 		protected virtual void OnOrder (InputAction.CallbackContext context) {
 			if (context.canceled) {
@@ -128,7 +128,7 @@ namespace MarsTS.Commands {
 
 		private float cooldown;
 
-		public FlareCommandlet (string name, Vector3 target, Faction commander, float _cooldown) : base(name, target, commander) {
+		public FlareCommandlet (string name, Vector3 target, Faction commander, float _cooldown) {
 			cooldown = _cooldown;
 		}
 

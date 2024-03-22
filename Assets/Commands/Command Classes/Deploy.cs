@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace MarsTS.Commands {
 
-	public class Deploy : Command<bool> {
+	public class Deploy : CommandFactory<bool> {
 		public override string Name { get { return commandName; } }
 
 		[SerializeField]
@@ -43,7 +43,7 @@ namespace MarsTS.Commands {
 				}
 			}
 
-			Player.Main.DeliverCommand(Construct(totalCanDeploy > totalDeployed), Player.Include);
+			//Player.Main.DeliverCommand(Construct(totalCanDeploy > totalDeployed), Player.Include);
 
 			//Player.Main.DeliverCommand(new Commandlet<bool>(Name, true, Player.Main), Player.Include);
 		}
@@ -56,9 +56,9 @@ namespace MarsTS.Commands {
 
 		}
 
-		public override Commandlet Construct (bool _target) {
+		/*public override Commandlet Construct (bool _target) {
 			return new DeployCommandlet(Name, _target, deployTime);
-		}
+		}*/
 	}
 
 	public class DeployCommandlet : Commandlet<bool>, IWorkable {
@@ -66,7 +66,7 @@ namespace MarsTS.Commands {
 		public float WorkRequired { get; private set; }
 		public float CurrentWork { get; set; }
 
-		public DeployCommandlet (string _name, bool _status, float _workRequired) : base(_name, _status, Player.Commander) {
+		public DeployCommandlet (string _name, bool _status, float _workRequired) {
 			WorkRequired = _workRequired;
 			CurrentWork = 0f;
 		}

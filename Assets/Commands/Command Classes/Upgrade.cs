@@ -24,7 +24,7 @@ namespace MarsTS.Commands {
 			}
 
 			if (canAfford) {
-				Player.Main.DeliverCommand(Construct(prefab), Player.Include);
+				//Player.Main.DeliverCommand(Construct(prefab), Player.Include);
 
 				foreach (CostEntry entry in cost) {
 					Player.Commander.Resource(entry.key).Withdraw(entry.amount);
@@ -32,9 +32,9 @@ namespace MarsTS.Commands {
 			}
 		}
 
-		public override Commandlet Construct (GameObject _target) {
+		/*public override Commandlet Construct (GameObject _target) {
 			return new UpgradeCommandlet("upgrade", _target, timeRequired, cost);
-		}
+		}*/
 
 		public override CostEntry[] GetCost () {
 			List<CostEntry> spool = new List<CostEntry>();

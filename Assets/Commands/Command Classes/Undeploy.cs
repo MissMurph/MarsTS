@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace MarsTS.Commands {
 
-	public class Undeploy : Command<bool> {
+	public class Undeploy : CommandFactory<bool> {
 		public override string Name { get { return commandName; } }
 
 		[SerializeField]
@@ -43,7 +43,7 @@ namespace MarsTS.Commands {
 				}
 			}
 
-			Player.Main.DeliverCommand(Construct(totalCanDeploy > totalDeployed), Player.Include);
+			//Player.Main.DeliverCommand(Construct(totalCanDeploy > totalDeployed), Player.Include);
 		}
 
 		public override CostEntry[] GetCost () {
@@ -54,9 +54,9 @@ namespace MarsTS.Commands {
 
 		}
 
-		public override Commandlet Construct (bool _target) {
+		/*public override Commandlet Construct (bool _target) {
 			return new UndeployCommandlet(Name, _target, deployTime);
-		}
+		}*/
 	}
 
 	public class UndeployCommandlet : Commandlet<bool>, IWorkable {
@@ -64,7 +64,7 @@ namespace MarsTS.Commands {
 		public float WorkRequired { get; private set; }
 		public float CurrentWork { get; set; }
 
-		public UndeployCommandlet (string _name, bool _status, float _workRequired) : base(_name, _status, Player.Commander) {
+		public UndeployCommandlet (string _name, bool _status, float _workRequired) {
 			WorkRequired = _workRequired;
 			CurrentWork = 0f;
 		}

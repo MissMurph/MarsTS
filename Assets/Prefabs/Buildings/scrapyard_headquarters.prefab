@@ -185,12 +185,12 @@ GameObject:
   - component: {fileID: 4367344837201828851}
   - component: {fileID: 4367344837201828849}
   - component: {fileID: 4367344837201828622}
+  - component: {fileID: 6932056313230598578}
   - component: {fileID: 4367344837201828850}
   - component: {fileID: 6071260427580417810}
   - component: {fileID: 5840463531384133451}
   - component: {fileID: 4260115086938966548}
   - component: {fileID: 4753157223906513630}
-  - component: {fileID: 6932056313230598578}
   m_Layer: 0
   m_Name: scrapyard_headquarters
   m_TagString: Untagged
@@ -247,6 +247,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   registryKey: scrapyard
+--- !u!114 &6932056313230598578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4367344837201828623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 950120036
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &4367344837201828850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -262,7 +283,8 @@ MonoBehaviour:
   maxHealth: 1000
   icon: {fileID: 21300000, guid: 4e0dc8ebe193b5241ab53cb683e802fa, type: 3}
   type: scrapyard
-  owner: {fileID: 0}
+  owner:
+    m_InternalValue: 0
   boundCommands:
   - produce/constructor
   - produce/roughnecksquad
@@ -333,27 +355,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   productionSpeed: 0
---- !u!114 &6932056313230598578
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4367344837201828623}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 950120036
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
 --- !u!1 &4367344837301277131
 GameObject:
   m_ObjectHideFlags: 0

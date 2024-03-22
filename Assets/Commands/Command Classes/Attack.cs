@@ -11,7 +11,7 @@ using UnityEngine.InputSystem;
 
 namespace MarsTS.Commands {
 
-	public class Attack : Command<IAttackable> {
+	public class Attack : CommandFactory<IAttackable> {
 
 		public override string Name { get { return "attack"; } }
 
@@ -34,7 +34,7 @@ namespace MarsTS.Commands {
 
 				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.EntityMask) 
 					&& EntityCache.TryGet(hit.collider.transform.parent.name, out IAttackable unit)) {
-					Player.Main.DeliverCommand(Construct(unit), Player.Include);
+					//Player.Main.DeliverCommand(Construct(unit), Player.Include);
 				}
 
 				CancelSelection();

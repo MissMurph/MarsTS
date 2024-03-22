@@ -4,6 +4,7 @@ using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.World;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -205,7 +206,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		public override Command Evaluate (ISelectable target) {
+		public override CommandFactory Evaluate (ISelectable target) {
 			if (target is IAttackable attackable
 				&& (target.GetRelationship(owner) == Relationship.Owned || target.GetRelationship(owner) == Relationship.Friendly)
 				&& attackable.Health < attackable.MaxHealth) {
@@ -219,10 +220,12 @@ namespace MarsTS.Units {
 			if (target is IAttackable attackable
 				&& (target.GetRelationship(owner) == Relationship.Owned || target.GetRelationship(owner) == Relationship.Friendly)
 				&& attackable.Health < attackable.MaxHealth) {
-				return CommandRegistry.Get<Repair>("repair").Construct(attackable);
+				//return CommandRegistry.Get<Repair>("repair").Construct(attackable);
 			}
 
-			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
+			//return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
+
+			throw new NotImplementedException();
 		}
 
 		public override bool CanCommand (string key) {

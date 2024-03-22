@@ -59,7 +59,7 @@ namespace MarsTS.Teams {
 		}
 
 		private void InitClient (ulong playerID, int factionID, int teamID) {
-			Debug.Log("called rpc");
+			//Debug.Log("called rpc");
 
 			id = factionID;
 

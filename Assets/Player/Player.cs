@@ -173,7 +173,7 @@ namespace MarsTS.Players {
 				else if (walkableHit.collider != null) {
 					Vector3 hitPos = walkableHit.point;
 
-					DeliverCommand(CommandRegistry.Get<Move>("move").Construct(hitPos), Include);
+					//DeliverCommand(CommandRegistry.Get<Move>("move").Construct(hitPos), Include);
 					return;
 				}
 			}

@@ -9,7 +9,7 @@ using UnityEngine.InputSystem;
 
 namespace MarsTS.Commands {
 
-    public class Harvest : Command<IHarvestable> {
+    public class Harvest : CommandFactory<IHarvestable> {
 
 		public override string Name { get { return "harvest"; } }
 
@@ -33,7 +33,7 @@ namespace MarsTS.Commands {
 				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)
 					&& EntityCache.TryGet(hit.collider.transform.parent.name + ":selectable", out ISelectable unit)
 					&& unit is IHarvestable target) {
-					Player.Main.DeliverCommand(Construct(target), Player.Include);
+					//Player.Main.DeliverCommand(Construct(target), Player.Include);
 				}
 
 				Player.Input.Release("Select");

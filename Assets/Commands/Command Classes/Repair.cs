@@ -9,7 +9,7 @@ using UnityEngine.InputSystem;
 
 namespace MarsTS.Commands {
 
-	public class Repair : Command<IAttackable> {
+	public class Repair : CommandFactory<IAttackable> {
 
 		public override string Name { get { return "repair"; } }
 
@@ -31,7 +31,7 @@ namespace MarsTS.Commands {
 				Ray ray = Player.ViewPort.ScreenPointToRay(cursorPos);
 
 				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask) && EntityCache.TryGet(hit.collider.transform.parent.name + ":selectable", out ISelectable target) && target is IAttackable attackable) {
-					Player.Main.DeliverCommand(Construct(attackable), Player.Include);
+					//Player.Main.DeliverCommand(Construct(attackable), Player.Include);
 				}
 
 				Player.Input.Release("Select");

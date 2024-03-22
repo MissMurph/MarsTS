@@ -61,7 +61,7 @@ namespace MarsTS.Teams {
 			factionsToTeamsMap = new Dictionary<int, int>();
 			playersToFactionsMap = new Dictionary<ulong, int>();
 
-			Debug.Log("teams instanced");
+			//Debug.Log("teams instanced");
 
 			teamMap[0] = new Team { Id = 0, Members = new List<int>() };
 		}
@@ -86,9 +86,7 @@ namespace MarsTS.Teams {
 				count++;
 			}
 
-			Debug.Log(factions.Count);
-
-			//bus.Global(new TeamsInitEvent(bus));
+			bus.Global(new TeamsInitEvent(bus));
 		}
 
 		/*[ClientRpc]
@@ -103,8 +101,6 @@ namespace MarsTS.Teams {
 			factions[playerFaction.ID] = playerFaction;
 			playersToFactionsMap[playerID] = playerFaction.ID;
 			factionsToTeamsMap[playerFaction.ID] = newTeam.Id;
-
-			Debug.Log(playerFaction.ID + " configured");
 		}
 
 		public static void RegisterFaction (ulong playerID, Faction playerFaction, int teamID) {

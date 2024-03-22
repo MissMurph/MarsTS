@@ -278,7 +278,7 @@ namespace MarsTS.Units {
 			return boundCommands;
 		}
 
-		public abstract Command Evaluate (ISelectable target);
+		public abstract CommandFactory Evaluate (ISelectable target);
 
 		public abstract Commandlet Auto (ISelectable target);
 

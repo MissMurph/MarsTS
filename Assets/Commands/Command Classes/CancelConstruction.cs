@@ -7,7 +7,7 @@ using static UnityEngine.GraphicsBuffer;
 
 namespace MarsTS.Commands {
 
-	public class CancelConstruction : Command<bool> {
+	public class CancelConstruction : CommandFactory<bool> {
 
 		public override string Name { get { return "cancelConstruction"; } }
 
@@ -17,7 +17,7 @@ namespace MarsTS.Commands {
 		private string description;
 
 		public override void StartSelection () {
-			Player.Main.DeliverCommand(Construct(true), false);
+			//Player.Main.DeliverCommand(Construct(true), false);
 		}
 
 		public override CostEntry[] GetCost () {

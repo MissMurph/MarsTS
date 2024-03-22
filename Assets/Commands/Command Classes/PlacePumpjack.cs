@@ -74,7 +74,7 @@ namespace MarsTS.Commands {
 
 					newBuilding.GetComponent<EventAgent>().AddListener<EntityInitEvent>((_event) => {
 						if (_event.Phase == Phase.Pre) return;
-						Player.Main.DeliverCommand(CommandRegistry.Get<Repair>("repair").Construct(newBuilding), Player.Include);
+						//Player.Main.DeliverCommand(CommandRegistry.Get<Repair>("repair").Construct(newBuilding), Player.Include);
 					});
 
 					Destroy(ghostTransform.gameObject);

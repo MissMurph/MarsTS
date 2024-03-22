@@ -9,12 +9,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3742538023138355787}
+  - component: {fileID: 1192591062718886568}
   - component: {fileID: 1192591062718886571}
   - component: {fileID: 3742538023138355781}
   - component: {fileID: 3742538023138355780}
   - component: {fileID: 3742538023138355778}
   - component: {fileID: 3742538023138355777}
-  - component: {fileID: 1192591062718886568}
+  - component: {fileID: 1732933363132475126}
   m_Layer: 0
   m_Name: Faction
   m_TagString: Untagged
@@ -37,6 +38,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1192591062718886568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3742538023138355790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 4144900852
+  InScenePlacedSourceGlobalObjectIdHash: 669622814
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 0
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &1192591062718886571
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -102,7 +124,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   key: oil
   startingAmount: 100
---- !u!114 &1192591062718886568
+--- !u!114 &1732933363132475126
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -111,15 +133,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 3742538023138355790}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Script: {fileID: 11500000, guid: 2e5ecac59c226ce49ba9a8f16c306d33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 4144900852
-  InScenePlacedSourceGlobalObjectIdHash: 669622814
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 0
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
+  clientPrefab: {fileID: 1899313101430345159, guid: 9ae62d8cad0077e4fbb803309c7b6353,
+    type: 3}

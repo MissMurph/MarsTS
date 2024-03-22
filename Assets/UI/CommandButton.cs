@@ -11,7 +11,7 @@ namespace MarsTS.UI {
 
     public class CommandButton : MonoBehaviour {
 
-        private Command current;
+        private CommandFactory current;
 
         private Image icon;
         private Image cooldown;

@@ -83,8 +83,9 @@ namespace MarsTS {
 			for (int i = 0; i < players.Count; i++) {
 				NetworkObject hqNetwork = Instantiate(headquartersPrefab, startPositions[i].position, startPositions[i].rotation);
 				ISelectable hq = hqNetwork.GetComponent<ISelectable>();
-				hqNetwork.Spawn();
 				hq.SetOwner(players[i]);
+				hqNetwork.Spawn();
+				
 			}
 		}
 	}

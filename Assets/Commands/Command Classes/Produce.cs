@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace MarsTS.Commands {
 
-	public class Produce : Command<GameObject> {
+	public class Produce : CommandFactory<GameObject> {
 
 		public override string Name { get { return "produce/" + prefab.name; } }
 
@@ -47,7 +47,7 @@ namespace MarsTS.Commands {
 			}
 
 			if (canAfford) {
-				Player.Main.DistributeCommand(Construct(prefab), Player.Include);
+				//Player.Main.DistributeCommand(Construct(prefab), Player.Include);
 
 				foreach (CostEntry entry in cost) {
 					Player.Commander.Resource(entry.key).Withdraw(entry.amount);
@@ -55,9 +55,9 @@ namespace MarsTS.Commands {
 			}
 		}
 
-		public override Commandlet Construct (GameObject _target) {
+		/*public override Commandlet Construct (GameObject _target) {
 			return new ProductionCommandlet("produce", _target, timeRequired, cost);
-		}
+		}*/
 
 		public override CostEntry[] GetCost () {
 			List<CostEntry> spool = new List<CostEntry>();
@@ -86,9 +86,9 @@ namespace MarsTS.Commands {
 		public int ProductionProgress { get; set; }
 		public Dictionary<string, int> Cost { get; private set; }
 		public GameObject Product { get { return Target; } }
-		public override Command Command { get { return CommandRegistry.Get(Name + "/" + Product.name); } }
+		public override CommandFactory Command { get { return CommandRegistry.Get(Name + "/" + Product.name); } }
 
-		public ProductionCommandlet (string name, GameObject prefab, int timeRequired, CostEntry[] cost) : base(name, prefab, Player.Commander) {
+		public ProductionCommandlet (string name, GameObject prefab, int timeRequired, CostEntry[] cost) {
 			ProductionRequired = timeRequired;
 			ProductionProgress = 0;
 

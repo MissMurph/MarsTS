@@ -185,7 +185,7 @@ namespace MarsTS.UI {
 			if (PrimarySelected != null && Physics.Raycast(ray, out RaycastHit selectable, 1000f, GameWorld.SelectableMask)) {
 				if (EntityCache.TryGet(selectable.collider.transform.parent.gameObject.name, out ISelectable target)) {
 					if (Player.Selected.TryGetValue(PrimarySelected, out Roster roster) && roster.Get() is ICommandable commandable) {
-						Command result = commandable.Evaluate(target);
+						CommandFactory result = commandable.Evaluate(target);
 						CursorSprite sprite = result.Pointer;
 						Cursor.SetCursor(sprite.texture, sprite.target, CursorMode.Auto);
 						return;

@@ -309,7 +309,7 @@ namespace MarsTS.Units {
 			throw new System.NotImplementedException();
 		}
 
-		public virtual Command Evaluate (ISelectable target) {
+		public virtual CommandFactory Evaluate (ISelectable target) {
 			throw new System.NotImplementedException();
 		}
 

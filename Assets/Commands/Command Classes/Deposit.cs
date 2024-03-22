@@ -10,7 +10,7 @@ using UnityEngine.InputSystem;
 
 namespace MarsTS.Commands {
 
-	public class Deposit : Command<IDepositable> {
+	public class Deposit : CommandFactory<IDepositable> {
 
 		public override string Name { get { return "deposit"; } }
 
@@ -32,7 +32,7 @@ namespace MarsTS.Commands {
 				Ray ray = Player.ViewPort.ScreenPointToRay(cursorPos);
 
 				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask) && EntityCache.TryGet(hit.collider.transform.parent.name + ":selectable", out ISelectable target) && target is IDepositable deserialized) {
-					Player.Main.DeliverCommand(Construct(deserialized), Player.Include);
+					//Player.Main.DeliverCommand(Construct(deserialized), Player.Include);
 				}
 
 				Player.Input.Release("Select");

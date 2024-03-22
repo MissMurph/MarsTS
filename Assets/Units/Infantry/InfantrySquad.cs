@@ -245,12 +245,12 @@ namespace MarsTS.Units {
 			else commands.Execute(order);
 		}
 
-		public virtual Command Evaluate (ISelectable target) {
+		public virtual CommandFactory Evaluate (ISelectable target) {
 			return CommandRegistry.Get("move");
 		}
 
 		public virtual Commandlet Auto (ISelectable target) {
-			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
+			throw new NotImplementedException();
 		}
 
 		public InfantrySquad Get () {

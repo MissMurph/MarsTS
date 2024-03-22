@@ -21,7 +21,7 @@ namespace MarsTS.Commands {
 		protected Dictionary<string, Timer> activeCooldowns;
 		protected List<Timer> completedCooldowns;
 
-		public int Count { get { return Current is not null ? 1 + commandQueue.Count : 0; } }
+		public int Count { get { return Current != null ? 1 + commandQueue.Count : 0; } }
 
 		protected ISelectable parent;
 		protected ICommandable orderSource;
@@ -77,7 +77,7 @@ namespace MarsTS.Commands {
 			}
 
 			foreach (Commandlet active in activeCommands.Values.ToArray()) {
-				active.OnUpdate(this);
+				//active.OnUpdate(this);
 			}
 
 			completedCooldowns = new();

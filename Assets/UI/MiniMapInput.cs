@@ -76,7 +76,7 @@ namespace MarsTS.UI {
 				Ray ray = mapCam.ViewportPointToRay(relativePos);
 
 				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.WalkableMask)) {
-					Player.Main.DeliverCommand(CommandRegistry.Get<Move>("move").Construct(hit.point), Player.Include);
+					//Player.Main.DeliverCommand(CommandRegistry.Get<Move>("move").Construct(hit.point), Player.Include);
 				}
 			}
 

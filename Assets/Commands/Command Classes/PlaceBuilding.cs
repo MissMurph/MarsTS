@@ -11,7 +11,7 @@ using UnityEngine.InputSystem;
 
 namespace MarsTS.Commands {
 
-	public class PlaceBuilding : Command<ISelectable> {
+	public class PlaceBuilding : CommandFactory<ISelectable> {
 
 		public override string Name { get { return "construct/" + building.UnitType; } }
 
@@ -82,7 +82,7 @@ namespace MarsTS.Commands {
 
 						newBuilding.GetComponent<EventAgent>().AddListener<EntityInitEvent>((_event) => {
 							if (_event.Phase == Phase.Pre) return;
-							Player.Main.DeliverCommand(CommandRegistry.Get<Repair>("repair").Construct(newBuilding), Player.Include);
+							//Player.Main.DeliverCommand(CommandRegistry.Get<Repair>("repair").Construct(newBuilding), Player.Include);
 						});
 
 						Destroy(ghostTransform.gameObject);

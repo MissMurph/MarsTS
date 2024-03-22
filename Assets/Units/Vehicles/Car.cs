@@ -4,6 +4,7 @@ using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.World;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -207,7 +208,7 @@ namespace MarsTS.Units {
 			CurrentCommand.Callback.Invoke(newEvent);
 		}
 
-		public override Command Evaluate (ISelectable target) {
+		public override CommandFactory Evaluate (ISelectable target) {
 			if (target is IAttackable && target.GetRelationship(owner) == Relationship.Hostile) {
 				return CommandRegistry.Get("attack");
 			}
@@ -217,10 +218,10 @@ namespace MarsTS.Units {
 
 		public override Commandlet Auto (ISelectable target) {
 			if (target is IAttackable deserialized && target.GetRelationship(owner) == Relationship.Hostile) {
-				return CommandRegistry.Get<Attack>("attack").Construct(deserialized);
+				//return CommandRegistry.Get<Attack>("attack").Construct(deserialized);
 			}
 
-			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
+			throw new NotImplementedException();
 		}
 	}
 }

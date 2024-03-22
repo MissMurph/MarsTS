@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace MarsTS.Commands {
 
-	public class Construct : Command<ISelectable> {
+	public class Construct : CommandFactory<ISelectable> {
 
 		public override string Name { get { return "construct"; } }
 

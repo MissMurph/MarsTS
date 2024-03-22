@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace MarsTS.Commands {
 
-    public class Sneak : Command<bool> {
+    public class Sneak : CommandFactory<bool> {
 		public override string Name { get { return "sneak"; } }
 
 		public override Type TargetType { get { return typeof(bool); } }
@@ -44,7 +44,7 @@ namespace MarsTS.Commands {
 				}
 			}
 
-			Player.Main.DeliverCommand(Construct(totalWithSneak > totalSneakActive), true);
+			//Player.Main.DeliverCommand(Construct(totalWithSneak > totalSneakActive), true);
 		}
 
 		public override CostEntry[] GetCost () {
@@ -55,16 +55,16 @@ namespace MarsTS.Commands {
 			
 		}
 
-		public override Commandlet Construct (bool target) {
+		/*public override Commandlet Construct (bool target) {
 			return new SneakCommandlet(Name, target, Player.Commander, deactivateCooldown, reactivateCooldown);
-		}
+		}*/
 
 		private class SneakCommandlet : Commandlet<bool> {
 
 			private float deactivateCooldown;
 			private float reactivateCooldown;
 
-			public SneakCommandlet (string name, bool target, Faction commander, float _deactivateCooldown, float _reactivateCooldown) : base(name, target, commander) {
+			public SneakCommandlet (string name, bool target, Faction commander, float _deactivateCooldown, float _reactivateCooldown) {
 				deactivateCooldown = _deactivateCooldown;
 				reactivateCooldown = _reactivateCooldown;
 			}

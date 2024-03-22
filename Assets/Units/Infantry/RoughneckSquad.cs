@@ -5,6 +5,7 @@ using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.UI;
 using MarsTS.World;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -95,7 +96,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		public override Command Evaluate (ISelectable target) {
+		public override CommandFactory Evaluate (ISelectable target) {
 			if (target is IHarvestable harvestable
 				&& Stored < Capacity
 				&& harvestable.StoredAmount > 0
@@ -120,19 +121,21 @@ namespace MarsTS.Units {
 				&& Stored < Capacity
 				&& harvestable.StoredAmount > 0
 				&& harvestable.CanHarvest(storageComp.Resource, this)) {
-				return CommandRegistry.Get<Harvest>("harvest").Construct(harvestable);
+				//return CommandRegistry.Get<Harvest>("harvest").Construct(harvestable);
 			}
 
 			if (target is IDepositable depositable
 				&& Stored > 0) {
-				return CommandRegistry.Get<Deposit>("deposit").Construct(depositable);
+				//return CommandRegistry.Get<Deposit>("deposit").Construct(depositable);
 			}
 
 			if (target is IAttackable attackable && target.GetRelationship(owner) == Relationship.Hostile) {
-				return CommandRegistry.Get<Attack>("attack").Construct(attackable);
+				//return CommandRegistry.Get<Attack>("attack").Construct(attackable);
 			}
 
-			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
+			//return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
+
+			throw new NotImplementedException();
 		}
 
 		protected override void OnUnitInfoDisplayed (UnitInfoEvent _event) {

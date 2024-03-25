@@ -1,3 +1,4 @@
+using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
@@ -27,21 +28,6 @@ namespace MarsTS.Commands {
 
 		private void OnPlayerInit (PlayerInitEvent _event) {
 			
-		}
-
-		public override void Construct (Vector3 _target) {
-			throw new NotImplementedException();
-		}
-
-		[ServerRpc]
-		private void ConstructCommandletServerRpc (Vector3 _target, int _factionId) {
-			ConstructCommandletServer(_target, _factionId);
-		}
-
-		private void ConstructCommandletServer (Vector3 _target, int _factionId) {
-			Commandlet<Vector3> order = Instantiate(orderPrefab);
-
-			order.Init(Name, _target, TeamCache.Faction(_factionId));
 		}
 
 		public override CostEntry[] GetCost () {

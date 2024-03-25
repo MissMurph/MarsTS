@@ -57,10 +57,6 @@ namespace MarsTS.Commands {
 		public override void CancelSelection () {
 
 		}
-
-		/*public override Commandlet Construct (bool _target) {
-			return new AdrenalineCommandlet(Name, duration, cooldown, _target);
-		}*/
 	}
 
 	public class AdrenalineCommandlet : Commandlet<bool> {

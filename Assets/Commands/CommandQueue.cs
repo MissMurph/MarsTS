@@ -3,11 +3,12 @@ using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Commands {
 
-    public class CommandQueue : MonoBehaviour {
+    public class CommandQueue : NetworkBehaviour {
         
         public Commandlet Current { get; protected set; }
 
@@ -27,6 +28,8 @@ namespace MarsTS.Commands {
 		protected ICommandable orderSource;
 		protected EventAgent bus;
 
+		protected bool isServer;
+
 		protected virtual void Awake () {
 			parent = GetComponent<ISelectable>();
 			orderSource = parent as ICommandable;
@@ -40,18 +43,28 @@ namespace MarsTS.Commands {
 			completedCooldowns = new List<Timer>();
 		}
 
+		public override void OnNetworkSpawn () {
+			base.OnNetworkSpawn();
+
+			isServer = NetworkManager.IsServer;
+		}
+
 		protected virtual void Update () {
-			if (Current is null && commandQueue.TryDequeue(out Commandlet order)) {
+			//if (!isServer) return;
+
+			if (isServer && Current == null && commandQueue.TryDequeue(out Commandlet order)) {
 				Current = order;
 				order.Callback.AddListener(OrderComplete);
 				CommandStartEvent _event = new CommandStartEvent(bus, order, parent);
 				order.OnStart(this, _event);
 				bus.Local(_event);
 
+				DequeueClientRpc(order.gameObject);
+
 				return;
 			}
 
-			if (Current is IWorkable workOrder) {
+			if (isServer && Current is IWorkable workOrder) {
 				workOrder.CurrentWork += Time.deltaTime;
 				bus.Global(new CommandWorkEvent(bus, Current.Name, parent, workOrder));
 
@@ -76,11 +89,22 @@ namespace MarsTS.Commands {
 				bus.Global(new CooldownEvent(bus, expiredCooldown.commandName, parent, expiredCooldown));
 			}
 
-			foreach (Commandlet active in activeCommands.Values.ToArray()) {
-				//active.OnUpdate(this);
-			}
-
 			completedCooldowns = new();
+		}
+
+		[ClientRpc]
+		private void DequeueClientRpc (NetworkObjectReference orderReference) {
+			if (NetworkManager.IsHost) return;
+
+			Dequeue(((GameObject)orderReference).GetComponent<Commandlet>());
+		}
+
+		private void Dequeue (Commandlet order) {
+			Current = order;
+			order.Callback.AddListener(OrderComplete);
+			CommandStartEvent _event = new CommandStartEvent(bus, order, parent);
+			order.OnStart(this, _event);
+			bus.Local(_event);
 		}
 
 		protected virtual void OrderComplete (CommandCompleteEvent _event) {
@@ -102,11 +126,29 @@ namespace MarsTS.Commands {
 
 			Current = null;
 			commandQueue.Enqueue(order);
+
+			if (NetworkManager.Singleton.IsServer) ExecuteClientRpc(order.gameObject);
+		}
+
+		[ClientRpc]
+		private void ExecuteClientRpc (NetworkObjectReference orderReference) {
+			if (NetworkManager.Singleton.IsHost) return;
+
+			Execute(((GameObject)orderReference).GetComponent<Commandlet>());
 		}
 
 		public virtual void Enqueue (Commandlet order) {
 			if (!orderSource.CanCommand(order.Command.Name)) return;
 			commandQueue.Enqueue(order);
+
+			if (NetworkManager.Singleton.IsServer) EnqueueClientRpc(order.gameObject);
+		}
+
+		[ClientRpc]
+		private void EnqueueClientRpc (NetworkObjectReference orderReference) {
+			if (NetworkManager.Singleton.IsHost) return;
+
+			Enqueue(((GameObject)orderReference).GetComponent<Commandlet>());
 		}
 
 		public virtual void Activate (Commandlet order, bool status) {

@@ -35,7 +35,7 @@ namespace MarsTS.Commands {
 		}
 
 		protected override void Update () {
-			if (Current is null && commandQueue.TryDequeue(out Commandlet order)) {
+			if (isServer && Current is null && commandQueue.TryDequeue(out Commandlet order)) {
 				Current = order;
 
 				order.Callback.AddListener(OrderComplete);
@@ -48,7 +48,7 @@ namespace MarsTS.Commands {
 				return;
 			}
 
-			if (Current != null && Current is IProducable production) {
+			if (isServer && Current != null && Current is IProducable production) {
 				timeToStep -= Time.deltaTime;
 
 				if (timeToStep <= 0) {

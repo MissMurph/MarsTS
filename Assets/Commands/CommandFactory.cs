@@ -1,3 +1,4 @@
+using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
@@ -14,7 +15,26 @@ namespace MarsTS.Commands {
 
 	public abstract class CommandFactory<T> : CommandFactory {
 
-		public abstract void Construct (T _target);
+		public virtual void Construct (T _target, NetworkObjectReference[] _selection) {
+			ConstructCommandletServerRpc(_target, Player.Commander.ID, _selection, Player.Include);
+		}
+
+		[ServerRpc]
+		protected virtual void ConstructCommandletServerRpc (T _target, int _factionId, NetworkObjectReference[] _selection, bool _inclusive) {
+			ConstructCommandletServer(_target, _factionId, _selection, _inclusive);
+		}
+
+		protected virtual void ConstructCommandletServer (T _target, int _factionId, NetworkObjectReference[] _selection, bool _inclusive) {
+			Commandlet<T> order = Instantiate(orderPrefab);
+
+			order.Init(Name, _target, TeamCache.Faction(_factionId));
+
+			foreach (NetworkObjectReference objectRef in _selection) {
+				if (EntityCache.TryGet(((GameObject)objectRef).name, out ICommandable unit)) {
+					unit.Order(order, _inclusive);
+				}
+			}
+		}
 
 		[SerializeField]
 		protected Commandlet<T> orderPrefab;

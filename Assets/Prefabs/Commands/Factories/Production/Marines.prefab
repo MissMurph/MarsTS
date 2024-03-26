@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 421249461419999903}
+  - component: {fileID: 4816396767234414733}
   - component: {fileID: 421249461419999902}
   m_Layer: 0
   m_Name: Marines
@@ -32,6 +33,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4816396767234414733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 421249461419999900}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2966400951
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 0
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &421249461419999902
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -49,10 +71,13 @@ MonoBehaviour:
   Pointer:
     texture: {fileID: 0}
     target: {x: 0, y: 0}
+  orderPrefab: {fileID: 9078585913170648512, guid: d9ec859147772184c9b3d31f69961193,
+    type: 3}
   description: A squad of hardy, high damage marines, used as the bulk of frontline
     forces, they're used to quickly mass an army and overwhelm the enemy. Can be
     upgraded with Adrenaline technology.
-  prefab: {fileID: 8069000943633701443, guid: fdbf4b0740ccf4a42a9c67cb4d3762d6, type: 3}
+  unitPrefab: {fileID: 8069000943633701443, guid: fdbf4b0740ccf4a42a9c67cb4d3762d6,
+    type: 3}
   timeRequired: 5
   cost:
   - key: resource_unit

@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4254971363239813332}
+  - component: {fileID: 3326525659890259701}
   - component: {fileID: 4254971363239813333}
   m_Layer: 0
   m_Name: FlatTank
@@ -32,6 +33,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3326525659890259701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4254971363239813339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2891411111
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 0
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &4254971363239813333
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -49,9 +71,12 @@ MonoBehaviour:
   Pointer:
     texture: {fileID: 0}
     target: {x: 0, y: 0}
+  orderPrefab: {fileID: 9078585913170648512, guid: d9ec859147772184c9b3d31f69961193,
+    type: 3}
   description: A flat, sturdy tank that's able to deal significant damage and move
     dececntly fast for the Martian terrain.
-  prefab: {fileID: 452040235016441161, guid: 160c6e924a2b7dd428126aa4f46fd60b, type: 3}
+  unitPrefab: {fileID: 452040235016441161, guid: 160c6e924a2b7dd428126aa4f46fd60b,
+    type: 3}
   timeRequired: 60
   cost:
   - key: resource_unit

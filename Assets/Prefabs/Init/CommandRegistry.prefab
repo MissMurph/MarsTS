@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &8717826713107361596
+--- !u!1 &7010238093460766732
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,23 +8,23 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8717826713107361595}
-  - component: {fileID: 6736402156918446866}
-  - component: {fileID: 8717826713107361594}
+  - component: {fileID: 7010238093460766735}
+  - component: {fileID: 7010238093460766721}
+  - component: {fileID: 7010238093460766734}
   m_Layer: 0
-  m_Name: Roughnecks
+  m_Name: CommandRegistry
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8717826713107361595
+--- !u!4 &7010238093460766735
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8717826713107361596}
+  m_GameObject: {fileID: 7010238093460766732}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -33,19 +33,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6736402156918446866
+--- !u!114 &7010238093460766721
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8717826713107361596}
+  m_GameObject: {fileID: 7010238093460766732}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 177310882
+  GlobalObjectIdHash: 1287611226
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
@@ -54,31 +54,21 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &8717826713107361594
+--- !u!114 &7010238093460766734
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8717826713107361596}
+  m_GameObject: {fileID: 7010238093460766732}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d909854d25a6a684b94123d19dcc9e45, type: 3}
+  m_Script: {fileID: 11500000, guid: 18f74aaa5c48cb3419bb648ea70070ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  icon: {fileID: 0}
-  IconColor: {r: 0, g: 0, b: 0, a: 0}
-  Pointer:
-    texture: {fileID: 0}
-    target: {x: 0, y: 0}
-  orderPrefab: {fileID: 9078585913170648512, guid: d9ec859147772184c9b3d31f69961193,
-    type: 3}
-  description: Roughnecks are the field engineers of the native Martians. Capable
-    of camouflaging in all terrain, they can construct hidden oil operations, repair
-    buildings and vehicles and prepare ambushes with defensive emplacements.
-  unitPrefab: {fileID: 7248859610773361695, guid: b8ae55b487a53814988a1ce86421e8a1,
-    type: 3}
-  timeRequired: 5
-  cost:
-  - key: resource_unit
-    amount: 200
+  factoriesToInit:
+  - {fileID: 1678601764323031718, guid: e2819091bd77a1a479697ac4f37e8339, type: 3}
+  - {fileID: 4161531848220810391, guid: 08fefc25c2f753f438ec6032663c6a3f, type: 3}
+  - {fileID: 8717826713107361594, guid: ed7cbda3532c5cf4da16102be7b8d7a6, type: 3}
+  - {fileID: 6836113184707497443, guid: 4a4cdbdd978776d48b9c73927f80275c, type: 3}
+  - {fileID: 3180229016746917295, guid: dd04437f453864241921bb8016b4bfca, type: 3}

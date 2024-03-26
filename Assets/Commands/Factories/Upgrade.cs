@@ -7,7 +7,7 @@ using UnityEngine;
 namespace MarsTS.Commands {
 
 	public class Upgrade : Produce {
-		public override string Name { get { return "upgrade/" + prefab.name; } }
+		public override string Name { get { return "upgrade/" + unitPrefab.name; } }
 
 		public override Sprite Icon { get { return icon; } }
 
@@ -54,11 +54,6 @@ namespace MarsTS.Commands {
 
 		public override void CancelSelection () {
 
-		}
-	}
-
-	public class UpgradeCommandlet : ProductionCommandlet {
-		public UpgradeCommandlet (string name, GameObject prefab, int timeRequired, CostEntry[] cost) : base(name, prefab, timeRequired, cost) {
 		}
 	}
 }

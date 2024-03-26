@@ -71,6 +71,12 @@ namespace MarsTS.Teams {
 		}
 
 		private void InitTeams (ulong[] players) {
+			TeamsInitEvent _event = new TeamsInitEvent(bus);
+
+			_event.Phase = Phase.Pre;
+
+			bus.Global(_event);
+
 			int count = 0;
 
 			foreach (ulong id in players) {
@@ -86,7 +92,8 @@ namespace MarsTS.Teams {
 				count++;
 			}
 
-			bus.Global(new TeamsInitEvent(bus));
+			_event.Phase = Phase.Post;
+			bus.Global(_event);
 		}
 
 		/*[ClientRpc]

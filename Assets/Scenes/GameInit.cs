@@ -27,6 +27,9 @@ namespace MarsTS {
 		[SerializeField]
 		private NetworkObject teamCachePrefab;
 
+		[SerializeField]
+		private NetworkObject commandRegistryPrefab;
+
 		private Dictionary<ulong, GameObject> players = new Dictionary<ulong, GameObject>();
 
 		private EventAgent bus;
@@ -78,14 +81,19 @@ namespace MarsTS {
 		}
 
 		private void SpawnHeadquarters (TeamsInitEvent _event) {
-			List<Faction> players = TeamCache.Players;
+			if (_event.Phase.Equals(Phase.Pre)) {
+				Instantiate(commandRegistryPrefab, transform).Spawn();
+			}
+			else {
+				List<Faction> players = TeamCache.Players;
 
-			for (int i = 0; i < players.Count; i++) {
-				NetworkObject hqNetwork = Instantiate(headquartersPrefab, startPositions[i].position, startPositions[i].rotation);
-				ISelectable hq = hqNetwork.GetComponent<ISelectable>();
-				hq.SetOwner(players[i]);
-				hqNetwork.Spawn();
-				
+				for (int i = 0; i < players.Count; i++) {
+					NetworkObject hqNetwork = Instantiate(headquartersPrefab, startPositions[i].position, startPositions[i].rotation);
+					ISelectable hq = hqNetwork.GetComponent<ISelectable>();
+					hq.SetOwner(players[i]);
+					hqNetwork.Spawn();
+
+				}
 			}
 		}
 	}

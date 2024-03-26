@@ -74,9 +74,9 @@ namespace MarsTS.Buildings {
 
 			ICommandable commandable = newUnit as ICommandable;
 
-			Commandlet exit = exitOrder.Clone();
-			exit.Callback.AddListener(UnitExitCallback);
-			commandable.Order(exit, false);
+			//Commandlet exit = exitOrder.Clone();
+			//exit.Callback.AddListener(UnitExitCallback);
+			//commandable.Order(exit, false);
 
 			foreach (Commandlet newCommand in rallyOrders) {
 				commandable.Order(newCommand.Clone(), true);

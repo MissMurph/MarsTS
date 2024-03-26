@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3180229016746917294}
+  - component: {fileID: 355056646904327921}
   - component: {fileID: 3180229016746917295}
   m_Layer: 0
   m_Name: Harvester
@@ -32,6 +33,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &355056646904327921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3180229016746917293}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 1094763808
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 0
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &3180229016746917295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -49,9 +71,12 @@ MonoBehaviour:
   Pointer:
     texture: {fileID: 0}
     target: {x: 0, y: 0}
+  orderPrefab: {fileID: 9078585913170648512, guid: d9ec859147772184c9b3d31f69961193,
+    type: 3}
   description: A slow moving unit that harvests Resource Units from mineral deposits
     and deposits them in a nearby base
-  prefab: {fileID: 3758000306492427157, guid: 90f452b211acc384b80839d8ea68f3f2, type: 3}
+  unitPrefab: {fileID: 3758000306492427157, guid: 90f452b211acc384b80839d8ea68f3f2,
+    type: 3}
   timeRequired: 90
   cost:
   - key: resource_unit

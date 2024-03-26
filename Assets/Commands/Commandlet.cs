@@ -46,7 +46,7 @@ namespace MarsTS.Commands {
 		public T Target { get { return target; } }
 
 		[SerializeField]
-		private T target;
+		protected T target;
 
 		public override Type TargetType { get { return typeof(T); } }
 
@@ -59,6 +59,7 @@ namespace MarsTS.Commands {
 		public virtual void Init (string _name, T _target, Faction _commander) {
 			Name = _name;
 			target = _target;
+			Commander = _commander;
 
 			GetComponent<NetworkObject>().Spawn();
 		}

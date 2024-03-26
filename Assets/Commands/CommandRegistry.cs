@@ -1,23 +1,68 @@
+using MarsTS.Events;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Commands {
 
-    public class CommandRegistry : MonoBehaviour {
+    public class CommandRegistry : NetworkBehaviour {
 
 		private static CommandRegistry instance;
 
         private Dictionary<string, CommandFactory> registered;
 
+		[SerializeField]
+		private CommandFactory[] factoriesToInit;
+
 		private void Awake () {
 			instance = this;
 			registered = new Dictionary<string, CommandFactory>();
+		}
 
-			foreach (CommandFactory entry in GetComponentsInChildren<CommandFactory>()) {
-				registered.Add(entry.Name, entry);
+		public override void OnNetworkSpawn () {
+			base.OnNetworkSpawn();
+
+			foreach (CommandFactory toConstruct in factoriesToInit) {
+				CommandFactory constructed = Instantiate(toConstruct);
+				registered[constructed.Name] = constructed;
+
+				NetworkObject commandNetworking = constructed.GetComponent<NetworkObject>();
+				commandNetworking.Spawn();
+				commandNetworking.TrySetParent(transform);
+
+				RegisterCommandClientRpc(commandNetworking);
 			}
+		}
+
+		private void Start () {
+			EventBus.AddListener<PlayerInitEvent>(OnPlayerInit);
+		}
+
+		private void OnPlayerInit (PlayerInitEvent _event) {
+			if (_event.Phase.Equals(Phase.Post)) return;
+
+			foreach (CommandFactory toConstruct in factoriesToInit) {
+				CommandFactory constructed = Instantiate(toConstruct, transform);
+				registered[constructed.Name] = constructed;
+
+				NetworkObject commandNetworking = constructed.GetComponent<NetworkObject>();
+				//commandNetworking.Spawn();
+
+				//RegisterCommandClientRpc(commandNetworking);
+			}
+		}
+
+		[ClientRpc]
+		private void RegisterCommandClientRpc (NetworkObjectReference objectRef) {
+			if (NetworkManager.Singleton.IsServer) return;
+
+			CommandFactory factoryToRegister = ((GameObject)objectRef).GetComponent<CommandFactory>();
+
+			Debug.Log(factoryToRegister.Name);
+
+			registered[factoryToRegister.Name] = factoryToRegister;
 		}
 
 		public static T Get<T> (string key) where T : CommandFactory  {

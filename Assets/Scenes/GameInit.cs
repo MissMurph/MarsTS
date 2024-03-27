@@ -67,7 +67,7 @@ namespace MarsTS {
 			TransmitGameStartServerRpc();
 		}
 
-		[ServerRpc]
+		[Rpc(SendTo.Server)]
 		private void TransmitGameStartServerRpc () {
 			//TeamCache.SetTeams();
 			

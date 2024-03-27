@@ -87,7 +87,7 @@ namespace MarsTS.Buildings {
 		}
 
 		public override void Order (Commandlet order, bool inclusive) {
-			if (!GetRelationship(Player.Commander).Equals(Relationship.Owned)) return;
+			if (!GetRelationship(order.Commander).Equals(Relationship.Owned)) return;
 
 			switch (order.Name) {
 				case "stop":

@@ -71,7 +71,7 @@ namespace MarsTS.Commands {
 
 		//We create separate calls for now since Productionlets are different to normal commands
 		//This is due to having to serialize GameObject as a target when we don't need to
-		[ServerRpc]
+		[Rpc(SendTo.Server)]
 		protected virtual void ConstructProductionletServerRpc (int _factionId, NetworkObjectReference _selection) {
 			ConstructProductionletServer(_factionId, _selection);
 		}
@@ -79,8 +79,10 @@ namespace MarsTS.Commands {
 		protected virtual void ConstructProductionletServer (int _factionId, NetworkObjectReference _selection) {
 			bool canAfford = true;
 
+			Faction player = TeamCache.Faction(_factionId);
+
 			foreach (CostEntry entry in cost) {
-				if (TeamCache.Faction(_factionId).Resource(entry.key).Amount < entry.amount) {
+				if (player.Resource(entry.key).Amount < entry.amount) {
 					canAfford = false;
 					break;
 				}
@@ -97,7 +99,7 @@ namespace MarsTS.Commands {
 			}
 
 			foreach (CostEntry entry in cost) {
-				Player.Commander.Resource(entry.key).Withdraw(entry.amount);
+				player.Resource(entry.key).Withdraw(entry.amount);
 			}
 		}
 

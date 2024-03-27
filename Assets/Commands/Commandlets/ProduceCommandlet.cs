@@ -11,6 +11,7 @@ namespace MarsTS.Commands {
 
     public class ProduceCommandlet : Commandlet<GameObject>, IProducable {
 
+		[field:SerializeField]
 		public int ProductionRequired { get; private set; }
 		public int ProductionProgress {
 			get => _productionProgress.Value;
@@ -55,6 +56,27 @@ namespace MarsTS.Commands {
 			}
 
 			base.OnComplete(queue, _event);
+		}
+
+		protected override ISerializedCommand Serialize () {
+			return new SerializedProduceCommandlet() {
+				_productionRequired = ProductionRequired
+			};
+		}
+
+		protected override void Deserialize (SerializedWrapper _data) {
+			SerializedProduceCommandlet deserialized = (SerializedProduceCommandlet)_data.commandletData;
+
+			ProductionRequired = deserialized._productionRequired;
+		}
+	}
+
+	public struct SerializedProduceCommandlet : ISerializedCommand {
+
+		internal int _productionRequired;
+
+		public void NetworkSerialize<T> (BufferSerializer<T> serializer) where T : IReaderWriter {
+			serializer.SerializeValue(ref _productionRequired);
 		}
 	}
 }

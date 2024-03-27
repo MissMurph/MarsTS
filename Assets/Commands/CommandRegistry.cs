@@ -24,6 +24,8 @@ namespace MarsTS.Commands {
 		public override void OnNetworkSpawn () {
 			base.OnNetworkSpawn();
 
+			if (!NetworkManager.Singleton.IsServer) return;
+
 			foreach (CommandFactory toConstruct in factoriesToInit) {
 				CommandFactory constructed = Instantiate(toConstruct);
 				registered[constructed.Name] = constructed;
@@ -37,7 +39,7 @@ namespace MarsTS.Commands {
 		}
 
 		private void Start () {
-			EventBus.AddListener<PlayerInitEvent>(OnPlayerInit);
+			//EventBus.AddListener<PlayerInitEvent>(OnPlayerInit);
 		}
 
 		private void OnPlayerInit (PlayerInitEvent _event) {
@@ -54,13 +56,11 @@ namespace MarsTS.Commands {
 			}
 		}
 
-		[ClientRpc]
+		[Rpc(SendTo.NotServer)]
 		private void RegisterCommandClientRpc (NetworkObjectReference objectRef) {
 			if (NetworkManager.Singleton.IsServer) return;
 
 			CommandFactory factoryToRegister = ((GameObject)objectRef).GetComponent<CommandFactory>();
-
-			Debug.Log(factoryToRegister.Name);
 
 			registered[factoryToRegister.Name] = factoryToRegister;
 		}
@@ -81,7 +81,8 @@ namespace MarsTS.Commands {
 			throw new ArgumentException("Command " + key + " not found");
 		}
 
-		private void OnDestroy () {
+		public override void OnDestroy () {
+			base.OnDestroy();
 			instance = null;
 		}
 	}

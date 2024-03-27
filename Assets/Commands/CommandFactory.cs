@@ -19,7 +19,7 @@ namespace MarsTS.Commands {
 			ConstructCommandletServerRpc(_target, Player.Commander.ID, _selection, Player.Include);
 		}
 
-		[ServerRpc]
+		[Rpc(SendTo.Server)]
 		protected virtual void ConstructCommandletServerRpc (T _target, int _factionId, NetworkObjectReference[] _selection, bool _inclusive) {
 			ConstructCommandletServer(_target, _factionId, _selection, _inclusive);
 		}

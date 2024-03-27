@@ -53,7 +53,7 @@ namespace MarsTS.Teams {
 			}
 		}
 
-		[ClientRpc]
+		[Rpc(SendTo.Everyone)]
 		public void InitClientRpc (ulong playerID, int factionID, int teamID) {
 			InitClient(playerID, factionID, teamID);
 		}

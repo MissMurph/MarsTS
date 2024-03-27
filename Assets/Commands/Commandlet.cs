@@ -39,6 +39,22 @@ namespace MarsTS.Commands {
 		}
 
 		public abstract Commandlet Clone ();
+
+		//Making virtual while testing
+		protected virtual ISerializedCommand Serialize () { throw new NotImplementedException(); }
+		protected virtual void Deserialize (SerializedWrapper _data) { }
+
+		protected virtual void SpawnAndSync () {
+			ISerializedCommand data = Serialize();
+
+			GetComponent<NetworkObject>().Spawn();
+			SynchronizeClientRpc(new SerializedWrapper() { commandletData = data });
+		}
+
+		[Rpc(SendTo.NotServer)]
+		protected virtual void SynchronizeClientRpc (SerializedWrapper _data) {
+			Deserialize(_data);
+		}
 	}
 
 	public abstract class Commandlet<T> : Commandlet {
@@ -50,23 +66,30 @@ namespace MarsTS.Commands {
 
 		public override Type TargetType { get { return typeof(T); } }
 
-		/*public Commandlet (string name, T target, Faction commander) {
-			Target = target;
-			Name = name;
-			Commander = commander;
-		}*/
-
 		public virtual void Init (string _name, T _target, Faction _commander) {
 			Name = _name;
 			target = _target;
 			Commander = _commander;
 
-			GetComponent<NetworkObject>().Spawn();
+			SpawnAndSync();
 		}
 
 		public override Commandlet Clone () {
 			//return new Commandlet<T>(Name, Target, Commander);
 			throw new NotImplementedException();
 		}
+	}
+
+	public struct SerializedWrapper : INetworkSerializable {
+
+		public ISerializedCommand commandletData;
+
+		public void NetworkSerialize<T> (BufferSerializer<T> serializer) where T : IReaderWriter {
+			commandletData.NetworkSerialize(serializer);
+		}
+	}
+
+	public interface ISerializedCommand : INetworkSerializable {
+
 	}
 }

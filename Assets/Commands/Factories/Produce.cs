@@ -63,6 +63,7 @@ namespace MarsTS.Commands {
 					}
 
 					if (lowestOrderable != null) {
+						Debug.Log("ID Creating Command: " + Player.Commander.ID);
 						ConstructProductionletServerRpc(Player.Commander.ID, lowestOrderable.GameObject);
 					}
 				}
@@ -92,7 +93,7 @@ namespace MarsTS.Commands {
 
 			ProduceCommandlet order = Instantiate(orderPrefab) as ProduceCommandlet;
 
-			order.Init("produce", unitPrefab, TeamCache.Faction(_factionId), timeRequired, cost);
+			order.Init("produce", Name, unitPrefab, TeamCache.Faction(_factionId), timeRequired, cost);
 
 			if (EntityCache.TryGet(((GameObject)_selection).name, out ICommandable unit)) {
 				unit.Order(order, true);

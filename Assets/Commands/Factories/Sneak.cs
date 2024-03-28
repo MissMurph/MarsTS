@@ -69,6 +69,8 @@ namespace MarsTS.Commands {
 				reactivateCooldown = _reactivateCooldown;
 			}
 
+			public override string Key => Name;
+
 			public override void OnActivate (CommandQueue queue, CommandActiveEvent _event) {
 				base.OnActivate(queue, _event);
 

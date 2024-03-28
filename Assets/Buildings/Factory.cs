@@ -79,7 +79,7 @@ namespace MarsTS.Buildings {
 			//commandable.Order(exit, false);
 
 			foreach (Commandlet newCommand in rallyOrders) {
-				commandable.Order(newCommand.Clone(), true);
+				//commandable.Order(newCommand.Clone(), true);
 			}
 
 			//CurrentCommand = null;

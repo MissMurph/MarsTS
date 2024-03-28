@@ -15,7 +15,8 @@ namespace MarsTS.Commands {
 		public string Name { get; protected set; }
 		public Faction Commander { get; protected set; }
 		public UnityEvent<CommandCompleteEvent> Callback = new UnityEvent<CommandCompleteEvent>();
-		public virtual CommandFactory Command { get { return CommandRegistry.Get(Name); } }
+		public virtual CommandFactory Command { get { return CommandRegistry.Get(Key); } }
+		public abstract string Key { get; }
 
 		public virtual void OnStart (CommandQueue queue, CommandStartEvent _event) {
 
@@ -41,18 +42,20 @@ namespace MarsTS.Commands {
 		public abstract Commandlet Clone ();
 
 		//Making virtual while testing
-		protected virtual ISerializedCommand Serialize () { throw new NotImplementedException(); }
-		protected virtual void Deserialize (SerializedWrapper _data) { }
+		protected virtual ISerializedCommand Serialize () { 
+			return Serializers.Write(this);
+		}
+		protected virtual void Deserialize (SerializedCommandWrapper _data) { }
 
 		protected virtual void SpawnAndSync () {
 			ISerializedCommand data = Serialize();
 
 			GetComponent<NetworkObject>().Spawn();
-			SynchronizeClientRpc(new SerializedWrapper() { commandletData = data });
+			SynchronizeClientRpc(new SerializedCommandWrapper() { commandletData = data });
 		}
 
 		[Rpc(SendTo.NotServer)]
-		protected virtual void SynchronizeClientRpc (SerializedWrapper _data) {
+		protected virtual void SynchronizeClientRpc (SerializedCommandWrapper _data) {
 			Deserialize(_data);
 		}
 	}
@@ -77,19 +80,7 @@ namespace MarsTS.Commands {
 		public override Commandlet Clone () {
 			//return new Commandlet<T>(Name, Target, Commander);
 			throw new NotImplementedException();
+			//return CommandRegistry.Get<CommandFactory<T>>(Key).Construct;
 		}
-	}
-
-	public struct SerializedWrapper : INetworkSerializable {
-
-		public ISerializedCommand commandletData;
-
-		public void NetworkSerialize<T> (BufferSerializer<T> serializer) where T : IReaderWriter {
-			commandletData.NetworkSerialize(serializer);
-		}
-	}
-
-	public interface ISerializedCommand : INetworkSerializable {
-
 	}
 }

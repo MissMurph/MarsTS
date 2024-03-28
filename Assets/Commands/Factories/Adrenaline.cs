@@ -72,6 +72,8 @@ namespace MarsTS.Commands {
 			cooldown = _cooldown;
 		}
 
+		public override string Key => Name;
+
 		public override void OnActivate (CommandQueue queue, CommandActiveEvent _event) {
 			if (_event.Activity) {
 				queue.Cooldown(this, duration);

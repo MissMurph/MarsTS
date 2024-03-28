@@ -39,7 +39,7 @@ namespace MarsTS.Prefabs {
 		}
 
 		public static ISelectable Unit (string key) {
-			instance.GetRegistryEntry<ISelectable>(key, out ISelectable output);
+			instance.GetRegistryEntry(key, out ISelectable output);
 			return output;
 		}
 

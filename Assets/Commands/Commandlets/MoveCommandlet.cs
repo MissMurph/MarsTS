@@ -5,8 +5,10 @@ using UnityEngine;
 namespace MarsTS.Commands {
 
     public class MoveCommandlet : Commandlet<Vector3> {
-        // Start is called before the first frame update
-        void Start () {
+        public override string Key => Name;
+
+		// Start is called before the first frame update
+		void Start () {
 
         }
 

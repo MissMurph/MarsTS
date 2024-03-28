@@ -66,6 +66,8 @@ namespace MarsTS.Commands {
 		public float WorkRequired { get; private set; }
 		public float CurrentWork { get; set; }
 
+		public override string Key => Name;
+
 		public DeployCommandlet (string _name, bool _status, float _workRequired) {
 			WorkRequired = _workRequired;
 			CurrentWork = 0f;

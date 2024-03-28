@@ -1,6 +1,7 @@
 using MarsTS.Events;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.ProBuilder;
 
@@ -64,6 +65,16 @@ namespace MarsTS.Commands {
 			}
 		}
 
+		protected override void Dequeue (Commandlet order) {
+			base.Dequeue(order);
+
+			IProducable productionOrder = Current as IProducable;
+
+			productionOrder.OnWork += OnOrderWork;
+
+			bus.Global(ProductionEvent.Started(bus, parent, this, Current as IProducable));
+		}
+
 		public override void Execute (Commandlet order) {
 			if (order is not IProducable) {
 				Debug.LogWarning("Non Production Command sent to Production Queue! Command ignored");
@@ -96,6 +107,16 @@ namespace MarsTS.Commands {
 			}
 
 			return base.CanCommand(key);
+		}
+
+		protected override void OnOrderWork (int oldValue, int newValue) {
+			IProducable productionOrder = Current as IProducable;
+
+			if (productionOrder.ProductionProgress >= productionOrder.ProductionRequired) {
+				productionOrder.OnWork -= OnOrderWork;
+				Current.OnComplete(this, new CommandCompleteEvent(bus, Current, false, parent));
+			} 
+			else bus.Global(ProductionEvent.Step(bus, parent, this, productionOrder));
 		}
 	}
 }

@@ -354,6 +354,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5738845266810977015}
+  - component: {fileID: -7786330116457543808}
   - component: {fileID: 786404291129723528}
   - component: {fileID: 5738845266810977013}
   - component: {fileID: 5738845266810976778}
@@ -389,6 +390,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-7786330116457543808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5738845266810976779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 277251861
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &786404291129723528
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -404,7 +426,8 @@ MonoBehaviour:
   maxHealth: 500
   icon: {fileID: 21300000, guid: 6c832070a2d460f44bf890196bf641a4, type: 3}
   type: factory
-  owner: {fileID: 0}
+  owner:
+    m_InternalValue: 0
   boundCommands:
   - produce/scoutcar
   - produce/flattank

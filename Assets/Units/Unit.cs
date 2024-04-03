@@ -11,24 +11,25 @@ using MarsTS.Commands;
 using MarsTS.UI;
 using MarsTS.Vision;
 using UnityEngine.ProBuilder;
+using Unity.Netcode;
 
 namespace MarsTS.Units {
 
-	public abstract class Unit : MonoBehaviour, ISelectable, ITaggable<Unit>, IAttackable, ICommandable {
+	public abstract class Unit : NetworkBehaviour, ISelectable, ITaggable<Unit>, IAttackable, ICommandable {
 
 		public GameObject GameObject { get { return gameObject; } }
 
 		/*	IAttackable Properties	*/
 
-		public int Health { get { return currentHealth; } }
+		public int Health { get { return currentHealth.Value; } }
 
-		public int MaxHealth { get { return maxHealth; } }
-
-		[SerializeField]
-		protected int maxHealth;
+		public int MaxHealth { get { return maxHealth.Value; } }
 
 		[SerializeField]
-		protected int currentHealth;
+		protected NetworkVariable<int> maxHealth = new(writePerm: NetworkVariableWritePermission.Server);
+
+		[SerializeField]
+		protected NetworkVariable<int> currentHealth = new(writePerm: NetworkVariableWritePermission.Server);
 
 		/*	ISelectable Properties	*/
 		
@@ -40,7 +41,7 @@ namespace MarsTS.Units {
 
 		public Sprite Icon { get { return icon; } }
 
-		public Faction Owner { get { return owner; } }
+		public Faction Owner { get { return TeamCache.Faction(owner.Value); } }
 
 		[SerializeField]
 		private Sprite icon;
@@ -49,7 +50,7 @@ namespace MarsTS.Units {
 		private string type;
 
 		[SerializeField]
-		protected Faction owner;
+		protected NetworkVariable<int> owner = new(writePerm: NetworkVariableWritePermission.Server);
 
 		/*	ITaggable Properties	*/
 
@@ -132,24 +133,38 @@ namespace MarsTS.Units {
 			entityComponent = GetComponent<Entity>();
 			bus = GetComponent<EventAgent>();
 			commands = GetComponent<CommandQueue>();
+		}
 
-			if (currentHealth <= 0) {
-				currentHealth = maxHealth;
+		public override void OnNetworkSpawn () {
+			base.OnNetworkSpawn();
+
+			if (currentHealth.Value <= 0) {
+				currentHealth.Value = maxHealth.Value;
+			}
+
+			if (NetworkManager.Singleton.IsServer) {
+				StartCoroutine(UpdatePath());
+				
+				AttachServerListeners();
+			}
+			else {
+				AttachClientListeners();
 			}
 		}
 
-		protected virtual void Start () {
-			StartCoroutine(UpdatePath());
-
-			//transform.Find("SelectionCircle").GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
+		protected void AttachClientListeners () {
+			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 
 			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
-			bus.AddListener<CommandStartEvent>(ExecuteOrder);
+		}
 
-			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
+		protected void AttachServerListeners () {
+			bus.AddListener<CommandStartEvent>(ExecuteOrder);
 		}
 
 		protected virtual void Update () {
+			if (!NetworkManager.Singleton.IsServer) return;
+
 			if (!currentPath.IsEmpty) {
 				Vector3 targetWaypoint = currentPath[pathIndex];
 				float distance = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).magnitude;
@@ -304,16 +319,17 @@ namespace MarsTS.Units {
 		}
 
 		public bool SetOwner (Faction player) {
-			owner = player;
+			owner.Value = player.ID;
+			bus.Local(new UnitOwnerChangeEvent(bus, this, Owner));
 			return true;
 		}
 
 		public void Attack (int damage) {
 			if (Health <= 0) return;
-			if (damage < 0 && currentHealth >= maxHealth) return;
-			currentHealth -= damage;
+			if (damage < 0 && Health >= MaxHealth) return;
+			currentHealth.Value -= damage;
 
-			if (currentHealth <= 0) {
+			if (Health <= 0) {
 				bus.Global(new UnitDeathEvent(bus, this));
 				Destroy(gameObject);
 			}

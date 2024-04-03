@@ -27,8 +27,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected override void Start () {
-			base.Start();
+		protected void Start () {
 
 			if (deployed) bus.Local(new DeployEvent(bus, this, deployed));
 		}

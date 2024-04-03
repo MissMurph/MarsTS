@@ -7,6 +7,7 @@ using MarsTS.World;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Units {
@@ -73,6 +74,7 @@ namespace MarsTS.Units {
 		}
 
 		protected override void Update () {
+			if (!NetworkManager.Singleton.IsServer) return;
 			base.Update();
 
 			if (repairTarget == null) return;
@@ -87,6 +89,8 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void FixedUpdate () {
+			if (!NetworkManager.Singleton.IsServer) return;
+
 			velocity = body.velocity.sqrMagnitude;
 
 			if (ground.Grounded) {
@@ -157,7 +161,7 @@ namespace MarsTS.Units {
 			if (order is Commandlet<IAttackable> deserialized) {
 				IAttackable unit = deserialized.Target;
 
-				if (unit.GetRelationship(owner) == Relationship.Owned || unit.GetRelationship(owner) == Relationship.Friendly) {
+				if (unit.GetRelationship(Owner) == Relationship.Owned || unit.GetRelationship(Owner) == Relationship.Friendly) {
 					RepairTarget = unit;
 
 					EntityCache.TryGet(RepairTarget.GameObject.transform.root.name, out EventAgent targetBus);
@@ -208,7 +212,7 @@ namespace MarsTS.Units {
 
 		public override CommandFactory Evaluate (ISelectable target) {
 			if (target is IAttackable attackable
-				&& (target.GetRelationship(owner) == Relationship.Owned || target.GetRelationship(owner) == Relationship.Friendly)
+				&& (target.GetRelationship(Owner) == Relationship.Owned || target.GetRelationship(Owner) == Relationship.Friendly)
 				&& attackable.Health < attackable.MaxHealth) {
 				return CommandRegistry.Get("repair");
 			}
@@ -218,7 +222,7 @@ namespace MarsTS.Units {
 
 		public override Commandlet Auto (ISelectable target) {
 			if (target is IAttackable attackable
-				&& (target.GetRelationship(owner) == Relationship.Owned || target.GetRelationship(owner) == Relationship.Friendly)
+				&& (target.GetRelationship(Owner) == Relationship.Owned || target.GetRelationship(Owner) == Relationship.Friendly)
 				&& attackable.Health < attackable.MaxHealth) {
 				//return CommandRegistry.Get<Repair>("repair").Construct(attackable);
 			}

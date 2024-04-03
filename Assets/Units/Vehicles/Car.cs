@@ -209,7 +209,7 @@ namespace MarsTS.Units {
 		}
 
 		public override CommandFactory Evaluate (ISelectable target) {
-			if (target is IAttackable && target.GetRelationship(owner) == Relationship.Hostile) {
+			if (target is IAttackable && target.GetRelationship(Owner) == Relationship.Hostile) {
 				return CommandRegistry.Get("attack");
 			}
 
@@ -217,7 +217,7 @@ namespace MarsTS.Units {
 		}
 
 		public override Commandlet Auto (ISelectable target) {
-			if (target is IAttackable deserialized && target.GetRelationship(owner) == Relationship.Hostile) {
+			if (target is IAttackable deserialized && target.GetRelationship(Owner) == Relationship.Hostile) {
 				//return CommandRegistry.Get<Attack>("attack").Construct(deserialized);
 			}
 

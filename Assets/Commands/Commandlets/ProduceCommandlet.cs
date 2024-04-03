@@ -60,7 +60,7 @@ namespace MarsTS.Commands {
 		}
 
 		private void OnProgressValueChanged (int previous, int current) {
-			OnWork.Invoke(previous, current);
+			OnWork?.Invoke(previous, current);
 		}
 
 		public Commandlet Get () {

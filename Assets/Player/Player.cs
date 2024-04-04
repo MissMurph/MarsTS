@@ -30,6 +30,22 @@ namespace MarsTS.Players {
 		public static Dictionary<string, Roster> Selected { get { return instance.selected; } }
 		private Dictionary<string, Roster> selected = new Dictionary<string, Roster>();
 
+		public static NetworkObjectReference[] SerializedSelected {
+			get {
+				List<NetworkObjectReference> outputList = new List<NetworkObjectReference>();
+
+				foreach (Roster typeRoster in Selected.Values) {
+					foreach (ISelectable unit in typeRoster.List()) {
+						if (EntityCache.TryGet(unit.GameObject.name, out NetworkObject foundNetworking)) {
+							outputList.Add(foundNetworking);
+						}
+					}
+				}
+
+				return outputList.ToArray();
+			}
+		}
+
 		public static Camera ViewPort { get { return instance.view; } }
 		private Camera view;
 

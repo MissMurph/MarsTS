@@ -48,6 +48,7 @@ namespace MarsTS.Commands {
 
 				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.WalkableMask)) {
 					//Player.Main.DeliverCommand(Construct(hit.point), Player.Include);
+					Construct(hit.point, Player.SerializedSelected);
 				}
 
 				CancelSelection();

@@ -70,7 +70,7 @@ namespace MarsTS.Commands {
 		public override void OnComplete (CommandQueue queue, CommandCompleteEvent _event) {
 			if (_event.CommandCancelled) {
 				foreach (KeyValuePair<string, int> entry in Cost) {
-					Player.Commander.Resource(entry.Key).Deposit(entry.Value);
+					Commander.Resource(entry.Key).Deposit(entry.Value);
 				}
 			}
 

@@ -1,6 +1,8 @@
 using MarsTS.Events;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using static UnityEditor.Rendering.CameraUI;
@@ -27,19 +29,30 @@ namespace MarsTS.Entities {
 		[SerializeField]
 		private string registryKey;
 
-		private Dictionary<string, ITaggable> taggedComponents;
+		private Dictionary<string, ITaggable> registeredTaggables;
+		private Dictionary<string, Component> taggedComponents;
 
 		private EventAgent eventAgent;
+
+		[SerializeField]
+		private TagReference[] toTag;
 
 		private void Awake () {
 			eventAgent = GetComponent<EventAgent>();
 
 			//eventAgent.AddListener<EventAgentInitEvent>(Init);
 
-			taggedComponents = new Dictionary<string, ITaggable> ();
+			registeredTaggables = new Dictionary<string, ITaggable>();
+			taggedComponents = new Dictionary<string, Component>();
 
 			foreach (ITaggable component in GetComponents<ITaggable>()) {
-				taggedComponents[component.Key] = component;
+				registeredTaggables[component.Key] = component;
+			}
+
+			if (TryGetComponent(out NetworkObject found)) taggedComponents["networking"] = found;
+
+			foreach (TagReference entry in toTag) {
+				taggedComponents[entry.Tag] = entry.Component;
 			}
 		}
 
@@ -59,8 +72,13 @@ namespace MarsTS.Entities {
 		}
 
 		public bool TryGet<T> (string key, out T output) {
-			if (taggedComponents.TryGetValue(key, out ITaggable component) && component is T superType) {
+			if (registeredTaggables.TryGetValue(key, out ITaggable component) && component is T superType) {
 				output = superType;
+				return true;
+			}
+
+			if (typeof(T) == typeof(Component) && taggedComponents.TryGetValue(key, out Component found) && component is T superTypedComponent) {
+				output = superTypedComponent;
 				return true;
 			}
 
@@ -69,10 +87,19 @@ namespace MarsTS.Entities {
 		}
 
 		public bool TryGet<T> (out T output) {
-			foreach (ITaggable component in taggedComponents.Values) {
-				if (component is T superType) {
+			foreach (ITaggable taggableComponent in registeredTaggables.Values) {
+				if (taggableComponent is T superType) {
 					output = superType;
 					return true;
+				}
+			}
+
+			if (typeof(T) == typeof(Component)) {
+				foreach (Component nonTaggableComponent in taggedComponents.Values) {
+					if (nonTaggableComponent is T superTypedComponent) {
+						output = superTypedComponent;
+						return true;
+					}
 				}
 			}
 
@@ -81,8 +108,12 @@ namespace MarsTS.Entities {
 		}
 
 		public T Get<T> (string key) {
-			if (taggedComponents.TryGetValue(key, out ITaggable component) && component is T superType) {
+			if (registeredTaggables.TryGetValue(key, out ITaggable component) && component is T superType) {
 				return superType;
+			}
+
+			if (typeof(T) == typeof(Component) && taggedComponents.TryGetValue(key, out Component found) && component is T superTypedComponent) {
+				return superTypedComponent;
 			}
 
 			return default;
@@ -91,5 +122,11 @@ namespace MarsTS.Entities {
 		private void OnDestroy () {
 			eventAgent.Global(new EntityDestroyEvent(eventAgent, this));
 		}
+	}
+
+	[Serializable]
+	public class TagReference {
+		public string Tag;
+		public Component Component;
 	}
 }

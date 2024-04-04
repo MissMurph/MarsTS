@@ -13,6 +13,7 @@ using UnityEngine.InputSystem;
 
 namespace MarsTS.Commands {
 
+	[GenerateSerializationForGenericParameter(0)]
 	public abstract class CommandFactory<T> : CommandFactory {
 
 		public virtual void Construct (T _target, NetworkObjectReference[] _selection) {
@@ -20,6 +21,7 @@ namespace MarsTS.Commands {
 		}
 
 		[Rpc(SendTo.Server)]
+
 		protected virtual void ConstructCommandletServerRpc (T _target, int _factionId, NetworkObjectReference[] _selection, bool _inclusive) {
 			ConstructCommandletServer(_target, _factionId, _selection, _inclusive);
 		}

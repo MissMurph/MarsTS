@@ -42,6 +42,8 @@ namespace MarsTS.Players {
 					}
 				}
 
+				Debug.Log(outputList.Count);
+
 				return outputList.ToArray();
 			}
 		}
@@ -85,7 +87,7 @@ namespace MarsTS.Players {
 			view = GetComponentInChildren<Camera>();
 
 			EventBus.AddListener<UnitDeathEvent>(OnEntityDeath);
-			EventBus.AddListener<EntityInitEvent>(OnEntityInit);
+			EventBus.AddListener<UnitOwnerChangeEvent>(OnUnitOwnershipChange);
 
 			alternate = false;
 
@@ -242,17 +244,16 @@ namespace MarsTS.Players {
 				EventBus.Global(new PlayerSelectEvent(Selected));
 			}
 
-			if (_event.Unit.Owner == this
+			if (_event.Unit.Owner.ID == Commander.ID
 				&& _event.Unit is IDepositable deserialized
 				&& depositables.Contains(deserialized)) {
 				depositables.Remove(deserialized);
 			}
 		}
 
-		private void OnEntityInit (EntityInitEvent _event) {
-			if (_event.ParentEntity.TryGet("selectable", out ISelectable unitComponent)
-				&& unitComponent.Owner == this
-				&& unitComponent is IDepositable deserialized) {
+		private void OnUnitOwnershipChange (UnitOwnerChangeEvent _event) {
+			if (_event.Unit.Owner.ID == Commander.ID
+				&& _event.Unit is IDepositable deserialized) {
 				depositables.Add(deserialized);
 			}
 		}

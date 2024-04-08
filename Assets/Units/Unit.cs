@@ -147,7 +147,8 @@ namespace MarsTS.Units {
 				
 				AttachServerListeners();
 			}
-			else {
+
+			if (NetworkManager.Singleton.IsClient) {
 				AttachClientListeners();
 			}
 		}
@@ -156,6 +157,8 @@ namespace MarsTS.Units {
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 
 			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
+
+			owner.OnValueChanged += (oldValue, newValue) => bus.Local(new UnitOwnerChangeEvent(bus, this, Owner));
 		}
 
 		protected void AttachServerListeners () {
@@ -320,7 +323,7 @@ namespace MarsTS.Units {
 
 		public bool SetOwner (Faction player) {
 			owner.Value = player.ID;
-			bus.Local(new UnitOwnerChangeEvent(bus, this, Owner));
+			//bus.Local(new UnitOwnerChangeEvent(bus, this, Owner));
 			return true;
 		}
 

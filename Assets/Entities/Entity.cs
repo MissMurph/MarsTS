@@ -77,7 +77,7 @@ namespace MarsTS.Entities {
 				return true;
 			}
 
-			if (typeof(T) == typeof(Component) && taggedComponents.TryGetValue(key, out Component found) && component is T superTypedComponent) {
+			if (typeof(T) == typeof(Component) && taggedComponents.TryGetValue(key, out Component found) && found is T superTypedComponent) {
 				output = superTypedComponent;
 				return true;
 			}

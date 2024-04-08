@@ -30,6 +30,15 @@ namespace MarsTS.Commands {
 			
 		}
 
+		public override void Construct (Vector3 _target, NetworkObjectReference[] _selection) {
+			ConstructCommandletServerRpc(_target, Player.Commander.ID, _selection, Player.Include);
+		}
+
+		[Rpc(SendTo.Server)]
+		private void ConstructCommandletServerRpc (Vector3 _target, int _factionId, NetworkObjectReference[] _selection, bool _inclusive) {
+			ConstructCommandletServer(_target, _factionId, _selection, _inclusive);
+		}
+
 		public override CostEntry[] GetCost () {
 			return new CostEntry[0];
 		}

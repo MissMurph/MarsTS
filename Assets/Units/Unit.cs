@@ -25,6 +25,8 @@ namespace MarsTS.Units {
 
 		public int MaxHealth { get { return maxHealth.Value; } }
 
+		[Header("Health")]
+
 		[SerializeField]
 		protected NetworkVariable<int> maxHealth = new(writePerm: NetworkVariableWritePermission.Server);
 
@@ -42,6 +44,8 @@ namespace MarsTS.Units {
 		public Sprite Icon { get { return icon; } }
 
 		public Faction Owner { get { return TeamCache.Faction(owner.Value); } }
+
+		[Header("Unit Details")]
 
 		[SerializeField]
 		private Sprite icon;
@@ -73,6 +77,8 @@ namespace MarsTS.Units {
 		//protected Queue<Commandlet> commandQueue = new Queue<Commandlet>();
 
 		protected CommandQueue commands;
+
+		[Header("Commands")]
 
 		[SerializeField]
 		protected string[] boundCommands;
@@ -124,6 +130,8 @@ namespace MarsTS.Units {
 		protected float waypointCompletionDistance;
 
 		protected EventAgent bus;
+
+		[Header("Vision")]
 
 		[SerializeField]
 		private GameObject[] hideables;

@@ -63,7 +63,7 @@ namespace MarsTS.Commands {
 					}
 
 					if (lowestOrderable != null) {
-						Debug.Log("ID Creating Command: " + Player.Commander.ID);
+						//Debug.Log("ID Creating Command: " + Player.Commander.ID);
 						ConstructProductionletServerRpc(Player.Commander.ID, lowestOrderable.GameObject);
 					}
 				}

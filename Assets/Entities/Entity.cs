@@ -49,7 +49,11 @@ namespace MarsTS.Entities {
 				registeredTaggables[component.Key] = component;
 			}
 
-			if (TryGetComponent(out NetworkObject found)) taggedComponents["networking"] = found;
+			if (TryGetComponent(out NetworkObject found)) {
+				taggedComponents["networking"] = found;
+				//Debug.Log("Networking Tagged, Dic Count: " + taggedComponents.Count);
+			}
+			//else Debug.Log("Could not find NetworkObject component");
 
 			foreach (TagReference entry in toTag) {
 				taggedComponents[entry.Tag] = entry.Component;
@@ -77,6 +81,8 @@ namespace MarsTS.Entities {
 				return true;
 			}
 
+			//Debug.Log("Tagged Components: " + taggedComponents.Count);
+
 			if (typeof(T) == typeof(Component) && taggedComponents.TryGetValue(key, out Component found) && found is T superTypedComponent) {
 				output = superTypedComponent;
 				return true;
@@ -94,7 +100,7 @@ namespace MarsTS.Entities {
 				}
 			}
 
-			if (typeof(T) == typeof(Component)) {
+			if (typeof(Component).IsAssignableFrom(typeof(T))) {
 				foreach (Component nonTaggableComponent in taggedComponents.Values) {
 					if (nonTaggableComponent is T superTypedComponent) {
 						output = superTypedComponent;

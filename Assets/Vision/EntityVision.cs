@@ -21,7 +21,7 @@ namespace MarsTS.Vision {
 
 		/*	Vision Properties	*/
 
-		public int Mask { get { return owner.VisionMask; } }
+		public int Mask { get { return TeamCache.Faction(owner).VisionMask; } }
 
 		public int Range { get { return visionRange; } }
 
@@ -34,7 +34,7 @@ namespace MarsTS.Vision {
 
 		/*	Vision Fields	*/
 
-		protected Faction owner;
+		protected int owner;
 
 		protected EventAgent bus;
 
@@ -63,8 +63,12 @@ namespace MarsTS.Vision {
 				GameVision.Register(gameObject.name, this);
 
 				parent = _event.ParentEntity.Get<ISelectable>("selectable");
-				owner = parent.Owner;
+				owner = 0;
 			}
+		}
+
+		private void OnOwnerChange (UnitOwnerChangeEvent _event) {
+			owner = _event.NewOwner.ID;
 		}
 
 		protected virtual void OnVisionUpdate (VisionUpdateEvent _event) {
@@ -102,9 +106,7 @@ namespace MarsTS.Vision {
 			bus.Global(entityEvent);
 		}
 
-		private void OnOwnerChange (UnitOwnerChangeEvent _event) {
-			owner = _event.NewOwner;
-		}
+		
 
 		public VisionEntry Collect () {
 			return new VisionEntry {

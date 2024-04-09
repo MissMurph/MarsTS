@@ -35,7 +35,7 @@ namespace MarsTS.Commands {
 		public static ISerializedCommand Read (string key) {
 			if (instance == null) return null;
 
-			Debug.Log(key);
+			//Debug.Log(key);
 
 			if (instance.registered.TryGetValue(key, out ICommandSerializer foundSerializer)) {
 				return foundSerializer.Reader();
@@ -47,7 +47,7 @@ namespace MarsTS.Commands {
 		public static ISerializedCommand Write (Commandlet data) {
 			if (instance == null) return null;
 
-			Debug.Log(data.Key);
+			//Debug.Log(data.Key);
 
 			if (instance.registered.TryGetValue(data.Key, out ICommandSerializer foundSerializer)) {
 				return foundSerializer.Writer(data);

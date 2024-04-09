@@ -556,7 +556,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2443151496
+  GlobalObjectIdHash: 1930051205
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -578,6 +578,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   registryKey: constructor
+  toTag: []
 --- !u!114 &7440311153749639652
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -591,7 +592,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth:
-    m_InternalValue: 0
+    m_InternalValue: 150
   currentHealth:
     m_InternalValue: 0
   icon: {fileID: 21300000, guid: 2b849b461576ef746b35c0962e52cd0c, type: 3}
@@ -622,7 +623,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89e4001c157ec4447bc333ae420835ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  visionRange: 10
+  visionRange: 15
 --- !u!114 &8566567786285543846
 MonoBehaviour:
   m_ObjectHideFlags: 0

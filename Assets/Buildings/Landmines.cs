@@ -94,7 +94,7 @@ namespace MarsTS.Buildings {
 
 			if (currentWork > 0) {
 				model.localScale = Vector3.one * (currentWork / constructionWork);
-				Health = maxHealth * (int)(currentWork / constructionWork);
+				Health = MaxHealth * (int)(currentWork / constructionWork);
 			}
 			else model.localScale = Vector3.zero;
 
@@ -198,7 +198,7 @@ namespace MarsTS.Buildings {
 			}
 
 			if (base.Health <= 0) return;
-			if (damage < 0 && base.Health >= maxHealth) return;
+			if (damage < 0 && base.Health >= MaxHealth) return;
 			base.Health -= damage;
 			bus.Global(new UnitHurtEvent(bus, this));
 

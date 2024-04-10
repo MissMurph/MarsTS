@@ -19,6 +19,7 @@ namespace MarsTS.Teams {
 
 		public int ID { get { return id; } }
 
+		[SerializeField]
 		private int id = -1;
 
 		public bool IsHuman { get { return true; } }

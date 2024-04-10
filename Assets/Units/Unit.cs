@@ -146,14 +146,14 @@ namespace MarsTS.Units {
 		public override void OnNetworkSpawn () {
 			base.OnNetworkSpawn();
 
-			if (currentHealth.Value <= 0) {
-				currentHealth.Value = maxHealth.Value;
-			}
-
 			if (NetworkManager.Singleton.IsServer) {
 				StartCoroutine(UpdatePath());
 				
 				AttachServerListeners();
+
+				if (currentHealth.Value <= 0) {
+					currentHealth.Value = maxHealth.Value;
+				}
 			}
 
 			if (NetworkManager.Singleton.IsClient) {

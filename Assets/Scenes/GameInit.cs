@@ -87,12 +87,17 @@ namespace MarsTS {
 			else {
 				List<Faction> players = TeamCache.Players;
 
-				for (int i = 0; i < players.Count; i++) {
-					NetworkObject hqNetwork = Instantiate(headquartersPrefab, startPositions[i].position, startPositions[i].rotation);
-					ISelectable hq = hqNetwork.GetComponent<ISelectable>();
-					hq.SetOwner(players[i]);
-					hqNetwork.Spawn();
+				int spawnedCount = 0;
 
+				foreach (Faction toSpawnHqFor in players) {
+					if (toSpawnHqFor.ID == 0) continue;
+
+					NetworkObject hqNetwork = Instantiate(headquartersPrefab, startPositions[spawnedCount].position, startPositions[spawnedCount].rotation);
+					ISelectable hq = hqNetwork.GetComponent<ISelectable>();
+					hqNetwork.Spawn();
+					hq.SetOwner(toSpawnHqFor);
+
+					spawnedCount++;
 				}
 			}
 		}

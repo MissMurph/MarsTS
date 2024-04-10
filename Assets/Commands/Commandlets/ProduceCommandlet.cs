@@ -17,9 +17,7 @@ namespace MarsTS.Commands {
 		public int ProductionProgress {
 			get => _productionProgress.Value;
 			set {
-				int oldProgress = _productionProgress.Value;
 				_productionProgress.Value = value;
-				//OnWork.Invoke(oldProgress, _productionProgress.Value);
 			}
 		}
 

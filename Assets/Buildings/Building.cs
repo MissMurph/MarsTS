@@ -23,12 +23,22 @@ namespace MarsTS.Buildings {
 
 		/*	IAttackable Properties	*/
 
-		public virtual int Health { get; protected set; }
+		public virtual int Health { 
+			get { 
+				return currentHealth.Value; 
+			}
+			protected set {
+				currentHealth.Value = value;
+			}
+		}
 
-		public virtual int MaxHealth { get { return maxHealth; } }
+		public virtual int MaxHealth { get { return maxHealth.Value; } }
 
 		[SerializeField]
-		protected int maxHealth;
+		protected NetworkVariable<int> maxHealth = new(writePerm: NetworkVariableWritePermission.Server);
+
+		[SerializeField]
+		protected NetworkVariable<int> currentHealth = new(writePerm: NetworkVariableWritePermission.Server);
 
 		/*	ISelectable Properties	*/
 
@@ -129,7 +139,6 @@ namespace MarsTS.Buildings {
 		protected GameObject[] visionObjects;
 
 		protected virtual void Awake () {
-			Health = 0;
 			bus = GetComponent<EventAgent>();
 			entityComponent = GetComponent<Entity>();
 			commands = GetComponent<CommandQueue>();
@@ -138,22 +147,44 @@ namespace MarsTS.Buildings {
 			healthPerConstructionPoint = Mathf.RoundToInt((float)MaxHealth / constructionWork);
 
 			model = transform.Find("Model");
-
-			if (currentWork > 0) {
-				model.localScale = Vector3.one * (currentWork / constructionWork);
-				Health = maxHealth * (int) (currentWork / constructionWork);
-			}
-			else model.localScale = Vector3.zero;
 		}
 
-		protected virtual void Start () {
-			//selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
+		public override void OnNetworkSpawn () {
+			base.OnNetworkSpawn();
 
-			bus.AddListener<CommandStartEvent>(ExecuteOrder);
+			//Debug.Log("HQ Network Spawned");
+
+			if (NetworkManager.Singleton.IsServer) {
+				AttachServerListeners();
+
+				currentHealth.Value = 0;
+
+				if (currentWork > 0) {
+					model.localScale = Vector3.one * (currentWork / constructionWork);
+					currentHealth.Value = maxHealth.Value * (int)(currentWork / constructionWork);
+				}
+				else model.localScale = Vector3.zero;
+			}
+
+			if (NetworkManager.Singleton.IsClient) {
+				AttachClientListeners();
+			}
+		}
+
+		protected virtual void AttachClientListeners () {
 			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
 
+			EventBus.AddListener<ResearchCompleteEvent>(OnGlobalResearchComplete);
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
-			EventBus.AddListener<ResearchCompleteEvent>(OnGlobalResearchComplete) ;
+
+			owner.OnValueChanged += (oldValue, newValue) => {
+				//Debug.Log("Owner Value Change Detected");
+				bus.Local(new UnitOwnerChangeEvent(bus, this, Owner));
+			};
+		}
+
+		protected virtual void AttachServerListeners () {
+			bus.AddListener<CommandStartEvent>(ExecuteOrder);
 		}
 
 		protected virtual void CancelConstruction () {
@@ -283,6 +314,7 @@ namespace MarsTS.Buildings {
 		}
 
 		public bool SetOwner (Faction player) {
+			//Debug.Log("Setting Faction");
 			owner.Value = player.ID;
 			return true;
 		}
@@ -306,7 +338,7 @@ namespace MarsTS.Buildings {
 			}
 
 			if (Health <= 0) return;
-			if (damage < 0 && Health >= maxHealth) return;
+			if (damage < 0 && Health >= MaxHealth) return;
 			Health -= damage;
 			bus.Global(new UnitHurtEvent(bus, this));
 

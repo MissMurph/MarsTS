@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
+using static UnityEngine.InputSystem.DefaultInputActions;
 
 namespace MarsTS.Teams {
 	public class TeamCache : NetworkBehaviour {
@@ -17,6 +18,9 @@ namespace MarsTS.Teams {
 
 		[SerializeField]
 		private Faction factionPrefab;
+
+		[SerializeField]
+		private Faction dummyObserverPrefab;
 
 		[SerializeField]
 		private NetworkObject headquartersPrefab;
@@ -60,10 +64,6 @@ namespace MarsTS.Teams {
 			factions = new Dictionary<int, Faction>();
 			factionsToTeamsMap = new Dictionary<int, int>();
 			playersToFactionsMap = new Dictionary<ulong, int>();
-
-			//Debug.Log("teams instanced");
-
-			teamMap[0] = new Team { Id = 0, Members = new List<int>() };
 		}
 
 		public static void Init (ulong[] players) {
@@ -76,6 +76,12 @@ namespace MarsTS.Teams {
 			_event.Phase = Phase.Pre;
 
 			bus.Global(_event);
+			Faction observerFaction = Instantiate(dummyObserverPrefab);
+
+			NetworkObject networkObserver = observerFaction.GetComponent<NetworkObject>();
+			networkObserver.Spawn();
+
+			observerFaction.InitClientRpc(0, 0, 0);
 
 			int count = 0;
 
@@ -106,7 +112,7 @@ namespace MarsTS.Teams {
 
 			teamMap[teamID] = newTeam;
 			factions[playerFaction.ID] = playerFaction;
-			playersToFactionsMap[playerID] = playerFaction.ID;
+			if (playerID > 0) playersToFactionsMap[playerID] = playerFaction.ID;
 			factionsToTeamsMap[playerFaction.ID] = newTeam.Id;
 		}
 

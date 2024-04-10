@@ -69,7 +69,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   factionPrefab: {fileID: 1192591062718886571, guid: ce1afabb11073aa41ad11ecfac15990c,
     type: 3}
-  headquartersPrefab: {fileID: 0}
+  dummyObserverPrefab: {fileID: 1192591062718886571, guid: 53ff142631c328d43913faeeec7f29f2,
+    type: 3}
+  headquartersPrefab: {fileID: 6932056313230598578, guid: 48b87e07407faa94089badc723dbf8ae,
+    type: 3}
   startPositions: []
 --- !u!114 &4638858744472850371
 MonoBehaviour:

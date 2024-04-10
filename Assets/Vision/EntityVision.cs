@@ -34,6 +34,7 @@ namespace MarsTS.Vision {
 
 		/*	Vision Fields	*/
 
+		[SerializeField]
 		protected int owner;
 
 		protected EventAgent bus;
@@ -63,7 +64,6 @@ namespace MarsTS.Vision {
 				GameVision.Register(gameObject.name, this);
 
 				parent = _event.ParentEntity.Get<ISelectable>("selectable");
-				owner = 0;
 			}
 		}
 

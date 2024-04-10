@@ -41,8 +41,8 @@ namespace MarsTS.Buildings {
 			spawnPoint = transform.Find("SpawnPoint");
 		}
 
-		protected override void Start () {
-			base.Start();
+		public override void OnNetworkSpawn () {
+			base.OnNetworkSpawn();
 
 			//exitOrder = CommandRegistry.Get<Move>("move").Construct(transform.position + (Vector3.forward * 10f));
 		}
@@ -57,36 +57,40 @@ namespace MarsTS.Buildings {
 			if (_event.CommandCancelled) return;
 
 			IProducable order = _event.Command as IProducable;
-			ISelectable newUnit = Instantiate(order.Product, spawnPoint.position + (Vector3.up), Quaternion.Euler(0f, 0f, 0f)).GetComponent<ISelectable>();
 
-			newUnit.GameObject.GetComponent<NetworkObject>().Spawn();
+			if (NetworkManager.Singleton.IsServer) {
+				
+				ISelectable newUnit = Instantiate(order.Product, spawnPoint.position + (Vector3.up), Quaternion.Euler(0f, 0f, 0f)).GetComponent<ISelectable>();
 
-			//List<Collider> unitColliders = newUnit.GameObject.transform.Find("Model").GetComponentsInChildren<Collider>().ToList();
-			//unitColliders.AddRange(newUnit.GameObject.transform.Find("Collider").GetComponentsInChildren<Collider>());
+				newUnit.GameObject.GetComponent<NetworkObject>().Spawn();
 
-			/*List<Collider> unitColliders = newUnit.GameObject.GetComponentsInChildren<Collider>().ToList();
+				//List<Collider> unitColliders = newUnit.GameObject.transform.Find("Model").GetComponentsInChildren<Collider>().ToList();
+				//unitColliders.AddRange(newUnit.GameObject.transform.Find("Collider").GetComponentsInChildren<Collider>());
+
+				/*List<Collider> unitColliders = newUnit.GameObject.GetComponentsInChildren<Collider>().ToList();
 
 
-			foreach (Collider unitCollider in unitColliders) {
-				foreach (Collider buildingCollider in colliders) {
-					Physics.IgnoreCollision(unitCollider, buildingCollider, true);
+				foreach (Collider unitCollider in unitColliders) {
+					foreach (Collider buildingCollider in colliders) {
+						Physics.IgnoreCollision(unitCollider, buildingCollider, true);
+					}
+				}*/
+
+				newUnit.SetOwner(Owner);
+
+				ICommandable commandable = newUnit as ICommandable;
+
+				//Commandlet exit = exitOrder.Clone();
+				//exit.Callback.AddListener(UnitExitCallback);
+				//commandable.Order(exit, false);
+
+				foreach (Commandlet newCommand in rallyOrders) {
+					//commandable.Order(newCommand.Clone(), true);
 				}
-			}*/
-
-			newUnit.SetOwner(Owner);
-
-			ICommandable commandable = newUnit as ICommandable;
-
-			//Commandlet exit = exitOrder.Clone();
-			//exit.Callback.AddListener(UnitExitCallback);
-			//commandable.Order(exit, false);
-
-			foreach (Commandlet newCommand in rallyOrders) {
-				//commandable.Order(newCommand.Clone(), true);
 			}
 
 			//CurrentCommand = null;
-			bus.Global(new ProductionCompleteEvent(bus, newUnit.GameObject, this, production, order));
+			bus.Global(new ProductionCompleteEvent(bus, order.Product, this, production, order));
 		}
 
 		public override void Order (Commandlet order, bool inclusive) {

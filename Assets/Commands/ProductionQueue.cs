@@ -37,14 +37,8 @@ namespace MarsTS.Commands {
 
 		protected override void Update () {
 			if (isServer && Current is null && commandQueue.TryDequeue(out Commandlet order)) {
-				Current = order;
-
-				order.Callback.AddListener(OrderComplete);
-				CommandStartEvent _event = new CommandStartEvent(bus, order, parent);
-				order.OnStart(this, _event);
-
-				bus.Global(_event);
-				bus.Global(ProductionEvent.Started(bus, parent, this, Current as IProducable));
+				Dequeue(order);
+				DequeueClientRpc(order.gameObject);
 
 				return;
 			}

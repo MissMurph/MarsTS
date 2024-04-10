@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static UnityEditor.Experimental.GraphView.Port;
 using UnityEngine.SocialPlatforms.Impl;
+using Unity.Netcode;
 
 namespace MarsTS.Buildings {
 
@@ -51,11 +52,13 @@ namespace MarsTS.Buildings {
 			oilDetector.SetActive(false);
 		}
 
-		protected override void Start () {
-			base.Start();
+		public override void OnNetworkSpawn () {
+			base.OnNetworkSpawn();
 
-			bus.AddListener<PumpjackExploitInitEvent>(OnExploitInit);
-			bus.AddListener<EntityInitEvent>(OnEntityInit);
+			if (NetworkManager.Singleton.IsServer) {
+				bus.AddListener<PumpjackExploitInitEvent>(OnExploitInit);
+				bus.AddListener<EntityInitEvent>(OnEntityInit);
+			}
 		}
 
 		protected void Update () {

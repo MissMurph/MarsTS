@@ -35,7 +35,7 @@ namespace MarsTS.Buildings {
 
 		public void SetConstructionProgress (int progress) {
 			currentWork = progress;
-			Health = maxHealth * (int)(currentWork / constructionWork);
+			Health = MaxHealth * (int)(currentWork / constructionWork);
 		}
 
 		protected override void OnVisionUpdate (EntityVisibleEvent _event) {

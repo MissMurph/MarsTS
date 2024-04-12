@@ -50,7 +50,8 @@ namespace MarsTS.Commands {
 					production.ProductionProgress++;
 
 					if (production.ProductionProgress >= production.ProductionRequired) {
-						Current.OnComplete(this, new CommandCompleteEvent(bus, Current, false, parent));
+						CompleteCurrentCommand(false);
+						CompleteCommandClientRpc(false);
 					}
 					else bus.Global(ProductionEvent.Step(bus, parent, this, production));
 

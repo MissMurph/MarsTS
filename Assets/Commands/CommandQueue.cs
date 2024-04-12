@@ -64,7 +64,8 @@ namespace MarsTS.Commands {
 				bus.Global(new CommandWorkEvent(bus, Current.Name, parent, workOrder));
 
 				if (workOrder.CurrentWork >= workOrder.WorkRequired) {
-					Current.OnComplete(this, new CommandCompleteEvent(bus, Current, false, parent));
+					CompleteCurrentCommand(false);
+					CompleteCommandClientRpc(false);
 				}
 			}
 
@@ -98,7 +99,7 @@ namespace MarsTS.Commands {
 
 		protected virtual void Dequeue (Commandlet order) {
 			Current = order;
-			order.Callback.AddListener(OrderComplete);
+			order.Callback.AddListener(OnOrderComplete);
 			CommandStartEvent _event = new CommandStartEvent(bus, order, parent);
 			order.OnStart(this, _event);
 			bus.Local(_event);
@@ -106,7 +107,16 @@ namespace MarsTS.Commands {
 
 		/*	Completing Commands	*/
 
-		protected virtual void OrderComplete (CommandCompleteEvent _event) {
+		[Rpc(SendTo.NotServer)]
+		protected virtual void CompleteCommandClientRpc (bool _cancelled) {
+			CompleteCurrentCommand(_cancelled);
+		}
+
+		protected virtual void CompleteCurrentCommand (bool _cancelled) {
+			Current.OnComplete(this, new CommandCompleteEvent(bus, Current, _cancelled, parent));
+		}
+
+		protected virtual void OnOrderComplete (CommandCompleteEvent _event) {
 			if (_event.Unit != parent) return;
 			Current = null;
 			bus.Global(_event);

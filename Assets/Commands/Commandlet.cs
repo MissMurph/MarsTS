@@ -1,5 +1,7 @@
+using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Teams;
+using MarsTS.Networking;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,9 +19,10 @@ namespace MarsTS.Commands {
 		public UnityEvent<CommandCompleteEvent> Callback = new UnityEvent<CommandCompleteEvent>();
 		public virtual CommandFactory Command { get { return CommandRegistry.Get(Key); } }
 		public abstract string Key { get; }
+		protected List<string> commandedUnits = new List<string>();
 
 		public virtual void OnStart (CommandQueue queue, CommandStartEvent _event) {
-
+			commandedUnits.Add(queue.gameObject.name);
 		}
 
 		public virtual void OnActivate (CommandQueue queue, CommandActiveEvent _event) {
@@ -27,7 +30,10 @@ namespace MarsTS.Commands {
 		}
 
 		public virtual void OnComplete (CommandQueue queue, CommandCompleteEvent _event) {
+			commandedUnits.Remove(queue.gameObject.name);
 			Callback.Invoke(_event);
+
+			if (commandedUnits.Count <= 0) Destroy(gameObject);
 		}
 
 		public virtual bool CanInterrupt () {

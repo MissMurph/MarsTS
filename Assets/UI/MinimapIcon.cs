@@ -24,7 +24,7 @@ namespace MarsTS.UI {
 			parent = GetComponentInParent<ISelectable>();
 			matBlock = new MaterialPropertyBlock();
 
-			bus.AddListener<EntityInitEvent>(OnEntityInit);
+			//bus.AddListener<EntityInitEvent>(OnEntityInit);
 		}
 
 		private void Start () {

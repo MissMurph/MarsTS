@@ -1053,6 +1053,15 @@ MonoBehaviour:
     Prefabs:
       NetworkPrefabsLists:
       - {fileID: 11400000, guid: 92a9baf878e0869438ae762160888a93, type: 2}
+      - {fileID: 11400000, guid: caa217750a737944db7be761bf1b46a0, type: 2}
+      - {fileID: 11400000, guid: c2795a225e1a27749af193fa97eed92f, type: 2}
+      - {fileID: 11400000, guid: ee9282e63dd91ae4b8381aed08aaef43, type: 2}
+      - {fileID: 11400000, guid: 3a9e949469a8c1f4aaa05459670571f7, type: 2}
+      - {fileID: 11400000, guid: b78a6258aa57d494cb61df4fb1eb8aab, type: 2}
+      - {fileID: 11400000, guid: d794720d71a85664cb582128fd111444, type: 2}
+      - {fileID: 11400000, guid: 0cb87a673582f194cbaaed8056de2edc, type: 2}
+      - {fileID: 11400000, guid: 44b810c2f695fbe4781e4a86ac3b9d65, type: 2}
+      - {fileID: 11400000, guid: 5600874d247d54a46a4b03a929dacfa2, type: 2}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0

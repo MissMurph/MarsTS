@@ -16,7 +16,7 @@ namespace MarsTS.Commands {
 			parentSquad = parent as InfantrySquad;
 		}
 
-		protected override void OrderComplete (CommandCompleteEvent _event) {
+		protected override void OnOrderComplete (CommandCompleteEvent _event) {
 			if (!parentSquad.Members.Contains(_event.Unit)) return;
 			Current = null;
 			bus.Global(_event);

@@ -305,7 +305,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		public virtual Commandlet Auto (ISelectable target) {
+		public virtual void AutoCommand (ISelectable target) {
 			throw new System.NotImplementedException();
 		}
 

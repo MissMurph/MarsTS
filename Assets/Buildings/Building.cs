@@ -348,13 +348,12 @@ namespace MarsTS.Buildings {
 			}
 		}
 
-		public CommandFactory Evaluate (ISelectable target) {
+		public virtual CommandFactory Evaluate (ISelectable target) {
 			return CommandRegistry.Get("move");
 		}
 
-		public Commandlet Auto (ISelectable target) {
-			//return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
-			throw new NotImplementedException();
+		public virtual void AutoCommand (ISelectable target) {
+			
 		}
 
 		protected virtual void OnUnitInfoDisplayed (UnitInfoEvent _event) {

@@ -13,7 +13,7 @@ namespace MarsTS.Commands {
 		List<Timer> Cooldowns { get; }
 		void Order (Commandlet order, bool inclusive);
 		CommandFactory Evaluate (ISelectable target);
-		Commandlet Auto (ISelectable target);
+		void AutoCommand (ISelectable target);
 		string[] Commands ();
 		bool CanCommand (string key);
 	}

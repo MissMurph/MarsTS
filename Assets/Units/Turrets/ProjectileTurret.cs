@@ -1,12 +1,12 @@
 using MarsTS.Commands;
 using MarsTS.Events;
 using MarsTS.Teams;
+using Unity.Netcode;
 using UnityEngine;
-using static UnityEngine.UI.CanvasScaler;
 
 namespace MarsTS.Units {
 
-    public class ProjectileTurret : MonoBehaviour {
+    public class ProjectileTurret : NetworkBehaviour {
 
 		[SerializeField]
 		protected GameObject projectile;
@@ -39,6 +39,8 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void Update () {
+			if (!NetworkManager.Singleton.IsServer) return;
+
 			if (currentCooldown >= 0f) {
 				currentCooldown -= Time.deltaTime;
 			}
@@ -69,7 +71,7 @@ namespace MarsTS.Units {
 			}
 
 			if (target != null && sensor.IsDetected(target) && currentCooldown <= 0) {
-				Fire(sensor.GetDetectedCollider(target.GameObject.name).transform.position);
+				FireProjectile(sensor.GetDetectedCollider(target.GameObject.name).transform.position);
 			}
 		}
 
@@ -79,16 +81,29 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected virtual void Fire (Vector3 position) {
-			Vector3 direction = (position - transform.position).normalized;
+		protected virtual void FireProjectile (Vector3 _position) {
+			if (NetworkManager.Singleton.IsServer) FireProjectileClientRpc(_position);
+
+			Vector3 direction = (_position - transform.position).normalized;
 
 			Projectile bullet = Instantiate(projectile, barrel.transform.position, Quaternion.Euler(Vector3.zero)).GetComponent<Projectile>();
 
-			bullet.transform.LookAt(position);
+			bullet.transform.LookAt(_position);
 
-			bullet.Init(parent, (success, unit) => { if (success) unit.Attack(damage); });
+			bullet.Init(parent, OnHit);
 
 			currentCooldown += cooldown;
+		}
+
+		[Rpc(SendTo.NotServer)]
+		protected virtual void FireProjectileClientRpc (Vector3 _position) {
+			FireProjectile(_position);
+		}
+
+		protected virtual void OnHit (bool _success, IAttackable _unit) {
+			if (NetworkManager.Singleton.IsServer && _success) {
+				_unit.Attack(damage);
+			}
 		}
 
 		private void OnSensorUpdate (SensorUpdateEvent<IAttackable> _event) {

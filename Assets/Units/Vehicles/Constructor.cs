@@ -213,6 +213,7 @@ namespace MarsTS.Units {
 		public override CommandFactory Evaluate (ISelectable target) {
 			if (target is IAttackable attackable
 				&& (target.GetRelationship(Owner) == Relationship.Owned || target.GetRelationship(Owner) == Relationship.Friendly)
+				//&& (target.GameObject.CompareTag("vehicle") || target.GameObject.CompareTag("building"))
 				&& attackable.Health < attackable.MaxHealth) {
 				return CommandRegistry.Get("repair");
 			}
@@ -220,16 +221,15 @@ namespace MarsTS.Units {
 			return CommandRegistry.Get("move");
 		}
 
-		public override Commandlet Auto (ISelectable target) {
+		public override void AutoCommand (ISelectable target) {
 			if (target is IAttackable attackable
 				&& (target.GetRelationship(Owner) == Relationship.Owned || target.GetRelationship(Owner) == Relationship.Friendly)
+				//&& (target.GameObject.CompareTag("vehicle") || target.GameObject.CompareTag("building"))
 				&& attackable.Health < attackable.MaxHealth) {
-				//return CommandRegistry.Get<Repair>("repair").Construct(attackable);
+				CommandRegistry.Get<Repair>("repair").Construct(attackable, Player.SerializedSelected);
 			}
 
-			//return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
-
-			throw new NotImplementedException();
+			CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position, Player.SerializedSelected);
 		}
 
 		public override bool CanCommand (string key) {

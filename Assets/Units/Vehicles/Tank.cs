@@ -190,7 +190,7 @@ namespace MarsTS.Units {
 			return CommandRegistry.Get("move");
 		}
 
-		public override Commandlet Auto (ISelectable target) {
+		public override void AutoCommand (ISelectable target) {
 			if (target is IAttackable deserialized && target.GetRelationship(Owner) == Relationship.Hostile) {
 				//return CommandRegistry.Get<Attack>("attack").Construct(deserialized);
 			}

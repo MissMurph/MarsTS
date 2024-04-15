@@ -3,6 +3,7 @@ using MarsTS.Events;
 using MarsTS.Teams;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Units {
@@ -41,6 +42,8 @@ namespace MarsTS.Units {
 		}
 
 		private void Update () {
+			if (!NetworkManager.Singleton.IsServer) return;
+
 			if (currentCooldown >= 0f) {
 				currentCooldown -= Time.deltaTime;
 			}

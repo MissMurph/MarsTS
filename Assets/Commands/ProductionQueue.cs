@@ -36,7 +36,7 @@ namespace MarsTS.Commands {
 		}
 
 		protected override void Update () {
-			if (isServer && Current is null && commandQueue.TryDequeue(out Commandlet order)) {
+			if (isServer && Current == null && commandQueue.TryDequeue(out Commandlet order)) {
 				Dequeue(order);
 				DequeueClientRpc(order.gameObject);
 
@@ -50,8 +50,8 @@ namespace MarsTS.Commands {
 					production.ProductionProgress++;
 
 					if (production.ProductionProgress >= production.ProductionRequired) {
-						CompleteCurrentCommand(false);
-						CompleteCommandClientRpc(false);
+						//CompleteCurrentCommand(false);
+						//CompleteCommandClientRpc(false);
 					}
 					else bus.Global(ProductionEvent.Step(bus, parent, this, production));
 
@@ -62,6 +62,8 @@ namespace MarsTS.Commands {
 
 		protected override void Dequeue (Commandlet order) {
 			base.Dequeue(order);
+
+			Debug.Log("Dequeueing order!");
 
 			IProducable productionOrder = Current as IProducable;
 
@@ -109,6 +111,8 @@ namespace MarsTS.Commands {
 
 			if (productionOrder.ProductionProgress >= productionOrder.ProductionRequired) {
 				productionOrder.OnWork -= OnOrderWork;
+				Debug.Log("Production order is complete!");
+				bus.Global(new ProductionCompleteEvent(bus, productionOrder.Product, parent, this, productionOrder));
 				Current.OnComplete(this, new CommandCompleteEvent(bus, Current, false, parent));
 			} 
 			else bus.Global(ProductionEvent.Step(bus, parent, this, productionOrder));

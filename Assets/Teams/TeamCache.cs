@@ -81,6 +81,8 @@ namespace MarsTS.Teams {
 			NetworkObject networkObserver = observerFaction.GetComponent<NetworkObject>();
 			networkObserver.Spawn();
 
+			//CreateFactionInstance(0, observerFaction, 0);
+			observerFaction.InitClient(0, 0, 0);
 			observerFaction.InitClientRpc(0, 0, 0);
 
 			int count = 0;
@@ -93,6 +95,8 @@ namespace MarsTS.Teams {
 				NetworkObject networkFaction = playerFaction.GetComponent<NetworkObject>();
 				networkFaction.SpawnWithOwnership(id);
 
+				//CreateFactionInstance(id, playerFaction, teamMap.Count);
+				playerFaction.InitClient(id, factionID, teamMap.Count);
 				playerFaction.InitClientRpc(id, factionID, teamMap.Count);
 
 				count++;

@@ -116,7 +116,7 @@ namespace MarsTS.Units {
 			return CommandRegistry.Get("move");
 		}
 
-		public override Commandlet Auto (ISelectable target) {
+		public override void AutoCommand (ISelectable target) {
 			if (target is IHarvestable harvestable
 				&& Stored < Capacity
 				&& harvestable.StoredAmount > 0

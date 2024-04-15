@@ -306,12 +306,15 @@ GameObject:
   m_Component:
   - component: {fileID: 1214473942047108565}
   - component: {fileID: 7230481599974592799}
+  - component: {fileID: 6727375179201398625}
   - component: {fileID: 6520470998769435003}
   - component: {fileID: 1214473942047108564}
   - component: {fileID: 1214473942047108563}
   - component: {fileID: 5525253249239655198}
   - component: {fileID: 5738421268432317307}
   - component: {fileID: 669137645337638381}
+  - component: {fileID: 9024743636503016582}
+  - component: {fileID: 8446681165218795906}
   m_Layer: 0
   m_Name: mobile_artillery
   m_TagString: Vehicle
@@ -357,6 +360,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   registryKey: mobile_artillery
+  toTag: []
+--- !u!114 &6727375179201398625
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1214473942990757588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 201376783
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &6520470998769435003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -369,11 +394,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6cbb936cdb12a04cb4af203d892c86d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 150
-  currentHealth: 0
+  maxHealth:
+    m_InternalValue: 0
+  currentHealth:
+    m_InternalValue: 0
   icon: {fileID: 21300000, guid: db7c4a86328576146aaec74d7401b030, type: 3}
   type: mobile_artillery
-  owner: {fileID: 0}
+  owner:
+    m_InternalValue: 0
   boundCommands:
   - move
   - stop
@@ -432,6 +460,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visionRange: 15
+  owner: 0
 --- !u!114 &5738421268432317307
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -454,6 +483,49 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 866af88a2db170c42a48b68ed236afd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &9024743636503016582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1214473942990757588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 0
+  SyncScaleY: 0
+  SyncScaleZ: 0
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  Interpolate: 1
+  SlerpPosition: 0
+--- !u!114 &8446681165218795906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1214473942990757588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6c0be61502bb534f922ebb746851216, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1548256937297088197

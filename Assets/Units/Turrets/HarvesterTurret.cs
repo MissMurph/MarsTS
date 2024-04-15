@@ -4,6 +4,7 @@ using MarsTS.Teams;
 using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Units {
@@ -47,6 +48,8 @@ namespace MarsTS.Units {
 		}
 
 		private void Update () {
+			if (!NetworkManager.Singleton.IsServer) return;
+
 			if (currentCooldown >= 0f) {
 				currentCooldown -= Time.deltaTime;
 			}
@@ -72,6 +75,8 @@ namespace MarsTS.Units {
 		}
 
 		private void FixedUpdate () {
+			if (!NetworkManager.Singleton.IsServer) return;
+
 			if (target != null && sensor.IsDetected(target)) {
 				barrel.transform.LookAt(target.GameObject.transform, Vector3.up);
 			}

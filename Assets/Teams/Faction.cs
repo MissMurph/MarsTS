@@ -54,12 +54,12 @@ namespace MarsTS.Teams {
 			}
 		}
 
-		[Rpc(SendTo.Everyone)]
+		[Rpc(SendTo.NotServer)]
 		public void InitClientRpc (ulong playerID, int factionID, int teamID) {
 			InitClient(playerID, factionID, teamID);
 		}
 
-		private void InitClient (ulong playerID, int factionID, int teamID) {
+		public void InitClient (ulong playerID, int factionID, int teamID) {
 			//Debug.Log("called rpc");
 
 			id = factionID;

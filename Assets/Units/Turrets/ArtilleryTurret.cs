@@ -62,7 +62,7 @@ namespace MarsTS.Units {
 				}
 
 				if (target != null && sensor.IsDetected(target) && currentCooldown <= 0) {
-					Fire(sensor.GetDetectedCollider(target.GameObject.name).transform.position);
+					FireProjectile(sensor.GetDetectedCollider(target.GameObject.name).transform.position);
 				}
 			}
 			else {

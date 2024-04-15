@@ -21,9 +21,23 @@ namespace MarsTS.Units {
 
 		/*	IAttackable Properties	*/
 
-		public int Health { get { return currentHealth.Value; } }
+		public int Health { 
+			get { 
+				return currentHealth.Value; 
+			}
+			protected set {
+				currentHealth.Value = value;
+			}
+		}
 
-		public int MaxHealth { get { return maxHealth.Value; } }
+		public int MaxHealth { 
+			get { 
+				return maxHealth.Value; 
+			}
+			protected set {
+				currentHealth.Value = value;
+			}
+		}
 
 		[Header("Health")]
 
@@ -167,6 +181,8 @@ namespace MarsTS.Units {
 			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
 
 			owner.OnValueChanged += (oldValue, newValue) => bus.Local(new UnitOwnerChangeEvent(bus, this, Owner));
+
+			currentHealth.OnValueChanged += OnHurt;
 		}
 
 		protected void AttachServerListeners () {
@@ -306,7 +322,7 @@ namespace MarsTS.Units {
 
 		public abstract CommandFactory Evaluate (ISelectable target);
 
-		public abstract Commandlet Auto (ISelectable target);
+		public abstract void AutoCommand (ISelectable target);
 
 		public virtual void Select (bool status) {
 			//selectionCircle.SetActive(status);
@@ -338,11 +354,14 @@ namespace MarsTS.Units {
 		public void Attack (int damage) {
 			if (Health <= 0) return;
 			if (damage < 0 && Health >= MaxHealth) return;
-			currentHealth.Value -= damage;
+			Health -= damage;
+		}
 
+		protected virtual void OnHurt (int _oldHealth, int _newHealth) {
 			if (Health <= 0) {
 				bus.Global(new UnitDeathEvent(bus, this));
-				Destroy(gameObject);
+
+				if (NetworkManager.Singleton.IsServer) Destroy(gameObject);
 			}
 			else bus.Global(new UnitHurtEvent(bus, this));
 		}

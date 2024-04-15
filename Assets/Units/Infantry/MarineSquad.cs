@@ -75,7 +75,7 @@ namespace MarsTS.Units {
 			return CommandRegistry.Get("move");
 		}
 
-		public override Commandlet Auto (ISelectable target) {
+		public override void AutoCommand (ISelectable target) {
 			if (target is IAttackable attackable && target.GetRelationship(owner) == Relationship.Hostile) {
 				//return CommandRegistry.Get<Attack>("attack").Construct(attackable);
 			}

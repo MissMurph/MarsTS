@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.ProBuilder;
+using Unity.Netcode;
 
 namespace MarsTS.Units {
 
@@ -11,23 +11,13 @@ namespace MarsTS.Units {
 		[SerializeField]
 		protected int bonusDamage;
 
-		protected override void Fire (Vector3 position) {
-			Vector3 direction = (position - transform.position).normalized;
-
-			Projectile bullet = Instantiate(projectile, barrel.transform.position, Quaternion.Euler(Vector3.zero)).GetComponent<Projectile>();
-
-			bullet.transform.LookAt(position);
-
-			bullet.Init(parent, OnHit);
-
-			currentCooldown += cooldown;
-		}
-
-		protected virtual void OnHit (bool result, IAttackable hit) {
-			if (hit.GameObject.tag == "Infantry") {
-				hit.Attack(damage + bonusDamage);
+		protected override void OnHit (bool _success, IAttackable _unit) {
+			if (NetworkManager.Singleton.IsServer && _success) {
+				if (_unit.GameObject.tag.Equals("Infantry")) {
+					_unit.Attack(damage + bonusDamage);
+				}
+				else _unit.Attack(damage);
 			}
-			else hit.Attack(damage);
 		}
 	}
 }

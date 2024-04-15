@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
+using Unity.Netcode;
 
 namespace MarsTS.Units {
 
@@ -95,6 +96,8 @@ namespace MarsTS.Units {
 		}
 
 		protected override void Update () {
+			if (!NetworkManager.Singleton.IsServer) return;
+
 			base.Update();
 
 			if (attackTarget == null) return;
@@ -109,6 +112,8 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void FixedUpdate () {
+			if (!NetworkManager.Singleton.IsServer) return;
+
 			velocity = body.velocity.sqrMagnitude;
 
 			if (ground.Grounded) {
@@ -216,12 +221,12 @@ namespace MarsTS.Units {
 			return CommandRegistry.Get("move");
 		}
 
-		public override Commandlet Auto (ISelectable target) {
+		public override void AutoCommand (ISelectable target) {
 			if (target is IAttackable deserialized && target.GetRelationship(Owner) == Relationship.Hostile) {
-				//return CommandRegistry.Get<Attack>("attack").Construct(deserialized);
+				CommandRegistry.Get<Attack>("attack").Construct(deserialized, Player.SerializedSelected);
 			}
 
-			throw new NotImplementedException();
+			CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position, Player.SerializedSelected);
 		}
 	}
 }

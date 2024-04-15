@@ -249,7 +249,7 @@ namespace MarsTS.Units {
 			return CommandRegistry.Get("move");
 		}
 
-		public virtual Commandlet Auto (ISelectable target) {
+		public virtual void AutoCommand (ISelectable target) {
 			throw new NotImplementedException();
 		}
 

@@ -74,7 +74,8 @@ MonoBehaviour:
   orderPrefab: {fileID: 0}
   description: Upgrades the pumpjack with camoflage, making it hidden beyond a certain
     range
-  unitPrefab: {fileID: 0}
+  unitPrefab: {fileID: 209729225734903553, guid: be54849480c2569428938b526f60ec1e,
+    type: 3}
   timeRequired: 25
   cost:
   - key: resource_unit

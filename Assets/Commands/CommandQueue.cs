@@ -65,7 +65,7 @@ namespace MarsTS.Commands {
 
 				if (workOrder.CurrentWork >= workOrder.WorkRequired) {
 					CompleteCurrentCommand(false);
-					CompleteCommandClientRpc(false);
+					//CompleteCommandClientRpc(false);
 				}
 			}
 

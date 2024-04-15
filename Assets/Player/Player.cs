@@ -42,8 +42,6 @@ namespace MarsTS.Players {
 					}
 				}
 
-				Debug.Log(outputList.Count);
-
 				return outputList.ToArray();
 			}
 		}
@@ -74,18 +72,20 @@ namespace MarsTS.Players {
 
 		private ISelectable currentHover;
 
-		private void Start () {
+		private void Awake () {
 			instance = this;
 
 			bus = GetComponentInParent<EventAgent>();
 			commander = GetComponentInParent<Faction>();
-			
+
 			inputController = GetComponent<InputHandler>();
 			uiController = GetComponent<UIController>();
 			cameraControls = GetComponent<ViewportController>();
 
 			view = GetComponentInChildren<Camera>();
+		}
 
+		private void Start () {
 			EventBus.AddListener<UnitDeathEvent>(OnEntityDeath);
 			EventBus.AddListener<UnitOwnerChangeEvent>(OnUnitOwnershipChange);
 
@@ -183,15 +183,14 @@ namespace MarsTS.Players {
 
 				if (selectableHit.collider != null && EntityCache.TryGet(selectableHit.collider.transform.root.name, out ISelectable target)) {
 					if (Selected[UIController.instance.PrimarySelected].Get() is ICommandable commandable) {
-						Commandlet constructed = commandable.Auto(target);
-						DeliverCommand(constructed, Include);
+						commandable.AutoCommand(target);
 						return;
 					}
 				}
 				else if (walkableHit.collider != null) {
 					Vector3 hitPos = walkableHit.point;
 
-					//DeliverCommand(CommandRegistry.Get<Move>("move").Construct(hitPos), Include);
+					CommandRegistry.Get<Move>("move").Construct(hitPos, SerializedSelected);
 					return;
 				}
 			}

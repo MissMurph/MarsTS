@@ -25,11 +25,11 @@ namespace MarsTS.UI {
 			matBlock = new MaterialPropertyBlock();
 
 			//bus.AddListener<EntityInitEvent>(OnEntityInit);
+			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
+			bus.AddListener<UnitOwnerChangeEvent>(OnTeamChange);
 		}
 
 		private void Start () {
-			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
-			bus.AddListener<UnitOwnerChangeEvent>(OnTeamChange);
 			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
 		}
 

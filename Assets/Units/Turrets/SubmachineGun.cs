@@ -54,7 +54,7 @@ namespace MarsTS.Units {
 			}
 
 			if (!isSneaking && target != null && sensor.IsDetected(target) && currentBurstCooldown <= 0 && currentCooldown <= 0) {
-				Fire(sensor.GetDetectedCollider(target.GameObject.name).transform.position);
+				FireProjectile(sensor.GetDetectedCollider(target.GameObject.name).transform.position);
 				firedCount++;
 
 				if (firedCount >= burstCount) {

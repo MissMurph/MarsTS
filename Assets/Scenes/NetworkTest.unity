@@ -1052,7 +1052,6 @@ MonoBehaviour:
       type: 3}
     Prefabs:
       NetworkPrefabsLists:
-      - {fileID: 11400000, guid: 92a9baf878e0869438ae762160888a93, type: 2}
       - {fileID: 11400000, guid: caa217750a737944db7be761bf1b46a0, type: 2}
       - {fileID: 11400000, guid: c2795a225e1a27749af193fa97eed92f, type: 2}
       - {fileID: 11400000, guid: ee9282e63dd91ae4b8381aed08aaef43, type: 2}

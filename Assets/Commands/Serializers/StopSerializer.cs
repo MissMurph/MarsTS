@@ -5,39 +5,34 @@ using UnityEngine;
 
 namespace MarsTS.Commands {
 
-    public class MoveSerializer : MonoBehaviour, ICommandSerializer {
-
+	public class StopSerializer : MonoBehaviour, ICommandSerializer {
 		public string Key { get { return commandKey; } }
 
 		[SerializeField]
 		private string commandKey;
 
 		public ISerializedCommand Reader () {
-			return new SerializedMoveCommandlet {
+			return new SerializedStopCommandlet {
 				Key = Key
 			};
 		}
 
 		public ISerializedCommand Writer (Commandlet _data) {
-			MoveCommandlet superType = _data as MoveCommandlet;
-
-			return new SerializedMoveCommandlet {
+			return new SerializedStopCommandlet {
 				Key = Key,
-				Faction = superType.Commander.ID,
-				_targetPosition = superType.Target,
+				Faction = _data.Commander.ID
 			};
 		}
 	}
 
-	public struct SerializedMoveCommandlet : ISerializedCommand {
+	public struct SerializedStopCommandlet : ISerializedCommand {
 
 		public string Key { get; set; }
 		public int Faction { get; set; }
 
-		public Vector3 _targetPosition;
-
+		//This is pretty much empty as Stop is such a simple command
 		public void NetworkSerialize<T> (BufferSerializer<T> serializer) where T : IReaderWriter {
-			serializer.SerializeValue(ref _targetPosition);
+			
 		}
 	}
 }

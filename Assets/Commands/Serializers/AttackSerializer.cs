@@ -1,3 +1,4 @@
+using MarsTS.Entities;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -5,7 +6,7 @@ using UnityEngine;
 
 namespace MarsTS.Commands {
 
-    public class MoveSerializer : MonoBehaviour, ICommandSerializer {
+	public class AttackSerializer : MonoBehaviour, ICommandSerializer {
 
 		public string Key { get { return commandKey; } }
 
@@ -19,25 +20,29 @@ namespace MarsTS.Commands {
 		}
 
 		public ISerializedCommand Writer (Commandlet _data) {
-			MoveCommandlet superType = _data as MoveCommandlet;
+			AttackCommandlet superType = _data as AttackCommandlet;
 
-			return new SerializedMoveCommandlet {
-				Key = Key,
-				Faction = superType.Commander.ID,
-				_targetPosition = superType.Target,
-			};
+			if (EntityCache.TryGet(superType.Target.GameObject.name, out NetworkObject targetNetworking)) {
+				return new SerializedAttackCommandlet {
+					Key = Key,
+					Faction = superType.Commander.ID,
+					targetUnit = targetNetworking
+				};
+			}
+
+			return null;
 		}
 	}
 
-	public struct SerializedMoveCommandlet : ISerializedCommand {
+	public struct SerializedAttackCommandlet : ISerializedCommand {
 
 		public string Key { get; set; }
 		public int Faction { get; set; }
 
-		public Vector3 _targetPosition;
+		public NetworkObjectReference targetUnit;
 
 		public void NetworkSerialize<T> (BufferSerializer<T> serializer) where T : IReaderWriter {
-			serializer.SerializeValue(ref _targetPosition);
+			serializer.SerializeValue(ref targetUnit);
 		}
 	}
 }

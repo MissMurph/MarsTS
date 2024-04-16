@@ -1,4 +1,5 @@
 using MarsTS.Events;
+using MarsTS.Networking;
 using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
@@ -52,9 +53,9 @@ namespace MarsTS.Commands {
 		protected virtual void Update () {
 			//if (!isServer) return;
 
-			if (isServer && Current == null && commandQueue.TryDequeue(out Commandlet order)) {
-				Dequeue(order);
-				DequeueClientRpc(order.gameObject);
+			if (isServer && Current == null && commandQueue.Count > 0) {
+				Dequeue();
+				//DequeueClientRpc(order.gameObject);
 
 				return;
 			}
@@ -94,12 +95,20 @@ namespace MarsTS.Commands {
 		protected virtual void DequeueClientRpc (NetworkObjectReference orderReference) {
 			if (NetworkManager.IsHost) return;
 
-			Dequeue(((GameObject)orderReference).GetComponent<Commandlet>());
+			if (!ReferenceEquals(orderReference.GameObject(), commandQueue.Peek().gameObject)) {
+				Debug.Log("Potential Desync with client Command Queue! Check " + commandQueue.Peek().Name + "!");
+			}
+
+			//Dequeue(orderReference.GameObject().GetComponent<Commandlet>());
+			Dequeue();
 		}
 
-		protected virtual void Dequeue (Commandlet order) {
+		protected virtual void Dequeue () {
+			Commandlet order = commandQueue.Dequeue();
+
 			Current = order;
 			order.Callback.AddListener(OnOrderComplete);
+
 			CommandStartEvent _event = new CommandStartEvent(bus, order, parent);
 			order.OnStart(this, _event);
 			bus.Local(_event);
@@ -145,7 +154,7 @@ namespace MarsTS.Commands {
 		protected virtual void ExecuteClientRpc (NetworkObjectReference orderReference) {
 			if (NetworkManager.Singleton.IsHost) return;
 
-			Execute(((GameObject)orderReference).GetComponent<Commandlet>());
+			Execute(orderReference.GameObject().GetComponent<Commandlet>());
 		}
 
 		/*	Enqueueing Commands	*/
@@ -161,7 +170,7 @@ namespace MarsTS.Commands {
 		protected virtual void EnqueueClientRpc (NetworkObjectReference orderReference) {
 			if (NetworkManager.Singleton.IsHost) return;
 
-			Enqueue(((GameObject)orderReference).GetComponent<Commandlet>());
+			Enqueue(orderReference.GameObject().GetComponent<Commandlet>());
 		}
 
 		/*	Activating Commands	*/

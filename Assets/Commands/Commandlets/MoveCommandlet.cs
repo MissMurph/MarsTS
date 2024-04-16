@@ -9,10 +9,6 @@ namespace MarsTS.Commands {
     public class MoveCommandlet : Commandlet<Vector3> {
         public override string Key => Name;
 
-		protected override ISerializedCommand Serialize () {
-			return Serializers.Write(this);
-		}
-
 		protected override void Deserialize (SerializedCommandWrapper _data) {
 			SerializedMoveCommandlet deserialized = (SerializedMoveCommandlet)_data.commandletData;
 

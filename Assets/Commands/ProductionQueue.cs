@@ -14,7 +14,8 @@ namespace MarsTS.Commands {
 				IProducable[] output = new IProducable[commandQueue.Count];
 				Commandlet[] originalQueue = commandQueue.ToArray();
 
-				for (int i = 0; i < commandQueue.Count; i++) {
+				for (var i = 0; i < commandQueue.Count; i++)
+				{
 					output[i] = originalQueue[i] as IProducable;
 				}
 
@@ -36,9 +37,9 @@ namespace MarsTS.Commands {
 		}
 
 		protected override void Update () {
-			if (isServer && Current == null && commandQueue.TryDequeue(out Commandlet order)) {
-				Dequeue(order);
-				DequeueClientRpc(order.gameObject);
+			if (isServer && Current == null && commandQueue.Count > 0) {
+				Dequeue();
+				DequeueClientRpc(Current.gameObject);
 
 				return;
 			}
@@ -60,11 +61,9 @@ namespace MarsTS.Commands {
 			}
 		}
 
-		protected override void Dequeue (Commandlet order) {
-			base.Dequeue(order);
-
-			Debug.Log("Dequeueing order!");
-
+		protected override void Dequeue () {
+			base.Dequeue();
+			
 			IProducable productionOrder = Current as IProducable;
 
 			productionOrder.OnWork += OnOrderWork;

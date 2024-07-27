@@ -13,7 +13,7 @@ namespace MarsTS.Commands {
         
         public Commandlet Current { get; protected set; }
 
-        public Commandlet[] Queue { get { return commandQueue.ToArray(); } }
+        public Commandlet[] Queue => commandQueue.ToArray();
         protected Queue<Commandlet> commandQueue;
 
         public List<string> Active { get { return activeCommands.Keys.ToList();  } }
@@ -55,7 +55,7 @@ namespace MarsTS.Commands {
 
 			if (isServer && Current == null && commandQueue.Count > 0) {
 				Dequeue();
-				//DequeueClientRpc(order.gameObject);
+				DequeueClientRpc(Current.gameObject);
 
 				return;
 			}
@@ -99,7 +99,6 @@ namespace MarsTS.Commands {
 				Debug.Log("Potential Desync with client Command Queue! Check " + commandQueue.Peek().Name + "!");
 			}
 
-			//Dequeue(orderReference.GameObject().GetComponent<Commandlet>());
 			Dequeue();
 		}
 

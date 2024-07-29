@@ -25,6 +25,7 @@ namespace MarsTS.Commands {
 			return new SerializedProduceCommandlet {
 				Key = Key,
 				Faction = superType.Commander.ID,
+				Id = superType.Id,
 				_prefabKey = "unit:" + superType.Product.name,
 				_productionRequired = superType.ProductionRequired
 			};
@@ -35,6 +36,7 @@ namespace MarsTS.Commands {
 
 		public string Key { get; set; }
 		public int Faction { get; set; }
+		public int Id { get; set; }
 
 		public int _productionRequired;
 		public string _prefabKey;

@@ -9,7 +9,9 @@ namespace MarsTS.Commands {
 
 		public ISerializedCommand commandletData;
 
+		// TODO: Convert key to bit codes
 		public string Key;
+		public int Id;
 		public int Faction;
 
 		public void NetworkSerialize<T> (BufferSerializer<T> serializer) where T : IReaderWriter {
@@ -18,10 +20,12 @@ namespace MarsTS.Commands {
 			if (serializer.IsWriter) {
 				Key = commandletData.Key;
 				Faction = commandletData.Faction;
+				Id = commandletData.Id;
 			}
 
 			serializer.SerializeValue(ref Key);
 			serializer.SerializeValue(ref Faction);
+			serializer.SerializeValue(ref Id);
 
 			if (serializer.IsReader) {
 				commandletData = Serializers.Read(Key);

@@ -24,6 +24,7 @@ namespace MarsTS.Commands {
 			return new SerializedMoveCommandlet {
 				Key = Key,
 				Faction = superType.Commander.ID,
+				Id = superType.Id,
 				_targetPosition = superType.Target,
 			};
 		}
@@ -33,6 +34,7 @@ namespace MarsTS.Commands {
 
 		public string Key { get; set; }
 		public int Faction { get; set; }
+		public int Id { get; set; }
 
 		public Vector3 _targetPosition;
 

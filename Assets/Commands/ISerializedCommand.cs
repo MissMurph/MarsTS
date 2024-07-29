@@ -6,7 +6,8 @@ using UnityEngine;
 namespace MarsTS.Commands {
 
 	public interface ISerializedCommand : INetworkSerializable {
-		public string Key { get; }
-		public int Faction { get; }
+		string Key { get; }
+		int Faction { get; }
+		int Id { get; }
 	}
 }

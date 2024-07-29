@@ -26,6 +26,7 @@ namespace MarsTS.Commands {
 				return new SerializedAttackCommandlet {
 					Key = Key,
 					Faction = superType.Commander.ID,
+					Id = superType.Id,
 					targetUnit = targetNetworking
 				};
 			}
@@ -38,6 +39,7 @@ namespace MarsTS.Commands {
 
 		public string Key { get; set; }
 		public int Faction { get; set; }
+		public int Id { get; set; }
 
 		public NetworkObjectReference targetUnit;
 

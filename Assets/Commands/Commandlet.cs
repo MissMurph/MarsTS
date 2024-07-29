@@ -19,7 +19,9 @@ namespace MarsTS.Commands {
 		public UnityEvent<CommandCompleteEvent> Callback = new UnityEvent<CommandCompleteEvent>();
 		public virtual CommandFactory Command { get { return CommandRegistry.Get(Key); } }
 		public abstract string Key { get; }
-		protected List<string> commandedUnits = new List<string>();
+		public List<string> commandedUnits = new List<string>();
+		public int Id { get; protected set; }
+		public bool IsStale => CommandCache.IsStale(Id);
 
 		public virtual void OnStart (CommandQueue queue, CommandStartEvent _event) {
 			commandedUnits.Add(queue.gameObject.name);
@@ -33,7 +35,7 @@ namespace MarsTS.Commands {
 			commandedUnits.Remove(queue.gameObject.name);
 			Callback.Invoke(_event);
 
-			if (commandedUnits.Count <= 0) Destroy(gameObject);
+			//if (commandedUnits.Count <= 0) Destroy(gameObject);
 		}
 
 		public virtual bool CanInterrupt () {
@@ -54,7 +56,7 @@ namespace MarsTS.Commands {
 		protected virtual void Deserialize (SerializedCommandWrapper _data) { }
 
 		protected virtual void SpawnAndSync () {
-			ISerializedCommand data = Serialize();
+			var data = Serialize();
 
 			GetComponent<NetworkObject>().Spawn();
 			SynchronizeClientRpc(new SerializedCommandWrapper() { commandletData = data });
@@ -68,17 +70,25 @@ namespace MarsTS.Commands {
 
 	public abstract class Commandlet<T> : Commandlet {
 
-		public T Target { get { return target; } }
+		public T Target => target;
+		public override Type TargetType => typeof(T);
 
 		[SerializeField]
 		protected T target;
-
-		public override Type TargetType { get { return typeof(T); } }
 
 		public virtual void Init (string _name, T _target, Faction _commander) {
 			Name = _name;
 			target = _target;
 			Commander = _commander;
+
+			Id = CommandCache.Register(this);
+
+			if (Id <= -1)
+			{
+				Debug.LogError($"Unable to register command {Name} with cache! Deleting");
+				Destroy(gameObject);
+				return;
+			}
 
 			SpawnAndSync();
 		}

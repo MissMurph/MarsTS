@@ -90,10 +90,10 @@ namespace MarsTS.Commands {
 		}
 
 		protected override void Deserialize (SerializedCommandWrapper _data) {
-			SerializedProduceCommandlet deserialized = (SerializedProduceCommandlet)_data.commandletData;
+			base.Deserialize(_data);
+			
+			var deserialized = (SerializedProduceCommandlet)_data.commandletData;
 
-			Name = _data.Key;
-			Commander = TeamCache.Faction(_data.Faction);
 			ProductionRequired = deserialized._productionRequired;
 			target = Registry.Prefab(deserialized._prefabKey);
 		}

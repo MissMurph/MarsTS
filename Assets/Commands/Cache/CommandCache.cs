@@ -54,8 +54,8 @@ namespace MarsTS.Commands
         {
             int id = _event.Command.Id;
             
-            if (!_instance.activeCommands.ContainsKey(id)
-                || _event.Command.commandedUnits.Count > 0) return;
+            if (!_instance.activeCommands.ContainsKey(id) || _event.Command.commandedUnits.Count > 0) 
+                return;
             
             if (_instance.staleCommands.TryAdd(id, _event.Command))
             {

@@ -17,7 +17,7 @@ namespace MarsTS.Commands {
 		public string Name { get; protected set; }
 		public Faction Commander { get; protected set; }
 		public UnityEvent<CommandCompleteEvent> Callback = new UnityEvent<CommandCompleteEvent>();
-		public virtual CommandFactory Command { get { return CommandRegistry.Get(Key); } }
+		public virtual CommandFactory Command => CommandRegistry.Get(Key);
 		public abstract string Key { get; }
 		public List<string> commandedUnits = new List<string>();
 		public int Id { get; protected set; }
@@ -53,7 +53,6 @@ namespace MarsTS.Commands {
 		protected virtual ISerializedCommand Serialize () { 
 			return Serializers.Write(this);
 		}
-		protected virtual void Deserialize (SerializedCommandWrapper _data) { }
 
 		protected virtual void SpawnAndSync () {
 			var data = Serialize();
@@ -65,6 +64,13 @@ namespace MarsTS.Commands {
 		[Rpc(SendTo.NotServer)]
 		protected virtual void SynchronizeClientRpc (SerializedCommandWrapper _data) {
 			Deserialize(_data);
+		}
+
+		protected virtual void Deserialize(SerializedCommandWrapper _data)
+		{
+			Name = _data.Key;
+			Commander = TeamCache.Faction(_data.Faction);
+			Id = _data.Id;
 		}
 	}
 

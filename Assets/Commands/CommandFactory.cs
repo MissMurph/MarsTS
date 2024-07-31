@@ -35,20 +35,19 @@ namespace MarsTS.Commands {
 		[SerializeField]
 		protected Commandlet<T> orderPrefab;
 		
-		public override Type TargetType { get { return typeof(T); } }
+		public override Type TargetType => typeof(T);
 	}
 
 	public abstract class CommandFactory : NetworkBehaviour {
 
 		public abstract string Name { get; }
 		public abstract Type TargetType { get; }
-		public virtual Sprite Icon { get { return icon; } }
+		public virtual Sprite Icon => icon;
 		public abstract string Description { get; }
 
 		[SerializeField]
 		protected Sprite icon;
 
-		public Color IconColor;
 		public CursorSprite Pointer;
 
 		public abstract void StartSelection ();

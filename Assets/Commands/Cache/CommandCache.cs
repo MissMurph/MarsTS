@@ -2,18 +2,26 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using MarsTS.Events;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Commands
 {
-    public class CommandCache : MonoBehaviour
+    public class CommandCache : NetworkBehaviour
     {
         private static CommandCache _instance;
+
+        [SerializeField]
+        private float staleCheckInterval = 10f;
+        private float staleCheckTimer;
+
+        private int clientCount = 0;
 
         private static int _instanceCount;
 
         private Dictionary<int, Commandlet> activeCommands;
         private Dictionary<int, Commandlet> staleCommands;
+        private Dictionary<int, List<bool>> staleCheckRequests;
 
         public static int Count => _instance.activeCommands.Count;
 
@@ -24,9 +32,11 @@ namespace MarsTS.Commands
             _instance = this;
 
             _instanceCount = 0;
+            staleCheckTimer = staleCheckInterval;
             
             activeCommands = new Dictionary<int, Commandlet>();
             staleCommands = new Dictionary<int, Commandlet>();
+            staleCheckRequests = new Dictionary<int, List<bool>>();
         }
 
         private void Start()
@@ -34,8 +44,38 @@ namespace MarsTS.Commands
             EventBus.AddListener<CommandCompleteEvent>(OnCommandComplete);
         }
 
+        public override void OnNetworkSpawn()
+        {
+            if (NetworkManager.Singleton.IsServer)
+            {
+                // Host is considered a connected client, so we check for all -1
+                clientCount = NetworkManager.Singleton.ConnectedClients.Count - 1;
+            }
+        }
+
+        private void Update()
+        {
+            if (!NetworkManager.Singleton.IsServer) return;
+
+            staleCheckTimer -= Time.deltaTime;
+
+            if (!(staleCheckTimer <= 0f)) return;
+            
+            CheckStaleToDestroy();
+            staleCheckTimer += staleCheckInterval;
+        }
+
         public static int Register(Commandlet commandlet)
         {
+            if (commandlet.Id > 0)
+            {
+                if (!NetworkManager.Singleton.IsServer)
+                    return _instance.activeCommands.TryAdd(commandlet.Id, commandlet) ? _instanceCount : -1;
+
+                Debug.LogError($"Attempting to register already registered command {commandlet.Name}:{commandlet.Id}!");
+                return -1;
+            }
+            
             _instanceCount++;
             return _instance.activeCommands.TryAdd(_instanceCount, commandlet) ? _instanceCount : -1;
         }
@@ -58,10 +98,48 @@ namespace MarsTS.Commands
                 return;
             
             if (_instance.staleCommands.TryAdd(id, _event.Command))
-            {
                 _instance.activeCommands.Remove(id);
+            else 
+                Debug.LogError($"Error marking command {_event.Command.Name}:{_event.Command.Id} as stale");
+        }
+
+        private void CheckStaleToDestroy()
+        {
+            foreach (KeyValuePair<int, Commandlet> stale in staleCommands)
+            {
+                if (staleCheckRequests.ContainsKey(stale.Key))
+                    continue;
+
+                staleCheckRequests[stale.Key] = new List<bool>();
+                CheckStaleClientRpc(stale.Key);
             }
-            else Debug.LogError($"Error marking command {_event.Command.Name}:{_event.Command.Id} as stale");
+        }
+
+        [Rpc(SendTo.NotServer)]
+        private void CheckStaleClientRpc(int id)
+        {
+            bool result;
+
+            if (!activeCommands.ContainsKey(id) && !staleCommands.ContainsKey(id))
+                result = true;
+            else
+                result = IsStale(id);
+            
+            SendStaleResponsesServerRpc(id, result);
+        }
+
+        [Rpc(SendTo.Server)]
+        private void SendStaleResponsesServerRpc(int id, bool isStale)
+        {
+            if (!staleCheckRequests.ContainsKey(id)) return;
+
+            staleCheckRequests[id].Add(isStale);
+
+            if (staleCheckRequests[id].Count >= clientCount)
+            {
+                Destroy(staleCommands[id].gameObject);
+                staleCheckRequests.Remove(id);
+            }
         }
 
         public static bool IsStale(int id) => _instance.staleCommands.ContainsKey(id);

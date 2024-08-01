@@ -30,6 +30,8 @@ namespace MarsTS {
 		[SerializeField]
 		private NetworkObject commandRegistryPrefab;
 
+		[SerializeField] private NetworkObject commandCachePrefab;
+
 		private Dictionary<ulong, GameObject> players = new Dictionary<ulong, GameObject>();
 
 		private EventAgent bus;
@@ -83,6 +85,7 @@ namespace MarsTS {
 		private void SpawnHeadquarters (TeamsInitEvent _event) {
 			if (_event.Phase.Equals(Phase.Pre)) {
 				Instantiate(commandRegistryPrefab, transform).Spawn();
+				Instantiate(commandCachePrefab, transform).Spawn();
 			}
 			else {
 				List<Faction> players = TeamCache.Players;

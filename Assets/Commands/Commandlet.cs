@@ -20,7 +20,7 @@ namespace MarsTS.Commands {
 		public virtual CommandFactory Command => CommandRegistry.Get(Key);
 		public abstract string Key { get; }
 		public List<string> commandedUnits = new List<string>();
-		public int Id { get; protected set; }
+		public int Id { get; protected set; } = 0;
 		public bool IsStale => CommandCache.IsStale(Id);
 
 		public virtual void OnStart (CommandQueue queue, CommandStartEvent _event) {
@@ -71,6 +71,8 @@ namespace MarsTS.Commands {
 			Name = _data.Key;
 			Commander = TeamCache.Faction(_data.Faction);
 			Id = _data.Id;
+
+			CommandCache.Register(this);
 		}
 	}
 

@@ -2165,6 +2165,8 @@ MonoBehaviour:
     type: 3}
   commandRegistryPrefab: {fileID: 7010238093460766721, guid: 5f5bba34149d92d46a788a2e0d378b68,
     type: 3}
+  commandCachePrefab: {fileID: 7418287015359400988, guid: bce9c5cd19b7cb6458b42eb7af5d8e18,
+    type: 3}
 --- !u!4 &737618431
 Transform:
   m_ObjectHideFlags: 0

@@ -4,8 +4,7 @@ using UnityEngine;
 
 namespace MarsTS.Commands {
 
-    public interface ICommandable {
-		GameObject GameObject { get; }
+    public interface ICommandable : IUnit {
 		Commandlet CurrentCommand { get; }
 		Commandlet[] CommandQueue { get; }
 		int Count { get; }

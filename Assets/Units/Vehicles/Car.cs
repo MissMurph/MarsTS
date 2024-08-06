@@ -13,7 +13,7 @@ using Unity.Netcode;
 
 namespace MarsTS.Units {
 
-	public class Car : Unit {
+	public class Car : AbstractUnit {
 
 		[SerializeField]
 		private float topSpeed;
@@ -194,7 +194,7 @@ namespace MarsTS.Units {
 		}
 
 		private void AttackCancelled (CommandCompleteEvent _event) {
-			if (_event.Command is Commandlet<IAttackable> deserialized && _event.CommandCancelled) {
+			if (_event.Command is Commandlet<IAttackable> deserialized && _event.IsCancelled) {
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);

@@ -7,8 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace MarsTS.Units {
-	public interface ISelectable {
-		GameObject GameObject { get; }
+	public interface ISelectable : IUnit {
 		int ID { get; }
 		string UnitType { get; }
 		string RegistryKey { get; }

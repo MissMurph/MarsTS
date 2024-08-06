@@ -19,7 +19,8 @@ namespace MarsTS.Buildings {
 
 	public abstract class Building : NetworkBehaviour, ISelectable, ITaggable<Building>, IAttackable, ICommandable {
 
-		public GameObject GameObject { get {  return gameObject;  } }
+		public GameObject GameObject => gameObject;
+		public IUnit Unit => this;
 
 		/*	IAttackable Properties	*/
 

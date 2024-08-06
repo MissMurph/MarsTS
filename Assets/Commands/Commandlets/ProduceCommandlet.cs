@@ -65,14 +65,14 @@ namespace MarsTS.Commands {
 			return this;
 		}
 
-		public override void OnComplete (CommandQueue queue, CommandCompleteEvent _event) {
-			if (_event.CommandCancelled) {
+		public override void CompleteCommand (EventAgent eventAgent, ICommandable unit, bool isCancelled = false) {
+			if (isCancelled) {
 				foreach (KeyValuePair<string, int> entry in Cost) {
 					Commander.Resource(entry.Key).Deposit(entry.Value);
 				}
 			}
 
-			base.OnComplete(queue, _event);
+			base.CompleteCommand(eventAgent, unit, isCancelled);
 		}
 
 		/*protected override ISerializedCommand Serialize () {

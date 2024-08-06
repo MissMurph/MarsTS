@@ -105,14 +105,15 @@ namespace MarsTS.Commands {
 			return base.CanCommand(key);
 		}
 
-		protected override void OnOrderWork (int oldValue, int newValue) {
+		protected override void OnOrderWork (int oldValue, int newValue) 
+		{
 			IProducable productionOrder = Current as IProducable;
 
-			if (productionOrder.ProductionProgress >= productionOrder.ProductionRequired) {
+			if (productionOrder.ProductionProgress >= productionOrder.ProductionRequired) 
+			{
 				productionOrder.OnWork -= OnOrderWork;
-				Debug.Log("Production order is complete!");
 				bus.Global(new ProductionCompleteEvent(bus, productionOrder.Product, parent, this, productionOrder));
-				Current.OnComplete(this, new CommandCompleteEvent(bus, Current, false, parent));
+				Current.CompleteCommand(bus, orderSource);
 			} 
 			else bus.Global(ProductionEvent.Step(bus, parent, this, productionOrder));
 		}

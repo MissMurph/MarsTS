@@ -16,7 +16,7 @@ using static UnityEngine.UI.CanvasScaler;
 
 namespace MarsTS.Units {
 
-	public class Harvester : Unit {
+	public class Harvester : AbstractUnit {
 
 		[Header("Movement")]
 
@@ -319,7 +319,7 @@ namespace MarsTS.Units {
 		}
 
 		private void HarvestCancelled (CommandCompleteEvent _event) {
-			if (_event.Command is Commandlet<IHarvestable> deserialized && _event.CommandCancelled) {
+			if (_event.Command is Commandlet<IHarvestable> deserialized && _event.IsCancelled) {
 				bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
@@ -332,7 +332,7 @@ namespace MarsTS.Units {
 		}
 
 		private void DepositCancelled (CommandCompleteEvent _event) {
-			if (_event.Command is Commandlet<IDepositable> deserialized && _event.CommandCancelled) {
+			if (_event.Command is Commandlet<IDepositable> deserialized && _event.IsCancelled) {
 				bus.RemoveListener<HarvesterDepositEvent>(OnDeposit);
 
 				DepositTarget = null;

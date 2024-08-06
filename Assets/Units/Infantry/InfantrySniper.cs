@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace MarsTS.Units {
 
-    public class InfantrySniper : Unit {
+    public class InfantrySniper : AbstractUnit {
 
 		[SerializeField]
 		protected float baseSpeed;
@@ -203,7 +203,7 @@ namespace MarsTS.Units {
 
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
-			CurrentCommand.OnComplete(commands, newEvent);
+			CurrentCommand.CompleteCommand(bus, this);
 
 			Stop();
 		}

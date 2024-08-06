@@ -15,9 +15,10 @@ using Unity.Netcode;
 
 namespace MarsTS.Units {
 
-	public abstract class Unit : NetworkBehaviour, ISelectable, ITaggable<Unit>, IAttackable, ICommandable {
+	public abstract class AbstractUnit : NetworkBehaviour, ISelectable, ITaggable<AbstractUnit>, IAttackable, ICommandable {
 
-		public GameObject GameObject { get { return gameObject; } }
+		public GameObject GameObject => gameObject;
+		public IUnit Unit => this;
 
 		/*	IAttackable Properties	*/
 
@@ -74,7 +75,7 @@ namespace MarsTS.Units {
 
 		public string Key { get { return "selectable"; } }
 
-		public Type Type { get { return typeof(Unit); } }
+		public Type Type { get { return typeof(AbstractUnit); } }
 
 		/*	ICommandable Properties	*/
 
@@ -252,8 +253,6 @@ namespace MarsTS.Units {
 		protected virtual void Move (Commandlet order) {
 			if (order is Commandlet<Vector3> deserialized) {
 				SetTarget(deserialized.Target);
-
-				Debug.Log("Calling Move on this client");
 				
 				bus.AddListener<PathCompleteEvent>(OnPathComplete);
 				order.Callback.AddListener((_event) => bus.RemoveListener<PathCompleteEvent>(OnPathComplete));
@@ -263,9 +262,7 @@ namespace MarsTS.Units {
 		private void OnPathComplete (PathCompleteEvent _event) {
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 			
-			//CurrentCommand.Callback.Invoke(newEvent);
-			
-			CurrentCommand.OnComplete(commands, newEvent);
+			CurrentCommand.CompleteCommand(bus, this);
 		}
 
 		protected IEnumerator UpdatePath () {
@@ -330,7 +327,7 @@ namespace MarsTS.Units {
 			}
 		}
 
-		public Unit Get () {
+		public AbstractUnit Get () {
 			return this;
 		}
 

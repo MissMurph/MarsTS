@@ -4,17 +4,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.Events {
-
-	public class CommandWorkEvent : AbstractEvent {
-
+namespace MarsTS.Events 
+{
+	public class CommandWorkEvent : CommandEvent 
+	{
 		public string CommandKey { get; private set; }
-		public ISelectable Unit { get; private set; }
 		public IWorkable Work { get; private set; }
 
-		public CommandWorkEvent (EventAgent _source, string _command, ISelectable _unit, IWorkable _work) : base("commandWork", _source) {
-			CommandKey = _command;
-			Unit = _unit;
+		public CommandWorkEvent (EventAgent _source, Commandlet _command, ICommandable _unit, IWorkable _work) 
+			: base("Work", _source, _command, _unit) 
+		{
+			CommandKey = _command.Key;
 			Work = _work;
 		}
 	}

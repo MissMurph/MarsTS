@@ -15,7 +15,8 @@ using MarsTS.Vision;
 namespace MarsTS.Units {
 
 	public class InfantrySquad : MonoBehaviour, ISelectable, ITaggable<InfantrySquad>, ICommandable, IAttackable {
-		public GameObject GameObject { get { return gameObject; } }
+		public GameObject GameObject => gameObject;
+		public IUnit Unit => this;
 
 		/*	ISelectable Properties	*/
 

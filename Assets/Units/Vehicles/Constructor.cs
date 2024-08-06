@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace MarsTS.Units {
 
-    public class Constructor : Unit {
+    public class Constructor : AbstractUnit {
 
 		[Header("Movement")]
 
@@ -201,7 +201,7 @@ namespace MarsTS.Units {
 		}
 
 		private void RepairCancelled (CommandCompleteEvent _event) {
-			if (_event.Command is Commandlet<IAttackable> deserialized && _event.CommandCancelled) {
+			if (_event.Command is Commandlet<IAttackable> deserialized && _event.IsCancelled) {
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.RemoveListener<UnitHurtEvent>(OnTargetHealed);

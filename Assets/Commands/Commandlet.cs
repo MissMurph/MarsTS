@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -23,19 +24,19 @@ namespace MarsTS.Commands {
 		public int Id { get; protected set; } = 0;
 		public bool IsStale => CommandCache.IsStale(Id);
 
-		public virtual void OnStart (CommandQueue queue, CommandStartEvent _event) {
-			commandedUnits.Add(queue.gameObject.name);
+		public virtual void StartCommand (EventAgent eventAgent, ICommandable unit) {
+			commandedUnits.Add(unit.GameObject.name);
+			eventAgent.Local(new CommandStartEvent(eventAgent, this, unit));
 		}
 
-		public virtual void OnActivate (CommandQueue queue, CommandActiveEvent _event) {
+		public virtual void ActivateCommand (CommandQueue queue, CommandActiveEvent _event) {
 
 		}
 
-		public virtual void OnComplete (CommandQueue queue, CommandCompleteEvent _event) {
-			commandedUnits.Remove(queue.gameObject.name);
-			Callback.Invoke(_event);
-
-			//if (commandedUnits.Count <= 0) Destroy(gameObject);
+		public virtual void CompleteCommand (EventAgent eventAgent, ICommandable unit, bool isCancelled = false) 
+		{
+			commandedUnits.Remove(unit.GameObject.name);
+			Callback.Invoke(new CommandCompleteEvent(eventAgent, this, isCancelled, unit));
 		}
 
 		public virtual bool CanInterrupt () {

@@ -73,14 +73,14 @@ namespace MarsTS.Commands {
 			CurrentWork = 0f;
 		}
 
-		public override void OnStart (CommandQueue queue, CommandStartEvent _event) {
-			base.OnStart(queue, _event);
+		public override void StartCommand (EventAgent eventAgent, ICommandable unit) {
+			base.StartCommand(eventAgent, unit);
 
-			queue.Cooldown(this, WorkRequired);
+			unit.queue.Cooldown(this, WorkRequired);
 		}
 
-		public override void OnComplete (CommandQueue queue, CommandCompleteEvent _event) {
-			base.OnComplete(queue, _event);
+		public override void CompleteCommand (EventAgent eventAgent, ICommandable unit, bool isCancelled = false) {
+			base.CompleteCommand(queue, _event);
 
 			queue.Activate(this, Target);
 		}

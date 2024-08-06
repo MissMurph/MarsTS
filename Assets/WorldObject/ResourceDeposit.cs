@@ -13,7 +13,8 @@ namespace MarsTS.World {
 
 	public class ResourceDeposit : MonoBehaviour, IHarvestable, ISelectable, ITaggable<ResourceDeposit> {
 
-		public GameObject GameObject { get { return gameObject; } }
+		public GameObject GameObject => gameObject;
+		public IUnit Unit => this;
 
 		/*	ISelectable Properties	*/
 

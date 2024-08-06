@@ -17,7 +17,8 @@ namespace MarsTS.Units {
 
 	public class InfantryMember : MonoBehaviour, ISelectable, ITaggable<InfantryMember>, IAttackable, ICommandable {
 
-		public GameObject GameObject { get { return gameObject; } }
+		public GameObject GameObject => gameObject;
+		public IUnit Unit => this;
 
 		/*	IAttackable Properties	*/
 
@@ -56,7 +57,7 @@ namespace MarsTS.Units {
 
 		public string Key { get { return "selectable"; } }
 
-		public Type Type { get { return typeof(Unit); } }
+		public Type Type { get { return typeof(AbstractUnit); } }
 
 		/*	ICommandable Properties	*/
 

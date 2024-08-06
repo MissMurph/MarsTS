@@ -110,11 +110,9 @@ namespace MarsTS.Commands
             {
                 if (staleCheckRequests.ContainsKey(stale.Key))
                 {
-                    Debug.Log($"{stale.Key} in ongoing requests, skipping");
                     continue;
                 }
                 
-                Debug.Log($"Checking clients if {stale.Key} is stale");
                 staleCheckRequests[stale.Key] = new List<bool>();
                 CheckStaleClientRpc(stale.Key);
             }
@@ -123,7 +121,6 @@ namespace MarsTS.Commands
         [Rpc(SendTo.NotServer)]
         private void CheckStaleClientRpc(int id)
         {
-            //Debug.Log($"checking if {id} is stale on this client");
             bool result;
 
             if (!activeCommands.ContainsKey(id) && !staleCommands.ContainsKey(id))
@@ -143,7 +140,6 @@ namespace MarsTS.Commands
 
             if (staleCheckRequests[id].Count >= clientCount)
             {
-                //Debug.Log($"{id} is stale, destroying");
                 Destroy(staleCommands[id].gameObject);
                 
                 staleCheckRequests.Remove(id);

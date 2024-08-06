@@ -54,7 +54,7 @@ namespace MarsTS.Buildings {
 		protected virtual void ProductionComplete (CommandCompleteEvent _event) {
 			bus.RemoveListener<CommandCompleteEvent>(ProductionComplete);
 
-			if (_event.CommandCancelled) return;
+			if (_event.IsCancelled) return;
 
 			IProducable order = _event.Command as IProducable;
 

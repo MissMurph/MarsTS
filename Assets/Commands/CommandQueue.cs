@@ -44,13 +44,15 @@ namespace MarsTS.Commands {
 			completedCooldowns = new List<Timer>();
 		}
 
-		public override void OnNetworkSpawn () {
+		public override void OnNetworkSpawn () 
+		{
 			base.OnNetworkSpawn();
 
 			isServer = NetworkManager.IsServer;
 		}
 
-		protected virtual void Update () {
+		protected virtual void Update () 
+		{
 			//if (!isServer) return;
 
 			if (isServer && Current == null && commandQueue.Count > 0) {
@@ -62,7 +64,7 @@ namespace MarsTS.Commands {
 
 			if (isServer && Current is IWorkable workOrder) {
 				workOrder.CurrentWork += Time.deltaTime;
-				bus.Global(new CommandWorkEvent(bus, Current.Name, parent, workOrder));
+				bus.Global(new CommandWorkEvent(bus, Current, orderSource, workOrder));
 
 				if (workOrder.CurrentWork >= workOrder.WorkRequired) {
 					CompleteCurrentCommand(false);
@@ -96,7 +98,7 @@ namespace MarsTS.Commands {
 			if (NetworkManager.IsHost) return;
 
 			if (!ReferenceEquals(orderReference.GameObject(), commandQueue.Peek().gameObject)) {
-				Debug.Log("Potential Desync with client Command Queue! Check " + commandQueue.Peek().Name + "!");
+				Debug.LogWarning("Potential Desync with client Command Queue! Check " + commandQueue.Peek().Name + "!");
 			}
 
 			Dequeue();
@@ -108,9 +110,7 @@ namespace MarsTS.Commands {
 			Current = order;
 			order.Callback.AddListener(OnOrderComplete);
 
-			CommandStartEvent _event = new CommandStartEvent(bus, order, parent);
-			order.OnStart(this, _event);
-			bus.Local(_event);
+			order.StartCommand(bus, orderSource);
 		}
 
 		/*	Completing Commands	*/
@@ -120,27 +120,30 @@ namespace MarsTS.Commands {
 			CompleteCurrentCommand(_cancelled);
 		}
 
-		protected virtual void CompleteCurrentCommand (bool _cancelled) {
-			Current.OnComplete(this, new CommandCompleteEvent(bus, Current, _cancelled, parent));
+		protected virtual void CompleteCurrentCommand (bool _cancelled) 
+		{
+			Current.CompleteCommand(bus, orderSource, _cancelled);
 		}
 
-		protected virtual void OnOrderComplete (CommandCompleteEvent _event) {
-			if (_event.Unit != parent) return;
+		protected virtual void OnOrderComplete (CommandCompleteEvent _event) 
+		{
+			if (!ReferenceEquals(_event.Unit, orderSource)) return;
 			Current = null;
 			bus.Global(_event);
 		}
 
 		/*	Executing Commands	*/
 
-		public virtual void Execute (Commandlet order) {
+		public virtual void Execute (Commandlet order) 
+		{
 			if (!orderSource.CanCommand(order.Command.Name)) return;
 			commandQueue.Clear();
 
-			if (Current != null) {
+			if (Current != null) 
+			{
 				if (!Current.CanInterrupt()) return;
 
-				CommandCompleteEvent _event = new CommandCompleteEvent(bus, Current, true, parent);
-				Current.OnComplete(this, _event);
+				Current.CompleteCommand(bus, orderSource, true);
 			}
 
 			Current = null;
@@ -150,7 +153,8 @@ namespace MarsTS.Commands {
 		}
 
 		[Rpc(SendTo.NotServer)]
-		protected virtual void ExecuteClientRpc (NetworkObjectReference orderReference) {
+		protected virtual void ExecuteClientRpc (NetworkObjectReference orderReference) 
+		{
 			if (NetworkManager.Singleton.IsHost) return;
 
 			Execute(orderReference.GameObject().GetComponent<Commandlet>());
@@ -177,21 +181,21 @@ namespace MarsTS.Commands {
 		public virtual void Activate (Commandlet order, bool status) {
 			if (status) {
 				activeCommands[order.Name] = order;
-				order.OnActivate(this, new CommandActiveEvent(bus, parent, order, status));
+				order.ActivateCommand(this, new CommandActiveEvent(bus, orderSource, order, status));
 			}
 			else if (activeCommands.TryGetValue(order.Name, out Commandlet toDeactivate)) {
-				CommandActiveEvent _event = new CommandActiveEvent(bus, parent, toDeactivate, status);
-				toDeactivate.OnActivate(this, _event);
+				CommandActiveEvent _event = new CommandActiveEvent(bus, orderSource, toDeactivate, status);
+				toDeactivate.ActivateCommand(this, _event);
 				activeCommands.Remove(toDeactivate.Name);
 			}
 
-			bus.Global(new CommandActiveEvent(bus, parent, order, status));
+			bus.Global(new CommandActiveEvent(bus, orderSource, order, status));
 		}
 
 		public virtual void Deactivate (string key) {
 			if (activeCommands.TryGetValue(key, out Commandlet toDeactivate)) {
-				CommandActiveEvent _event = new CommandActiveEvent(bus, parent, toDeactivate, false);
-				toDeactivate.OnActivate(this, _event);
+				CommandActiveEvent _event = new CommandActiveEvent(bus, orderSource, toDeactivate, false);
+				toDeactivate.ActivateCommand(this, _event);
 				activeCommands.Remove(toDeactivate.Name);
 				bus.Global(_event);
 			}
@@ -206,16 +210,13 @@ namespace MarsTS.Commands {
 		/*	Misc.	*/
 
 		public virtual void Clear () {
-			foreach (Commandlet order in commandQueue) {
-				order.OnComplete(this, new CommandCompleteEvent(bus, order, false, parent));
-			}
+			foreach (Commandlet order in commandQueue) 
+				order.CompleteCommand(bus, orderSource, true);
 
 			commandQueue.Clear();
 
-			if (Current != null) {
-				CommandCompleteEvent _event = new CommandCompleteEvent(bus, Current, false, parent);
-				Current.OnComplete(this, _event);
-			}
+			if (Current != null) 
+				Current.CompleteCommand(bus, orderSource, true);
 
 			Current = null;
 		}

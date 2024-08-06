@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace MarsTS.Units {
 
-    public class Tank : Unit {
+    public class Tank : AbstractUnit {
 
 		[Header("Movement")]
 
@@ -159,7 +159,7 @@ namespace MarsTS.Units {
 		private void AttackCancelled (CommandCompleteEvent _event) {
 			//bus.RemoveListener<CommandCompleteEvent>(AttackCancelled);
 
-			if (_event.Command is Commandlet<IAttackable> deserialized && _event.CommandCancelled) {
+			if (_event.Command is Commandlet<IAttackable> deserialized && _event.IsCancelled) {
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);

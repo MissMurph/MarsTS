@@ -175,10 +175,12 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected void AttachClientListeners () {
+		protected void AttachClientListeners () 
+		{
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 
 			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
+			bus.AddListener<CommandStartEvent>(ExecuteOrder);
 
 			owner.OnValueChanged += (oldValue, newValue) => bus.Local(new UnitOwnerChangeEvent(bus, this, Owner));
 
@@ -186,20 +188,32 @@ namespace MarsTS.Units {
 		}
 
 		protected void AttachServerListeners () {
-			bus.AddListener<CommandStartEvent>(ExecuteOrder);
+			
 		}
 
-		protected virtual void Update () {
-			if (!NetworkManager.Singleton.IsServer) return;
+		protected virtual void Update () 
+		{
+			if (NetworkManager.Singleton.IsServer) ServerUpdate();
+			ClientUpdate();
+		}
 
-			if (!currentPath.IsEmpty) {
+		protected virtual void ServerUpdate()
+		{
+			
+		}
+
+		protected virtual void ClientUpdate()
+		{
+			if (!currentPath.IsEmpty)
+			{
 				Vector3 targetWaypoint = currentPath[pathIndex];
+				
 				float distance = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).magnitude;
-
+				
 				if (distance <= waypointCompletionDistance) {
 					pathIndex++;
 				}
-
+				
 				if (pathIndex >= currentPath.Length) {
 					bus.Local(new PathCompleteEvent(bus, true));
 					currentPath = Path.Empty;
@@ -239,6 +253,8 @@ namespace MarsTS.Units {
 			if (order is Commandlet<Vector3> deserialized) {
 				SetTarget(deserialized.Target);
 
+				Debug.Log("Calling Move on this client");
+				
 				bus.AddListener<PathCompleteEvent>(OnPathComplete);
 				order.Callback.AddListener((_event) => bus.RemoveListener<PathCompleteEvent>(OnPathComplete));
 			}
@@ -246,8 +262,10 @@ namespace MarsTS.Units {
 
 		private void OnPathComplete (PathCompleteEvent _event) {
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
-
-			CurrentCommand.Callback.Invoke(newEvent);
+			
+			//CurrentCommand.Callback.Invoke(newEvent);
+			
+			CurrentCommand.OnComplete(commands, newEvent);
 		}
 
 		protected IEnumerator UpdatePath () {

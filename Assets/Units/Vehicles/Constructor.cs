@@ -74,8 +74,9 @@ namespace MarsTS.Units {
 		}
 
 		protected override void Update () {
-			if (!NetworkManager.Singleton.IsServer) return;
 			base.Update();
+			
+			if (!NetworkManager.Singleton.IsServer) return;
 
 			if (repairTarget == null) return;
 

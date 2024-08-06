@@ -31,7 +31,7 @@ namespace MarsTS.Commands
         {
             _instance = this;
 
-            _instanceCount = 0;
+            _instanceCount = 1;
             staleCheckTimer = staleCheckInterval;
             
             activeCommands = new Dictionary<int, Commandlet>();
@@ -48,6 +48,7 @@ namespace MarsTS.Commands
         {
             if (NetworkManager.Singleton.IsServer)
             {
+                // TODO: Refactor this for player count changes IE disconnect
                 // Host is considered a connected client, so we check for all -1
                 clientCount = NetworkManager.Singleton.ConnectedClients.Count - 1;
             }
@@ -108,8 +109,12 @@ namespace MarsTS.Commands
             foreach (KeyValuePair<int, Commandlet> stale in staleCommands)
             {
                 if (staleCheckRequests.ContainsKey(stale.Key))
+                {
+                    Debug.Log($"{stale.Key} in ongoing requests, skipping");
                     continue;
-
+                }
+                
+                Debug.Log($"Checking clients if {stale.Key} is stale");
                 staleCheckRequests[stale.Key] = new List<bool>();
                 CheckStaleClientRpc(stale.Key);
             }
@@ -118,6 +123,7 @@ namespace MarsTS.Commands
         [Rpc(SendTo.NotServer)]
         private void CheckStaleClientRpc(int id)
         {
+            //Debug.Log($"checking if {id} is stale on this client");
             bool result;
 
             if (!activeCommands.ContainsKey(id) && !staleCommands.ContainsKey(id))
@@ -137,16 +143,29 @@ namespace MarsTS.Commands
 
             if (staleCheckRequests[id].Count >= clientCount)
             {
+                //Debug.Log($"{id} is stale, destroying");
                 Destroy(staleCommands[id].gameObject);
+                
                 staleCheckRequests.Remove(id);
+                staleCommands.Remove(id);
+                
+                DeleteCacheEntryClientRpc(id);
             }
+        }
+
+        [Rpc(SendTo.NotServer)]
+        private void DeleteCacheEntryClientRpc(int id)
+        {
+            activeCommands.Remove(id);
+            staleCommands.Remove(id);
         }
 
         public static bool IsStale(int id) => _instance.staleCommands.ContainsKey(id);
 
-        private void OnDestroy()
+        public override void OnDestroy()
         {
             _instance = null;
+            base.OnDestroy();
         }
     }
 }

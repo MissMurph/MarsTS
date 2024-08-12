@@ -43,9 +43,10 @@ namespace MarsTS.Commands {
 			return true;
 		}
 
-		public Commandlet<T> Get<T> () {
+		public Commandlet<T> Get<T> ()
+		{
 			if (typeof(T).Equals(TargetType)) return this as Commandlet<T>;
-			else throw new ArgumentException("Commandlet target type " + TargetType + " does not match given type " + typeof(T) + ", cannot return Commandlet!");
+			throw new ArgumentException("Commandlet target type " + TargetType + " does not match given type " + typeof(T) + ", cannot return Commandlet!");
 		}
 
 		public abstract Commandlet Clone ();
@@ -75,7 +76,10 @@ namespace MarsTS.Commands {
 
 			CommandCache.Register(this);
 		}
-	}
+
+		protected bool TryGetQueue(ICommandable unit, out CommandQueue queue) 
+			=> EntityCache.TryGet($"{unit.GameObject.name}:commandQueue", out queue);
+    }
 
 	public abstract class Commandlet<T> : Commandlet {
 

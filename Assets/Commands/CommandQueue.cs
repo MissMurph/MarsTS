@@ -1,15 +1,20 @@
+using System;
 using MarsTS.Events;
 using MarsTS.Networking;
 using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using MarsTS.Entities;
 using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Commands {
 
-    public class CommandQueue : NetworkBehaviour {
+    public class CommandQueue : NetworkBehaviour, ITaggable<CommandQueue>
+    {
+	    public virtual string Key => "commandQueue";
+	    public Type Type => typeof(CommandQueue);
         
         public Commandlet Current { get; protected set; }
 
@@ -228,7 +233,9 @@ namespace MarsTS.Commands {
 		protected virtual void OnOrderWork (int oldValue, int newValue) {
 
 		}
-	}
+
+		public CommandQueue Get() => this;
+    }
 
 	public class Timer {
 		public string commandName;

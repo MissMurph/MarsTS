@@ -4,6 +4,7 @@ using MarsTS.Units;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MarsTS.Entities;
 using UnityEngine;
 
 namespace MarsTS.Commands {
@@ -76,13 +77,15 @@ namespace MarsTS.Commands {
 		public override void StartCommand (EventAgent eventAgent, ICommandable unit) {
 			base.StartCommand(eventAgent, unit);
 
-			unit.queue.Cooldown(this, WorkRequired);
+			if (EntityCache.TryGet($"{unit.GameObject.name}:commandQueue", out CommandQueue queue))
+				queue.Cooldown(this, WorkRequired);
 		}
 
 		public override void CompleteCommand (EventAgent eventAgent, ICommandable unit, bool isCancelled = false) {
-			base.CompleteCommand(queue, _event);
+			base.CompleteCommand(eventAgent, unit, isCancelled);
 
-			queue.Activate(this, Target);
+			if (EntityCache.TryGet($"{unit.GameObject.name}:commandQueue", out CommandQueue queue))
+				queue.Activate(this, Target);
 		}
 
 		public override bool CanInterrupt () {

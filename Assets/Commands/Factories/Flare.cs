@@ -134,10 +134,13 @@ namespace MarsTS.Commands {
 
 		public override string Key => Name;
 
-		public override void Complete (CommandQueue queue, CommandCompleteEvent _event) {
-			if (!_event.IsCancelled) queue.Cooldown(this, cooldown);
+		public override void CompleteCommand (EventAgent agent, ICommandable unit, bool isCancelled = false)
+		{
+			if (!TryGetQueue(unit, out var queue)) return;
+			
+			if (!isCancelled) queue.Cooldown(this, cooldown);
 
-			base.CompleteCommand(queue, _event);
+			base.CompleteCommand(agent, unit, isCancelled);
 		}
 	}
 }

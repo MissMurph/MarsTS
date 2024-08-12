@@ -7,7 +7,9 @@ using UnityEngine.ProBuilder;
 
 namespace MarsTS.Commands {
 
-    public class ProductionQueue : CommandQueue {
+    public class ProductionQueue : CommandQueue
+    {
+	    public override string Key => "productionQueue";
 
 		public IProducable[] QueuedProduction {
 			get {

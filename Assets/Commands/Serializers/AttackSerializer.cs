@@ -25,7 +25,7 @@ namespace MarsTS.Commands {
 			if (EntityCache.TryGet(superType.Target.GameObject.name, out NetworkObject targetNetworking)) {
 				return new SerializedAttackCommandlet {
 					Key = Key,
-					Faction = superType.Commander.ID,
+					Faction = superType.Commander.Id,
 					Id = superType.Id,
 					targetUnit = targetNetworking
 				};

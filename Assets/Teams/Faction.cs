@@ -17,7 +17,7 @@ namespace MarsTS.Teams {
 
 		public int VisionMask { get { return Allegiance.VisionMask; } }
 
-		public int ID { get { return id; } }
+		public int Id { get { return id; } }
 
 		[SerializeField]
 		private int id = -1;

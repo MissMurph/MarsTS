@@ -62,7 +62,7 @@ namespace MarsTS.Buildings {
 				
 				ISelectable newUnit = Instantiate(order.Product, spawnPoint.position + (Vector3.up), Quaternion.Euler(0f, 0f, 0f)).GetComponent<ISelectable>();
 
-				newUnit.GameObject.GetComponent<NetworkObject>().Spawn();
+				//newUnit.GameObject.GetComponent<NetworkObject>().Spawn();
 
 				//List<Collider> unitColliders = newUnit.GameObject.transform.Find("Model").GetComponentsInChildren<Collider>().ToList();
 				//unitColliders.AddRange(newUnit.GameObject.transform.Find("Collider").GetComponentsInChildren<Collider>());

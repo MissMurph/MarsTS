@@ -34,12 +34,6 @@ namespace MarsTS {
 
 		private Dictionary<ulong, GameObject> players = new Dictionary<ulong, GameObject>();
 
-		private EventAgent bus;
-
-		private void Awake () {
-			bus = GetComponent<EventAgent>();
-		}
-
 		private void Start () {
 			NetworkManager.Singleton.OnServerStarted += OnServerStart;
 			NetworkManager.Singleton.OnClientStarted += OnClientStart;
@@ -93,7 +87,7 @@ namespace MarsTS {
 				int spawnedCount = 0;
 
 				foreach (Faction toSpawnHqFor in players) {
-					if (toSpawnHqFor.ID == 0) continue;
+					if (toSpawnHqFor.Id == 0) continue;
 
 					NetworkObject hqNetwork = Instantiate(headquartersPrefab, startPositions[spawnedCount].position, startPositions[spawnedCount].rotation);
 					ISelectable hq = hqNetwork.GetComponent<ISelectable>();

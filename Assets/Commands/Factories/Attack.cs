@@ -5,6 +5,9 @@ using MarsTS.World;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MarsTS.Networking;
+using Unity.Collections;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -48,8 +51,25 @@ namespace MarsTS.Commands {
 			}
 		}
 
+		public void Construct(IAttackable target, List<string> selection)
+		{
+			ConstructCommandletServerRpc(target.GameObject.name, Player.Commander.Id, selection.ToNativeArray32(), Player.Include);
+		}
+		
+		[Rpc(SendTo.Server)]
+		private void ConstructCommandletServerRpc (string _target, int _factionId, NativeArray<FixedString32Bytes> _selection, bool _inclusive)
+		{
+			if (!EntityCache.TryGet(_target, out IAttackable unit))
+			{
+				Debug.LogError($"Invalid target entity {_target} for {Name} Command! Command being ignored!");
+				return;
+			}
+			
+			ConstructCommandletServer(unit, _factionId, _selection, _inclusive);
+		}
+
 		public override CostEntry[] GetCost () {
-			return new CostEntry[0];
+			return Array.Empty<CostEntry>();
 		}
 
 		public override void CancelSelection () {

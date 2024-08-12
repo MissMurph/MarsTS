@@ -18,7 +18,7 @@ namespace MarsTS.World {
 
 		/*	ISelectable Properties	*/
 
-		public int ID { get { return entityComponent.ID; } }
+		public int ID { get { return entityComponent.Id; } }
 
 		public string UnitType { get { return key; } }
 

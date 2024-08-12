@@ -29,8 +29,23 @@ namespace MarsTS.Players {
 
 		public static Dictionary<string, Roster> Selected { get { return instance.selected; } }
 		private Dictionary<string, Roster> selected = new Dictionary<string, Roster>();
+		
+		public static List<string> ListSelected {
+			get {
+				List<string> outputList = new List<string>();
 
-		public static NetworkObjectReference[] SerializedSelected {
+				foreach (Roster typeRoster in Selected.Values) {
+					foreach (ISelectable unit in typeRoster.List()) {
+						outputList.Add(unit.GameObject.name);
+					}
+				}
+
+				return outputList;
+			}
+		}
+
+		// TODO: Replace with utilizing the EntityCache
+		/*public static NetworkObjectReference[] SerializedSelected {
 			get {
 				List<NetworkObjectReference> outputList = new List<NetworkObjectReference>();
 
@@ -44,7 +59,7 @@ namespace MarsTS.Players {
 
 				return outputList.ToArray();
 			}
-		}
+		}*/
 
 		public static Camera ViewPort { get { return instance.view; } }
 		private Camera view;
@@ -190,7 +205,7 @@ namespace MarsTS.Players {
 				else if (walkableHit.collider != null) {
 					Vector3 hitPos = walkableHit.point;
 
-					CommandRegistry.Get<Move>("move").Construct(hitPos, SerializedSelected);
+					CommandRegistry.Get<Move>("move").Construct(hitPos, ListSelected);
 					return;
 				}
 			}
@@ -243,7 +258,7 @@ namespace MarsTS.Players {
 				EventBus.Global(new PlayerSelectEvent(Selected));
 			}
 
-			if (_event.Unit.Owner.ID == Commander.ID
+			if (_event.Unit.Owner.Id == Commander.Id
 				&& _event.Unit is IDepositable deserialized
 				&& depositables.Contains(deserialized)) {
 				depositables.Remove(deserialized);
@@ -251,7 +266,7 @@ namespace MarsTS.Players {
 		}
 
 		private void OnUnitOwnershipChange (UnitOwnerChangeEvent _event) {
-			if (_event.Unit.Owner.ID == Commander.ID
+			if (_event.Unit.Owner.Id == Commander.Id
 				&& _event.Unit is IDepositable deserialized) {
 				depositables.Add(deserialized);
 			}

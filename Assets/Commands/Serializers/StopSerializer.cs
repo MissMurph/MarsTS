@@ -21,7 +21,7 @@ namespace MarsTS.Commands {
 			return new SerializedStopCommandlet {
 				Key = Key,
 				Id = _data.Id,
-				Faction = _data.Commander.ID
+				Faction = _data.Commander.Id
 			};
 		}
 	}

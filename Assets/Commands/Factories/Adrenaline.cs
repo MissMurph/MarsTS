@@ -33,16 +33,17 @@ namespace MarsTS.Commands {
 			int totalUsing = 0;
 
 			//Inspect all selected to make all units using this ability match up with others that are active using
-			foreach (Roster rollup in Player.Selected.Values) {
-				if (rollup.Commands.Contains(Name)) {
-					foreach (ICommandable unit in rollup.Orderable) {
-						if (unit.CanCommand(Name)) totalCanUse++;
+			foreach (Roster rollup in Player.Selected.Values)
+			{
+				if (!rollup.Commands.Contains(Name)) continue;
+				
+				foreach (ICommandable unit in rollup.Orderable) {
+					if (unit.CanCommand(Name)) totalCanUse++;
 
-						if (unit.Active.Count == 0) continue;
+					if (unit.Active.Count == 0) continue;
 
-						foreach (string activeCommand in unit.Active) {
-							if (activeCommand == Name) totalUsing++;
-						}
+					foreach (string activeCommand in unit.Active) {
+						if (activeCommand == Name) totalUsing++;
 					}
 				}
 			}

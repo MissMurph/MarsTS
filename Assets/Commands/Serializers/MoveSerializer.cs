@@ -23,7 +23,7 @@ namespace MarsTS.Commands {
 
 			return new SerializedMoveCommandlet {
 				Key = Key,
-				Faction = superType.Commander.ID,
+				Faction = superType.Commander.Id,
 				Id = superType.Id,
 				_targetPosition = superType.Target,
 			};

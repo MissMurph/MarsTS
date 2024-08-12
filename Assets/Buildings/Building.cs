@@ -43,7 +43,7 @@ namespace MarsTS.Buildings {
 
 		/*	ISelectable Properties	*/
 
-		public int ID { get { return entityComponent.ID; } }
+		public int ID { get { return entityComponent.Id; } }
 
 		public string UnitType { get { return type; } }
 
@@ -316,7 +316,7 @@ namespace MarsTS.Buildings {
 
 		public bool SetOwner (Faction player) {
 			//Debug.Log("Setting Faction");
-			owner.Value = player.ID;
+			owner.Value = player.Id;
 			return true;
 		}
 

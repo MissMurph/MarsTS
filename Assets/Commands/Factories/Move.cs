@@ -30,17 +30,17 @@ namespace MarsTS.Commands {
 			
 		}
 
-		public override void Construct (Vector3 _target, NetworkObjectReference[] _selection) {
-			ConstructCommandletServerRpc(_target, Player.Commander.ID, _selection, Player.Include);
+		public void Construct (Vector3 _target, List<string> _selection) {
+			ConstructCommandletServerRpc(_target, Player.Commander.Id, _selection, Player.Include);
 		}
 
 		[Rpc(SendTo.Server)]
-		private void ConstructCommandletServerRpc (Vector3 _target, int _factionId, NetworkObjectReference[] _selection, bool _inclusive) {
+		private void ConstructCommandletServerRpc (Vector3 _target, int _factionId, List<string> _selection, bool _inclusive) {
 			ConstructCommandletServer(_target, _factionId, _selection, _inclusive);
 		}
 
 		public override CostEntry[] GetCost () {
-			return new CostEntry[0];
+			return Array.Empty<CostEntry>();
 		}
 
 		public override void StartSelection () {
@@ -57,7 +57,7 @@ namespace MarsTS.Commands {
 
 				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.WalkableMask)) {
 					//Player.Main.DeliverCommand(Construct(hit.point), Player.Include);
-					Construct(hit.point, Player.SerializedSelected);
+					Construct(hit.point, Player.ListSelected);
 				}
 
 				CancelSelection();

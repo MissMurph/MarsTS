@@ -1,30 +1,17 @@
 using MarsTS.Events;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using static UnityEditor.Rendering.CameraUI;
 
 namespace MarsTS.Entities {
 
 	[RequireComponent(typeof(EventAgent))]
-	public class Entity : MonoBehaviour {
+	public class Entity : NetworkBehaviour {
 
-		public int ID {
-			get {
-				return id;
-			}
-		}
+		public int Id { get; private set; } = 0;
 
-		public string Key {
-			get {
-				return registryKey;
-			}
-		}
-
-		private int id = 0;
+		public string Key => registryKey;
 
 		[SerializeField]
 		private string registryKey;
@@ -40,8 +27,6 @@ namespace MarsTS.Entities {
 		private void Awake () {
 			eventAgent = GetComponent<EventAgent>();
 
-			//eventAgent.AddListener<EventAgentInitEvent>(Init);
-
 			registeredTaggables = new Dictionary<string, ITaggable>();
 			taggedComponents = new Dictionary<string, Component>();
 
@@ -51,28 +36,42 @@ namespace MarsTS.Entities {
 
 			if (TryGetComponent(out NetworkObject found)) {
 				taggedComponents["networking"] = found;
-				//Debug.Log("Networking Tagged, Dic Count: " + taggedComponents.Count);
 			}
-			//else Debug.Log("Could not find NetworkObject component");
 
 			foreach (TagReference entry in toTag) {
 				taggedComponents[entry.Tag] = entry.Component;
 			}
 		}
 
-		private void Update () {
-			if (id == 0) {
-				id = EntityCache.Register(this);
-				name = registryKey + ":" + id.ToString();
+		private void Start()
+		{
+			if (!NetworkManager.Singleton.IsServer) return;
+			
+			Id = EntityCache.Register(this);
+			name = $"{registryKey}:{Id}";
+			
+			GetComponent<NetworkObject>().Spawn();
+			PostInitEvents();
+			SynchronizeClientRpc(Id);
+		}
 
-				EntityInitEvent initCall = new EntityInitEvent(this, eventAgent);
+		[Rpc(SendTo.NotServer)]
+		private void SynchronizeClientRpc(int id)
+		{
+			Id = id;
+			EntityCache.Register(this);
+			PostInitEvents();
+		}
 
-				initCall.Phase = Phase.Pre;
-				eventAgent.Global(initCall);
+		private void PostInitEvents()
+		{
+			EntityInitEvent initCall = new EntityInitEvent(this, eventAgent);
 
-				initCall.Phase = Phase.Post;
-				eventAgent.Global(initCall);
-			}
+			initCall.Phase = Phase.Pre;
+			eventAgent.Global(initCall);
+
+			initCall.Phase = Phase.Post;
+			eventAgent.Global(initCall);
 		}
 
 		public bool TryGet<T> (string key, out T output) {
@@ -125,7 +124,7 @@ namespace MarsTS.Entities {
 			return default;
 		}
 
-		private void OnDestroy () {
+		public override void OnDestroy () {
 			eventAgent.Global(new EntityDestroyEvent(eventAgent, this));
 		}
 	}

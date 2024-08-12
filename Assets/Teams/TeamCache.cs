@@ -112,12 +112,12 @@ namespace MarsTS.Teams {
 		}*/
 
 		public void CreateFactionInstance (ulong playerID, Faction playerFaction, int teamID) {
-			Team newTeam = new Team() { Id = teamID, Members = new List<int>() { playerFaction.ID } };
+			Team newTeam = new Team() { Id = teamID, Members = new List<int>() { playerFaction.Id } };
 
 			teamMap[teamID] = newTeam;
-			factions[playerFaction.ID] = playerFaction;
-			if (playerID > 0) playersToFactionsMap[playerID] = playerFaction.ID;
-			factionsToTeamsMap[playerFaction.ID] = newTeam.Id;
+			factions[playerFaction.Id] = playerFaction;
+			if (playerID > 0) playersToFactionsMap[playerID] = playerFaction.Id;
+			factionsToTeamsMap[playerFaction.Id] = newTeam.Id;
 		}
 
 		public static void RegisterFaction (ulong playerID, Faction playerFaction, int teamID) {
@@ -132,7 +132,7 @@ namespace MarsTS.Teams {
 		}*/
 
 		public static Team Team (Faction player) {
-			return instance.teamMap[instance.factionsToTeamsMap[player.ID]];
+			return instance.teamMap[instance.factionsToTeamsMap[player.Id]];
 		}
 
 		public static Faction Faction (int factionID) {

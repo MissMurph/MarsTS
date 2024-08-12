@@ -3,6 +3,7 @@ using MarsTS.Players;
 using MarsTS.Units;
 using System;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Entities {
@@ -102,10 +103,23 @@ namespace MarsTS.Entities {
 		}
 
 		//Returns -1 for an unsuccessful register
-		public static int Register (Entity entity) {
+		public static int Register (Entity entity) 
+		{
+			int id = Count + 1;
+			
+			if (entity.Id > 0)
+			{
+				if (!NetworkManager.Singleton.IsServer)
+					id = entity.Id;
+				else
+				{
+					Debug.LogError($"Attempting to register already registered entity {entity.Key}:{entity.Id}!");
+					return -1;
+				}
+			}
+			
 			Dictionary<int, Entity> map = instance.GetMap(entity.Key);
-			int index = Count + 1;
-			return map.TryAdd(index, entity) ? index : -1;
+			return map.TryAdd(id, entity) ? id : -1;
 		}
 
 		private Dictionary<int, Entity> GetMap (string key) {
@@ -118,7 +132,7 @@ namespace MarsTS.Entities {
 			if (instance == null) return;
 			if (TryGet(_event.Entity.gameObject.name, out Entity found)) {
 				Dictionary<int, Entity> map = GetMap(found.Key);
-				map.Remove(found.ID);
+				map.Remove(found.Id);
 			}
 		}
 

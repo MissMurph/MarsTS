@@ -13,22 +13,19 @@ using UnityEngine.InputSystem;
 
 namespace MarsTS.Commands {
 
-	public abstract class CommandFactory<T> : CommandFactory {
-
-		public virtual void Construct (T _target, NetworkObjectReference[] _selection) {
-			
-		}
-
+	public abstract class CommandFactory<T> : CommandFactory
+	{
 		//Only call this on the server
-		protected virtual void ConstructCommandletServer (T _target, int _factionId, NetworkObjectReference[] _selection, bool _inclusive) {
+		protected virtual void ConstructCommandletServer (T _target, int _factionId, ICollection<string> _selection, bool _inclusive) {
 			Commandlet<T> order = Instantiate(orderPrefab);
 
 			order.Init(Name, _target, TeamCache.Faction(_factionId));
 
-			foreach (NetworkObjectReference objectRef in _selection) {
-				if (EntityCache.TryGet(((GameObject)objectRef).name, out ICommandable unit)) {
+			foreach (string entity in _selection) {
+				if (EntityCache.TryGet(entity, out ICommandable unit))
 					unit.Order(order, _inclusive);
-				}
+				else
+					Debug.LogWarning($"ICommandable on Unit {entity} not found! Command {Name} being ignored by unit!");
 			}
 		}
 

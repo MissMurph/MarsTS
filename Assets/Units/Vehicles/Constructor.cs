@@ -227,10 +227,10 @@ namespace MarsTS.Units {
 				&& (target.GetRelationship(Owner) == Relationship.Owned || target.GetRelationship(Owner) == Relationship.Friendly)
 				//&& (target.GameObject.CompareTag("vehicle") || target.GameObject.CompareTag("building"))
 				&& attackable.Health < attackable.MaxHealth) {
-				CommandRegistry.Get<Repair>("repair").Construct(attackable, Player.SerializedSelected);
+				//CommandRegistry.Get<Repair>("repair").Construct(attackable, Player.SerializedSelected);
 			}
 
-			CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position, Player.SerializedSelected);
+			CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position, Player.ListSelected);
 		}
 
 		public override bool CanCommand (string key) {

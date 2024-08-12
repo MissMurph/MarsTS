@@ -20,7 +20,7 @@ namespace MarsTS.Units {
 
 		/*	ISelectable Properties	*/
 
-		public int ID { get { return entityComponent.ID; } }
+		public int ID { get { return entityComponent.Id; } }
 
 		public string UnitType { get { return type; } }
 

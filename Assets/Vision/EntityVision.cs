@@ -68,7 +68,7 @@ namespace MarsTS.Vision {
 		}
 
 		private void OnOwnerChange (UnitOwnerChangeEvent _event) {
-			owner = _event.NewOwner.ID;
+			owner = _event.NewOwner.Id;
 		}
 
 		protected virtual void OnVisionUpdate (VisionUpdateEvent _event) {

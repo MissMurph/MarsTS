@@ -6,6 +6,8 @@ using MarsTS.World;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MarsTS.Networking;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
@@ -31,12 +33,12 @@ namespace MarsTS.Commands {
 		}
 
 		public void Construct (Vector3 _target, List<string> _selection) {
-			ConstructCommandletServerRpc(_target, Player.Commander.Id, _selection, Player.Include);
+			ConstructCommandletServerRpc(_target, Player.Commander.Id, _selection.ToNativeArray32(), Player.Include);
 		}
 
 		[Rpc(SendTo.Server)]
-		private void ConstructCommandletServerRpc (Vector3 _target, int _factionId, List<string> _selection, bool _inclusive) {
-			ConstructCommandletServer(_target, _factionId, _selection, _inclusive);
+		private void ConstructCommandletServerRpc (Vector3 _target, int _factionId, NativeArray<FixedString32Bytes> _selection, bool _inclusive) {
+			ConstructCommandletServer(_target, _factionId, _selection.ToList(), _inclusive);
 		}
 
 		public override CostEntry[] GetCost () {

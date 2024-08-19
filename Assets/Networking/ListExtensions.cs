@@ -25,12 +25,14 @@ namespace MarsTS.Networking
 
         public static List<string> ToList(this NativeArray<FixedString32Bytes> nativeArray)
         {
-            List<string> output = new List<string>(nativeArray.Length);
+            List<string> output = new(nativeArray.Length);
 
             for (int i = 0; i < nativeArray.Length; i++)
             {
-                output[i] = nativeArray[i];
+                output[i] = nativeArray[i].ToString();
             }
+
+            return output;
         }
     }
 }

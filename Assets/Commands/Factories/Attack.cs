@@ -16,9 +16,9 @@ namespace MarsTS.Commands {
 
 	public class Attack : CommandFactory<IAttackable> {
 
-		public override string Name { get { return "attack"; } }
+		public override string Name => "attack";
 
-		public override string Description { get { return description; } }
+		public override string Description => description;
 
 		[SerializeField]
 		private string description;
@@ -65,7 +65,7 @@ namespace MarsTS.Commands {
 				return;
 			}
 			
-			ConstructCommandletServer(unit, _factionId, _selection, _inclusive);
+			ConstructCommandletServer(unit, _factionId, _selection.ToList(), _inclusive);
 		}
 
 		public override CostEntry[] GetCost () {

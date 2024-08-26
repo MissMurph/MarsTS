@@ -49,7 +49,7 @@ namespace MarsTS.Commands {
 			}
 		}
 
-		public void Construct(IAttackable target, List<string> selection)
+		public void Construct (IAttackable target, List<string> selection)
 		{
 			ConstructCommandletServerRpc(target.GameObject.name, Player.Commander.Id, selection.ToNativeArray32(), Player.Include);
 		}

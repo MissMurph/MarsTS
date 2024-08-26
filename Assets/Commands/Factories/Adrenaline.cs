@@ -2,8 +2,6 @@ using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Units;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace MarsTS.Commands {
@@ -51,12 +49,15 @@ namespace MarsTS.Commands {
 			//Player.Main.DeliverCommand(Construct(totalCanUse > totalUsing), Player.Include);
 		}
 
-		public override CostEntry[] GetCost () {
-			return new CostEntry[1] { new CostEntry { key = "time", amount = (int)cooldown } };
-		}
+		public override CostEntry[] GetCost () 
+			=> new CostEntry[1] { new CostEntry { key = "time", amount = (int)cooldown } };
 
 		public override void CancelSelection () {
 
+		}
+		
+		public void Construct() {
+			
 		}
 	}
 

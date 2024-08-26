@@ -1,30 +1,32 @@
 using MarsTS.Players;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using MarsTS.Networking;
+using Unity.Collections;
+using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.InputSystem;
 
 namespace MarsTS.Commands {
 
-	public class Stop : CommandFactory {
-		public override string Name { get { return "stop"; } }
+	public class Stop : CommandFactory<bool> {
+		public override string Name => "stop";
 
-		public override Type TargetType { get { return typeof(bool); } }
-
-		public override string Description { get { return description; } }
+		public override string Description => description;
 
 		[SerializeField]
 		private string description;
 
-		public override void StartSelection () {
-			//Player.Main.DeliverCommand(new Commandlet<bool>(Name, true, Player.Commander), Player.Include);
-		}
+		public override void StartSelection () 
+			=> Construct(Player.ListSelected);
 
-		public override CostEntry[] GetCost () {
-			return new CostEntry[0];
-		}
+		private void Construct (List<string> _selection) 
+			=> ConstructCommandletServerRpc(Player.Commander.Id, _selection.ToNativeArray32(), Player.Include);
+
+		[Rpc(SendTo.Server)]
+		private void ConstructCommandletServerRpc(int _factionId, NativeArray<FixedString32Bytes> _selection, bool _inclusive) 
+			=> ConstructCommandletServer(true, _factionId, _selection.ToList(), _inclusive);
+
+		public override CostEntry[] GetCost () => Array.Empty<CostEntry>();
 
 		public override void CancelSelection () {
 			

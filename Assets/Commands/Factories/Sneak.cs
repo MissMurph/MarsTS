@@ -77,6 +77,11 @@ namespace MarsTS.Commands {
 				if (_event.Activity) queue.Cooldown(this, deactivateCooldown);
 				else queue.Cooldown(this, reactivateCooldown);
 			}
+
+			public override Commandlet Clone()
+			{
+				throw new NotImplementedException();
+			}
 		}
 	}
 }

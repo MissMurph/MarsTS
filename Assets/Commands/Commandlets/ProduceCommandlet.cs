@@ -16,9 +16,7 @@ namespace MarsTS.Commands {
 		public int ProductionRequired { get; private set; }
 		public int ProductionProgress {
 			get => _productionProgress.Value;
-			set {
-				_productionProgress.Value = value;
-			}
+			set => _productionProgress.Value = value;
 		}
 
 		[SerializeField]
@@ -27,10 +25,10 @@ namespace MarsTS.Commands {
 		public event Action<int, int> OnWork;
 
 		public Dictionary<string, int> Cost { get; private set; }
-		public GameObject Product { get { return Target; } }
-		public override CommandFactory Command { get { return CommandRegistry.Get(Name + "/" + Product.name); } }
+		public GameObject Product => Target;
+		public override CommandFactory Command => CommandRegistry.Get(Name + "/" + Product.name);
 
-		public override string Key { get { return Name; } }
+		public override string Key => Name;
 
 		private string commandKey;
 
@@ -75,18 +73,13 @@ namespace MarsTS.Commands {
 			base.CompleteCommand(eventAgent, unit, isCancelled);
 		}
 
-		/*protected override ISerializedCommand Serialize () {
-
-			string prefabKey = "unit:" + Product.name;
-
-			return new SerializedProduceCommandlet() {
-				_productionRequired = ProductionRequired,
-				_prefabKey = prefabKey
-			};
-		}*/
+		public override Commandlet Clone()
+		{
+			throw new NotImplementedException();
+		}
 
 		protected override ISerializedCommand Serialize () {
-			return Serializers.Write(this);
+			return CommandSerializers.Write(this);
 		}
 
 		protected override void Deserialize (SerializedCommandWrapper _data) {

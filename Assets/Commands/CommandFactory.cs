@@ -1,15 +1,10 @@
 using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.UI;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.InputSystem;
 
 namespace MarsTS.Commands {
 
@@ -51,6 +46,4 @@ namespace MarsTS.Commands {
 		public abstract void CancelSelection ();
 		public abstract CostEntry[] GetCost ();
 	}
-
-	
 }

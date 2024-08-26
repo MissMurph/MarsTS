@@ -142,5 +142,10 @@ namespace MarsTS.Commands {
 
 			base.CompleteCommand(agent, unit, isCancelled);
 		}
+
+		public override Commandlet Clone()
+		{
+			throw new System.NotImplementedException();
+		}
 	}
 }

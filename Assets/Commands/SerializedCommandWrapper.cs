@@ -15,8 +15,6 @@ namespace MarsTS.Commands {
 		public int Faction;
 
 		public void NetworkSerialize<T> (BufferSerializer<T> serializer) where T : IReaderWriter {
-			//Debug.Log("Serializer Running on " + (NetworkManager.Singleton.IsServer) + " and data is not null: " + (commandletData != null));
-
 			if (serializer.IsWriter) {
 				Key = commandletData.Key;
 				Faction = commandletData.Faction;
@@ -28,7 +26,7 @@ namespace MarsTS.Commands {
 			serializer.SerializeValue(ref Id);
 
 			if (serializer.IsReader) {
-				commandletData = Serializers.Read(Key);
+				commandletData = CommandSerializers.Read(Key);
 			}
 			
 			commandletData.NetworkSerialize(serializer);

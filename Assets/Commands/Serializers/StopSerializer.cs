@@ -6,7 +6,7 @@ using UnityEngine;
 namespace MarsTS.Commands {
 
 	public class StopSerializer : MonoBehaviour, ICommandSerializer {
-		public string Key { get { return commandKey; } }
+		public string Key => commandKey;
 
 		[SerializeField]
 		private string commandKey;
@@ -32,9 +32,7 @@ namespace MarsTS.Commands {
 		public int Faction { get; set; }
 		public int Id { get; set; }
 
-		//This is pretty much empty as Stop is such a simple command
-		public void NetworkSerialize<T> (BufferSerializer<T> serializer) where T : IReaderWriter {
-			
-		}
+		//This is empty as Stop is such a simple command
+		public void NetworkSerialize<T> (BufferSerializer<T> serializer) where T : IReaderWriter { }
 	}
 }

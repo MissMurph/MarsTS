@@ -53,7 +53,7 @@ namespace MarsTS.Commands {
 
 		//Making virtual while testing
 		protected virtual ISerializedCommand Serialize () { 
-			return Serializers.Write(this);
+			return CommandSerializers.Write(this);
 		}
 
 		protected virtual void SpawnAndSync () {
@@ -106,10 +106,6 @@ namespace MarsTS.Commands {
 			SpawnAndSync();
 		}
 
-		public override Commandlet Clone () {
-			//return new Commandlet<T>(Name, Target, Commander);
-			throw new NotImplementedException();
-			//return CommandRegistry.Get<CommandFactory<T>>(Key).Construct;
-		}
+		public abstract override Commandlet Clone();
 	}
 }

@@ -10,14 +10,14 @@ using UnityEngine;
 namespace MarsTS.Commands {
 
 	public class Deploy : CommandFactory<bool> {
-		public override string Name { get { return commandName; } }
+		public override string Name => commandName;
 
 		[SerializeField]
 		private string commandName;
 
-		public override Type TargetType { get { return typeof(bool); } }
+		public override Type TargetType => typeof(bool);
 
-		public override string Description { get { return description; } }
+		public override string Description => description;
 
 		[SerializeField]
 		private string description;
@@ -90,6 +90,11 @@ namespace MarsTS.Commands {
 
 		public override bool CanInterrupt () {
 			return false;
+		}
+
+		public override Commandlet Clone()
+		{
+			throw new NotImplementedException();
 		}
 	}
 

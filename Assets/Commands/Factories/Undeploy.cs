@@ -88,5 +88,10 @@ namespace MarsTS.Commands {
 		public override bool CanInterrupt () {
 			return false;
 		}
+
+		public override Commandlet Clone()
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

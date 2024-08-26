@@ -5,9 +5,9 @@ using UnityEngine;
 
 namespace MarsTS.Commands {
 
-    public class Serializers : MonoBehaviour {
+    public class CommandSerializers : MonoBehaviour {
 
-        private static Serializers instance;
+        private static CommandSerializers instance;
 
         private Dictionary<string, ICommandSerializer> registered;
 
@@ -34,8 +34,6 @@ namespace MarsTS.Commands {
 
 		public static ISerializedCommand Read (string key) {
 			if (instance == null) return null;
-
-			//Debug.Log(key);
 
 			if (instance.registered.TryGetValue(key, out ICommandSerializer foundSerializer)) {
 				return foundSerializer.Reader();

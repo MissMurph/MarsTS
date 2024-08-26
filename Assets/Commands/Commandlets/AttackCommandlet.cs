@@ -2,8 +2,6 @@ using MarsTS.Entities;
 using MarsTS.Networking;
 using MarsTS.Teams;
 using MarsTS.Units;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace MarsTS.Commands {
@@ -14,6 +12,11 @@ namespace MarsTS.Commands {
 
 		[SerializeField]
 		private GameObject targetGameObj;
+
+		public override Commandlet Clone()
+		{
+			throw new System.NotImplementedException();
+		}
 
 		protected override void Deserialize (SerializedCommandWrapper _data) {
 			SerializedAttackCommandlet deserialized = (SerializedAttackCommandlet)_data.commandletData;

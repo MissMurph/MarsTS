@@ -1,10 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Commands {
 
+	//TODO: Refactor this this sucks
     public class ProduceSerializer : MonoBehaviour, ICommandSerializer {
 
         public string Key { get { return commandKey; } }
@@ -16,7 +15,6 @@ namespace MarsTS.Commands {
 			return new SerializedProduceCommandlet {
 				Key = Key
 			};
-
 		}
 
         public ISerializedCommand Writer (Commandlet _data) {

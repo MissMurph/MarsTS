@@ -10,14 +10,14 @@ namespace MarsTS.Commands {
 
     public class Adrenaline : CommandFactory<bool> {
 
-		public override string Name { get { return commandName; } }
+		public override string Name => commandName;
 
 		[SerializeField]
 		private string commandName;
 
-		public override Type TargetType { get { return typeof(bool); } }
+		public override Type TargetType => typeof(bool);
 
-		public override string Description { get { return description; } }
+		public override string Description => description;
 
 		[SerializeField]
 		private string description;
@@ -82,6 +82,11 @@ namespace MarsTS.Commands {
 			else {
 				queue.Cooldown(this, cooldown);
 			}
+		}
+
+		public override Commandlet Clone()
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

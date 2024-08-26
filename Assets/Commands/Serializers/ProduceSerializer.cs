@@ -4,18 +4,18 @@ using UnityEngine;
 namespace MarsTS.Commands {
 
 	//TODO: Refactor this this sucks
+	//Like it doesn't actually but is a lot of boilerplate
     public class ProduceSerializer : MonoBehaviour, ICommandSerializer {
 
-        public string Key { get { return commandKey; } }
+        public string Key => commandKey;
 
-		[SerializeField]
+        [SerializeField]
 		private string commandKey;
 
-        public ISerializedCommand Reader () {
-			return new SerializedProduceCommandlet {
-				Key = Key
-			};
-		}
+        public ISerializedCommand Reader () =>
+	        new SerializedProduceCommandlet {
+		        Key = Key
+	        };
 
         public ISerializedCommand Writer (Commandlet _data) {
 			ProduceCommandlet superType = _data as ProduceCommandlet;

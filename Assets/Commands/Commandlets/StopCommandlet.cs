@@ -1,4 +1,5 @@
 using System;
+using MarsTS.Teams;
 
 namespace MarsTS.Commands {
 
@@ -8,6 +9,11 @@ namespace MarsTS.Commands {
 
 		public override Commandlet Clone () {
 			throw new NotImplementedException();
+		}
+
+		protected override void Deserialize (SerializedCommandWrapper data) {
+			Name = data.Key;
+			Commander = TeamCache.Faction(data.Faction);
 		}
 	}
 }

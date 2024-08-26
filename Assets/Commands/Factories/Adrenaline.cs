@@ -2,6 +2,10 @@ using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Units;
 using System;
+using System.Collections.Generic;
+using MarsTS.Networking;
+using Unity.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Commands {
@@ -31,10 +35,9 @@ namespace MarsTS.Commands {
 			int totalUsing = 0;
 
 			//Inspect all selected to make all units using this ability match up with others that are active using
-			foreach (Roster rollup in Player.Selected.Values)
-			{
+			foreach (Roster rollup in Player.Selected.Values) {
 				if (!rollup.Commands.Contains(Name)) continue;
-				
+
 				foreach (ICommandable unit in rollup.Orderable) {
 					if (unit.CanCommand(Name)) totalCanUse++;
 
@@ -46,7 +49,7 @@ namespace MarsTS.Commands {
 				}
 			}
 
-			//Player.Main.DeliverCommand(Construct(totalCanUse > totalUsing), Player.Include);
+			Construct(totalCanUse > totalUsing, Player.ListSelected);
 		}
 
 		public override CostEntry[] GetCost () 
@@ -56,38 +59,13 @@ namespace MarsTS.Commands {
 
 		}
 		
-		public void Construct() {
-			
-		}
-	}
-
-	public class AdrenalineCommandlet : Commandlet<bool> {
-
-		private float duration;
-		//private float remainingDuration;
-
-		private float cooldown;
-
-		public AdrenalineCommandlet (string _name, float _duration, float _cooldown, bool _status) {
-			duration = _duration;
-			//remainingDuration = _duration;
-			cooldown = _cooldown;
+		public void Construct(bool status, List<string> selection) {
+			ConstructCommandletServerRpc(status, Player.Commander.Id, selection.ToNativeArray32(), Player.Include);
 		}
 
-		public override string Key => Name;
-
-		public override void ActivateCommand (CommandQueue queue, CommandActiveEvent _event) {
-			if (_event.Activity) {
-				queue.Cooldown(this, duration);
-			}
-			else {
-				queue.Cooldown(this, cooldown);
-			}
-		}
-
-		public override Commandlet Clone()
-		{
-			throw new NotImplementedException();
+		[Rpc(SendTo.Server)]
+		private void ConstructCommandletServerRpc(bool status, int factionId, NativeArray<FixedString32Bytes> selection, bool inclusive) {
+			ConstructCommandletServer(status, factionId, selection.ToList(), inclusive);
 		}
 	}
 }

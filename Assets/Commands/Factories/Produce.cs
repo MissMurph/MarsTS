@@ -111,9 +111,10 @@ namespace MarsTS.Commands {
 				spool.Add(entry);
 			}
 
-			CostEntry time = new CostEntry();
-			time.key = "time";
-			time.amount = timeRequired;
+			CostEntry time = new CostEntry {
+				key = "time",
+				amount = timeRequired
+			};
 
 			spool.Add(time);
 

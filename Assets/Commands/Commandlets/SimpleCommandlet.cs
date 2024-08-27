@@ -3,7 +3,7 @@ using MarsTS.Teams;
 
 namespace MarsTS.Commands {
 
-	public class StopCommandlet : Commandlet<bool> {
+	public class SimpleCommandlet : Commandlet<bool> {
 
 		public override string Key => Name;
 

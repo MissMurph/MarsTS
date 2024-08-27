@@ -27,17 +27,17 @@ namespace MarsTS.Commands {
 
 		private void OnSelect (InputAction.CallbackContext context) {
 			//On Mouse Up
-			if (context.canceled) {
-				Vector2 cursorPos = Player.MousePos;
-				Ray ray = Player.ViewPort.ScreenPointToRay(cursorPos);
+			if (!context.canceled) return;
+			
+			Vector2 cursorPos = Player.MousePos;
+			Ray ray = Player.ViewPort.ScreenPointToRay(cursorPos);
 
-				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.EntityMask) 
-					&& EntityCache.TryGet(hit.collider.transform.parent.name, out IAttackable unit)) {
-					//Player.Main.DeliverCommand(Construct(unit), Player.Include);
-				}
-
-				CancelSelection();
+			if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.EntityMask) 
+			    && EntityCache.TryGet(hit.collider.transform.parent.name, out IAttackable unit)) {
+				Construct(unit, Player.ListSelected);
 			}
+
+			CancelSelection();
 		}
 
 		private void OnOrder (InputAction.CallbackContext context) {

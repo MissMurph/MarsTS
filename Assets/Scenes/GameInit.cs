@@ -90,9 +90,9 @@ namespace MarsTS {
 					if (toSpawnHqFor.Id == 0) continue;
 
 					NetworkObject hqNetwork = Instantiate(headquartersPrefab, startPositions[spawnedCount].position, startPositions[spawnedCount].rotation);
-					ISelectable hq = hqNetwork.GetComponent<ISelectable>();
-					hqNetwork.Spawn();
-					hq.SetOwner(toSpawnHqFor);
+					//ISelectable hq = hqNetwork.GetComponent<ISelectable>();
+					//hqNetwork.Spawn();
+					//hq.SetOwner(toSpawnHqFor);
 
 					spawnedCount++;
 				}

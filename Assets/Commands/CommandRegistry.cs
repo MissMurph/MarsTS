@@ -30,11 +30,11 @@ namespace MarsTS.Commands {
 				CommandFactory constructed = Instantiate(toConstruct);
 				registered[constructed.Name] = constructed;
 
-				NetworkObject commandNetworking = constructed.GetComponent<NetworkObject>();
-				commandNetworking.Spawn();
-				commandNetworking.TrySetParent(transform);
+				//NetworkObject commandNetworking = constructed.GetComponent<NetworkObject>();
+				constructed.NetworkObject.Spawn();
+				constructed.NetworkObject.TrySetParent(transform);
 
-				RegisterCommandClientRpc(commandNetworking);
+				RegisterCommandClientRpc(constructed.NetworkObject);
 			}
 		}
 

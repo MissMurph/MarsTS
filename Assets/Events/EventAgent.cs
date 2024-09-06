@@ -12,7 +12,7 @@ namespace MarsTS.Events {
 		private Dictionary<Type, UnityEventBase> listeners = new Dictionary<Type, UnityEventBase>();
 
 		//This will return 0 if the agent isn't registered
-		public int ID => id;
+		public int Id => id;
 
 		public string Key => "eventAgent";
 

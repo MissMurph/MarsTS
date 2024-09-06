@@ -37,7 +37,7 @@ namespace MarsTS.Events {
 		public static T Global<T> (T postedEvent) where T : AbstractEvent {
 			if (!isInitialized) Init();
 			
-			if (!instance.registeredAgents.ContainsKey(postedEvent.Source.ID)) throw new ArgumentException("Event " + postedEvent.Name + " fired from unregistered agent " + postedEvent.Source.ID + " on object " + postedEvent.Source.name);
+			if (!instance.registeredAgents.ContainsKey(postedEvent.Source.Id)) throw new ArgumentException("Event " + postedEvent.Name + " fired from unregistered agent " + postedEvent.Source.Id + " on object " + postedEvent.Source.name);
 			if (instance.globalListeners.TryGetValue(typeof(T), out UnityEventBase value)) {
 				UnityEvent<T> superType = (UnityEvent<T>)value;
 				superType.Invoke(postedEvent);
@@ -91,11 +91,11 @@ namespace MarsTS.Events {
 			}
 		}
 
-		public static int RegisterAgent (EventAgent source)
-		{
+		public static int RegisterAgent(EventAgent source) {
 			if (!isInitialized) Init();
-			
-			if (source.ID != 0) throw new ArgumentException("Agent " + source.ID + " already registered with Event Bus");
+
+			if (source.Id != 0)
+				throw new ArgumentException("Agent " + source.Id + " already registered with Event Bus");
 			int id = instance.currentId++;
 
 			instance.registeredAgents[id] = source;
@@ -113,7 +113,7 @@ namespace MarsTS.Events {
 		}
 
 		private static void OnEntityDeath (EntityDestroyEvent _event) {
-			instance.registeredAgents.Remove(_event.Source.ID);
+			instance.registeredAgents.Remove(_event.Source.Id);
 		}
 
 		private void OnDestroy () {

@@ -9,32 +9,28 @@ namespace MarsTS.Players {
 
     public class PlayerResource : NetworkBehaviour {
 
-        public string Key { get { return key; } }
+        public string Key => key;
 
         [SerializeField]
         private string key;
 
         public int Amount {
-            get {
-                return storedResources.Value;
-            }
-            private set {
-                storedResources.Value = value;
-            }
+            get => _storedResources.Value;
+            private set => _storedResources.Value = value;
         }
 
-        private NetworkVariable<int> storedResources = new(writePerm:NetworkVariableWritePermission.Server);
+        private readonly NetworkVariable<int> _storedResources = new(writePerm:NetworkVariableWritePermission.Server);
 
         [SerializeField]
         private int startingAmount;
 
-        private EventAgent bus;
+        private EventAgent _bus;
 
-        private Faction player;
+        private Faction _player;
 
 		private void Awake () {
-            bus = GetComponent<EventAgent>();
-            player = GetComponent<Faction>();
+            _bus = GetComponent<EventAgent>();
+            _player = GetComponent<Faction>();
 		}
 
 		public override void OnNetworkSpawn () {
@@ -52,11 +48,11 @@ namespace MarsTS.Players {
 		}
 
 		private void AttachClientListeners () {
-            storedResources.OnValueChanged += OnResourceValueChange;
+            _storedResources.OnValueChanged += OnResourceValueChange;
         }
 
-        private void OnResourceValueChange (int _oldAmount, int _newAmount) {
-			bus.Global(new ResourceUpdateEvent(bus, player, this));
+        private void OnResourceValueChange (int oldAmount, int newAmount) {
+			_bus.Global(new ResourceUpdateEvent(_bus, _player, this));
 		}
 
 		public bool Deposit (int amount) {

@@ -15,11 +15,11 @@ namespace MarsTS.Commands {
 
 	public class Produce : CommandFactory<GameObject> {
 
-		public override string Name { get { return "produce/" + unitPrefab.name; } }
+		public override string Name => "produce/" + unitPrefab.name;
 
-		public override Sprite Icon { get { return unit.Icon; } }
+		public override Sprite Icon => unit.Icon;
 
-		public override string Description { get { return description; } }
+		public override string Description => description;
 
 		[SerializeField]
 		protected string description;

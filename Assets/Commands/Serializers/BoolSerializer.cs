@@ -1,24 +1,22 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Commands {
 
-	public class StopSerializer : MonoBehaviour, ICommandSerializer {
+	public class BoolSerializer : MonoBehaviour, ICommandSerializer {
 		public string Key => commandKey;
 
 		[SerializeField]
 		private string commandKey;
 
 		public ISerializedCommand Reader () {
-			return new SerializedStopCommandlet {
+			return new SerializedBoolCommandlet {
 				Key = Key
 			};
 		}
 
 		public ISerializedCommand Writer (Commandlet _data) {
-			return new SerializedStopCommandlet {
+			return new SerializedBoolCommandlet {
 				Key = Key,
 				Id = _data.Id,
 				Faction = _data.Commander.Id
@@ -26,7 +24,7 @@ namespace MarsTS.Commands {
 		}
 	}
 
-	public struct SerializedStopCommandlet : ISerializedCommand 
+	public struct SerializedBoolCommandlet : ISerializedCommand 
 	{
 		public string Key { get; set; }
 		public int Faction { get; set; }

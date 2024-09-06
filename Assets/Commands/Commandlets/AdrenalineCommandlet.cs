@@ -1,12 +1,14 @@
 using System;
 using MarsTS.Events;
 using MarsTS.Teams;
+using UnityEngine;
 
 namespace MarsTS.Commands {
     public class AdrenalineCommandlet : Commandlet<bool> {
-
+        [SerializeField]
         private float duration;
 
+        [SerializeField]
         private float cooldown;
 
         public override string Key => Name;

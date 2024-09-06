@@ -20,18 +20,17 @@ namespace MarsTS.Events {
 
 		private static bool isInitialized => instance != null;
 
-		private EventBus()
-		{
+		private EventBus() {
 			currentId = 0;
 			globalListeners = new Dictionary<Type, UnityEventBase>();
 			registeredAgents = new Dictionary<int, EventAgent>();
 			nameAtlas = new Dictionary<string, int>();
-
-			AddListener<EntityDestroyEvent>(OnEntityDeath);
 		}
 
 		private static void Init () {
 			instance = new EventBus();
+			
+			AddListener<EntityDestroyEvent>(OnEntityDeath);
 		}
 
 		//Fires events to all listeners registered for this event type

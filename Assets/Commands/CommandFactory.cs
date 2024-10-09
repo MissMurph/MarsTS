@@ -45,5 +45,9 @@ namespace MarsTS.Commands {
 		public abstract void StartSelection ();
 		public abstract void CancelSelection ();
 		public abstract CostEntry[] GetCost ();
+
+		private void Start() {
+			//GetComponent<NetworkObject>().Spawn();
+		}
 	}
 }

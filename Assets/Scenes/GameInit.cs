@@ -32,7 +32,7 @@ namespace MarsTS {
 
 		[SerializeField] private NetworkObject commandCachePrefab;
 
-		private Dictionary<ulong, GameObject> players = new Dictionary<ulong, GameObject>();
+		private Dictionary<ulong, GameObject> _players = new Dictionary<ulong, GameObject>();
 
 		private void Start () {
 			NetworkManager.Singleton.OnServerStarted += OnServerStart;
@@ -56,7 +56,7 @@ namespace MarsTS {
 		}
 
 		private void OnClientConnected (ulong id) {
-			players[id] = NetworkManager.Singleton.ConnectedClients[id].PlayerObject.gameObject;
+			_players[id] = NetworkManager.Singleton.ConnectedClients[id].PlayerObject.gameObject;
 		}
 
 		private void OnGameStart () {
@@ -73,7 +73,7 @@ namespace MarsTS {
 
 			Instantiate(teamCachePrefab, transform).Spawn();
 
-			TeamCache.Init(players.Keys.ToArray());
+			TeamCache.Init(_players.Keys.ToArray());
 		}
 
 		private void SpawnHeadquarters (TeamsInitEvent _event) {
@@ -90,9 +90,9 @@ namespace MarsTS {
 					if (toSpawnHqFor.Id == 0) continue;
 
 					NetworkObject hqNetwork = Instantiate(headquartersPrefab, startPositions[spawnedCount].position, startPositions[spawnedCount].rotation);
-					//ISelectable hq = hqNetwork.GetComponent<ISelectable>();
-					//hqNetwork.Spawn();
-					//hq.SetOwner(toSpawnHqFor);
+					ISelectable hq = hqNetwork.GetComponent<ISelectable>();
+					hqNetwork.Spawn();
+					hq.SetOwner(toSpawnHqFor);
 
 					spawnedCount++;
 				}

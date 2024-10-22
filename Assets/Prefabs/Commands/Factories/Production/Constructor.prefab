@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 798442238
+  GlobalObjectIdHash: 3410463968
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
@@ -67,7 +67,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   icon: {fileID: 0}
-  IconColor: {r: 0, g: 0, b: 0, a: 0}
   Pointer:
     texture: {fileID: 0}
     target: {x: 0, y: 0}
@@ -76,7 +75,7 @@ MonoBehaviour:
   description: A slow moving unit that both constructs buildings and can repair units
   unitPrefab: {fileID: 3050993961840164310, guid: c3590048fa9d52b45bcd9c4b3a8c11df,
     type: 3}
-  timeRequired: 10
+  timeRequired: 1
   cost:
   - key: resource_unit
     amount: 250

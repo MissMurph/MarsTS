@@ -50,7 +50,7 @@ namespace MarsTS.Entities {
 			Id = EntityCache.Register(this);
 			name = $"{registryKey}:{Id}";
 			
-			GetComponent<NetworkObject>().Spawn();
+			//GetComponent<NetworkObject>().Spawn();
 			PostInitEvents();
 			SynchronizeClientRpc(Id);
 		}
@@ -59,6 +59,7 @@ namespace MarsTS.Entities {
 		private void SynchronizeClientRpc(int id)
 		{
 			Id = id;
+			name = $"{registryKey}:{Id}";
 			EntityCache.Register(this);
 			PostInitEvents();
 		}

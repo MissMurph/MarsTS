@@ -11,14 +11,16 @@ namespace MarsTS.Commands {
 	public abstract class CommandFactory<T> : CommandFactory
 	{
 		//Only call this on the server
-		protected virtual void ConstructCommandletServer (T _target, int _factionId, ICollection<string> _selection, bool _inclusive) {
+		protected virtual void ConstructCommandletServer (T target, int factionId, ICollection<string> selection, bool inclusive) {
 			Commandlet<T> order = Instantiate(orderPrefab);
 
-			order.Init(Name, _target, TeamCache.Faction(_factionId));
+			order.Init(Name, target, TeamCache.Faction(factionId));
 
-			foreach (string entity in _selection) {
+			Debug.Log(selection.Count);
+
+			foreach (string entity in selection) {
 				if (EntityCache.TryGet(entity, out ICommandable unit))
-					unit.Order(order, _inclusive);
+					unit.Order(order, inclusive);
 				else
 					Debug.LogWarning($"ICommandable on Unit {entity} not found! Command {Name} being ignored by unit!");
 			}

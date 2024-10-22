@@ -27,7 +27,7 @@ namespace MarsTS.Networking
         {
             List<string> output = new(nativeArray.Length);
 
-            for (int i = 0; i < nativeArray.Length; i++)
+            for (int i = 0; i < nativeArray.Length - 1; i++)
             {
                 output[i] = nativeArray[i].ToString();
             }

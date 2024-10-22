@@ -24,19 +24,16 @@ namespace MarsTS.Commands {
 		public override void OnNetworkSpawn () {
 			base.OnNetworkSpawn();
 
-			return;
-
 			if (!NetworkManager.Singleton.IsServer) return;
-
+			
 			foreach (CommandFactory toConstruct in factoriesToInit) {
-				CommandFactory constructed = Instantiate(toConstruct);
+				CommandFactory constructed = Instantiate(toConstruct, transform);
 				registered[constructed.Name] = constructed;
 
-				//NetworkObject commandNetworking = constructed.GetComponent<NetworkObject>();
-				//constructed.NetworkObject.Spawn();
-				//constructed.NetworkObject.TrySetParent(transform);
+				NetworkObject commandNetworking = constructed.GetComponent<NetworkObject>();
+				commandNetworking.Spawn();
 
-				//RegisterCommandClientRpc(constructed.NetworkObject);
+				RegisterCommandClientRpc(commandNetworking);
 			}
 		}
 
@@ -47,15 +44,7 @@ namespace MarsTS.Commands {
 		private void OnPlayerInit (PlayerInitEvent _event) {
 			if (_event.Phase.Equals(Phase.Post)) return;
 
-			foreach (CommandFactory toConstruct in factoriesToInit) {
-				CommandFactory constructed = Instantiate(toConstruct, transform);
-				registered[constructed.Name] = constructed;
-
-				NetworkObject commandNetworking = constructed.GetComponent<NetworkObject>();
-				commandNetworking.Spawn();
-
-				RegisterCommandClientRpc(commandNetworking);
-			}
+			
 		}
 
 		[Rpc(SendTo.NotServer)]

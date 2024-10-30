@@ -1,3 +1,4 @@
+using System;
 using MarsTS.Entities;
 using MarsTS.Players;
 using MarsTS.Research;
@@ -9,7 +10,7 @@ using UnityEngine;
 
 namespace MarsTS.Teams {
 
-    public class Faction : NetworkBehaviour {
+    public class Faction : NetworkBehaviour, IEquatable<Faction> {
 
         private Dictionary<string, Roster> ownedUnits;
 
@@ -90,5 +91,25 @@ namespace MarsTS.Teams {
 		public void SubmitResearch (Technology product) {
 			research[product.key] = product;
 		}
-	}
+
+		public bool Equals(Faction other)
+		{
+			if (ReferenceEquals(null, other)) return false;
+			if (ReferenceEquals(this, other)) return true;
+			return base.Equals(other) && id == other.id;
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((Faction)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			return HashCode.Combine(base.GetHashCode(), id);
+		}
+    }
 }

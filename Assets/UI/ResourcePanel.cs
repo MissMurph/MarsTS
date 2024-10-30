@@ -46,6 +46,8 @@ namespace MarsTS.UI {
 		}
 
 		private void OnPlayerResourceUpdate (ResourceUpdateEvent _event) {
+			if (!Player.Commander.Equals(_event.Player)) return;
+			
 			if (counters.TryGetValue(_event.Resource.Key, out TextMeshProUGUI counter)) {
 				counter.text = _event.Amount.ToString();
 			}

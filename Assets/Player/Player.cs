@@ -20,19 +20,17 @@ using UnityEngine.InputSystem.HID;
 namespace MarsTS.Players {
 
 	public class Player : MonoBehaviour {
+		public static Player Main { get; private set; }
 
-		public static Player Main { get { return instance; } }
-		private static Player instance;
+		public static Faction Commander => Main._commander;
+		private Faction _commander;
 
-		public static Faction Commander { get { return instance.commander; } }
-		private Faction commander;
-
-		public static Dictionary<string, Roster> Selected { get { return instance.selected; } }
-		private Dictionary<string, Roster> selected = new Dictionary<string, Roster>();
+		public static Dictionary<string, Roster> Selected => Main._selected;
+		private readonly Dictionary<string, Roster> _selected = new Dictionary<string, Roster>();
 		
 		public static List<string> ListSelected {
 			get {
-				List<string> outputList = new List<string>();
+				var outputList = new List<string>();
 
 				foreach (Roster typeRoster in Selected.Values) {
 					foreach (ISelectable unit in typeRoster.List()) {
@@ -44,91 +42,78 @@ namespace MarsTS.Players {
 			}
 		}
 
-		// TODO: Replace with utilizing the EntityCache
-		/*public static NetworkObjectReference[] SerializedSelected {
-			get {
-				List<NetworkObjectReference> outputList = new List<NetworkObjectReference>();
+		public static Camera ViewPort => Main._view;
+		private Camera _view;
 
-				foreach (Roster typeRoster in Selected.Values) {
-					foreach (ISelectable unit in typeRoster.List()) {
-						if (EntityCache.TryGet(unit.GameObject.name, out NetworkObject foundNetworking)) {
-							outputList.Add(foundNetworking);
-						}
-					}
-				}
+		public static InputHandler Input => Main._inputController;
+		private InputHandler _inputController;
 
-				return outputList.ToArray();
-			}
-		}*/
+		public static Vector2 MousePos => Main._cursorPos;
+		private Vector2 _cursorPos;
 
-		public static Camera ViewPort { get { return instance.view; } }
-		private Camera view;
+		public static ViewportController PlayerControls => Main._cameraControls;
+		private ViewportController _cameraControls;
 
-		public static InputHandler Input { get { return instance.inputController; } }
-		private InputHandler inputController;
+		public static bool Include => Main._alternate;
+		private bool _alternate;
 
-		public static Vector2 MousePos { get { return instance.cursorPos; } }
-		private Vector2 cursorPos;
+		public static EventAgent EventAgent => Main._bus;
+		private EventAgent _bus;
 
-		public static ViewportController PlayerControls { get { return instance.cameraControls; } }
-		private ViewportController cameraControls;
+		public static UIController UI => Main._uiController;
+		private UIController _uiController;
 
-		public static bool Include { get { return instance.alternate; } }
-		private bool alternate;
+		public static List<IDepositable> Depositables => Main._depositables;
+		private readonly List<IDepositable> _depositables = new List<IDepositable>();
 
-		public static EventAgent EventAgent { get { return instance.bus; } }
-		private EventAgent bus;
-
-		public static UIController UI { get { return instance.uiController; } }
-		private UIController uiController;
-
-		public static List<IDepositable> Depositables { get { return instance.depositables; } }
-		private List<IDepositable> depositables = new List<IDepositable>();
-
-		private ISelectable currentHover;
+		private ISelectable _currentHover;
 
 		private void Awake () {
-			instance = this;
+			Main = this;
 
-			bus = GetComponentInParent<EventAgent>();
-			commander = GetComponentInParent<Faction>();
+			_bus = GetComponent<EventAgent>();
+			//_commander = GetComponentInParent<Faction>();
 
-			inputController = GetComponent<InputHandler>();
-			uiController = GetComponent<UIController>();
-			cameraControls = GetComponent<ViewportController>();
+			_inputController = GetComponent<InputHandler>();
+			_uiController = GetComponent<UIController>();
+			_cameraControls = GetComponent<ViewportController>();
 
-			view = GetComponentInChildren<Camera>();
+			_view = GetComponentInChildren<Camera>();
+		}
+
+		public void SetCommander(Faction commander) {
+			_commander = commander;
 		}
 
 		private void Start () {
 			EventBus.AddListener<UnitDeathEvent>(OnEntityDeath);
 			EventBus.AddListener<UnitOwnerChangeEvent>(OnUnitOwnershipChange);
 
-			alternate = false;
+			_alternate = false;
 
-			bus.Global(new PlayerInitEvent(bus));
+			_bus.Global(new PlayerInitEvent(_bus));
 		}
 
 		private void Update () {
-			Ray ray = ViewPort.ScreenPointToRay(cursorPos);
+			Ray ray = ViewPort.ScreenPointToRay(_cursorPos);
 
 			if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)) {
-				if (EntityCache.TryGet(hit.transform.root.name, out ISelectable unit) && currentHover != unit) {
-					if (currentHover != null) currentHover.Hover(false);
-					currentHover = unit;
+				if (EntityCache.TryGet(hit.transform.root.name, out ISelectable unit) && _currentHover != unit) {
+					if (_currentHover != null) _currentHover.Hover(false);
+					_currentHover = unit;
 					unit.Hover(true);
 				}
 			}
-			else if (currentHover != null) {
-				currentHover.Hover(false);
-				currentHover = null;
+			else if (_currentHover != null) {
+				_currentHover.Hover(false);
+				_currentHover = null;
 			}
 		}
 
 		/*	Input Functions	*/
 
 		public void Look (InputAction.CallbackContext context) {
-			cursorPos = context.ReadValue<Vector2>();
+			_cursorPos = context.ReadValue<Vector2>();
 		}
 
 		public void Select (InputAction.CallbackContext context) {
@@ -136,7 +121,7 @@ namespace MarsTS.Players {
 				if (UI.IsHovering) return;
 				if (!Include) ClearSelection();
 
-				Ray ray = ViewPort.ScreenPointToRay(cursorPos);
+				Ray ray = ViewPort.ScreenPointToRay(_cursorPos);
 
 				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)) {
 					ISelectable hitUnit = hit.collider.gameObject.GetComponentInParent<ISelectable>();
@@ -160,7 +145,7 @@ namespace MarsTS.Players {
 				if (!units.TryAdd(target)) {
 					units.Remove(target.ID);
 					target.Select(false);
-					if (units.Count == 0) selected.Remove(units.RegistryKey);
+					if (units.Count == 0) _selected.Remove(units.RegistryKey);
 				}
 				else {
 					target.Select(true);
@@ -171,7 +156,7 @@ namespace MarsTS.Players {
 		}
 
 		public void ClearSelection () {
-			foreach (Roster units in selected.Values) {
+			foreach (Roster units in _selected.Values) {
 				foreach (ISelectable unit in units.List()) {
 					unit.Select(false);
 				}
@@ -179,19 +164,19 @@ namespace MarsTS.Players {
 				units.Clear();
 			}
 
-			selected.Clear();
+			_selected.Clear();
 			EventBus.Global(new PlayerSelectEvent(Selected));
 		}
 
 		private Roster GetRoster (string key) {
-			Roster map = selected.GetValueOrDefault(key, new Roster());
-			if (!selected.ContainsKey(key)) selected.Add(key, map);
+			Roster map = _selected.GetValueOrDefault(key, new Roster());
+			if (!_selected.ContainsKey(key)) _selected.Add(key, map);
 			return map;
 		}
 
 		public void Command (InputAction.CallbackContext context) {
 			if (context.canceled && !UI.IsHovering) {
-				Ray ray = ViewPort.ScreenPointToRay(cursorPos);
+				Ray ray = ViewPort.ScreenPointToRay(_cursorPos);
 
 				Physics.Raycast(ray, out RaycastHit walkableHit, 1000f, GameWorld.WalkableMask);
 				Physics.Raycast(ray, out RaycastHit selectableHit, 1000f, GameWorld.SelectableMask);
@@ -241,8 +226,8 @@ namespace MarsTS.Players {
 		}
 
 		public void Alternate (InputAction.CallbackContext context) {
-			if (context.performed) alternate = true;
-			if (context.canceled) alternate = false;
+			if (context.performed) _alternate = true;
+			if (context.canceled) _alternate = false;
 		}
 
 		private void OnEntityDeath (UnitDeathEvent _event) {
@@ -253,6 +238,7 @@ namespace MarsTS.Players {
 
 				if (unitRoster.Count == 0) Selected.Remove(key);
 
+				// TODO: Revisit this
 				//This isn't the best method to update selection, as when units die we don't want the 
 				//primary selected to be jumping around a lot, will have to come up with something better
 				EventBus.Global(new PlayerSelectEvent(Selected));
@@ -260,15 +246,15 @@ namespace MarsTS.Players {
 
 			if (_event.Unit.Owner.Id == Commander.Id
 				&& _event.Unit is IDepositable deserialized
-				&& depositables.Contains(deserialized)) {
-				depositables.Remove(deserialized);
+				&& _depositables.Contains(deserialized)) {
+				_depositables.Remove(deserialized);
 			}
 		}
 
 		private void OnUnitOwnershipChange (UnitOwnerChangeEvent _event) {
 			if (_event.Unit.Owner.Id == Commander.Id
 				&& _event.Unit is IDepositable deserialized) {
-				depositables.Add(deserialized);
+				_depositables.Add(deserialized);
 			}
 		}
 
@@ -277,7 +263,7 @@ namespace MarsTS.Players {
 		}
 
 		private void OnDestroy () {
-			instance = null;
+			Main = null;
 		}
 	}
 }

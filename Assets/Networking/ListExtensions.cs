@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Collections;
 
 namespace MarsTS.Networking
@@ -23,16 +24,7 @@ namespace MarsTS.Networking
             return serialized;
         }
 
-        public static List<string> ToList(this NativeArray<FixedString32Bytes> nativeArray)
-        {
-            List<string> output = new(nativeArray.Length);
-
-            for (int i = 0; i < nativeArray.Length - 1; i++)
-            {
-                output[i] = nativeArray[i].ToString();
-            }
-
-            return output;
-        }
+        public static List<string> ToList(this NativeArray<FixedString32Bytes> nativeArray) 
+            => nativeArray.Select(fixedString => fixedString.ToString()).ToList();
     }
 }

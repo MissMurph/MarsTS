@@ -16,8 +16,6 @@ namespace MarsTS.Commands {
 
 			order.Init(Name, target, TeamCache.Faction(factionId));
 
-			Debug.Log(selection.Count);
-
 			foreach (string entity in selection) {
 				if (EntityCache.TryGet(entity, out ICommandable unit))
 					unit.Order(order, inclusive);

@@ -104,8 +104,9 @@ namespace MarsTS.Commands
                 Debug.LogError($"Error marking command {_event.Command.Name}:{_event.Command.Id} as stale");
         }
 
-        private void CheckStaleToDestroy()
-        {
+        private void CheckStaleToDestroy() {
+            List<int> checkRequestsToSend = new();
+
             foreach (KeyValuePair<int, Commandlet> stale in staleCommands)
             {
                 if (staleCheckRequests.ContainsKey(stale.Key))
@@ -114,11 +115,16 @@ namespace MarsTS.Commands
                 }
                 
                 staleCheckRequests[stale.Key] = new List<bool>();
-                CheckStaleClientRpc(stale.Key);
+                checkRequestsToSend.Add(stale.Key);
+            }
+            
+            foreach (int id in checkRequestsToSend)
+            {
+                CheckStaleClientRpc(id);    
             }
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.ClientsAndHost)]
         private void CheckStaleClientRpc(int id)
         {
             bool result;

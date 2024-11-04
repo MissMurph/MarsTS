@@ -10,15 +10,15 @@ namespace MarsTS.Entities {
 
 	public class EntityCache : MonoBehaviour {
 
-		private static EntityCache instance;
+		private static EntityCache _instance;
 
-		private Dictionary<string, Dictionary<int, Entity>> instanceMap;
+		private Dictionary<string, Dictionary<int, Entity>> _instanceMap;
 
 		public static int Count {
 			get {
 				int output = 0;
 
-				foreach (Dictionary<int, Entity> map in instance.instanceMap.Values) {
+				foreach (Dictionary<int, Entity> map in _instance._instanceMap.Values) {
 					output += map.Count;
 				}
 
@@ -32,15 +32,15 @@ namespace MarsTS.Entities {
 				string type = split[0];
 				string id = split[1];
 
-				Dictionary<int, Entity> map = instance.GetMap(type);
+				Dictionary<int, Entity> map = _instance.GetMap(type);
 
 				return map[int.Parse(id)];
 			}
 		}
 
 		private void Awake () {
-			instance = this;
-			instanceMap = new Dictionary<string, Dictionary<int, Entity>>();
+			_instance = this;
+			_instanceMap = new Dictionary<string, Dictionary<int, Entity>>();
 		}
 
 		private void Start () {
@@ -59,7 +59,7 @@ namespace MarsTS.Entities {
 			string type = split[0];
 			string id = split[1];
 
-			if (instance.instanceMap.TryGetValue(type, out Dictionary<int, Entity> idMap) && idMap.TryGetValue(int.Parse(id), out Entity found)) {
+			if (_instance._instanceMap.TryGetValue(type, out Dictionary<int, Entity> idMap) && idMap.TryGetValue(int.Parse(id), out Entity found)) {
 				output = found;
 				return true;
 			}
@@ -74,7 +74,7 @@ namespace MarsTS.Entities {
 		//name:instanceID:componentKey
 		//tank:236:unit
 		public static bool TryGet<T> (string name, out T output) {
-			if (instance == null) {
+			if (_instance == null) {
 				output = default(T);
 				return false;
 			}
@@ -118,18 +118,18 @@ namespace MarsTS.Entities {
 				}
 			}
 			
-			Dictionary<int, Entity> map = instance.GetMap(entity.Key);
+			Dictionary<int, Entity> map = _instance.GetMap(entity.Key);
 			return map.TryAdd(id, entity) ? id : -1;
 		}
 
 		private Dictionary<int, Entity> GetMap (string key) {
-			Dictionary<int, Entity> map = instanceMap.GetValueOrDefault(key, new Dictionary<int, Entity>());
-			if (!instanceMap.ContainsKey(key)) instanceMap.Add(key, map);
+			Dictionary<int, Entity> map = _instanceMap.GetValueOrDefault(key, new Dictionary<int, Entity>());
+			if (!_instanceMap.ContainsKey(key)) _instanceMap.Add(key, map);
 			return map;
 		}
 
 		private void OnEntityDestroyed (EntityDestroyEvent _event) {
-			if (instance == null) return;
+			if (_instance == null) return;
 			if (TryGet(_event.Entity.gameObject.name, out Entity found)) {
 				Dictionary<int, Entity> map = GetMap(found.Key);
 				map.Remove(found.Id);
@@ -137,7 +137,7 @@ namespace MarsTS.Entities {
 		}
 
 		private void OnDestroy () {
-			instance = null;
+			_instance = null;
 		}
 	}
 }

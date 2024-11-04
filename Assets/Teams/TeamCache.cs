@@ -4,163 +4,179 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
-using static UnityEngine.InputSystem.DefaultInputActions;
+using UnityEngine.Serialization;
 
 namespace MarsTS.Teams {
 	public class TeamCache : NetworkBehaviour {
+		
+		private static TeamCache _instance;
 
-		internal static TeamCache instance;
+		private Dictionary<int, Team> _teamMap;
+		private Dictionary<int, Faction> _factions;
+		private Dictionary<int, int> _factionsToTeamsMap;
+		private Dictionary<ulong, int> _playersToFactionsMap;
 
-		private Dictionary<int, Team> teamMap;
-		private Dictionary<int, Faction> factions;
-		private Dictionary<int, int> factionsToTeamsMap;
-		private Dictionary<ulong, int> playersToFactionsMap;
+		[FormerlySerializedAs("factionPrefab")] [SerializeField]
+		private Faction _factionPrefab;
 
-		[SerializeField]
-		private Faction factionPrefab;
+		[FormerlySerializedAs("dummyObserverPrefab")] [SerializeField]
+		private Faction _dummyObserverPrefab;
 
-		[SerializeField]
-		private Faction dummyObserverPrefab;
+		[FormerlySerializedAs("headquartersPrefab")] [SerializeField]
+		private NetworkObject _headquartersPrefab;
 
-		[SerializeField]
-		private NetworkObject headquartersPrefab;
+		[FormerlySerializedAs("startPositions")] [SerializeField]
+		private Transform[] _startPositions;
 
-		[SerializeField]
-		private Transform[] startPositions;
-
-		private EventAgent bus;
+		private EventAgent _bus;
 
 		//This will output all Player teams, not the Observer team
 		public static List<Team> Teams {
 			get {
-				List<Team> output = new List<Team>();
+				var output = new List<Team>();
 
-				for (int i = 1; i < instance.teamMap.Count; i++) {
-					output.Add(instance.teamMap[i]);
+				for (int i = 1; i < _instance._teamMap.Count; i++) {
+					output.Add(_instance._teamMap[i]);
 				}
 
 				return output;
 			}
 		}
 
-		public static List<Faction> Players {
-			get {
-				return instance.factions.Values.ToList();
-			}
-		}
+		public static List<Faction> Players => _instance._factions.Values.ToList();
 
-		public static Team Observer {
-			get {
-				return instance.teamMap[0];
-			}
-		}
+		public static Team Observer => _instance._teamMap[0];
 
 		private void Awake () {
-			instance = this;
+			_instance = this;
 			
-			bus = GetComponent<EventAgent>();
+			_bus = GetComponentInParent<EventAgent>();
 
-			teamMap = new Dictionary<int, Team>();
-			factions = new Dictionary<int, Faction>();
-			factionsToTeamsMap = new Dictionary<int, int>();
-			playersToFactionsMap = new Dictionary<ulong, int>();
+			_teamMap = new Dictionary<int, Team>();
+			_factions = new Dictionary<int, Faction>();
+			_factionsToTeamsMap = new Dictionary<int, int>();
+			_playersToFactionsMap = new Dictionary<ulong, int>();
 		}
 
 		public static void Init (ulong[] players) {
-			instance.InitTeams(players);
+			_instance.InitTeams(players);
 		}
 
 		private void InitTeams (ulong[] players) {
-			TeamsInitEvent _event = new TeamsInitEvent(bus);
+			TeamsInitEvent @event = new TeamsInitEvent(_bus) {
+				Phase = Phase.Pre
+			};
 
-			_event.Phase = Phase.Pre;
-
-			bus.Global(_event);
-			Faction observerFaction = Instantiate(dummyObserverPrefab);
-
-			NetworkObject networkObserver = observerFaction.GetComponent<NetworkObject>();
-			networkObserver.Spawn();
-
-			//CreateFactionInstance(0, observerFaction, 0);
-			observerFaction.InitClient(0, 0, 0);
-			observerFaction.InitClientRpc(0, 0, 0);
-
-			int count = 0;
+			_bus.Global(@event);
+			
+			SpawnNewFaction(_dummyObserverPrefab, 0);
 
 			foreach (ulong id in players) {
-				int factionID = Mathf.RoundToInt(Mathf.Pow(2, count));
-
-				Faction playerFaction = Instantiate(factionPrefab);
-
-				NetworkObject networkFaction = playerFaction.GetComponent<NetworkObject>();
-				networkFaction.SpawnWithOwnership(id);
-
-				//CreateFactionInstance(id, playerFaction, teamMap.Count);
-				playerFaction.InitClient(id, factionID, teamMap.Count);
-				playerFaction.InitClientRpc(id, factionID, teamMap.Count);
-
-				count++;
+				int factionId = Mathf.RoundToInt(Mathf.Pow(2, _instance._factions.Count));
+				Faction faction = SpawnNewFaction(_factionPrefab, factionId);
+				_factions[factionId] = faction;
+				
+				int teamId = _teamMap.Count + 1;
+				CreateTeamInstance(teamId);
+				AddFactionToTeam(faction.Id, teamId);
+				AssignPlayerToFaction(id, faction.Id);
 			}
 
-			_event.Phase = Phase.Post;
-			bus.Global(_event);
+			@event.Phase = Phase.Post;
+			_bus.Global(@event);
 		}
 
-		/*[ClientRpc]
-		private void ConfigureTeamClientRpc (ulong playerID, int factionID, int teamID) {
-			CreateFactionInstance(playerID, factionID, teamID);
-		}*/
+		private void CreateTeamInstance(int teamId) {
+			Team newTeam = new Team(teamId);
 
-		public void CreateFactionInstance (ulong playerID, Faction playerFaction, int teamID) {
-			Team newTeam = new Team() { Id = teamID, Members = new List<int>() { playerFaction.Id } };
+			_teamMap[teamId] = newTeam;
 
-			teamMap[teamID] = newTeam;
-			factions[playerFaction.Id] = playerFaction;
-			if (playerID > 0) playersToFactionsMap[playerID] = playerFaction.Id;
-			factionsToTeamsMap[playerFaction.Id] = newTeam.Id;
+			if (NetworkManager.Singleton.IsServer) 
+				CreateTeamInstanceClientRpc(teamId);
 		}
 
-		public static void RegisterFaction (ulong playerID, Faction playerFaction, int teamID) {
-			instance.CreateFactionInstance(playerID, playerFaction, teamID);
+		[Rpc(SendTo.NotServer)]
+		private void CreateTeamInstanceClientRpc(int teamId) => CreateTeamInstance(teamId);
+
+		private void AddFactionToTeam(int factionId, int teamId) {
+			if (_factions.TryGetValue(factionId, out Faction faction)
+			    && _teamMap.TryGetValue(teamId, out Team team)) {
+
+				if (_factionsToTeamsMap.TryGetValue(factionId, out int currentTeam)) 
+					_teamMap[currentTeam].Members.Remove(factionId);
+				
+				team.Members.Add(factionId);
+				_factionsToTeamsMap[factionId] = teamId;
+			}
+			else
+				Debug.LogError($"Unable to add Faction {factionId} to Team {teamId}");
+
+			if (NetworkManager.Singleton.IsServer) 
+				AddFactionToTeamClientRpc(factionId, teamId);
 		}
 
-		/*public static int RegisterPlayer (Faction player) {
-			int id = Mathf.RoundToInt(Mathf.Pow(2, instance.factions.Count));
+		[Rpc(SendTo.NotServer)]
+		private void AddFactionToTeamClientRpc(int factionId, int teamId) => AddFactionToTeam(factionId, teamId);
+
+		private static Faction SpawnNewFaction(Faction prefab, int factionId) {
+			Faction faction = Instantiate(prefab);
+
+			NetworkObject networkFaction = faction.GetComponent<NetworkObject>();
+			networkFaction.Spawn();
 			
-			if (!instance.factions.TryAdd(id, player)) Debug.LogError("Player " + id + " could not be registered! Check the generated ID!");
-			return id;
-		}*/
+			faction.SetId(factionId);
+
+			return faction;
+		}
+
+		public static int RegisterFaction(Faction faction) {
+			if (NetworkManager.Singleton.IsServer) 
+				return faction.Id;
+			
+			return _instance._factions.TryAdd(faction.Id, faction) ? faction.Id : -1;
+		}
+
+		private void AssignPlayerToFaction(ulong playerId, int factionId) {
+			if (_factions.TryGetValue(factionId, out Faction faction)) {
+				_playersToFactionsMap[playerId] = factionId;
+			}
+			else
+				Debug.LogWarning($"Unable to find Faction {factionId} for player {playerId}!");
+
+			if (NetworkManager.Singleton.IsServer) 
+				AssignPlayerToFactionClientRpc(playerId, factionId);
+		}
+
+		[Rpc(SendTo.NotServer)]
+		private void AssignPlayerToFactionClientRpc(ulong playerId, int factionId) =>
+			AssignPlayerToFaction(playerId, factionId);
 
 		public static Team Team (Faction player) {
-			return instance.teamMap[instance.factionsToTeamsMap[player.Id]];
+			return _instance._teamMap[_instance._factionsToTeamsMap[player.Id]];
 		}
 
-		public static Faction Faction (int factionID) {
-			return instance.factions[factionID];
+		public static Faction Faction (int factionId) {
+			return _instance._factions[factionId];
 		}
 
-		/*public static void SetTeams () {
-			instance.RollTeams();
-		}
+		public static Faction GetAssignedFaction(ulong playerId) {
+			if (_instance._playersToFactionsMap.TryGetValue(playerId, out int factionId))
+				return _instance._factions[factionId];
+			
+			Debug.LogWarning($"Player {playerId} not assigned a faction!");
 
-		private void RollTeams () {
-			foreach (Faction player in factions.Values) {
-				int id = teamMap.Count;
-				teamMap[id] = new Team { Id = id, Members = new List<Faction>() { player } };
-				factionsToTeamsMap[player.ID] = id;
-			}
-		}*/
+			return default;
+		}
 
 		public override void OnDestroy () {
-			base.OnDestroy();
-			instance = null;
+			_instance = null;
 		}
 	}
 
 	[Serializable]
-	public struct Team {
-		public int Id { get; internal set; }
-		public List<int> Members;
+	public class Team : IEquatable<Team> {
+		public int Id { get;  }
+		public List<int> Members = new List<int>();
 
 		public int VisionMask {
 			get {
@@ -173,6 +189,27 @@ namespace MarsTS.Teams {
 				return output;
 			}
 		}
+
+		internal Team(int id) {
+			Id = id;
+		}
+
+		public bool Equals(Team other)
+		{
+			if (ReferenceEquals(null, other)) return false;
+			if (ReferenceEquals(this, other)) return true;
+			return Id == other.Id;
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((Team)obj);
+		}
+
+		public override int GetHashCode() => Id;
 	}
 
 	static class RelationshipExtensions {

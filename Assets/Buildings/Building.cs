@@ -193,7 +193,7 @@ namespace MarsTS.Buildings {
 				bus.Global(new UnitDeathEvent(bus, this));
 
 				foreach (CostEntry materialCost in ConstructionCost) {
-					Player.Commander.Resource(materialCost.key).Deposit(materialCost.amount);
+					Player.Commander.GetResource(materialCost.key).Deposit(materialCost.amount);
 				}
 
 				Destroy(gameObject, 0.1f);

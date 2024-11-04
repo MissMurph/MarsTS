@@ -114,11 +114,13 @@ namespace MarsTS.Entities {
 		}
 
 		public T Get<T> (string key) {
-			if (registeredTaggables.TryGetValue(key, out ITaggable component) && component is T superType) {
+			if (registeredTaggables.TryGetValue(key, out ITaggable taggable) && taggable is T superType) {
 				return superType;
 			}
 
-			if (typeof(T) == typeof(Component) && taggedComponents.TryGetValue(key, out Component found) && component is T superTypedComponent) {
+			if (typeof(T).IsSubclassOf(typeof(Component)) 
+			    && taggedComponents.TryGetValue(key, out Component component) 
+			    && component is T superTypedComponent) {
 				return superTypedComponent;
 			}
 

@@ -72,7 +72,6 @@ namespace MarsTS.Players {
 			Main = this;
 
 			_bus = GetComponent<EventAgent>();
-			//_commander = GetComponentInParent<Faction>();
 
 			_inputController = GetComponent<InputHandler>();
 			_uiController = GetComponent<UIController>();
@@ -81,16 +80,16 @@ namespace MarsTS.Players {
 			_view = GetComponentInChildren<Camera>();
 		}
 
-		public void SetCommander(Faction commander) {
-			_commander = commander;
-		}
-
 		private void Start () {
 			EventBus.AddListener<UnitDeathEvent>(OnEntityDeath);
 			EventBus.AddListener<UnitOwnerChangeEvent>(OnUnitOwnershipChange);
 
 			_alternate = false;
+		}
 
+		public void SetCommander(Faction commander) {
+			_commander = commander;
+			
 			_bus.Global(new PlayerInitEvent(_bus));
 		}
 

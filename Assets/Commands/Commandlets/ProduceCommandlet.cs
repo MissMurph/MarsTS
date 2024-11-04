@@ -66,7 +66,7 @@ namespace MarsTS.Commands {
 		public override void CompleteCommand (EventAgent eventAgent, ICommandable unit, bool isCancelled = false) {
 			if (isCancelled) {
 				foreach (KeyValuePair<string, int> entry in Cost) {
-					Commander.Resource(entry.Key).Deposit(entry.Value);
+					Commander.GetResource(entry.Key).Deposit(entry.Value);
 				}
 			}
 

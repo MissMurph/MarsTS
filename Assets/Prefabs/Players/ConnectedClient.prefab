@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2105673151153709849}
   - component: {fileID: 2105673151153709926}
+  - component: {fileID: 504710382680527647}
   m_Layer: 0
   m_Name: ConnectedClient
   m_TagString: Untagged
@@ -44,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2786482943
+  GlobalObjectIdHash: 4232222914
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
@@ -53,3 +54,17 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &504710382680527647
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2105673151153709927}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e5ecac59c226ce49ba9a8f16c306d33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clientPrefab: {fileID: 1899313101430345159, guid: 9ae62d8cad0077e4fbb803309c7b6353,
+    type: 3}

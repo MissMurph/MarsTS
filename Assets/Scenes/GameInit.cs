@@ -32,13 +32,13 @@ namespace MarsTS {
 
 		[SerializeField] private NetworkObject commandCachePrefab;
 
-		private Dictionary<ulong, GameObject> _players = new Dictionary<ulong, GameObject>();
+		private readonly Dictionary<ulong, GameObject> _players = new Dictionary<ulong, GameObject>();
 
 		private void Start () {
 			NetworkManager.Singleton.OnServerStarted += OnServerStart;
 			NetworkManager.Singleton.OnClientStarted += OnClientStart;
 
-			EventBus.AddListener<TeamsInitEvent>(SpawnHeadquarters);
+			EventBus.AddListener<PlayerInitEvent>(SpawnHeadquarters);
 		}
 
 		private void OnClientStart () {
@@ -64,39 +64,35 @@ namespace MarsTS {
 		}
 
 		[Rpc(SendTo.Server)]
-		private void TransmitGameStartServerRpc () {
-			//TeamCache.SetTeams();
-			
-			//int count = 0;
+		private void TransmitGameStartServerRpc() => InitializeGameManagers();
 
-			
-
+		private void InitializeGameManagers() {
 			Instantiate(teamCachePrefab, transform).Spawn();
-
 			TeamCache.Init(_players.Keys.ToArray());
+			Instantiate(commandRegistryPrefab, transform).Spawn();
+			Instantiate(commandCachePrefab, transform).Spawn();
 		}
 
-		private void SpawnHeadquarters (TeamsInitEvent _event) {
-			if (_event.Phase.Equals(Phase.Pre)) {
-				Instantiate(commandRegistryPrefab, transform).Spawn();
-				Instantiate(commandCachePrefab, transform).Spawn();
-			}
-			else {
-				List<Faction> players = TeamCache.Players;
+		private void SpawnHeadquarters(PlayerInitEvent @event) {
+			if (!NetworkManager.Singleton.IsServer) return;
+			
+			List<Faction> players = TeamCache.Players;
 
-				int spawnedCount = 0;
+			int spawnedCount = 0;
 
-				foreach (Faction toSpawnHqFor in players) {
-					if (toSpawnHqFor.Id == 0) continue;
+			foreach (Faction toSpawnHqFor in players) {
+				if (toSpawnHqFor.Id == 0) continue;
 
-					NetworkObject hqNetwork = Instantiate(headquartersPrefab, startPositions[spawnedCount].position, startPositions[spawnedCount].rotation);
-					ISelectable hq = hqNetwork.GetComponent<ISelectable>();
-					hqNetwork.Spawn();
-					hq.SetOwner(toSpawnHqFor);
+				NetworkObject hqNetwork = Instantiate(headquartersPrefab, startPositions[spawnedCount].position,
+					startPositions[spawnedCount].rotation);
 
-					spawnedCount++;
-				}
+				hqNetwork.Spawn();
+				
+				ISelectable hq = hqNetwork.GetComponent<ISelectable>();
+				hq.SetOwner(toSpawnHqFor);
+
+				spawnedCount++;
 			}
 		}
-	}
+    }
 }

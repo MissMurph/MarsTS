@@ -7,69 +7,70 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace MarsTS.Teams {
 
     public class Faction : NetworkBehaviour, IEquatable<Faction> {
 
-        private Dictionary<string, Roster> ownedUnits;
+        private Dictionary<string, Roster> _ownedUnits;
 
-        public Team Allegiance { get { return TeamCache.Team(this); } }
+        public Team Allegiance => TeamCache.Team(this);
 
-		public int VisionMask { get { return Allegiance.VisionMask; } }
+        public int VisionMask => Allegiance.VisionMask;
 
-		public int Id { get { return id; } }
+		public int Id => _id;
 
-		[SerializeField]
-		private int id = -1;
+		[FormerlySerializedAs("id")] [SerializeField]
+		private int _id = -1;
 
-		public bool IsHuman { get { return true; } }
+		public bool IsHuman => true;
 
 		public List<PlayerResource> Resources {
 			get {
-				List<PlayerResource> output = new List<PlayerResource>();
+				var output = new List<PlayerResource>();
 
-				foreach (PlayerResource registered in resources.Values) {
+				foreach (PlayerResource registered in _resources.Values) 
 					output.Add(registered);
-				}
 
 				return output;
 			}
 		}
 
-		private Dictionary<string, PlayerResource> resources;
+		private Dictionary<string, PlayerResource> _resources;
 
-		protected Dictionary<string, Technology> research;
+		private Dictionary<string, Technology> _research;
 
-		protected virtual void Awake () {
-            ownedUnits = new Dictionary<string, Roster>();
-			resources = new Dictionary<string, PlayerResource>();
-			research = new Dictionary<string, Technology>();
+		private void Awake () {
+            _ownedUnits = new Dictionary<string, Roster>();
+			_resources = new Dictionary<string, PlayerResource>();
+			_research = new Dictionary<string, Technology>();
 
 			foreach (PlayerResource toRegister in GetComponents<PlayerResource>()) {
-				resources[toRegister.Key] = toRegister;
+				_resources[toRegister.Key] = toRegister;
 			}
 
 			foreach (Technology startingTech in GetComponentsInChildren<Technology>()) {
-				research[startingTech.key] = startingTech;
+				_research[startingTech.key] = startingTech;
 			}
 		}
 
+		public void SetId(int factionId) {
+			_id = factionId;
+			name = $"{typeof(Faction)}:{Id}";
+			SynchronizeClientRpc(Id);
+		}
+
 		[Rpc(SendTo.NotServer)]
-		public void InitClientRpc (ulong playerID, int factionID, int teamID) {
-			InitClient(playerID, factionID, teamID);
+		private void SynchronizeClientRpc(int id)
+		{
+			_id = id;
+			name = $"{typeof(Faction)}:{Id}";
+			TeamCache.RegisterFaction(this);
 		}
 
-		public void InitClient (ulong playerID, int factionID, int teamID) {
-			//Debug.Log("called rpc");
-
-			id = factionID;
-
-			TeamCache.RegisterFaction(playerID, this, teamID);
-		}
-
-		public PlayerResource Resource (string key) {
-			if (resources.TryGetValue(key, out PlayerResource bank)) {
+		public PlayerResource GetResource (string key) {
+			if (_resources.TryGetValue(key, out PlayerResource bank)) {
 				return bank;
 			}
 
@@ -78,38 +79,33 @@ namespace MarsTS.Teams {
 		}
 
 		public Relationship GetRelationship (Faction other) {
-			if (other.name == gameObject.name) return Relationship.Owned;
+			if (other == this) return Relationship.Owned;
 			if (TeamCache.Team(other).Id == 0) return Relationship.Neutral;
 			if (TeamCache.Team(other).Id == Allegiance.Id) return Relationship.Friendly;
 			return Relationship.Hostile;
 		}
 
 		public bool IsResearched (string key) {
-			return research.ContainsKey(key);
+			return _research.ContainsKey(key);
 		}
 
 		public void SubmitResearch (Technology product) {
-			research[product.key] = product;
+			_research[product.key] = product;
 		}
 
-		public bool Equals(Faction other)
-		{
+		public bool Equals(Faction other) {
 			if (ReferenceEquals(null, other)) return false;
 			if (ReferenceEquals(this, other)) return true;
-			return base.Equals(other) && id == other.id;
+			return base.Equals(other) && _id == other._id;
 		}
 
-		public override bool Equals(object obj)
-		{
+		public override bool Equals(object obj) {
 			if (ReferenceEquals(null, obj)) return false;
 			if (ReferenceEquals(this, obj)) return true;
 			if (obj.GetType() != this.GetType()) return false;
 			return Equals((Faction)obj);
 		}
 
-		public override int GetHashCode()
-		{
-			return HashCode.Combine(base.GetHashCode(), id);
-		}
+		public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), _id);
     }
 }

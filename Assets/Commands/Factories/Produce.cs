@@ -43,7 +43,7 @@ namespace MarsTS.Commands {
 			bool canAfford = true;
 
 			foreach (CostEntry entry in cost) {
-				if (Player.Commander.Resource(entry.key).Amount < entry.amount) {
+				if (Player.Commander.GetResource(entry.key).Amount < entry.amount) {
 					canAfford = false;
 					break;
 				}
@@ -83,7 +83,7 @@ namespace MarsTS.Commands {
 			Faction player = TeamCache.Faction(_factionId);
 
 			foreach (CostEntry entry in cost) {
-				if (player.Resource(entry.key).Amount < entry.amount) {
+				if (player.GetResource(entry.key).Amount < entry.amount) {
 					canAfford = false;
 					break;
 				}
@@ -100,7 +100,7 @@ namespace MarsTS.Commands {
 			}
 
 			foreach (CostEntry entry in cost) {
-				player.Resource(entry.key).Withdraw(entry.amount);
+				player.GetResource(entry.key).Withdraw(entry.amount);
 			}
 		}
 

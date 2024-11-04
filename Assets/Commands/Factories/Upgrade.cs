@@ -17,7 +17,7 @@ namespace MarsTS.Commands {
 			bool canAfford = true;
 
 			foreach (CostEntry entry in cost) {
-				if (Player.Commander.Resource(entry.key).Amount < entry.amount) {
+				if (Player.Commander.GetResource(entry.key).Amount < entry.amount) {
 					canAfford = false;
 					break;
 				}
@@ -27,7 +27,7 @@ namespace MarsTS.Commands {
 				//Player.Main.DeliverCommand(Construct(prefab), Player.Include);
 
 				foreach (CostEntry entry in cost) {
-					Player.Commander.Resource(entry.key).Withdraw(entry.amount);
+					Player.Commander.GetResource(entry.key).Withdraw(entry.amount);
 				}
 			}
 		}

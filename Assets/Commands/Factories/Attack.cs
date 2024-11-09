@@ -52,20 +52,18 @@ namespace MarsTS.Commands {
 		}
 		
 		[Rpc(SendTo.Server)]
-		private void ConstructCommandletServerRpc (string _target, int _factionId, NativeArray<FixedString32Bytes> _selection, bool _inclusive)
+		private void ConstructCommandletServerRpc (string target, int factionId, NativeArray<FixedString32Bytes> selection, bool inclusive)
 		{
-			if (!EntityCache.TryGet(_target, out IAttackable unit))
+			if (!EntityCache.TryGet(target, out IAttackable unit))
 			{
-				Debug.LogError($"Invalid target entity {_target} for {Name} Command! Command being ignored!");
+				Debug.LogError($"Invalid target entity {target} for {Name} Command! Command being ignored!");
 				return;
 			}
 			
-			ConstructCommandletServer(unit, _factionId, _selection.ToList(), _inclusive);
+			ConstructCommandletServer(unit, factionId, selection.ToList(), inclusive);
 		}
 
-		public override CostEntry[] GetCost () {
-			return Array.Empty<CostEntry>();
-		}
+		public override CostEntry[] GetCost () => Array.Empty<CostEntry>();
 
 		public override void CancelSelection () {
 			Player.Input.Release("Select");

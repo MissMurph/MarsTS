@@ -75,7 +75,7 @@ MonoBehaviour:
   description: A slow moving unit that both constructs buildings and can repair units
   unitPrefab: {fileID: 3050993961840164310, guid: c3590048fa9d52b45bcd9c4b3a8c11df,
     type: 3}
-  timeRequired: 1
+  timeRequired: 15
   cost:
   - key: resource_unit
     amount: 250

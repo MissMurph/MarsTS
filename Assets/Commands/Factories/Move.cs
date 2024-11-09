@@ -12,7 +12,6 @@ namespace MarsTS.Commands {
 
 	public class Move : CommandFactory<Vector3> {
 		public override string Name => "move";
-		public Vector3 Target { get; private set; }
 
 		public override string Description => description;
 
@@ -24,7 +23,12 @@ namespace MarsTS.Commands {
 		}
 
 		[Rpc(SendTo.Server)]
-		private void ConstructCommandletServerRpc (Vector3 target, int factionId, NativeArray<FixedString32Bytes> selection, bool inclusive) {
+		private void ConstructCommandletServerRpc (
+			Vector3 target, 
+			int factionId, 
+			NativeArray<FixedString32Bytes> selection, 
+			bool inclusive
+		) {
 			ConstructCommandletServer(target, factionId, selection.ToList(), inclusive);
 		}
 

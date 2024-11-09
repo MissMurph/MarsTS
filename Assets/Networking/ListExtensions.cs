@@ -9,7 +9,7 @@ namespace MarsTS.Networking
     {
         public static NativeArray<FixedString32Bytes> ToNativeArray32(this ICollection<string> collection)
         {
-            NativeArray<FixedString32Bytes> serialized = new NativeArray<FixedString32Bytes>(collection.Count, Allocator.Temp);
+            var serialized = new NativeArray<FixedString32Bytes>(collection.Count, Allocator.Temp);
             IEnumerator<string> yeet = collection.GetEnumerator();
 
             int index = 0;

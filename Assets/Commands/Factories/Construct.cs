@@ -1,16 +1,15 @@
+using System;
 using MarsTS.UI;
 using MarsTS.Units;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace MarsTS.Commands {
 
 	public class Construct : CommandFactory<ISelectable> {
 
-		public override string Name { get { return "construct"; } }
+		public override string Name => "construct";
 
-		public override string Description { get { return description; } }
+		public override string Description => description;
 
 		[SerializeField]
 		private string description;
@@ -22,12 +21,8 @@ namespace MarsTS.Commands {
 			UIController.Command.LoadCommandPage(buildingCommands);
 		}
 
-		public override CostEntry[] GetCost () {
-			return new CostEntry[0];
-		}
+		public override CostEntry[] GetCost () => Array.Empty<CostEntry>();
 
-		public override void CancelSelection () {
-			
-		}
+		public override void CancelSelection () { }
 	}
 }

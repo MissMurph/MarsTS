@@ -35,41 +35,39 @@ namespace MarsTS.Units {
 		[SerializeField]
 		private float angleTolerance;
 
-		private float velocity;
+		private float _velocity;
 
-		private GroundDetection ground;
+		private GroundDetection _ground;
 
-		protected Dictionary<string, BuilderTurret> registeredTurrets = new Dictionary<string, BuilderTurret>();
+		private Dictionary<string, BuilderTurret> _registeredTurrets = new Dictionary<string, BuilderTurret>();
 
-		protected IAttackable RepairTarget {
-			get {
-				return repairTarget;
-			}
+		private IAttackable RepairTarget {
+			get => _repairTarget;
 			set {
-				if (repairTarget != null) {
-					EntityCache.TryGet(repairTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
-					oldAgent.RemoveListener<UnitDeathEvent>((_event) => repairTarget = null);
+				if (_repairTarget != null) {
+					EntityCache.TryGet(_repairTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
+					oldAgent.RemoveListener<UnitDeathEvent>((_event) => _repairTarget = null);
 				}
 
-				repairTarget = value;
+				_repairTarget = value;
 
 				if (value != null) {
 					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
 
-					agent.AddListener<UnitDeathEvent>((_event) => repairTarget = null);
+					agent.AddListener<UnitDeathEvent>((_event) => _repairTarget = null);
 				}
 			}
 		}
 
-		protected IAttackable repairTarget;
+		private IAttackable _repairTarget;
 
 		protected override void Awake () {
 			base.Awake();
 
-			ground = GetComponent<GroundDetection>();
+			_ground = GetComponent<GroundDetection>();
 
 			foreach (BuilderTurret turret in GetComponentsInChildren<BuilderTurret>()) {
-				registeredTurrets.TryAdd(turret.name, turret);
+				_registeredTurrets.TryAdd(turret.name, turret);
 			}
 		}
 
@@ -78,23 +76,23 @@ namespace MarsTS.Units {
 			
 			if (!NetworkManager.Singleton.IsServer) return;
 
-			if (repairTarget == null) return;
+			if (_repairTarget == null) return;
 
-			if (Vector3.Distance(repairTarget.GameObject.transform.position, transform.position) <= registeredTurrets["turret_main"].Range) {
+			if (Vector3.Distance(_repairTarget.GameObject.transform.position, transform.position) <= _registeredTurrets["turret_main"].Range) {
 				TrackedTarget = null;
 				currentPath = Path.Empty;
 			}
-			else if (!ReferenceEquals(TrackedTarget, repairTarget.GameObject.transform)) {
-				SetTarget(repairTarget.GameObject.transform);
+			else if (!ReferenceEquals(TrackedTarget, _repairTarget.GameObject.transform)) {
+				SetTarget(_repairTarget.GameObject.transform);
 			}
 		}
 
 		protected virtual void FixedUpdate () {
 			if (!NetworkManager.Singleton.IsServer) return;
 
-			velocity = body.velocity.sqrMagnitude;
+			_velocity = body.velocity.sqrMagnitude;
 
-			if (ground.Grounded) {
+			if (_ground.Grounded) {
 				if (!currentPath.IsEmpty) {
 					Vector3 targetWaypoint = currentPath[pathIndex];
 
@@ -105,12 +103,12 @@ namespace MarsTS.Units {
 					body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, newAngle, transform.eulerAngles.z));
 
 					Vector3 currentVelocity = body.velocity;
-					Vector3 adjustedVelocity = Vector3.ProjectOnPlane(transform.forward, ground.Slope.normal);
+					Vector3 adjustedVelocity = Vector3.ProjectOnPlane(transform.forward, _ground.Slope.normal);
 
 					adjustedVelocity *= currentVelocity.magnitude;
 
 					if (Vector3.Angle(targetDirection, transform.forward) <= angleTolerance) {
-						float accelCap = 1f - (velocity / (topSpeed * topSpeed));
+						float accelCap = 1f - (_velocity / (topSpeed * topSpeed));
 
 						//This moves the velocity according to the rotation of the unit
 						body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
@@ -119,13 +117,13 @@ namespace MarsTS.Units {
 						body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
 					}
 
-					if (velocity > topSpeed * topSpeed) {
+					if (_velocity > topSpeed * topSpeed) {
 						Vector3 direction = body.velocity.normalized;
 						direction *= topSpeed;
 						body.velocity = direction;
 					}
 				}
-				else if (velocity >= 0.5f) {
+				else if (_velocity >= 0.5f) {
 					body.AddRelativeForce(-body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
 				}
 			}

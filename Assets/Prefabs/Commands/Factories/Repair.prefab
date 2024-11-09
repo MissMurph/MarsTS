@@ -67,9 +67,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   icon: {fileID: 21300000, guid: ea37c7a9a3392034f82ff03fdceb8ebd, type: 3}
-  IconColor: {r: 0.15065753, g: 0.3962264, b: 0.08784264, a: 0}
   Pointer:
     texture: {fileID: 2800000, guid: 5e84e2ebfb308c44cb8e1ec4fe12d3fd, type: 3}
     target: {x: 0, y: 0}
-  orderPrefab: {fileID: 0}
+  orderPrefab: {fileID: 6106885258408690114, guid: 837d5944aef796548a81a1f5796733e8,
+    type: 3}
   description: Orders the unit to repair the target

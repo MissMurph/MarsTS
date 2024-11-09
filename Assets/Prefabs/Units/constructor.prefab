@@ -634,6 +634,7 @@ MonoBehaviour:
   boundCommands:
   - move
   - stop
+  - repair
   waypointCompletionDistance: 1
   hideables:
   - {fileID: 3050993960075558378}

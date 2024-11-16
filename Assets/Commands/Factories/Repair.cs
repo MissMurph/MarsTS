@@ -37,7 +37,7 @@ namespace MarsTS.Commands {
 			    && EntityCache.TryGet(hit.collider.transform.parent.name + ":selectable", out ISelectable target) 
 			    && target is IAttackable attackable
 			) {
-				Construct(attackable, Player.ListSelected);
+				Construct(attackable, Player.Commander.Id, Player.ListSelected, Player.Include);
 			}
 
 			Player.Input.Release("Select");
@@ -51,8 +51,11 @@ namespace MarsTS.Commands {
 			}
 		}
 
-		public void Construct(IAttackable target, List<string> selection) {
-			ConstructCommandletServerRpc(target.GameObject.name, Player.Commander.Id, selection.ToNativeArray32(), Player.Include);
+		public override void Construct(IAttackable target, int factionId, List<string> selection, bool inclusive) {
+			if (NetworkManager.Singleton.IsServer) 
+				ConstructCommandletServer(target, factionId, selection, inclusive);
+			else
+				ConstructCommandletServerRpc(target.GameObject.name, factionId, selection.ToNativeArray32(), inclusive);
 		}
 		
 		[Rpc(SendTo.Server)]

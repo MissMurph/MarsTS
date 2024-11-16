@@ -14,7 +14,7 @@ using UnityEngine.InputSystem;
 
 namespace MarsTS.Commands {
 
-	public class PlaceBuilding : CommandFactory<ISelectable> {
+	public class PlaceBuilding : CommandFactory<IAttackable> {
 
 		public override string Name => "construct/" + building.UnitType;
 
@@ -34,6 +34,7 @@ namespace MarsTS.Commands {
 
 		private void Awake () {
 			Cost = building.ConstructionCost;
+			EventBus.AddListener<PlayerInitEvent>(OnPlayerInit);
 		}
 
 		public override void StartSelection () {
@@ -44,6 +45,12 @@ namespace MarsTS.Commands {
 				Player.Input.Hook("Select", OnSelect);
 				Player.Input.Hook("Order", OnOrder);
 			}
+		}
+
+		private void OnPlayerInit(PlayerInitEvent @event) {
+			if (@event.Phase != Phase.Post) return;
+			
+			orderPrefab = CommandRegistry.Get<CommandFactory<IAttackable>>("repair").Prefab;
 		}
 
 		protected virtual void Update () {
@@ -121,7 +128,8 @@ namespace MarsTS.Commands {
 					if (@event.Phase == Phase.Pre) 
 						return;
 					
-					ConstructCommandletServer(newBuilding, factionId, selection.ToList(), inclusive);
+					//ConstructCommandletServer(newBuilding, factionId, selection.ToList(), inclusive);
+					CommandRegistry.Get<Repair>("repair").Construct(newBuilding, factionId, selection, inclusive);
 				}
 			);
 		}
@@ -149,7 +157,7 @@ namespace MarsTS.Commands {
 		}
 
 		protected bool CanFactionAfford(Faction faction)
-			=> Cost.Any(entry => faction.GetResource(entry.key).Amount < entry.amount);
+			=> !Cost.Any(entry => faction.GetResource(entry.key).Amount < entry.amount);
 
 		protected void WithdrawResourcesFromFaction(Faction faction) {
 			foreach (CostEntry entry in Cost) 

@@ -423,7 +423,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 604f8fd98aec5da4285be20acdbf20d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 500
+  maxHealth:
+    m_InternalValue: 500
+  currentHealth:
+    m_InternalValue: 0
   icon: {fileID: 21300000, guid: 6c832070a2d460f44bf890196bf641a4, type: 3}
   type: factory
   owner:
@@ -472,6 +475,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   registryKey: factory
+  toTag: []
 --- !u!54 &5679208516335574614
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -501,6 +505,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visionRange: 5
+  owner: 0
 --- !u!114 &6070841766987732838
 MonoBehaviour:
   m_ObjectHideFlags: 0

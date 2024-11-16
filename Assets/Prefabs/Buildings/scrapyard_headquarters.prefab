@@ -184,8 +184,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4367344837201828851}
   - component: {fileID: 4367344837201828849}
-  - component: {fileID: 4367344837201828622}
   - component: {fileID: 6932056313230598578}
+  - component: {fileID: 4367344837201828622}
   - component: {fileID: 4367344837201828850}
   - component: {fileID: 6071260427580417810}
   - component: {fileID: 5840463531384133451}
@@ -234,20 +234,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80e809a2901f3c24a914b37a7eb11e9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &4367344837201828622
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4367344837201828623}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  registryKey: scrapyard
-  toTag: []
 --- !u!114 &6932056313230598578
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269,6 +255,20 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &4367344837201828622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4367344837201828623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  registryKey: scrapyard
+  toTag: []
 --- !u!114 &4367344837201828850
 MonoBehaviour:
   m_ObjectHideFlags: 0

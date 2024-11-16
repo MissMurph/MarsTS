@@ -1218,6 +1218,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5367866818507981772}
+  - component: {fileID: -5516156988726761689}
   - component: {fileID: 5367866818507981619}
   - component: {fileID: 5367866818507981774}
   - component: {fileID: 5367866818507981617}
@@ -1225,6 +1226,7 @@ GameObject:
   - component: {fileID: 2018745250206065248}
   - component: {fileID: 7421492617111447454}
   - component: {fileID: 3531387192427473891}
+  - component: {fileID: 9139925973383411809}
   m_Layer: 0
   m_Name: makeshift_pumpjack
   m_TagString: Untagged
@@ -1255,6 +1257,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-5516156988726761689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5367866818507981616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 1263396073
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &5367866818507981619
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1267,10 +1290,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c77448c1fc10234499eafae4997c1a75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 150
+  maxHealth:
+    m_InternalValue: 150
+  currentHealth:
+    m_InternalValue: 0
   icon: {fileID: 21300000, guid: 78bed7f6e97043e499f75cb8c101f8d3, type: 3}
   type: makeshift_pumpjack
-  owner: {fileID: 0}
+  owner:
+    m_InternalValue: 0
   boundCommands:
   - upgrade/camo
   constructionWork: 20
@@ -1311,6 +1338,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   registryKey: pumpjack
+  toTag: []
 --- !u!54 &8638639003086698277
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1339,7 +1367,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffb1a995f66a6914b8f45f33baabb6f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  visionRange: 1
   isSneaking: 0
 --- !u!114 &7421492617111447454
 MonoBehaviour:
@@ -1366,6 +1393,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   productionSpeed: 1
+--- !u!114 &9139925973383411809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5367866818507981616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89e4001c157ec4447bc333ae420835ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visionRange: 0
+  owner: 0
 --- !u!1 &7385425075091297558
 GameObject:
   m_ObjectHideFlags: 0

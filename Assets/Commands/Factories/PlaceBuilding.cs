@@ -30,6 +30,8 @@ namespace MarsTS.Commands {
 
 		protected Transform GhostTransform;
 		protected BuildingGhost GhostComp;
+		
+		[SerializeField]
 		protected CostEntry[] Cost;
 
 		private void Awake () {
@@ -38,13 +40,13 @@ namespace MarsTS.Commands {
 		}
 
 		public override void StartSelection () {
-			if (CanFactionAfford(Player.Commander)) {
-				GhostTransform = Instantiate(building.SelectionGhost).transform;
-				GhostComp = GhostTransform.GetComponent<BuildingGhost>();
+			if (!CanFactionAfford(Player.Commander)) return;
+			
+			GhostTransform = Instantiate(building.SelectionGhost).transform;
+			GhostComp = GhostTransform.GetComponent<BuildingGhost>();
 				
-				Player.Input.Hook("Select", OnSelect);
-				Player.Input.Hook("Order", OnOrder);
-			}
+			Player.Input.Hook("Select", OnSelect);
+			Player.Input.Hook("Order", OnOrder);
 		}
 
 		private void OnPlayerInit(PlayerInitEvent @event) {

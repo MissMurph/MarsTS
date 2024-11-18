@@ -25,33 +25,31 @@ namespace MarsTS.Buildings {
 		/*	IAttackable Properties	*/
 
 		public virtual int Health { 
-			get { 
-				return currentHealth.Value; 
-			}
-			protected set {
-				currentHealth.Value = value;
-			}
+			get => currentHealth.Value;
+			protected set => currentHealth.Value = value;
 		}
 
-		public virtual int MaxHealth { get { return maxHealth.Value; } }
+		public virtual int MaxHealth => maxHealth.Value;
 
 		[SerializeField]
-		protected NetworkVariable<int> maxHealth = new(writePerm: NetworkVariableWritePermission.Server);
+		protected NetworkVariable<int> maxHealth =
+			new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
 
 		[SerializeField]
-		protected NetworkVariable<int> currentHealth = new(writePerm: NetworkVariableWritePermission.Server);
+		protected NetworkVariable<int> currentHealth =
+			new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
 
 		/*	ISelectable Properties	*/
 
-		public int ID { get { return entityComponent.Id; } }
+		public int ID => entityComponent.Id;
 
-		public string UnitType { get { return type; } }
+		public string UnitType => type;
 
-		public string RegistryKey { get { return RegistryType + ":" + UnitType; } }
+		public string RegistryKey => RegistryType + ":" + UnitType;
 
-		public Sprite Icon { get { return icon; } }
+		public Sprite Icon => icon;
 
-		public Faction Owner { get { return TeamCache.Faction(owner.Value); } }
+		public Faction Owner => TeamCache.Faction(owner.Value);
 
 		[SerializeField]
 		private Sprite icon;
@@ -67,29 +65,21 @@ namespace MarsTS.Buildings {
 
 		/*	ITaggable Properties	*/
 
-		public string Key { get { return "selectable"; } }
+		public string Key => "selectable";
 
-		public Type Type { get { return typeof(Building); } }
+		public Type Type => typeof(Building);
 
 		/*	ICommandable Properties	*/
 
-		public Commandlet CurrentCommand { get { return production.Current; } }
+		public Commandlet CurrentCommand => production.Current;
 
-		public Commandlet[] CommandQueue { get { return production.Queue; } }
+		public Commandlet[] CommandQueue => production.Queue;
 
-		public List<string> Active { 
-			get { 
-				return commands != null ? commands.Active : new(); 
-			} 
-		}
+		public List<string> Active => commands != null ? commands.Active : new();
 
-		public List<Timer> Cooldowns { 
-			get { 
-				return commands != null ? commands.Cooldowns : new(); 
-			} 
-		}
+		public List<Timer> Cooldowns => commands != null ? commands.Cooldowns : new();
 
-		public int Count { get { return production.Count; } }
+		public int Count => production.Count;
 
 		protected CommandQueue commands;
 
@@ -114,15 +104,15 @@ namespace MarsTS.Buildings {
 		[SerializeField]
 		private CostEntry[] constructionCost;
 
-		public int ConstructionProgress { get { return currentWork; } }
+		public int ConstructionProgress => currentWork;
 
-		public int ConstructionRequired { get { return constructionWork; } }
+		public int ConstructionRequired => constructionWork;
 
-		public bool Constructed { get { return currentWork >= constructionWork; } }
+		public bool Constructed => currentWork >= constructionWork;
 
-		public GameObject SelectionGhost { get { return ghost; } }
+		public GameObject SelectionGhost => ghost;
 
-		public CostEntry[] ConstructionCost { get { return constructionCost; } }
+		public CostEntry[] ConstructionCost => constructionCost;
 
 		protected int healthPerConstructionPoint;
 
@@ -153,15 +143,13 @@ namespace MarsTS.Buildings {
 		public override void OnNetworkSpawn () {
 			base.OnNetworkSpawn();
 
-			//Debug.Log("HQ Network Spawned");
-
 			if (NetworkManager.Singleton.IsServer) {
 				AttachServerListeners();
 
 				currentHealth.Value = 0;
 
 				if (currentWork > 0) {
-					model.localScale = Vector3.one * (currentWork / constructionWork);
+					model.localScale = Vector3.one * ((float)currentWork / constructionWork);
 					currentHealth.Value = maxHealth.Value * (int)(currentWork / constructionWork);
 				}
 				else model.localScale = Vector3.zero;

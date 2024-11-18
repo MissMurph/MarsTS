@@ -7,8 +7,10 @@ using MarsTS.Units;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 using static Unity.Networking.Transport.Utilities.ReliableUtility;
 
 namespace MarsTS.Commands {
@@ -17,7 +19,7 @@ namespace MarsTS.Commands {
 
 		public override string Name => "produce/" + unitPrefab.name;
 
-		public override Sprite Icon => unit.Icon;
+		public override Sprite Icon => _unit.Icon;
 
 		public override string Description => description;
 
@@ -31,41 +33,32 @@ namespace MarsTS.Commands {
 		protected int timeRequired;
 
 		[SerializeField]
-		protected CostEntry[] cost;
+		protected CostEntry[] Cost;
 
-		private ISelectable unit;
+		private ISelectable _unit;
 
 		private void Awake () {
-			unit = unitPrefab.GetComponent<ISelectable>();
+			_unit = unitPrefab.GetComponent<ISelectable>();
 		}
 
 		public override void StartSelection () {
-			bool canAfford = true;
+			if (!CanFactionAfford(Player.Commander)) return;
 
-			foreach (CostEntry entry in cost) {
-				if (Player.Commander.GetResource(entry.key).Amount < entry.amount) {
-					canAfford = false;
-					break;
+			foreach (KeyValuePair<string, Roster> entry in Player.Selected) {
+				int lowestAmount = 9999;
+				ICommandable lowestCommandable = null;
+
+				foreach (ICommandable commandable in entry.Value.Orderable) {
+					if (!commandable.CanCommand(Name)
+					    || commandable.Count >= lowestAmount) 
+						continue;
+					
+					lowestAmount = commandable.Count;
+					lowestCommandable = commandable;
 				}
-			}
 
-			if (canAfford) {
-				foreach (KeyValuePair<string, Roster> entry in Player.Selected) {
-					int lowestAmount = 999;
-					ICommandable lowestOrderable = null;
-
-					foreach (ICommandable orderable in entry.Value.Orderable) {
-						if (!orderable.CanCommand(Name)) continue;
-						if (orderable.Count < lowestAmount) {
-							lowestAmount = orderable.Count;
-							lowestOrderable = orderable;
-						}
-					}
-
-					if (lowestOrderable != null) {
-						//Debug.Log("ID Creating Command: " + Player.Commander.ID);
-						ConstructProductionletServerRpc(Player.Commander.Id, lowestOrderable.GameObject);
-					}
+				if (lowestCommandable != null) {
+					ConstructProductionletServerRpc(Player.Commander.Id, lowestCommandable.GameObject.name);
 				}
 			}
 		}
@@ -73,43 +66,30 @@ namespace MarsTS.Commands {
 		//We create separate calls for now since Productionlets are different to normal commands
 		//This is due to having to serialize GameObject as a target when we don't need to
 		[Rpc(SendTo.Server)]
-		protected virtual void ConstructProductionletServerRpc (int _factionId, NetworkObjectReference _selection) {
-			ConstructProductionletServer(_factionId, _selection);
+		protected virtual void ConstructProductionletServerRpc (int factionId, string selection) {
+			ConstructProductionletServer(factionId, selection);
 		}
 
-		protected virtual void ConstructProductionletServer (int _factionId, NetworkObjectReference _selection) {
-			bool canAfford = true;
-
-			Faction player = TeamCache.Faction(_factionId);
-
-			foreach (CostEntry entry in cost) {
-				if (player.GetResource(entry.key).Amount < entry.amount) {
-					canAfford = false;
-					break;
-				}
-			}
-
-			if (!canAfford) return;
+		protected virtual void ConstructProductionletServer (int factionId, string selection) 
+		{
+			Faction faction = TeamCache.Faction(factionId);
+			
+			if (!CanFactionAfford(faction)) 
+				return;
 
 			ProduceCommandlet order = Instantiate(orderPrefab) as ProduceCommandlet;
 
-			order.Init("produce", Name, unitPrefab, TeamCache.Faction(_factionId), timeRequired, cost);
+			order.Init("produce", Name, unitPrefab, TeamCache.Faction(factionId), timeRequired, Cost);
 
-			if (EntityCache.TryGet(((GameObject)_selection).name, out ICommandable unit)) {
+			if (EntityCache.TryGet(selection, out ICommandable unit)) {
 				unit.Order(order, true);
 			}
 
-			foreach (CostEntry entry in cost) {
-				player.GetResource(entry.key).Withdraw(entry.amount);
-			}
+			WithdrawResourcesFromFaction(faction);
 		}
 
 		public override CostEntry[] GetCost () {
-			List<CostEntry> spool = new List<CostEntry>();
-
-			foreach (CostEntry entry in cost) {
-				spool.Add(entry);
-			}
+			List<CostEntry> spool = Cost.ToList();
 
 			CostEntry time = new CostEntry {
 				key = "time",
@@ -123,6 +103,14 @@ namespace MarsTS.Commands {
 
 		public override void CancelSelection () {
 			
+		}
+		
+		protected bool CanFactionAfford(Faction faction)
+			=> !Cost.Any(entry => faction.GetResource(entry.key).Amount < entry.amount);
+		
+		protected void WithdrawResourcesFromFaction(Faction faction) {
+			foreach (CostEntry entry in Cost) 
+				faction.GetResource(entry.key).Withdraw(entry.amount);
 		}
 	}
 

@@ -16,7 +16,7 @@ namespace MarsTS.Commands {
 		public override void StartSelection () {
 			bool canAfford = true;
 
-			foreach (CostEntry entry in cost) {
+			foreach (CostEntry entry in Cost) {
 				if (Player.Commander.GetResource(entry.key).Amount < entry.amount) {
 					canAfford = false;
 					break;
@@ -26,7 +26,7 @@ namespace MarsTS.Commands {
 			if (canAfford) {
 				//Player.Main.DeliverCommand(Construct(prefab), Player.Include);
 
-				foreach (CostEntry entry in cost) {
+				foreach (CostEntry entry in Cost) {
 					Player.Commander.GetResource(entry.key).Withdraw(entry.amount);
 				}
 			}
@@ -39,7 +39,7 @@ namespace MarsTS.Commands {
 		public override CostEntry[] GetCost () {
 			List<CostEntry> spool = new List<CostEntry>();
 
-			foreach (CostEntry entry in cost) {
+			foreach (CostEntry entry in Cost) {
 				spool.Add(entry);
 			}
 

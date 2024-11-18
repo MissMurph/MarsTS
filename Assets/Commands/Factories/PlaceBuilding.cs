@@ -29,7 +29,7 @@ namespace MarsTS.Commands {
 		protected Building building;
 
 		protected Transform GhostTransform;
-		protected BuildingGhost GhostComp;
+		protected BuildingSelectionGhost SelectionGhostComp;
 		
 		[SerializeField]
 		protected CostEntry[] Cost;
@@ -43,7 +43,7 @@ namespace MarsTS.Commands {
 			if (!CanFactionAfford(Player.Commander)) return;
 			
 			GhostTransform = Instantiate(building.SelectionGhost).transform;
-			GhostComp = GhostTransform.GetComponent<BuildingGhost>();
+			SelectionGhostComp = GhostTransform.GetComponent<BuildingSelectionGhost>();
 				
 			Player.Input.Hook("Select", OnSelect);
 			Player.Input.Hook("Order", OnOrder);
@@ -68,7 +68,7 @@ namespace MarsTS.Commands {
 		protected virtual void OnSelect (InputAction.CallbackContext context) {
 			if (!context.canceled) return;
 			
-			if (!CanFactionAfford(Player.Commander) || !GhostComp.Legal) 
+			if (!CanFactionAfford(Player.Commander) || !SelectionGhostComp.Legal) 
 				return;
 			
 			Ray ray = Player.ViewPort.ScreenPointToRay(Player.MousePos);
@@ -130,7 +130,6 @@ namespace MarsTS.Commands {
 					if (@event.Phase == Phase.Pre) 
 						return;
 					
-					//ConstructCommandletServer(newBuilding, factionId, selection.ToList(), inclusive);
 					CommandRegistry.Get<Repair>("repair").Construct(newBuilding, factionId, selection, inclusive);
 				}
 			);

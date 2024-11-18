@@ -38,8 +38,8 @@ namespace MarsTS.Buildings {
 			Health = MaxHealth * (int)(currentWork / constructionWork);
 		}
 
-		protected override void OnVisionUpdate (EntityVisibleEvent _event) {
-			bool visible = _event.Visible;
+		protected override void OnVisionUpdate (EntityVisibleEvent @event) {
+			bool visible = @event.Visible;
 
 			foreach (GameObject hideable in visionObjects) {
 				hideable.SetActive(visible);

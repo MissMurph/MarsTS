@@ -208,9 +208,9 @@ namespace MarsTS.Buildings {
 			}
 		}
 
-		protected override void OnUnitInfoDisplayed (UnitInfoEvent _event) {
-			if (ReferenceEquals(_event.Unit, this)) {
-				HealthInfo info = _event.Info.Module<HealthInfo>("health");
+		protected override void OnUnitInfoDisplayed (UnitInfoEvent @event) {
+			if (ReferenceEquals(@event.Unit, this)) {
+				HealthInfo info = @event.Info.Module<HealthInfo>("health");
 				info.CurrentUnit = this;
 			}
 		}

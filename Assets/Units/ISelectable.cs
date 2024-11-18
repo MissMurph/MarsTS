@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace MarsTS.Units {
 	public interface ISelectable : IUnit {
-		int ID { get; }
+		int Id { get; }
 		string UnitType { get; }
 		string RegistryKey { get; }
 		Faction Owner { get; }

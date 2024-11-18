@@ -131,7 +131,7 @@ namespace MarsTS.Players {
 
 		public bool HasSelected (ISelectable unit) {
 			if (Selected.TryGetValue(unit.RegistryKey, out Roster typeRoster)) {
-				return typeRoster.Contains(unit.ID);
+				return typeRoster.Contains(unit.Id);
 			}
 
 			return false;
@@ -142,7 +142,7 @@ namespace MarsTS.Players {
 				Roster units = GetRoster(target.RegistryKey);
 
 				if (!units.TryAdd(target)) {
-					units.Remove(target.ID);
+					units.Remove(target.Id);
 					target.Select(false);
 					if (units.Count == 0) _selected.Remove(units.RegistryKey);
 				}
@@ -232,8 +232,8 @@ namespace MarsTS.Players {
 		private void OnEntityDeath (UnitDeathEvent _event) {
 			string key = _event.Unit.RegistryKey;
 
-			if (Selected.TryGetValue(key, out Roster unitRoster) && unitRoster.Contains(_event.Unit.ID)) {
-				unitRoster.Remove(_event.Unit.ID);
+			if (Selected.TryGetValue(key, out Roster unitRoster) && unitRoster.Contains(_event.Unit.Id)) {
+				unitRoster.Remove(_event.Unit.Id);
 
 				if (unitRoster.Count == 0) Selected.Remove(key);
 

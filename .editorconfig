@@ -14,5 +14,6 @@ csharp_style_var_when_type_is_apparent = false:suggestion
 resharper_braces_for_foreach = required_for_multiline_statement
 resharper_csharp_other_braces = next_line
 resharper_for_other_types = use_var_when_evident
+resharper_method_or_operator_body = expression_body
 resharper_object_creation_when_type_evident = explicitly_typed
 </wpf:ResourceDictionary>

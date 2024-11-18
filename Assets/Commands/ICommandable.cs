@@ -6,7 +6,6 @@ namespace MarsTS.Commands {
 
     public interface ICommandable : IUnit {
 		Commandlet CurrentCommand { get; }
-		Commandlet[] CommandQueue { get; }
 		int Count { get; }
 		List<string> Active { get; }
 		List<Timer> Cooldowns { get; }

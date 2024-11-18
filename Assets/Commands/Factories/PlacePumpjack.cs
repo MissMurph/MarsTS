@@ -39,7 +39,7 @@ namespace MarsTS.Commands {
 			if (!context.canceled) 
 				return;
 			
-			if (!CanFactionAfford(Player.Commander) || !GhostComp.Legal) 
+			if (!CanFactionAfford(Player.Commander) || !SelectionGhostComp.Legal) 
 				return;
 			
 			PlaceBuildingServerRpc(

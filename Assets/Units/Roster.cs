@@ -52,7 +52,7 @@ namespace MarsTS.Units {
                         if (Commands.Count == 0) Commands.AddRange(orderable.Commands());
 						if (commandables == null) commandables = new Dictionary<int, ICommandable>();
 
-                        commandables[unit.ID] = orderable;
+                        commandables[unit.Id] = orderable;
                     }
                 }
             }
@@ -89,7 +89,7 @@ namespace MarsTS.Units {
                 return false;
 			}
 
-            if (!instances.TryAdd(entity.ID, entity)) {
+            if (!instances.TryAdd(entity.Id, entity)) {
 				//Debug.LogWarning("Unit " + unit.Id() + " already added to Roster of " + Type + " type!");
 				return false;
 			}
@@ -98,7 +98,7 @@ namespace MarsTS.Units {
                 if (Commands.Count == 0) Commands.AddRange(orderable.Commands());
 				if (commandables == null) commandables = new Dictionary<int, ICommandable>();
 
-				commandables[entity.ID] = orderable;
+				commandables[entity.Id] = orderable;
 			}
 
             return true;

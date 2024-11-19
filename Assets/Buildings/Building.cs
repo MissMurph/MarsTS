@@ -11,6 +11,7 @@ using MarsTS.Units;
 using MarsTS.Vision;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace MarsTS.Buildings
 {
@@ -89,18 +90,16 @@ namespace MarsTS.Buildings
         protected int constructionWork;
 
         [SerializeField] protected int currentWork;
-
-        [SerializeField] private GameObject ghost;
-
+        [SerializeField] private GameObject selectionGhost;
+        [SerializeField] private GameObject constructionGhost;
         [SerializeField] private CostEntry[] constructionCost;
 
         public int ConstructionProgress => currentWork;
-
         public int ConstructionRequired => constructionWork;
-
         public bool Constructed => currentWork >= constructionWork;
 
-        public GameObject SelectionGhost => ghost;
+        public GameObject SelectionGhost => selectionGhost;
+        public GameObject ConstructionGhost => constructionGhost;
 
         public CostEntry[] ConstructionCost => constructionCost;
 

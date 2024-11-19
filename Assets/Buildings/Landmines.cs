@@ -1,26 +1,20 @@
 using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
-using MarsTS.Players;
 using MarsTS.UI;
-using MarsTS.Units;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.InputSystem.HID;
-using static UnityEngine.UI.CanvasScaler;
 
 namespace MarsTS.Buildings {
 
     public class Landmines : Building {
 
-        private Dictionary<string, Landmine> childMines;
-		private Dictionary<string, Collider> entityColliders;
-		private Dictionary<string, Transform> selectionColliders;
-		private Dictionary<string, Transform> detectableColliders;
+        private Dictionary<string, Landmine> _childMines;
+		private Dictionary<string, Collider> _entityColliders;
+		private Dictionary<string, Transform> _selectionColliders;
+		private Dictionary<string, Transform> _detectableColliders;
 
-		private int collectiveMaxHealth;
+		private int _collectiveMaxHealth;
 
 		[SerializeField]
 		private GameObject entityColliderPrefab;
@@ -31,22 +25,21 @@ namespace MarsTS.Buildings {
 		[SerializeField]
 		private GameObject dummyColliderPrefab;
 
-		public override int MaxHealth { get { return collectiveMaxHealth; } }
+		public override int MaxHealth => _collectiveMaxHealth;
 
 		public override int Health {
-			get {
-				if (Constructed) {
-					int output = 0;
-
-					foreach (Landmine child in childMines.Values) {
-						output += child.Health;
-					}
-
-					return output;
-				}
-				else {
+			get
+			{
+				if (!Constructed) 
 					return base.Health;
+				
+				int output = 0;
+
+				foreach (Landmine child in _childMines.Values) {
+					output += child.Health;
 				}
+
+				return output;
 			}
 		}
 
@@ -59,25 +52,25 @@ namespace MarsTS.Buildings {
 			bus = GetComponent<EventAgent>();
 			entityComponent = GetComponent<Entity>();
 
-			childMines = new Dictionary<string, Landmine>();
-			entityColliders = new Dictionary<string, Collider>();
-			selectionColliders = new Dictionary<string, Transform>();
-			detectableColliders = new Dictionary<string, Transform>();
+			_childMines = new Dictionary<string, Landmine>();
+			_entityColliders = new Dictionary<string, Collider>();
+			_selectionColliders = new Dictionary<string, Transform>();
+			_detectableColliders = new Dictionary<string, Transform>();
 
 			Landmine[] foundChildren = GetComponentsInChildren<Landmine>();
 
-			collectiveMaxHealth = 0;
+			_collectiveMaxHealth = 0;
 
 			foreach (Landmine child in foundChildren) {
 				healthPerConstructionPoint = child.MaxHealth / constructionWork;
-				collectiveMaxHealth += child.MaxHealth;
+				_collectiveMaxHealth += child.MaxHealth;
 				RegisterMine(child);
 			}
 		}
 
 		private void LateUpdate () {
-			foreach (KeyValuePair<string, Transform> dummy in detectableColliders) {
-				dummy.Value.position = childMines[dummy.Key].transform.position;
+			foreach (KeyValuePair<string, Transform> dummy in _detectableColliders) {
+				dummy.Value.position = _childMines[dummy.Key].transform.position;
 			}
 		}
 
@@ -104,43 +97,43 @@ namespace MarsTS.Buildings {
 		private void OnChildInit (EntityInitEvent _event) {
 			if (_event.Phase == Phase.Post) return;
 
-			childMines[_event.ParentEntity.gameObject.name] = _event.ParentEntity.Get<Landmine>("selectable");
+			_childMines[_event.ParentEntity.gameObject.name] = _event.ParentEntity.Get<Landmine>("selectable");
 
-			childMines[_event.ParentEntity.gameObject.name].SetOwner(Owner);
+			_childMines[_event.ParentEntity.gameObject.name].SetOwner(Owner);
 
 			Collider newEntityCollider = Instantiate(entityColliderPrefab, _event.ParentEntity.gameObject.transform.position, _event.ParentEntity.gameObject.transform.rotation, transform).GetComponent<Collider>();
 			Transform newSelectionCollider = Instantiate(selectionColliderPrefab, _event.ParentEntity.gameObject.transform.position, _event.ParentEntity.gameObject.transform.rotation, transform).transform;
 			Transform newDummyCollider = Instantiate(dummyColliderPrefab, _event.ParentEntity.gameObject.transform.position, _event.ParentEntity.gameObject.transform.rotation, transform).transform;
 
-			entityColliders[_event.ParentEntity.gameObject.name] = newEntityCollider;
-			selectionColliders[_event.ParentEntity.gameObject.name] = newSelectionCollider;
-			detectableColliders[_event.ParentEntity.gameObject.name] = newDummyCollider;
+			_entityColliders[_event.ParentEntity.gameObject.name] = newEntityCollider;
+			_selectionColliders[_event.ParentEntity.gameObject.name] = newSelectionCollider;
+			_detectableColliders[_event.ParentEntity.gameObject.name] = newDummyCollider;
 
 			if (currentWork >= constructionWork) {
 				newEntityCollider.isTrigger = true;
-				newEntityCollider.transform.SetParent(childMines[_event.ParentEntity.gameObject.name].transform);
+				newEntityCollider.transform.SetParent(_childMines[_event.ParentEntity.gameObject.name].transform);
 			}
 
-			childMines[_event.ParentEntity.gameObject.name].transform.SetParent(null, true);
+			_childMines[_event.ParentEntity.gameObject.name].transform.SetParent(null, true);
 		}
 
 		private void OnMineDestroyed (UnitDeathEvent _event) {
 			string key = _event.Unit.GameObject.name;
 
-			childMines.Remove(key);
+			_childMines.Remove(key);
 
-			Destroy(selectionColliders[key].gameObject);
-			detectableColliders[key].position = Vector3.down * 1000f;
+			Destroy(_selectionColliders[key].gameObject);
+			_detectableColliders[key].position = Vector3.down * 1000f;
 
-			selectionColliders.Remove(key);
-			detectableColliders.Remove(key);
+			_selectionColliders.Remove(key);
+			_detectableColliders.Remove(key);
 
-			if (childMines.Count <= 0) {
+			if (_childMines.Count <= 0) {
 				bus.Global(new UnitDeathEvent(bus, this));
 				Destroy(gameObject);
 			}
 			else {
-				foreach (Transform dummy in detectableColliders.Values) {
+				foreach (Transform dummy in _detectableColliders.Values) {
 					dummy.position = Vector3.down * 1000f;
 				}
 			}
@@ -152,19 +145,19 @@ namespace MarsTS.Buildings {
 		}
 
 		private void OnChildVisionUpdate (EntityVisibleEvent _event) {
-			if (selectionColliders.TryGetValue(_event.UnitName, out Transform collider)) {
+			if (_selectionColliders.TryGetValue(_event.UnitName, out Transform collider)) {
 				collider.gameObject.SetActive(_event.Visible);
 			}
 		}
 
 		public override void Hover (bool status) {
-			foreach (Landmine child in childMines.Values) {
+			foreach (Landmine child in _childMines.Values) {
 				child.Hover(status);
 			}
 		}
 
 		public override void Select (bool status) {
-			foreach (Landmine child in childMines.Values) {
+			foreach (Landmine child in _childMines.Values) {
 				child.Select(status);
 			}
 		}
@@ -181,16 +174,16 @@ namespace MarsTS.Buildings {
 
 				bus.Global(new UnitHurtEvent(bus, this));
 
-				foreach (Landmine child in childMines.Values) {
+				foreach (Landmine child in _childMines.Values) {
 					child.Attack(damage);
 				}
 
 				if (progress >= 1f) {
 					bus.Global(new CommandsUpdatedEvent(bus, this, boundCommands));
 
-					foreach (KeyValuePair<string, Collider> colliderEntry in entityColliders) {
+					foreach (KeyValuePair<string, Collider> colliderEntry in _entityColliders) {
 						colliderEntry.Value.isTrigger = true;
-						colliderEntry.Value.transform.SetParent(childMines[colliderEntry.Key].transform);
+						colliderEntry.Value.transform.SetParent(_childMines[colliderEntry.Key].transform);
 					}
 
 					return;

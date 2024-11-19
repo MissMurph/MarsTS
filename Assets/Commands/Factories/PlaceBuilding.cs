@@ -44,7 +44,8 @@ namespace MarsTS.Commands {
 			
 			GhostTransform = Instantiate(building.SelectionGhost).transform;
 			SelectionGhostComp = GhostTransform.GetComponent<BuildingSelectionGhost>();
-				
+			SelectionGhostComp.InitializeGhost(building);
+			
 			Player.Input.Hook("Select", OnSelect);
 			Player.Input.Hook("Order", OnOrder);
 		}
@@ -116,12 +117,16 @@ namespace MarsTS.Commands {
 			if (!CanFactionAfford(faction)) 
 				return;
 			
-			Building newBuilding = Instantiate(building, position, rotation);
-			NetworkObject buildingNetworking = newBuilding.GetComponent<NetworkObject>();
-			EventAgent buildingEvents = newBuilding.GetComponent<EventAgent>();
+			GameObject constructionGhost = Instantiate(building.ConstructionGhost, position, rotation);
+			
+			//Building newBuilding = Instantiate(building, position, rotation);
+
+			ISelectable selectable = constructionGhost.GetComponent<ISelectable>();
+			NetworkObject buildingNetworking = constructionGhost.GetComponent<NetworkObject>();
+			EventAgent buildingEvents = constructionGhost.GetComponent<EventAgent>();
 			
 			buildingNetworking.Spawn();
-			newBuilding.SetOwner(faction);
+			selectable.SetOwner(faction);
 			
 			WithdrawResourcesFromFaction(faction);
 
@@ -130,7 +135,7 @@ namespace MarsTS.Commands {
 					if (@event.Phase == Phase.Pre) 
 						return;
 					
-					CommandRegistry.Get<Repair>("repair").Construct(newBuilding, factionId, selection, inclusive);
+					CommandRegistry.Get<Repair>("repair").Construct(selectable as IAttackable, factionId, selection, inclusive);
 				}
 			);
 		}

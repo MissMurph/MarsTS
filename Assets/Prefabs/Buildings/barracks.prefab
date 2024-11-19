@@ -521,7 +521,9 @@ MonoBehaviour:
   - research/thermalvision
   constructionWork: 75
   currentWork: 0
-  ghost: {fileID: 854828746875280093, guid: 3634a78673ca8ab43b8f9c22cb34d79b, type: 3}
+  selectionGhost: {fileID: 4420150489061905949, guid: e9e91f6348f80c8458b0d98921bcb0b2,
+    type: 3}
+  constructionGhost: {fileID: 0}
   constructionCost:
   - key: resource_unit
     amount: 650

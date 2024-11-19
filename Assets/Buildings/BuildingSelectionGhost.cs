@@ -17,21 +17,29 @@ namespace MarsTS.Buildings
 
         private void Awake()
         {
+            //_allRenderers = GetComponentsInChildren<Renderer>();
+        }
+
+        public void InitializeGhost(Building buildingBeingConstructed)
+        {
+            Transform model = Instantiate(buildingBeingConstructed.transform.Find("Model"), transform);
+            
             _allRenderers = GetComponentsInChildren<Renderer>();
+
+            ChangeAllRenderers(legalMat);
         }
 
         private void Update()
         {
-            if (Legal)
-                foreach (Renderer render in _allRenderers)
-                {
-                    render.material = legalMat;
-                }
-            else
-                foreach (Renderer render in _allRenderers)
-                {
-                    render.material = illegalMat;
-                }
+            ChangeAllRenderers(Legal ? legalMat : illegalMat);
+        }
+
+        private void ChangeAllRenderers(Material material)
+        {
+            foreach (Renderer render in _allRenderers)
+            {
+                render.material = material;
+            }
         }
 
         protected virtual void OnTriggerEnter(Collider other)

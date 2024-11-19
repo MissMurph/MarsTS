@@ -60,7 +60,7 @@ namespace MarsTS.Buildings
         [SerializeField] protected NetworkVariable<int> currentHealth =
             new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
 
-        public CostEntry[] ConstructionCost { get; private set; }
+        private CostEntry[] _constructionCost;
         
         private int _healthPerConstructionPoint;
         private int _constructionRequired;
@@ -85,7 +85,7 @@ namespace MarsTS.Buildings
             if (!NetworkManager.Singleton.IsServer) return;
 
             _buildingBeingConstructed = buildingBeingConstructed;
-            ConstructionCost = constructionCost;
+            _constructionCost = constructionCost;
             UnitType = buildingBeingConstructed.UnitType;
             Icon = buildingBeingConstructed.Icon;
             
@@ -163,7 +163,7 @@ namespace MarsTS.Buildings
         {
             _bus.Global(new UnitDeathEvent(_bus, this));
 
-            foreach (CostEntry materialCost in ConstructionCost)
+            foreach (CostEntry materialCost in _constructionCost)
             {
                 Owner.GetResource(materialCost.key).Deposit(materialCost.amount);
             }

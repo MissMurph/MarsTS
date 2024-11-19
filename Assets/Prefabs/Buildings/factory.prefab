@@ -437,7 +437,9 @@ MonoBehaviour:
   - produce/longtank
   constructionWork: 50
   currentWork: 0
-  ghost: {fileID: 1114144885270547136, guid: b002af5474e33924792b89eed21b5aec, type: 3}
+  selectionGhost: {fileID: 4420150489061905949, guid: e9e91f6348f80c8458b0d98921bcb0b2,
+    type: 3}
+  constructionGhost: {fileID: 0}
   constructionCost:
   - key: resource_unit
     amount: 750

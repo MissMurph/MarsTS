@@ -84,10 +84,16 @@ namespace MarsTS.Buildings
             _entityComponent = GetComponent<Entity>();
         }
 
-        public void InitializeGhost(Building buildingBeingConstructed, int constructionWorkRequired, params CostEntry[] constructionCost)
+        public virtual void InitializeGhost(Building buildingBeingConstructed, int constructionWorkRequired, params CostEntry[] constructionCost)
         {
             if (!NetworkManager.Singleton.IsServer) return;
             
+            UpdateProperties(buildingBeingConstructed, constructionWorkRequired, constructionCost);
+            InstantiateChildObjects(buildingBeingConstructed);
+        }
+
+        protected void UpdateProperties(Building buildingBeingConstructed, int constructionWorkRequired, params CostEntry[] constructionCost)
+        {
             _buildingBeingConstructed = buildingBeingConstructed;
             _constructionCost = constructionCost;
             _constructionRequired = constructionWorkRequired;
@@ -95,18 +101,19 @@ namespace MarsTS.Buildings
             UnitType = buildingBeingConstructed.UnitType;
             Icon = buildingBeingConstructed.Icon;
             
-            _model = Instantiate(buildingBeingConstructed.transform.Find("Model"), transform);
-            
-            GameObject selectionCircle = Instantiate(buildingBeingConstructed.transform.Find("SelectionCircle"), transform).gameObject;
-            GameObject mapSquare = Instantiate(buildingBeingConstructed.transform.Find("MapSquare"), transform).gameObject;
-            GameObject barObj = Instantiate(buildingBeingConstructed.transform.Find("BarOrientation"), transform).gameObject;
-            GameObject colliders = Instantiate(buildingBeingConstructed.transform.Find("Collider"), transform).gameObject;
-            Instantiate(buildingBeingConstructed.transform.Find("SelectionCollider"), transform);
-
-            //_visionObjects = new[] { _model.gameObject, selectionCircle, mapSquare, barObj, colliders };
-            
             _healthPerConstructionPoint =
                 Mathf.RoundToInt((float)buildingBeingConstructed.MaxHealth / _currentConstruction);
+        }
+
+        protected void InstantiateChildObjects(Building buildingBeingConstructed)
+        {
+            _model = Instantiate(buildingBeingConstructed.transform.Find("Model"), transform);
+            
+            Instantiate(buildingBeingConstructed.transform.Find("SelectionCircle"), transform);
+            Instantiate(buildingBeingConstructed.transform.Find("MapSquare"), transform);
+            Instantiate(buildingBeingConstructed.transform.Find("BarOrientation"), transform);
+            Instantiate(buildingBeingConstructed.transform.Find("Collider"), transform);
+            Instantiate(buildingBeingConstructed.transform.Find("SelectionCollider"), transform);
         }
 
         public override void OnNetworkSpawn()

@@ -5,26 +5,21 @@ namespace MarsTS.Buildings
 {
     public class BuildingSelectionGhost : MonoBehaviour
     {
-        protected List<Collider> collisions = new List<Collider>();
+        protected List<Collider> Collisions = new List<Collider>();
 
         [SerializeField] protected Material legalMat;
 
         [SerializeField] protected Material illegalMat;
 
-        private Renderer[] _allRenderers;
+        protected Renderer[] AllRenderers;
 
-        public virtual bool Legal => collisions.Count == 0;
+        public virtual bool Legal => Collisions.Count == 0;
 
-        private void Awake()
-        {
-            //_allRenderers = GetComponentsInChildren<Renderer>();
-        }
-
-        public void InitializeGhost(Building buildingBeingConstructed)
+        public virtual void InitializeGhost(Building buildingBeingConstructed)
         {
             Instantiate(buildingBeingConstructed.transform.Find("Model"), transform);
             
-            _allRenderers = GetComponentsInChildren<Renderer>();
+            AllRenderers = GetComponentsInChildren<Renderer>();
 
             ChangeAllRenderers(legalMat);
         }
@@ -34,9 +29,9 @@ namespace MarsTS.Buildings
             ChangeAllRenderers(Legal ? legalMat : illegalMat);
         }
 
-        private void ChangeAllRenderers(Material material)
+        protected void ChangeAllRenderers(Material material)
         {
-            foreach (Renderer render in _allRenderers)
+            foreach (Renderer render in AllRenderers)
             {
                 render.material = material;
             }
@@ -44,12 +39,12 @@ namespace MarsTS.Buildings
 
         protected virtual void OnTriggerEnter(Collider other)
         {
-            if (!collisions.Contains(other)) collisions.Add(other);
+            if (!Collisions.Contains(other)) Collisions.Add(other);
         }
 
         protected virtual void OnTriggerExit(Collider other)
         {
-            if (collisions.Contains(other)) collisions.Remove(other);
+            if (Collisions.Contains(other)) Collisions.Remove(other);
         }
     }
 }

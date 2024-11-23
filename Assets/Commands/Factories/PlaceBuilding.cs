@@ -149,7 +149,7 @@ namespace MarsTS.Commands {
 
 			CostEntry time = new CostEntry {
 				key = "time",
-				amount = building.ConstructionRequired
+				amount = constructionWorkRequired
 			};
 
 			spool.Add(time);

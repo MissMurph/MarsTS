@@ -1,80 +1,77 @@
 using MarsTS.Buildings;
 using MarsTS.Events;
-using MarsTS.Units;
-using MarsTS.World;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
-namespace MarsTS.UI {
+namespace MarsTS.UI
+{
+    public class PumpjackResourceBar : UnitBar
+    {
+        private bool HasStored
+        {
+            get => _hasStored;
+            set
+            {
+                barRenderer.enabled = value;
+                _hasStored = value;
+            }
+        }
 
-    public class PumpjackResourceBar : UnitBar {
+        private bool _hasStored;
 
-		private bool HasStored {
-			get {
-				return hasStored;
-			}
-			set {
-				barRenderer.enabled = value;
-				hasStored = value;
-			}
-		}
+        private bool DisplayBar
+        {
+            get => _displayBar;
+            set
+            {
+                barRenderer.enabled = value;
+                _displayBar = value;
+            }
+        }
 
-		private bool hasStored;
+        private bool _displayBar;
 
-		private bool DisplayBar {
-			get {
-				return displayBar;
-			}
-			set {
-				if (parent.Constructed) {
-					barRenderer.enabled = value;
-					displayBar = value;
-				}
-			}
-		}
+        private Pumpjack _parent;
 
-		private bool displayBar;
+        private void Start()
+        {
+            HasStored = false;
+            barRenderer.enabled = false;
 
-		private Pumpjack parent;
+            EventAgent bus = GetComponentInParent<EventAgent>();
 
-		private void Start () {
-			HasStored = false;
-			barRenderer.enabled = false;
+            _parent = GetComponentInParent<Pumpjack>();
 
-			EventAgent bus = GetComponentInParent<EventAgent>();
+            FillLevel = (float)_parent.StoredAmount / _parent.OriginalAmount;
 
-			parent = GetComponentInParent<Pumpjack>();
+            bus.AddListener<ResourceHarvestedEvent>(_event =>
+            {
+                FillLevel = (float)_event.Deposit.StoredAmount / _event.Deposit.OriginalAmount;
+            });
 
-			FillLevel = (float)parent.StoredAmount / parent.OriginalAmount;
+            bus.AddListener<UnitHoverEvent>(_event =>
+            {
+                if (_event.Status) DisplayBar = true;
+                else if (!HasStored) DisplayBar = false;
+            });
 
-			bus.AddListener<ResourceHarvestedEvent>((_event) => {
-				FillLevel = (float)_event.Deposit.StoredAmount / _event.Deposit.OriginalAmount;
-			});
+            bus.AddListener<UnitSelectEvent>(_event =>
+            {
+                if (_event.Status) DisplayBar = true;
+                else if (!HasStored) DisplayBar = false;
+            });
 
-			bus.AddListener<UnitHoverEvent>((_event) => {
-				if (_event.Status) DisplayBar = true;
-				else if (!HasStored) DisplayBar = false;
-			});
+            bus.AddListener<ResourceHarvestedEvent>(_event =>
+            {
+                FillLevel = (float)_event.StoredAmount / _event.Capacity;
 
-			bus.AddListener<UnitSelectEvent>((_event) => {
-				if (_event.Status) DisplayBar = true;
-				else if (!HasStored) DisplayBar = false;
-			});
+                HasStored = FillLevel > 0f;
+            });
 
-			bus.AddListener<ResourceHarvestedEvent>((_event) => {
-				FillLevel = (float)_event.StoredAmount / _event.Capacity;
+            bus.AddListener<HarvesterDepositEvent>(_event =>
+            {
+                FillLevel = (float)_event.StoredAmount / _event.Capacity;
 
-				if (FillLevel > 0f) HasStored = true;
-				else HasStored = false;
-			});
-
-			bus.AddListener<HarvesterDepositEvent>((_event) => {
-				FillLevel = (float)_event.StoredAmount / _event.Capacity;
-
-				if (FillLevel > 0f) HasStored = true;
-				else HasStored = false;
-			});
-		}
-	}
+                HasStored = FillLevel > 0f;
+            });
+        }
+    }
 }

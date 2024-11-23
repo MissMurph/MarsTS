@@ -17,7 +17,6 @@ namespace MarsTS.Buildings {
 		}
 
 		private void OnTriggerEnter (Collider other) {
-			if (!parent.Constructed) return;
 			if (detonated) return;
 
 			if (EntityCache.TryGet(other.transform.root.name, out IAttackable unit) && other.transform.root.tag == "Vehicle") {

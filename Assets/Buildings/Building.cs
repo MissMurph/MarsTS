@@ -11,7 +11,6 @@ using MarsTS.Units;
 using MarsTS.Vision;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace MarsTS.Buildings
 {
@@ -42,7 +41,7 @@ namespace MarsTS.Buildings
 
         /*	ISelectable Properties	*/
 
-        public int Id => entityComponent.Id;
+        public int Id => EntityComponent.Id;
 
         public string UnitType => type;
 
@@ -86,110 +85,65 @@ namespace MarsTS.Buildings
 
         /*	Building Fields	*/
 
-        [Header("Construction")] [SerializeField]
-        protected int constructionWork;
-
-        [SerializeField] protected int currentWork;
+        [Header("Construction")]
         [SerializeField] private GameObject selectionGhost;
         [SerializeField] private GameObject constructionGhost;
-        [SerializeField] private CostEntry[] constructionCost;
-
-        public int ConstructionProgress => currentWork;
-        public int ConstructionRequired => constructionWork;
-        public bool Constructed => currentWork >= constructionWork;
 
         public GameObject SelectionGhost => selectionGhost;
         public GameObject ConstructionGhost => constructionGhost;
 
-        public CostEntry[] ConstructionCost => constructionCost;
-
-        protected int healthPerConstructionPoint;
-
         /*	Upgrades	*/
 
-        protected Entity entityComponent;
+        protected Entity EntityComponent;
 
-        protected EventAgent bus;
+        protected EventAgent Bus;
 
-        protected Transform model;
+        protected Transform Model;
 
         [SerializeField] protected GameObject[] visionObjects;
 
         protected virtual void Awake()
         {
-            bus = GetComponent<EventAgent>();
-            entityComponent = GetComponent<Entity>();
+            Bus = GetComponent<EventAgent>();
+            EntityComponent = GetComponent<Entity>();
             commands = GetComponent<CommandQueue>();
             production = GetComponent<ProductionQueue>();
 
-            healthPerConstructionPoint = Mathf.RoundToInt((float)MaxHealth / constructionWork);
-
-            model = transform.Find("Model");
+            Model = transform.Find("Model");
         }
 
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
 
-            if (NetworkManager.Singleton.IsServer)
-            {
+            if (NetworkManager.Singleton.IsServer) 
                 AttachServerListeners();
 
-                currentHealth.Value = 0;
-
-                if (currentWork > 0)
-                {
-                    model.localScale = Vector3.one * ((float)currentWork / constructionWork);
-                    currentHealth.Value = maxHealth.Value * (currentWork / constructionWork);
-                }
-                else
-                {
-                    model.localScale = Vector3.zero;
-                }
-            }
-
-            if (NetworkManager.Singleton.IsClient) AttachClientListeners();
+            if (NetworkManager.Singleton.IsClient) 
+                AttachClientListeners();
         }
 
-        protected virtual void AttachServerListeners()
-        {
-            bus.AddListener<CommandStartEvent>(ExecuteOrder);
-        }
+        protected virtual void AttachServerListeners() => Bus.AddListener<CommandStartEvent>(ExecuteOrder);
 
         protected virtual void AttachClientListeners()
         {
-            bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
+            Bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
 
             EventBus.AddListener<ResearchCompleteEvent>(OnGlobalResearchComplete);
             EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 
             owner.OnValueChanged += (_, _) 
-                => bus.Local(new UnitOwnerChangeEvent(bus, this, Owner));
-        }
-
-        protected virtual void CancelConstruction()
-        {
-            if (!Constructed)
-            {
-                bus.Global(new UnitDeathEvent(bus, this));
-
-                foreach (CostEntry materialCost in ConstructionCost)
-                {
-                    Player.Commander.GetResource(materialCost.key).Deposit(materialCost.amount);
-                }
-
-                Destroy(gameObject, 0.1f);
-            }
+                => Bus.Local(new UnitOwnerChangeEvent(Bus, this, Owner));
         }
 
         protected virtual void Upgrade(Commandlet order)
         {
-            bus.AddListener<CommandCompleteEvent>(UpgradeComplete);
+            Bus.AddListener<CommandCompleteEvent>(UpgradeComplete);
         }
 
         protected virtual void UpgradeComplete(CommandCompleteEvent _event)
         {
-            bus.RemoveListener<CommandCompleteEvent>(UpgradeComplete);
+            Bus.RemoveListener<CommandCompleteEvent>(UpgradeComplete);
 
             IProducable order = _event.Command as IProducable;
             GameObject product = Instantiate(order.Product, transform, false);
@@ -198,21 +152,21 @@ namespace MarsTS.Buildings
                 if (boundCommands[i] == _event.Command.Command.Name)
                 {
                     boundCommands[i] = "";
-                    bus.Global(new CommandsUpdatedEvent(bus, this, Commands()));
+                    Bus.Global(new CommandsUpdatedEvent(Bus, this, Commands()));
                     break;
                 }
 
-            bus.Global(new ProductionCompleteEvent(bus, product, this, production, order));
+            Bus.Global(new ProductionCompleteEvent(Bus, product, this, production, order));
         }
 
         protected virtual void Research(Commandlet order)
         {
-            bus.AddListener<CommandCompleteEvent>(ResearchComplete);
+            Bus.AddListener<CommandCompleteEvent>(ResearchComplete);
         }
 
         protected virtual void ResearchComplete(CommandCompleteEvent _event)
         {
-            bus.RemoveListener<CommandCompleteEvent>(ResearchComplete);
+            Bus.RemoveListener<CommandCompleteEvent>(ResearchComplete);
 
             IProducable order = _event.Command as IProducable;
             Technology product = Instantiate(order.Product, Owner.transform, false).GetComponent<Technology>();
@@ -222,12 +176,12 @@ namespace MarsTS.Buildings
                 if (boundCommands[i] == _event.Command.Command.Name)
                 {
                     boundCommands[i] = "";
-                    bus.Global(new CommandsUpdatedEvent(bus, this, Commands()));
+                    Bus.Global(new CommandsUpdatedEvent(Bus, this, Commands()));
                     break;
                 }
 
-            bus.Global(new ResearchCompleteEvent(bus, product, this, production, order));
-            bus.Global(new ProductionCompleteEvent(bus, product.gameObject, this, production, order));
+            Bus.Global(new ResearchCompleteEvent(Bus, product, this, production, order));
+            Bus.Global(new ProductionCompleteEvent(Bus, product.gameObject, this, production, order));
         }
 
         protected virtual void OnGlobalResearchComplete(ResearchCompleteEvent _event)
@@ -237,12 +191,7 @@ namespace MarsTS.Buildings
                     boundCommands[i] = "";
         }
 
-        public string[] Commands()
-        {
-            if (!Constructed)
-                return new[] { "cancelConstruction" };
-            return boundCommands;
-        }
+        public string[] Commands() => boundCommands;
 
         public virtual void Order(Commandlet order, bool inclusive)
         {
@@ -252,9 +201,6 @@ namespace MarsTS.Buildings
             {
                 case "upgrade":
                     production.Enqueue(order);
-                    return;
-                case "cancelConstruction":
-                    CancelConstruction();
                     return;
                 case "research":
                     production.Enqueue(order);
@@ -286,13 +232,13 @@ namespace MarsTS.Buildings
             return result;
         }
 
-        public virtual void Select(bool status) => bus.Local(new UnitSelectEvent(bus, status));
+        public virtual void Select(bool status) => Bus.Local(new UnitSelectEvent(Bus, status));
 
         public virtual void Hover(bool status)
         {
             if (Player.Main.HasSelected(this)) return;
 
-            bus.Local(new UnitHoverEvent(bus, status));
+            Bus.Local(new UnitHoverEvent(Bus, status));
         }
 
         public bool SetOwner(Faction player)
@@ -303,31 +249,18 @@ namespace MarsTS.Buildings
 
         public virtual void Attack(int damage)
         {
-            if (currentWork < constructionWork && damage < 0)
-            {
-                currentWork -= damage;
-
-                float progress = (float)currentWork / constructionWork;
-
-                Health += healthPerConstructionPoint;
-                Health = Mathf.Clamp(Health, 0, MaxHealth);
-
-                model.localScale = Vector3.one * progress;
-
-                bus.Global(new UnitHurtEvent(bus, this));
-
-                if (progress >= 1f) bus.Global(new CommandsUpdatedEvent(bus, this, boundCommands));
+            if (Health <= 0) 
                 return;
-            }
-
-            if (Health <= 0) return;
-            if (damage < 0 && Health >= MaxHealth) return;
+            
+            if (damage < 0 && Health >= MaxHealth) 
+                return;
+            
             Health -= damage;
-            bus.Global(new UnitHurtEvent(bus, this));
+            Bus.Global(new UnitHurtEvent(Bus, this));
 
             if (Health <= 0)
             {
-                bus.Global(new UnitDeathEvent(bus, this));
+                Bus.Global(new UnitDeathEvent(Bus, this));
                 Destroy(gameObject, 0.1f);
             }
         }
@@ -360,8 +293,6 @@ namespace MarsTS.Buildings
         public bool CanCommand(string key)
         {
             bool canUse = true;
-
-            if (!Constructed && key == "cancelConstruction") return true;
 
             for (int i = 0; i < boundCommands.Length; i++)
             {

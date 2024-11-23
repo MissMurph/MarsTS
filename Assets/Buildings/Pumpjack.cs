@@ -1,133 +1,150 @@
-using MarsTS.Commands;
+using System;
 using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Teams;
 using MarsTS.UI;
 using MarsTS.Units;
 using MarsTS.World;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using static UnityEditor.Experimental.GraphView.Port;
-using UnityEngine.SocialPlatforms.Impl;
 using Unity.Netcode;
+using UnityEngine;
 
-namespace MarsTS.Buildings {
+namespace MarsTS.Buildings
+{
+    public class Pumpjack : Building, IHarvestable
+    {
+        /*	IHarvestable Properties	*/
 
-	public class Pumpjack : Building, IHarvestable {
+        public int OriginalAmount => capacity;
 
-		/*	IHarvestable Properties	*/
+        [SerializeField] 
+        private int capacity;
 
-		public int OriginalAmount { get { return capacity; } }
+        public int StoredAmount { get; private set; }
 
-		[SerializeField]
-		private int capacity;
+        /*	Pumpjack Fields	*/
 
-		public int StoredAmount { get { return stored; } }
+        private OilDeposit _exploitedDeposit;
 
-		private int stored;
+        [SerializeField] 
+        private int harvestRate;
 
-		/*	Pumpjack Fields	*/
+        private int _harvestAmount;
+        private float _cooldown;
+        private float _currentCooldown;
 
-		private OilDeposit exploited;
+        private GameObject _oilDetector;
 
-		[SerializeField]
-		private int harvestRate;
+        protected override void Awake()
+        {
+            base.Awake();
 
-		private int harvestAmount;
-		private float cooldown;
-		private float currentCooldown;
+            _cooldown = 1f / harvestRate;
+            _harvestAmount = (int)(harvestRate * _cooldown);
+            _currentCooldown = _cooldown;
 
-		private GameObject oilDetector;
+            _oilDetector = transform.Find("OilCollider").gameObject;
+            _oilDetector.SetActive(false);
+        }
 
-		protected override void Awake () {
-			base.Awake();
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
 
-			cooldown = 1f / harvestRate;
-			harvestAmount = (int)(harvestRate * cooldown);
-			currentCooldown = cooldown;
+            if (NetworkManager.Singleton.IsServer)
+            {
+                Bus.AddListener<PumpjackExploitInitEvent>(OnExploitInit);
+                Bus.AddListener<EntityInitEvent>(OnEntityInit);
+            }
+        }
 
-			oilDetector = transform.Find("OilCollider").gameObject;
-			oilDetector.SetActive(false);
-		}
+        protected void Update()
+        {
+            if (_exploitedDeposit == null) return;
 
-		public override void OnNetworkSpawn () {
-			base.OnNetworkSpawn();
+            _currentCooldown -= Time.deltaTime;
 
-			if (NetworkManager.Singleton.IsServer) {
-				bus.AddListener<PumpjackExploitInitEvent>(OnExploitInit);
-				bus.AddListener<EntityInitEvent>(OnEntityInit);
-			}
-		}
+            if (_currentCooldown <= 0)
+            {
+                int harvested = _exploitedDeposit.Harvest("oil", this, _harvestAmount, Pump);
+                
+                Bus.Global(new ResourceHarvestedEvent(
+                    Bus, 
+                    _exploitedDeposit, 
+                    this, 
+                    ResourceHarvestedEvent.Side.Harvester,
+                    harvested, 
+                    "oil", 
+                    StoredAmount, 
+                    capacity
+                    )
+                );
 
-		protected void Update () {
-			if (Constructed && exploited != null) {
-				currentCooldown -= Time.deltaTime;
+                _currentCooldown += _cooldown;
+            }
+        }
 
-				if (currentCooldown <= 0) {
-					int harvested = exploited.Harvest("oil", this, harvestAmount, Pump);
-					bus.Global(new ResourceHarvestedEvent(bus, exploited, this, ResourceHarvestedEvent.Side.Harvester, harvested, "oil", stored, capacity));
+        private void OnEntityInit(EntityInitEvent _event)
+        {
+            _oilDetector.SetActive(true);
+        }
 
-					currentCooldown += cooldown;
-				}
-			}
-		}
+        private void OnExploitInit(PumpjackExploitInitEvent _event)
+        {
+            _exploitedDeposit = _event.Oil;
+            _exploitedDeposit.Exploited = true;
+        }
 
-		private void OnEntityInit (EntityInitEvent _event) {
-			oilDetector.SetActive(true);
-		}
+        public virtual bool CanHarvest(string resourceKey, ISelectable unit) =>
+            resourceKey == "oil" && (unit.Owner == Owner || unit.UnitType == "roughneck");
 
-		private void OnExploitInit (PumpjackExploitInitEvent _event) {
-			exploited = _event.Oil;
-			exploited.Exploited = true;
-		}
+        private int Pump(int amount)
+        {
+            int newAmount = Mathf.Min(capacity, StoredAmount + amount);
 
-		public virtual bool CanHarvest (string resourceKey, ISelectable unit) {
-			return resourceKey == "oil" && (unit.Owner == Owner || unit.UnitType == "roughneck");
-		}
+            int difference = newAmount - StoredAmount;
 
-		private int Pump (int amount) {
-			int newAmount = Mathf.Min(capacity, stored + amount);
+            StoredAmount = newAmount;
 
-			int difference = newAmount - stored;
+            return difference;
+        }
 
-			stored = newAmount;
+        public virtual int Harvest(string resourceKey, ISelectable harvester, int harvestAmount,
+            Func<int, int> extractor)
+        {
+            if (CanHarvest(resourceKey, harvester))
+            {
+                int availableAmount = Mathf.Min(harvestAmount, StoredAmount);
 
-			return difference;
-		}
+                int finalAmount = extractor(availableAmount);
 
-		public virtual int Harvest (string resourceKey, ISelectable harvester, int harvestAmount, Func<int, int> extractor) {
-			if (CanHarvest(resourceKey, harvester)) {
-				int availableAmount = Mathf.Min(harvestAmount, stored);
+                if (finalAmount > 0)
+                {
+                    Bus.Global(new ResourceHarvestedEvent(Bus, this, harvester, ResourceHarvestedEvent.Side.Deposit,
+                        finalAmount, "oil", StoredAmount, capacity));
+                    StoredAmount -= finalAmount;
+                }
 
-				int finalAmount = extractor(availableAmount);
+                return finalAmount;
+            }
 
-				if (finalAmount > 0) {
-					bus.Global(new ResourceHarvestedEvent(bus, this, harvester, ResourceHarvestedEvent.Side.Deposit, finalAmount, "oil", stored, capacity));
-					stored -= finalAmount;
-				}
+            return 0;
+        }
 
-				return finalAmount;
-			}
+        protected override void OnUnitInfoDisplayed(UnitInfoEvent _event)
+        {
+            base.OnUnitInfoDisplayed(_event);
 
-			return 0;
-		}
+            if (ReferenceEquals(_event.Unit, this))
+            {
+                StorageInfo info = _event.Info.Module<StorageInfo>("storage");
+                info.CurrentUnit = this;
+                info.CurrentValue = StoredAmount;
+                info.MaxValue = capacity;
+            }
+        }
 
-		protected override void OnUnitInfoDisplayed (UnitInfoEvent _event) {
-			base.OnUnitInfoDisplayed(_event);
-
-			if (ReferenceEquals(_event.Unit, this)) {
-				StorageInfo info = _event.Info.Module<StorageInfo>("storage");
-				info.CurrentUnit = this;
-				info.CurrentValue = stored;
-				info.MaxValue = capacity;
-			}
-		}
-
-		public override void OnDestroy () {
-			base.OnDestroy();
-			if (exploited != null) exploited.Exploited = false;
-		}
-	}
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+            if (_exploitedDeposit != null) _exploitedDeposit.Exploited = false;
+        }
+    }
 }

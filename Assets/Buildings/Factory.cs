@@ -48,11 +48,11 @@ namespace MarsTS.Buildings {
 		}
 
 		protected virtual void Produce (CommandStartEvent _event) {
-			bus.AddListener<CommandCompleteEvent>(ProductionComplete);
+			Bus.AddListener<CommandCompleteEvent>(ProductionComplete);
 		}
 
 		protected virtual void ProductionComplete (CommandCompleteEvent _event) {
-			bus.RemoveListener<CommandCompleteEvent>(ProductionComplete);
+			Bus.RemoveListener<CommandCompleteEvent>(ProductionComplete);
 
 			if (_event.IsCancelled) return;
 
@@ -90,7 +90,7 @@ namespace MarsTS.Buildings {
 			}
 
 			//CurrentCommand = null;
-			bus.Global(new ProductionCompleteEvent(bus, order.Product, this, production, order));
+			Bus.Global(new ProductionCompleteEvent(Bus, order.Product, this, production, order));
 		}
 
 		public override void Order (Commandlet order, bool inclusive) {

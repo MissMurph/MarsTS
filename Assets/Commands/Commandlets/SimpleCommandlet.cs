@@ -11,6 +11,8 @@ namespace MarsTS.Commands {
 			throw new NotImplementedException();
 		}
 
+		protected override ISerializedCommand Serialize() => CommandSerializers.Write("simple", this);
+
 		protected override void Deserialize (SerializedCommandWrapper data) {
 			Name = data.Key;
 			Commander = TeamCache.Faction(data.Faction);

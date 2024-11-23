@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: -9039795235869862331}
   - component: {fileID: -3467367708650721442}
   m_Layer: 0
-  m_Name: StopCommandlet
+  m_Name: SimpleCommandlet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

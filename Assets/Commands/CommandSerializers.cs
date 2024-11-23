@@ -54,6 +54,17 @@ namespace MarsTS.Commands {
 			throw new ArgumentException("Serializer " + data.Key + " not found, has it been registered?");
 		}
 
+		public static ISerializedCommand Write(string key, Commandlet data)
+		{
+			if (instance == null) return null;
+
+			if (instance.registered.TryGetValue(key, out ICommandSerializer foundSerializer)) {
+				return foundSerializer.Writer(data);
+			}
+			
+			throw new ArgumentException("Serializer " + data.Key + " not found, has it been registered?");
+		}
+
 		public void OnDestroy () {
 			instance = null;
 		}

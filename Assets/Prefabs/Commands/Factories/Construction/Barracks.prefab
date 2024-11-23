@@ -75,3 +75,7 @@ MonoBehaviour:
     units
   building: {fileID: 5945270104182914224, guid: a74a76811aee46440864dab0581fc88c,
     type: 3}
+  constructionWorkRequired: 5
+  Cost:
+  - key: resource_unit
+    amount: 500

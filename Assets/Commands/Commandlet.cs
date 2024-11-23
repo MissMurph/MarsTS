@@ -52,9 +52,7 @@ namespace MarsTS.Commands {
 		public abstract Commandlet Clone ();
 
 		//Making virtual while testing
-		protected virtual ISerializedCommand Serialize () { 
-			return CommandSerializers.Write(this);
-		}
+		protected virtual ISerializedCommand Serialize () => CommandSerializers.Write(this);
 
 		protected virtual void SpawnAndSync () {
 			var data = Serialize();

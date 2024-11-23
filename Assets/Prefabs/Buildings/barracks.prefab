@@ -455,7 +455,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4205034278533087404}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 29.07, y: -1, z: -37.74}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -520,10 +520,11 @@ MonoBehaviour:
   - research/adrenaline
   - research/thermalvision
   constructionWork: 75
-  currentWork: 0
+  currentWork: 75
   selectionGhost: {fileID: 4420150489061905949, guid: e9e91f6348f80c8458b0d98921bcb0b2,
     type: 3}
-  constructionGhost: {fileID: 0}
+  constructionGhost: {fileID: 2819411760947315549, guid: a483aaaa4712a8549b0d4f5c6087346e,
+    type: 3}
   constructionCost:
   - key: resource_unit
     amount: 650

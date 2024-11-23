@@ -43,7 +43,10 @@ namespace MarsTS.UI {
                 return;
             }
 
-            current = CommandRegistry.Get(key);
+            if (!CommandRegistry.TryGet(key, out CommandFactory factory)) 
+	            return;
+
+            current = factory;
 
             icon.sprite = current.Icon;
             icon.gameObject.SetActive(true);

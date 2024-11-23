@@ -13,12 +13,17 @@ namespace MarsTS.Commands {
 
         private Dictionary<string, CommandFactory> registered;
 
-		[SerializeField]
+        [SerializeField]
 		private CommandFactory[] factoriesToInit;
 
 		private void Awake () {
 			instance = this;
 			registered = new Dictionary<string, CommandFactory>();
+		}
+
+		public override void OnDestroy () {
+			base.OnDestroy();
+			instance = null;
 		}
 
 		public override void OnNetworkSpawn () {
@@ -35,16 +40,6 @@ namespace MarsTS.Commands {
 
 				RegisterCommandClientRpc(commandNetworking);
 			}
-		}
-
-		private void Start () {
-			EventBus.AddListener<PlayerInitEvent>(OnPlayerInit);
-		}
-
-		private void OnPlayerInit (PlayerInitEvent _event) {
-			if (_event.Phase.Equals(Phase.Post)) return;
-
-			
 		}
 
 		[Rpc(SendTo.NotServer)]
@@ -72,9 +67,31 @@ namespace MarsTS.Commands {
 			throw new ArgumentException("Command " + key + " not found");
 		}
 
-		public override void OnDestroy () {
-			base.OnDestroy();
-			instance = null;
+		public static bool TryGet<T>(string key, out T command) where T : CommandFactory
+		{
+			command = default;
+			
+			if (instance.registered.TryGetValue(key, out CommandFactory entry)) 
+			{
+				if (entry is T factory)
+				{
+					command = factory;
+					return true;
+				}
+			}
+			
+			return false;
 		}
-	}
+
+		public static bool TryGet(string key, out CommandFactory command)
+		{
+			command = default;
+
+			if (!instance.registered.TryGetValue(key, out CommandFactory factory)) 
+				return false;
+			
+			command = factory;
+			return true;
+		}
+    }
 }

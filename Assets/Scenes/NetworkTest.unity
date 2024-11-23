@@ -2258,7 +2258,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1dc5ae3b3ae9968439ee87e7def1df82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  commandKey: stop
+  commandKey: simple
 --- !u!114 &836136702
 MonoBehaviour:
   m_ObjectHideFlags: 0

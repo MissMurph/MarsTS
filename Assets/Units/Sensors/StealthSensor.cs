@@ -14,17 +14,17 @@ namespace MarsTS.Units {
 		protected virtual void OnOtherEntityVisibleEvent (EntityVisibleCheckEvent _event) {
 			if (!Detecting || _event.Phase == Phase.Pre) return;
 
-			_event.VisibleTo |= parent.Owner.VisionMask;
+			_event.VisibleTo |= Parent.Owner.VisionMask;
 		}
 
 		protected override void OnTriggerEnter (Collider other) {
-			if (!initialized) return;
+			if (!IsInitialized) return;
 
 			if (EntityCache.TryGet(other.transform.root.name, out Entity entityComp)
 				&& entityComp.TryGet(out ISelectable target)) {
 				EventAgent targetBus = entityComp.Get<EventAgent>("eventAgent");
 
-				targetBus.AddListener<EntityDestroyEvent>(OnEntityDestroy);
+				targetBus.AddListener<UnitDeathEvent>(OnUnitDeath);
 				targetBus.AddListener<EntityVisibleCheckEvent>(OnOtherEntityVisibleEvent);
 
 				inRange[other.transform.root.name] = target;
@@ -40,14 +40,14 @@ namespace MarsTS.Units {
 
 			EntityCache.TryGet(key, out EventAgent targetBus);
 
-			targetBus.RemoveListener<EntityDestroyEvent>(OnEntityDestroy);
+			targetBus.RemoveListener<UnitDeathEvent>(OnUnitDeath);
 			targetBus.RemoveListener<EntityVisibleCheckEvent>(OnOtherEntityVisibleEvent);
 
 			ISelectable toRemove = inRange[key];
 
 			if (detected.ContainsKey(key)) {
 				detected.Remove(key);
-				bus.Local(new SensorUpdateEvent<ISelectable>(bus, toRemove, false));
+				Bus.Local(new SensorUpdateEvent<ISelectable>(Bus, toRemove, false));
 			}
 
 			inRange.Remove(key);

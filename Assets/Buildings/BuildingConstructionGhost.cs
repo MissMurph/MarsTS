@@ -52,7 +52,11 @@ namespace MarsTS.Buildings
             private set => currentHealth.Value = value;
         }
 
-        public virtual int MaxHealth => maxHealth.Value;
+        public virtual int MaxHealth
+        {
+            get => maxHealth.Value;
+            private set => maxHealth.Value = value;
+        }
 
         [SerializeField] protected NetworkVariable<int> maxHealth =
             new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
@@ -72,7 +76,7 @@ namespace MarsTS.Buildings
         private EventAgent _bus;
         private Transform _model;
 
-        private GameObject[] _visionObjects;
+        private GameObject[] _visionObjects = Array.Empty<GameObject>();
 
         private void Awake()
         {
@@ -80,12 +84,14 @@ namespace MarsTS.Buildings
             _entityComponent = GetComponent<Entity>();
         }
 
-        public void InitializeGhost(Building buildingBeingConstructed, params CostEntry[] constructionCost)
+        public void InitializeGhost(Building buildingBeingConstructed, int constructionWorkRequired, params CostEntry[] constructionCost)
         {
             if (!NetworkManager.Singleton.IsServer) return;
-
+            
             _buildingBeingConstructed = buildingBeingConstructed;
             _constructionCost = constructionCost;
+            _constructionRequired = constructionWorkRequired;
+            MaxHealth = buildingBeingConstructed.MaxHealth;
             UnitType = buildingBeingConstructed.UnitType;
             Icon = buildingBeingConstructed.Icon;
             
@@ -93,10 +99,11 @@ namespace MarsTS.Buildings
             
             GameObject selectionCircle = Instantiate(buildingBeingConstructed.transform.Find("SelectionCircle"), transform).gameObject;
             GameObject mapSquare = Instantiate(buildingBeingConstructed.transform.Find("MapSquare"), transform).gameObject;
-            GameObject barObj = Instantiate(buildingBeingConstructed.transform.Find("BarOrientation")).gameObject;
-            GameObject colliders = Instantiate(buildingBeingConstructed.transform.Find("Collider")).gameObject;
+            GameObject barObj = Instantiate(buildingBeingConstructed.transform.Find("BarOrientation"), transform).gameObject;
+            GameObject colliders = Instantiate(buildingBeingConstructed.transform.Find("Collider"), transform).gameObject;
+            Instantiate(buildingBeingConstructed.transform.Find("SelectionCollider"), transform);
 
-            _visionObjects = new[] { _model.gameObject, selectionCircle, mapSquare, barObj, colliders };
+            //_visionObjects = new[] { _model.gameObject, selectionCircle, mapSquare, barObj, colliders };
             
             _healthPerConstructionPoint =
                 Mathf.RoundToInt((float)buildingBeingConstructed.MaxHealth / _currentConstruction);
@@ -126,6 +133,8 @@ namespace MarsTS.Buildings
             {
                 AttachClientListeners();
 
+                _model = transform.Find("Model(Clone)");
+
                 if (_currentConstruction > 0)
                 {
                     float constructedProportion = (float)_currentConstruction / _constructionRequired;
@@ -139,10 +148,11 @@ namespace MarsTS.Buildings
                 _visionObjects = new[]
                 {
                     _model.gameObject, 
-                    transform.Find("SelectionCircle").gameObject, 
-                    transform.Find("MapSquare").gameObject, 
-                    transform.Find("BarOrientation").gameObject, 
-                    transform.Find("Collider").gameObject
+                    transform.Find("SelectionCircle(Clone)").gameObject, 
+                    transform.Find("MapSquare(Clone)").gameObject, 
+                    transform.Find("BarOrientation(Clone)").gameObject, 
+                    transform.Find("Collider(Clone)").gameObject,
+                    transform.Find("SelectionCollider(Clone)").gameObject
                 };
             }
         }
@@ -168,7 +178,7 @@ namespace MarsTS.Buildings
                 Owner.GetResource(materialCost.key).Deposit(materialCost.amount);
             }
 
-            Destroy(gameObject);
+            Destroy(gameObject, 0.1f);
         }
 
         private void CompleteConstruction()
@@ -179,7 +189,8 @@ namespace MarsTS.Buildings
             buildingNetworking.Spawn();
             newBuilding.SetOwner(Owner);
             
-            Destroy(gameObject);
+            _bus.Global(new UnitDeathEvent(_bus, this));
+            Destroy(gameObject, 0.1f);
         }
 
         private void OnUnitInfoDisplayed(UnitInfoEvent @event)

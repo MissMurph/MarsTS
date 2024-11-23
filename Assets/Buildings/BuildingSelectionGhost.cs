@@ -22,7 +22,7 @@ namespace MarsTS.Buildings
 
         public void InitializeGhost(Building buildingBeingConstructed)
         {
-            Transform model = Instantiate(buildingBeingConstructed.transform.Find("Model"), transform);
+            Instantiate(buildingBeingConstructed.transform.Find("Model"), transform);
             
             _allRenderers = GetComponentsInChildren<Renderer>();
 

@@ -30,12 +30,15 @@ namespace MarsTS.Commands {
 
 		protected Transform GhostTransform;
 		protected BuildingSelectionGhost SelectionGhostComp;
+
+		[SerializeField]
+		protected int constructionWorkRequired;
 		
 		[SerializeField]
 		protected CostEntry[] Cost;
 
 		private void Awake () {
-			Cost = building.ConstructionCost;
+			//Cost = building.ConstructionCost;
 			EventBus.AddListener<PlayerInitEvent>(OnPlayerInit);
 		}
 
@@ -121,12 +124,13 @@ namespace MarsTS.Commands {
 			
 			//Building newBuilding = Instantiate(building, position, rotation);
 
-			ISelectable selectable = constructionGhost.GetComponent<ISelectable>();
+			BuildingConstructionGhost ghost = constructionGhost.GetComponent<BuildingConstructionGhost>();
 			NetworkObject buildingNetworking = constructionGhost.GetComponent<NetworkObject>();
 			EventAgent buildingEvents = constructionGhost.GetComponent<EventAgent>();
 			
+			ghost.InitializeGhost(building, constructionWorkRequired, Cost);
 			buildingNetworking.Spawn();
-			selectable.SetOwner(faction);
+			ghost.SetOwner(faction);
 			
 			WithdrawResourcesFromFaction(faction);
 
@@ -135,7 +139,7 @@ namespace MarsTS.Commands {
 					if (@event.Phase == Phase.Pre) 
 						return;
 					
-					CommandRegistry.Get<Repair>("repair").Construct(selectable as IAttackable, factionId, selection, inclusive);
+					CommandRegistry.Get<Repair>("repair").Construct(ghost as IAttackable, factionId, selection, inclusive);
 				}
 			);
 		}

@@ -13,11 +13,16 @@ namespace MarsTS.Buildings
 
         protected Renderer[] AllRenderers;
 
+        [SerializeField] protected LayerMask selectionMask;
+
         public virtual bool Legal => Collisions.Count == 0;
 
         public virtual void InitializeGhost(Building buildingBeingConstructed)
         {
             Instantiate(buildingBeingConstructed.transform.Find("Model"), transform);
+            GameObject legalityCollider = Instantiate(buildingBeingConstructed.transform.Find("Collider"), transform).gameObject;
+
+            legalityCollider.layer = selectionMask;
             
             AllRenderers = GetComponentsInChildren<Renderer>();
 

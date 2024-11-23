@@ -216,12 +216,10 @@ MonoBehaviour:
   owner:
     m_InternalValue: 0
   boundCommands: []
-  constructionWork: 30
-  currentWork: 0
-  ghost: {fileID: 6633247702655670159, guid: 38121fc0d5ac7f745977aff782b851b7, type: 3}
-  constructionCost:
-  - key: resource_unit
-    amount: 350
+  selectionGhost: {fileID: 6633247702655670159, guid: 38121fc0d5ac7f745977aff782b851b7,
+    type: 3}
+  constructionGhost: {fileID: 2819411760947315549, guid: a483aaaa4712a8549b0d4f5c6087346e,
+    type: 3}
   visionObjects:
   - {fileID: 3784520690582371395}
   - {fileID: 3668977582584003210}

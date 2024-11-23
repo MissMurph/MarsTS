@@ -435,16 +435,10 @@ MonoBehaviour:
   - produce/scoutcar
   - produce/flattank
   - produce/longtank
-  constructionWork: 50
-  currentWork: 0
   selectionGhost: {fileID: 4420150489061905949, guid: e9e91f6348f80c8458b0d98921bcb0b2,
     type: 3}
-  constructionGhost: {fileID: 0}
-  constructionCost:
-  - key: resource_unit
-    amount: 750
-  - key: oil
-    amount: 150
+  constructionGhost: {fileID: 2819411760947315549, guid: a483aaaa4712a8549b0d4f5c6087346e,
+    type: 3}
   visionObjects:
   - {fileID: 5738845266770178255}
   - {fileID: 5111986784738206147}

@@ -75,3 +75,5 @@ MonoBehaviour:
     These mines are hidden until too late and are devestating to unsuspecting victims.
   building: {fileID: 3134445194697897595, guid: 0c2199bc566e908418356c92bef8ac88,
     type: 3}
+  constructionWorkRequired: 5
+  Cost: []

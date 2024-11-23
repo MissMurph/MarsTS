@@ -1300,12 +1300,10 @@ MonoBehaviour:
     m_InternalValue: 0
   boundCommands:
   - upgrade/camo
-  constructionWork: 20
-  currentWork: 0
-  ghost: {fileID: 8858395826266395101, guid: 4c816e0f7a0147b468f01bde1e6ecf73, type: 3}
-  constructionCost:
-  - key: resource_unit
-    amount: 350
+  selectionGhost: {fileID: 6633247702655670159, guid: 38121fc0d5ac7f745977aff782b851b7,
+    type: 3}
+  constructionGhost: {fileID: 2819411760947315549, guid: a483aaaa4712a8549b0d4f5c6087346e,
+    type: 3}
   visionObjects:
   - {fileID: 8979685112403033926}
   - {fileID: 5367866817302535497}

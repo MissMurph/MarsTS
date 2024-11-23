@@ -294,12 +294,10 @@ MonoBehaviour:
   - produce/roughnecksquad
   - produce/harvester
   - produce/tanker
-  constructionWork: 100
-  currentWork: 0
-  ghost: {fileID: 5300347722092395766, guid: 4191f665be7da1d478f0619eb973c086, type: 3}
-  constructionCost:
-  - key: resource_unit
-    amount: 2000
+  selectionGhost: {fileID: 4420150489061905949, guid: e9e91f6348f80c8458b0d98921bcb0b2,
+    type: 3}
+  constructionGhost: {fileID: 2819411760947315549, guid: a483aaaa4712a8549b0d4f5c6087346e,
+    type: 3}
   visionObjects:
   - {fileID: 8926580804881163808}
   - {fileID: 4367344839216842102}

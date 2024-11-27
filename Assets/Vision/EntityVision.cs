@@ -15,17 +15,21 @@ namespace MarsTS.Vision {
 
 		/*	ITaggable Properties	*/
 
-		public string Key { get { return "vision"; } }
+		public string Key => "vision";
 
-		public Type Type { get { return typeof(EntityVision); } }
+		public Type Type => typeof(EntityVision);
 
 		/*	Vision Properties	*/
 
-		public int Mask { get { return TeamCache.Faction(owner).VisionMask; } }
+		public int Mask => TeamCache.Faction(owner).VisionMask;
 
-		public int Range { get { return visionRange; } }
+		public int Range => visionRange;
 
-		public int VisibleTo { get { return visibleTo; } set { visibleTo = value; } }
+		public int VisibleTo
+		{
+			get => visibleTo;
+			set => visibleTo = value;
+		}
 
 		[SerializeField]
 		private int visionRange;
@@ -71,25 +75,28 @@ namespace MarsTS.Vision {
 			owner = _event.NewOwner.Id;
 		}
 
-		protected virtual void OnVisionUpdate (VisionUpdateEvent _event) {
-			if (_event.Phase == Phase.Pre) {
-				int visibility = GameVision.VisibleTo(gameObject);
+		protected virtual void OnVisionUpdate (VisionUpdateEvent _event)
+		{
+			if (_event.Phase != Phase.Pre) return;
+			
+			int visibility = GameVision.VisibleTo(gameObject);
+			// Add owner bit to the vision mask
+			visibility |= Mask;
 
-				EntityVisibleCheckEvent checkEvent = new EntityVisibleCheckEvent(bus, parent, visibility);
-				checkEvent.Phase = Phase.Pre;
+			EntityVisibleCheckEvent checkEvent = new EntityVisibleCheckEvent(bus, parent, visibility);
+			checkEvent.Phase = Phase.Pre;
 
-				//Here local components can intercept the visibility status and change it before it's applied
-				bus.Global(checkEvent);
+			//Here local components can intercept the visibility status and change it before it's applied
+			bus.Global(checkEvent);
 				
-				checkEvent.Phase = Phase.Post;
+			checkEvent.Phase = Phase.Post;
 
-				//Here global objects can intercept the visibilty status and modify it further
-				bus.Global(checkEvent);
+			//Here global objects can intercept the visibilty status and modify it further
+			bus.Global(checkEvent);
 
-				visibleTo = checkEvent.VisibleTo;
+			visibleTo = checkEvent.VisibleTo;
 
-				UpdateEntityVisibility();
-			}
+			UpdateEntityVisibility();
 		}
 
 		private void UpdateEntityVisibility () {
@@ -105,8 +112,6 @@ namespace MarsTS.Vision {
 			//Posting here is where the entity updates all its objects
 			bus.Global(entityEvent);
 		}
-
-		
 
 		public VisionEntry Collect () {
 			return new VisionEntry {

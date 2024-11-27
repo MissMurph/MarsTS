@@ -101,8 +101,6 @@ namespace MarsTS.Vision {
 		}
 
 		private void Start () {
-			StartCoroutine(EnqueueUpdate());
-
 			currentMask = 0;
 
 			EventBus.AddListener<EntityDestroyEvent>(OnEntityDestroyed);
@@ -116,6 +114,7 @@ namespace MarsTS.Vision {
 
 		private void OnPlayerInit (PlayerInitEvent _event) {
 			currentMask = Player.Commander.VisionMask;
+			StartCoroutine(EnqueueUpdate());
 		}
 
 		private void Update () {

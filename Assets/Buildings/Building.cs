@@ -116,8 +116,11 @@ namespace MarsTS.Buildings
         {
             base.OnNetworkSpawn();
 
-            if (NetworkManager.Singleton.IsServer) 
+            if (NetworkManager.Singleton.IsServer)
+            {
+                Health = MaxHealth;
                 AttachServerListeners();
+            }
 
             if (NetworkManager.Singleton.IsClient) 
                 AttachClientListeners();

@@ -22,7 +22,8 @@ namespace MarsTS.Buildings
             Instantiate(buildingBeingConstructed.transform.Find("Model"), transform);
             GameObject legalityCollider = Instantiate(buildingBeingConstructed.transform.Find("Collider"), transform).gameObject;
 
-            legalityCollider.layer = selectionMask;
+            legalityCollider.layer = LayerMask.NameToLayer("BuildingGhost");
+            legalityCollider.GetComponent<Collider>().isTrigger = true;
             
             AllRenderers = GetComponentsInChildren<Renderer>();
 

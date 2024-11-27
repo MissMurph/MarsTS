@@ -52,6 +52,7 @@ namespace MarsTS.Commands {
 			
 			Destroy(GhostTransform.gameObject);
 			Destroy(_snapper.gameObject);
+			_snapper = null;
 			
 			Player.Input.Release("Select");
 			Player.Input.Release("Order");
@@ -67,7 +68,8 @@ namespace MarsTS.Commands {
 			if (GhostTransform != null) {
 				Destroy(GhostTransform.gameObject);
 				Destroy(_snapper.gameObject);
-
+				_snapper = null;
+				
 				Player.Input.Release("Select");
 				Player.Input.Release("Order");
 			}

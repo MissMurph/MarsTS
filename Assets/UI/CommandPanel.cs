@@ -12,63 +12,61 @@ namespace MarsTS.UI {
 
 	public class CommandPanel : MonoBehaviour {
 
-		//public Button[] registeredButton;
-		//private Image[] registeredIcons;
+		private CommandButton[] _registeredButtons;
 
-		private CommandButton[] registeredButtons;
+		private string[] _boundCommands;
+		private int _buttonCount;
 
-		private string[] boundCommands;
-		private int buttonCount;
+		private CommandTooltip _tooltip;
+		private int _currentTooltip;
 
-		private CommandTooltip tooltip;
-		private int currentTooltip;
-
-		private string currentlyTargetingCommand;
+		private string _currentlyTargetingCommand;
 
 		private void Awake () {
 			//buttonCount = registeredButtons.Length;
 
-			registeredButtons = GetComponentsInChildren<CommandButton>();
-			buttonCount = registeredButtons.Length;
+			_registeredButtons = GetComponentsInChildren<CommandButton>();
+			_buttonCount = _registeredButtons.Length;
 
-			boundCommands = new string[buttonCount];
+			_boundCommands = new string[_buttonCount];
 
-			tooltip = GetComponentInChildren<CommandTooltip>();
+			_tooltip = GetComponentInChildren<CommandTooltip>();
 		}
 
 		private void Start () {
-			tooltip.gameObject.SetActive(false);
+			_tooltip.gameObject.SetActive(false);
 		}
 
 		public void Press (int index) {
-			if (boundCommands[index] is null || boundCommands[index] == "") return;
+			if (string.IsNullOrEmpty(_boundCommands[index])) return;
 
-			if (currentlyTargetingCommand != null) CommandRegistry.Get(currentlyTargetingCommand).CancelSelection();
+			if (!string.IsNullOrEmpty(_currentlyTargetingCommand)) 
+				CommandRegistry.Get(_currentlyTargetingCommand).CancelSelection();
 
-			currentlyTargetingCommand = boundCommands[index];
+			_currentlyTargetingCommand = _boundCommands[index];
 
-			CommandFactory bound = CommandRegistry.Get(boundCommands[index]);
+			CommandFactory bound = CommandRegistry.Get(_boundCommands[index]);
 			bound.StartSelection();
 		}
 
 		public void UpdateCommands (params string[] commands) {
-			for (int i = 0; i < buttonCount; i++) {
+			for (int i = 0; i < _buttonCount; i++) {
 				if (i >= commands.Length) {
-					boundCommands[i] = null;
-					registeredButtons[i].UpdateCommand("");
+					_boundCommands[i] = string.Empty;
+					_registeredButtons[i].UpdateCommand(_boundCommands[i]);
 					continue;
 				}
 
-				boundCommands[i] = commands[i];
-				registeredButtons[i].UpdateCommand(commands[i]);
+				_boundCommands[i] = commands[i];
+				_registeredButtons[i].UpdateCommand(commands[i]);
 			}
 
-			if (currentTooltip > -1 && boundCommands[currentTooltip] != null && boundCommands[currentTooltip] != "") {
-				tooltip.ShowCommand(boundCommands[currentTooltip]);
-				tooltip.gameObject.SetActive(true);
+			if (_currentTooltip > -1 && !string.IsNullOrEmpty(_boundCommands[_currentTooltip])) {
+				_tooltip.ShowCommand(_boundCommands[_currentTooltip]);
+				_tooltip.gameObject.SetActive(true);
 			}
 			else {
-				tooltip.gameObject.SetActive(false);
+				_tooltip.gameObject.SetActive(false);
 			}
 		}
 
@@ -77,27 +75,27 @@ namespace MarsTS.UI {
 
 			for (int i = 0; i < commands.Length; i++) {
 				if (string.IsNullOrEmpty(commands[i])) {
-					boundCommands[i] = null;
-					registeredButtons[i].UpdateCommand("");
+					_boundCommands[i] = null;
+					_registeredButtons[i].UpdateCommand("");
 					continue;
 				}
 
-				boundCommands[i] = commands[i];
-				registeredButtons[i].UpdateCommand(commands[i]);
+				_boundCommands[i] = commands[i];
+				_registeredButtons[i].UpdateCommand(commands[i]);
 			}
 		}
 
 		public void OnPointerEnterButton (int index) {
-			if (boundCommands[index] != null && boundCommands[index] != "") {
-				currentTooltip = index;
-				tooltip.ShowCommand(boundCommands[index]);
-				tooltip.gameObject.SetActive(true);
+			if (!string.IsNullOrEmpty(_boundCommands[index])) {
+				_currentTooltip = index;
+				_tooltip.ShowCommand(_boundCommands[index]);
+				_tooltip.gameObject.SetActive(true);
 			}
 		}
 
 		public void OnPointerExitButton (int index) {
-			tooltip.gameObject.SetActive(false);
-			currentTooltip = -1;
+			_tooltip.gameObject.SetActive(false);
+			_currentTooltip = -1;
 		}
 	}
 }

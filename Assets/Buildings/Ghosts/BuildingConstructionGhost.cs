@@ -4,6 +4,7 @@ using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players;
+using MarsTS.Prefabs;
 using MarsTS.Teams;
 using MarsTS.UI;
 using MarsTS.Units;
@@ -67,8 +68,24 @@ namespace MarsTS.Buildings
         private CostEntry[] _constructionCost;
         
         private int _healthPerConstructionPoint;
-        private int _constructionRequired;
-        private int _currentConstruction;
+
+        protected int ConstructionRequired
+        {
+            get => constructionRequired.Value;
+            set => constructionRequired.Value = value;
+        }
+
+        protected int CurrentConstruction
+        {
+            get => currentConstruction.Value;
+            set => currentConstruction.Value = value;
+        }
+        
+        [SerializeField] private NetworkVariable<int> constructionRequired =
+            new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
+
+        [SerializeField] private NetworkVariable<int> currentConstruction =
+            new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
 
         private Building _buildingBeingConstructed;
         
@@ -84,36 +101,82 @@ namespace MarsTS.Buildings
             _entityComponent = GetComponent<Entity>();
         }
 
-        public virtual void InitializeGhost(Building buildingBeingConstructed, int constructionWorkRequired, params CostEntry[] constructionCost)
+        public virtual void InitializeGhost(string buildingKey, int constructionWorkRequired, params CostEntry[] constructionCost)
         {
             if (!NetworkManager.Singleton.IsServer) return;
             
-            UpdateProperties(buildingBeingConstructed, constructionWorkRequired, constructionCost);
-            InstantiateChildObjects(buildingBeingConstructed);
+            UpdateProperties(buildingKey, constructionWorkRequired, constructionCost);
+            InstantiateChildObjects();
+            
+            InitializeGhostClientRpc(buildingKey);
         }
 
-        protected void UpdateProperties(Building buildingBeingConstructed, int constructionWorkRequired, params CostEntry[] constructionCost)
+        protected void UpdateProperties(string buildingKey, int constructionWorkRequired, params CostEntry[] constructionCost)
         {
+            Building buildingBeingConstructed = Registry.Get<Building>(buildingKey);
+
+            ConstructionRequired = constructionWorkRequired;
+            MaxHealth = buildingBeingConstructed.MaxHealth;
+            
             _buildingBeingConstructed = buildingBeingConstructed;
             _constructionCost = constructionCost;
-            _constructionRequired = constructionWorkRequired;
-            MaxHealth = buildingBeingConstructed.MaxHealth;
             UnitType = buildingBeingConstructed.UnitType;
             Icon = buildingBeingConstructed.Icon;
             
             _healthPerConstructionPoint =
-                Mathf.RoundToInt((float)buildingBeingConstructed.MaxHealth / _currentConstruction);
+                Mathf.RoundToInt((float)buildingBeingConstructed.MaxHealth / CurrentConstruction);
         }
 
-        protected void InstantiateChildObjects(Building buildingBeingConstructed)
+        [Rpc(SendTo.NotServer)]
+        private void InitializeGhostClientRpc(string buildingKey)
         {
-            _model = Instantiate(buildingBeingConstructed.transform.Find("Model"), transform);
+            UpdatePropertiesClient(buildingKey);
+            InstantiateChildObjects();
+        }
+        
+        private void UpdatePropertiesClient(string buildingKey)
+        {
+            Building buildingBeingConstructed = Registry.Get<Building>(buildingKey);
             
-            Instantiate(buildingBeingConstructed.transform.Find("SelectionCircle"), transform);
-            Instantiate(buildingBeingConstructed.transform.Find("MapSquare"), transform);
-            Instantiate(buildingBeingConstructed.transform.Find("BarOrientation"), transform);
-            Instantiate(buildingBeingConstructed.transform.Find("Collider"), transform);
-            Instantiate(buildingBeingConstructed.transform.Find("SelectionCollider"), transform);
+            _buildingBeingConstructed = buildingBeingConstructed;
+            UnitType = buildingBeingConstructed.UnitType;
+            Icon = buildingBeingConstructed.Icon;
+        }
+
+        private void InstantiateChildObjects()
+        {
+            _model = Instantiate(_buildingBeingConstructed.transform.Find("Model"), transform);
+
+            var selectionCircle = Instantiate(_buildingBeingConstructed.transform.Find("SelectionCircle"), transform);
+            var mapSquare = Instantiate(_buildingBeingConstructed.transform.Find("MapSquare"), transform);
+            var barOrientation = Instantiate(_buildingBeingConstructed.transform.Find("BarOrientation"), transform);
+            var hitCollider = Instantiate(_buildingBeingConstructed.transform.Find("Collider"), transform);
+            var selectionCollider = Instantiate(_buildingBeingConstructed.transform.Find("SelectionCollider"), transform);
+
+            if (CurrentConstruction > 0)
+            {
+                float constructedProportion = (float)CurrentConstruction / ConstructionRequired;
+                _model.localScale = Vector3.one * constructedProportion;
+            }
+            else
+            {
+                _model.localScale = Vector3.zero;
+            }
+                
+            _visionObjects = new[]
+            {
+                _model.gameObject, 
+                selectionCircle.gameObject, 
+                mapSquare.gameObject, 
+                barOrientation.gameObject, 
+                //hitCollider.gameObject,
+                selectionCollider.gameObject
+            };
+            
+            foreach (GameObject visionObject in _visionObjects)
+            {
+                visionObject.SetActive(false);
+            }
         }
 
         public override void OnNetworkSpawn()
@@ -124,9 +187,9 @@ namespace MarsTS.Buildings
             {
                 AttachServerListeners();
 
-                if (_currentConstruction > 0)
+                if (CurrentConstruction > 0)
                 {
-                    float constructedProportion = (float)_currentConstruction / _constructionRequired;
+                    float constructedProportion = (float)CurrentConstruction / ConstructionRequired;
                     currentHealth.Value = Mathf.RoundToInt(maxHealth.Value * constructedProportion);
                     
                 }
@@ -139,28 +202,6 @@ namespace MarsTS.Buildings
             if (NetworkManager.Singleton.IsClient)
             {
                 AttachClientListeners();
-
-                _model = transform.Find("Model(Clone)");
-
-                if (_currentConstruction > 0)
-                {
-                    float constructedProportion = (float)_currentConstruction / _constructionRequired;
-                    _model.localScale = Vector3.one * constructedProportion;
-                }
-                else
-                {
-                    _model.localScale = Vector3.zero;
-                }
-                
-                _visionObjects = new[]
-                {
-                    _model.gameObject, 
-                    transform.Find("SelectionCircle(Clone)").gameObject, 
-                    transform.Find("MapSquare(Clone)").gameObject, 
-                    transform.Find("BarOrientation(Clone)").gameObject, 
-                    transform.Find("Collider(Clone)").gameObject,
-                    transform.Find("SelectionCollider(Clone)").gameObject
-                };
             }
         }
 
@@ -222,9 +263,9 @@ namespace MarsTS.Buildings
         {
             if (damage < 0)
             {
-                _currentConstruction -= damage;
+                CurrentConstruction -= damage;
 
-                float progress = (float)_currentConstruction / _constructionRequired;
+                float progress = (float)CurrentConstruction / ConstructionRequired;
 
                 Health += _healthPerConstructionPoint * -damage;
                 Health = Mathf.Clamp(Health, 0, MaxHealth);

@@ -127,9 +127,9 @@ namespace MarsTS.Commands {
 			BuildingConstructionGhost ghost = constructionGhost.GetComponent<BuildingConstructionGhost>();
 			NetworkObject buildingNetworking = constructionGhost.GetComponent<NetworkObject>();
 			EventAgent buildingEvents = constructionGhost.GetComponent<EventAgent>();
-			
-			ghost.InitializeGhost(building, constructionWorkRequired, Cost);
+
 			buildingNetworking.Spawn();
+			ghost.InitializeGhost(building.RegistryKey, constructionWorkRequired, Cost);
 			ghost.SetOwner(faction);
 			
 			WithdrawResourcesFromFaction(faction);

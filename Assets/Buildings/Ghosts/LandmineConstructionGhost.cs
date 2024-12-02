@@ -5,7 +5,7 @@ namespace MarsTS.Buildings
 {
     public class LandmineConstructionGhost : BuildingConstructionGhost
     {
-        public override void InitializeGhost(Building buildingBeingConstructed, int constructionWorkRequired,
+        public override void InitializeGhost(string buildingBeingConstructed, int constructionWorkRequired,
             params CostEntry[] constructionCost)
         {
             if (!NetworkManager.Singleton.IsServer) return;

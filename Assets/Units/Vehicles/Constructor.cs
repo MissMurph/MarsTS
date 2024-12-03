@@ -80,7 +80,7 @@ namespace MarsTS.Units {
 
 			if (Vector3.Distance(_repairTarget.GameObject.transform.position, transform.position) <= _registeredTurrets["turret_main"].Range) {
 				TrackedTarget = null;
-				currentPath = Path.Empty;
+				CurrentPath = Path.Empty;
 			}
 			else if (!ReferenceEquals(TrackedTarget, _repairTarget.GameObject.transform)) {
 				SetTarget(_repairTarget.GameObject.transform);
@@ -90,19 +90,19 @@ namespace MarsTS.Units {
 		protected virtual void FixedUpdate () {
 			if (!NetworkManager.Singleton.IsServer) return;
 
-			_velocity = body.velocity.sqrMagnitude;
+			_velocity = Body.velocity.sqrMagnitude;
 
 			if (_ground.Grounded) {
-				if (!currentPath.IsEmpty) {
-					Vector3 targetWaypoint = currentPath[pathIndex];
+				if (!CurrentPath.IsEmpty) {
+					Vector3 targetWaypoint = CurrentPath[PathIndex];
 
 					Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
 					float targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
 
 					float newAngle = Mathf.MoveTowardsAngle(CurrentAngle, targetAngle, turnSpeed * Time.fixedDeltaTime);
-					body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, newAngle, transform.eulerAngles.z));
+					Body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, newAngle, transform.eulerAngles.z));
 
-					Vector3 currentVelocity = body.velocity;
+					Vector3 currentVelocity = Body.velocity;
 					Vector3 adjustedVelocity = Vector3.ProjectOnPlane(transform.forward, _ground.Slope.normal);
 
 					adjustedVelocity *= currentVelocity.magnitude;
@@ -111,20 +111,20 @@ namespace MarsTS.Units {
 						float accelCap = 1f - (_velocity / (topSpeed * topSpeed));
 
 						//This moves the velocity according to the rotation of the unit
-						body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
+						Body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
 
 						//Relative so it can take into account the forward vector of the car
-						body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
+						Body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
 					}
 
 					if (_velocity > topSpeed * topSpeed) {
-						Vector3 direction = body.velocity.normalized;
+						Vector3 direction = Body.velocity.normalized;
 						direction *= topSpeed;
-						body.velocity = direction;
+						Body.velocity = direction;
 					}
 				}
 				else if (_velocity >= 0.5f) {
-					body.AddRelativeForce(-body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
+					Body.AddRelativeForce(-Body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
 				}
 			}
 		}
@@ -180,7 +180,7 @@ namespace MarsTS.Units {
 
 				targetBus.RemoveListener<UnitHurtEvent>(OnTargetHealed);
 
-				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+				CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, false, this);
 
 				CurrentCommand.Callback.Invoke(newEvent);
 			}
@@ -191,7 +191,7 @@ namespace MarsTS.Units {
 
 			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
-			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, true, this);
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, true, this);
 
 			CurrentCommand.Callback.Invoke(newEvent);
 

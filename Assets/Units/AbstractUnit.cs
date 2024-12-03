@@ -23,21 +23,13 @@ namespace MarsTS.Units {
 		/*	IAttackable Properties	*/
 
 		public int Health { 
-			get { 
-				return currentHealth.Value; 
-			}
-			protected set {
-				currentHealth.Value = value;
-			}
+			get => currentHealth.Value;
+			protected set => currentHealth.Value = value;
 		}
 
 		public int MaxHealth { 
-			get { 
-				return maxHealth.Value; 
-			}
-			protected set {
-				currentHealth.Value = value;
-			}
+			get => maxHealth.Value;
+			protected set => currentHealth.Value = value;
 		}
 
 		[Header("Health")]
@@ -50,15 +42,15 @@ namespace MarsTS.Units {
 
 		/*	ISelectable Properties	*/
 		
-		public int Id { get { return entityComponent.Id; } }
+		public int Id => _entity.Id;
 
-		public string UnitType { get { return type; } }
+		public string UnitType => type;
 
-		public string RegistryKey { get { return "unit:" + UnitType; } }
+		public string RegistryKey => "unit:" + UnitType;
 
-		public Sprite Icon { get { return icon; } }
+		public Sprite Icon => icon;
 
-		public Faction Owner { get { return TeamCache.Faction(owner.Value); } }
+		public Faction Owner => TeamCache.Faction(owner.Value);
 
 		[Header("Unit Details")]
 
@@ -73,21 +65,21 @@ namespace MarsTS.Units {
 
 		/*	ITaggable Properties	*/
 
-		public string Key { get { return "selectable"; } }
+		public string Key => "selectable";
 
-		public Type Type { get { return typeof(AbstractUnit); } }
+		public Type Type => typeof(AbstractUnit);
 
 		/*	ICommandable Properties	*/
 
-		public Commandlet CurrentCommand { get { return commands.Current; } }
+		public Commandlet CurrentCommand => commands.Current;
 
-		public Commandlet[] CommandQueue { get { return commands.Queue; } }
+		public Commandlet[] CommandQueue => commands.Queue;
 
-		public List<string> Active { get { return commands.Active; } }
+		public List<string> Active => commands.Active;
 
-		public List<Timer> Cooldowns { get { return commands.Cooldowns; } }
+		public List<Timer> Cooldowns => commands.Cooldowns;
 
-		public int Count { get { return commands.Count; } }
+		public int Count => commands.Count;
 
 		//protected Queue<Commandlet> commandQueue = new Queue<Commandlet>();
 
@@ -100,19 +92,19 @@ namespace MarsTS.Units {
 
 		/*	Unit Fields	*/
 
-		protected Entity entityComponent;
+		private Entity _entity;
 
 		protected Transform TrackedTarget {
 			get {
-				return target;
+				return _target;
 			}
 			set {
-				if (target != null) {
-					EntityCache.TryGet(target.gameObject.name + ":eventAgent", out EventAgent oldAgent);
+				if (_target != null) {
+					EntityCache.TryGet(_target.gameObject.name + ":eventAgent", out EventAgent oldAgent);
 					oldAgent.RemoveListener<UnitDeathEvent>((_event) => TrackedTarget = null);
 				}
 
-				target = value;
+				_target = value;
 
 				if (value != null) {
 					EntityCache.TryGet(value.gameObject.name + ":eventAgent", out EventAgent agent);
@@ -124,27 +116,27 @@ namespace MarsTS.Units {
 			}
 		}
 
-		private Transform target;
+		private Transform _target;
 
-		private Vector3 targetOldPos;
+		private Vector3 _targetOldPos;
 
-		protected Path currentPath {
+		protected Path CurrentPath {
 			get;
 			set;
 		} = Path.Empty;
 
-		private float angle;
-		protected int pathIndex;
+		private float _angle;
+		protected int PathIndex;
 
-		protected Rigidbody body;
+		protected Rigidbody Body;
 
-		private const float minPathUpdateTime = .5f;
-		private const float pathUpdateMoveThreshold = .5f;
+		private const float MinPathUpdateTime = .5f;
+		private const float PathUpdateMoveThreshold = .5f;
 
 		[SerializeField]
 		protected float waypointCompletionDistance;
 
-		protected EventAgent bus;
+		protected EventAgent Bus;
 
 		[Header("Vision")]
 
@@ -152,9 +144,9 @@ namespace MarsTS.Units {
 		private GameObject[] hideables;
 
 		protected virtual void Awake () {
-			body = GetComponent<Rigidbody>();
-			entityComponent = GetComponent<Entity>();
-			bus = GetComponent<EventAgent>();
+			Body = GetComponent<Rigidbody>();
+			_entity = GetComponent<Entity>();
+			Bus = GetComponent<EventAgent>();
 			commands = GetComponent<CommandQueue>();
 		}
 
@@ -174,18 +166,19 @@ namespace MarsTS.Units {
 			if (NetworkManager.Singleton.IsClient) {
 				AttachClientListeners();
 			}
+			
+			// TODO: Find a better spot for this, realistically this should be called in the Attach funcs
+			currentHealth.OnValueChanged += OnHurt;
 		}
 
 		protected void AttachClientListeners () 
 		{
 			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 
-			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
-			bus.AddListener<CommandStartEvent>(ExecuteOrder);
+			Bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
+			Bus.AddListener<CommandStartEvent>(ExecuteOrder);
 
-			owner.OnValueChanged += (oldValue, newValue) => bus.Local(new UnitOwnerChangeEvent(bus, this, Owner));
-
-			currentHealth.OnValueChanged += OnHurt;
+			owner.OnValueChanged += (oldValue, newValue) => Bus.Local(new UnitOwnerChangeEvent(Bus, this, Owner));
 		}
 
 		protected void AttachServerListeners () {
@@ -195,7 +188,7 @@ namespace MarsTS.Units {
 		protected virtual void Update () 
 		{
 			if (NetworkManager.Singleton.IsServer) ServerUpdate();
-			ClientUpdate();
+			if (NetworkManager.Singleton.IsClient) ClientUpdate();
 		}
 
 		protected virtual void ServerUpdate()
@@ -205,27 +198,27 @@ namespace MarsTS.Units {
 
 		protected virtual void ClientUpdate()
 		{
-			if (!currentPath.IsEmpty)
+			if (!CurrentPath.IsEmpty)
 			{
-				Vector3 targetWaypoint = currentPath[pathIndex];
+				Vector3 targetWaypoint = CurrentPath[PathIndex];
 				
 				float distance = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).magnitude;
 				
 				if (distance <= waypointCompletionDistance) {
-					pathIndex++;
+					PathIndex++;
 				}
 				
-				if (pathIndex >= currentPath.Length) {
-					bus.Local(new PathCompleteEvent(bus, true));
-					currentPath = Path.Empty;
+				if (PathIndex >= CurrentPath.Length) {
+					Bus.Local(new PathCompleteEvent(Bus, true));
+					CurrentPath = Path.Empty;
 				}
 			}
 		}
 
 		private void OnPathFound (Path newPath, bool pathSuccessful) {
 			if (pathSuccessful) {
-				currentPath = newPath;
-				pathIndex = 0;
+				CurrentPath = newPath;
+				PathIndex = 0;
 			}
 		}
 
@@ -235,12 +228,12 @@ namespace MarsTS.Units {
 
 		protected void SetTarget (Transform _target) {
 			SetTarget(_target.position);
-			target = _target;
+			this._target = _target;
 		}
 
 		protected virtual void Stop () {
-			currentPath = Path.Empty;
-			target = null;
+			CurrentPath = Path.Empty;
+			_target = null;
 
 			commands.Clear();
 
@@ -254,15 +247,15 @@ namespace MarsTS.Units {
 			if (order is Commandlet<Vector3> deserialized) {
 				SetTarget(deserialized.Target);
 				
-				bus.AddListener<PathCompleteEvent>(OnPathComplete);
-				order.Callback.AddListener((_event) => bus.RemoveListener<PathCompleteEvent>(OnPathComplete));
+				Bus.AddListener<PathCompleteEvent>(OnPathComplete);
+				order.Callback.AddListener((_event) => Bus.RemoveListener<PathCompleteEvent>(OnPathComplete));
 			}
 		}
 
 		private void OnPathComplete (PathCompleteEvent _event) {
-			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, false, this);
 			
-			CurrentCommand.CompleteCommand(bus, this);
+			CurrentCommand.CompleteCommand(Bus, this);
 		}
 
 		protected IEnumerator UpdatePath () {
@@ -270,29 +263,29 @@ namespace MarsTS.Units {
 				yield return new WaitForSeconds(.5f);
 			}
 
-			float sqrMoveThreshold = pathUpdateMoveThreshold * pathUpdateMoveThreshold;
+			float sqrMoveThreshold = PathUpdateMoveThreshold * PathUpdateMoveThreshold;
 
 			while (true) {
-				yield return new WaitForSeconds(minPathUpdateTime);
+				yield return new WaitForSeconds(MinPathUpdateTime);
 
-				if (target != null && (target.position - targetOldPos).sqrMagnitude > sqrMoveThreshold) {
-					PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
-					targetOldPos = target.position;
+				if (_target != null && (_target.position - _targetOldPos).sqrMagnitude > sqrMoveThreshold) {
+					PathRequestManager.RequestPath(transform.position, _target.position, OnPathFound);
+					_targetOldPos = _target.position;
 				}
 			}
 		}
 
 		public void OnDrawGizmos () {
-			if (!currentPath.IsEmpty) {
-				for (int i = pathIndex; i < currentPath.Length; i++) {
+			if (!CurrentPath.IsEmpty) {
+				for (int i = PathIndex; i < CurrentPath.Length; i++) {
 					Gizmos.color = Color.black;
-					Gizmos.DrawCube(currentPath[i], Vector3.one / 2);
+					Gizmos.DrawCube(CurrentPath[i], Vector3.one / 2);
 
-					if (i == pathIndex) {
-						Gizmos.DrawLine(transform.position, currentPath[i]);
+					if (i == PathIndex) {
+						Gizmos.DrawLine(transform.position, CurrentPath[i]);
 					}
 					else {
-						Gizmos.DrawLine(currentPath[i - 1], currentPath[i]);
+						Gizmos.DrawLine(CurrentPath[i - 1], CurrentPath[i]);
 					}
 				}
 			}
@@ -341,18 +334,18 @@ namespace MarsTS.Units {
 
 		public virtual void Select (bool status) {
 			//selectionCircle.SetActive(status);
-			bus.Local(new UnitSelectEvent(bus, status));
+			Bus.Local(new UnitSelectEvent(Bus, status));
 		}
 
 		public virtual void Hover (bool status) {
 			//These are seperated due to the Player Selection Check
 			if (status) {
 				//selectionCircle.SetActive(true);
-				bus.Local(new UnitHoverEvent(bus, status));
+				Bus.Local(new UnitHoverEvent(Bus, status));
 			}
 			else if (!Player.Main.HasSelected(this)) {
 				//selectionCircle.SetActive(false);
-				bus.Local(new UnitHoverEvent(bus, status));
+				Bus.Local(new UnitHoverEvent(Bus, status));
 			}
 		}
 
@@ -372,13 +365,15 @@ namespace MarsTS.Units {
 			Health -= damage;
 		}
 
-		protected virtual void OnHurt (int _oldHealth, int _newHealth) {
+		protected virtual void OnHurt (int oldHealth, int newHealth) {
 			if (Health <= 0) {
-				bus.Global(new UnitDeathEvent(bus, this));
+				Bus.Global(new UnitDeathEvent(Bus, this));
 
-				if (NetworkManager.Singleton.IsServer) Destroy(gameObject);
+				if (NetworkManager.Singleton.IsServer) 
+					Destroy(gameObject, 0.1f);
 			}
-			else bus.Global(new UnitHurtEvent(bus, this));
+			else
+				Bus.Global(new UnitHurtEvent(Bus, this));
 		}
 
 		protected virtual void OnUnitInfoDisplayed (UnitInfoEvent _event) {

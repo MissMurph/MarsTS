@@ -55,7 +55,7 @@ namespace MarsTS.Units {
 			if (AttackTarget.Get != null) {
 				if (equippedWeapon.IsInRange(AttackTarget.Get)) {
 					TrackedTarget = null;
-					currentPath = Path.Empty;
+					CurrentPath = Path.Empty;
 				}
 				else if (!ReferenceEquals(TrackedTarget, AttackTarget.GameObject.transform)) {
 					SetTarget(AttackTarget.GameObject.transform);
@@ -65,7 +65,7 @@ namespace MarsTS.Units {
 			if (CurrentCommand != null && CurrentCommand.Name == "flare") {
 				if ((flareTarget - transform.position).sqrMagnitude < (flareRange * flareRange)) {
 					TrackedTarget = null;
-					currentPath = Path.Empty;
+					CurrentPath = Path.Empty;
 
 					FireFlare(flareTarget);
 				}
@@ -78,21 +78,21 @@ namespace MarsTS.Units {
 		protected virtual void FixedUpdate () {
 			if (ground.Grounded) {
 				//Dunno why we need this check on the infantry member when we don't need it on any other unit type...
-				if (!currentPath.IsEmpty && !(pathIndex >= currentPath.Length)) {
-					Vector3 targetWaypoint = currentPath[pathIndex];
+				if (!CurrentPath.IsEmpty && !(PathIndex >= CurrentPath.Length)) {
+					Vector3 targetWaypoint = CurrentPath[PathIndex];
 
 					Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
 					float targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
-					body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, targetAngle, transform.eulerAngles.z));
+					Body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, targetAngle, transform.eulerAngles.z));
 
 					Vector3 moveDirection = Vector3.ProjectOnPlane(transform.forward, ground.Slope.normal);
 
 					Vector3 newVelocity = moveDirection * currentSpeed;
 
-					body.velocity = newVelocity;
+					Body.velocity = newVelocity;
 				}
 				else {
-					body.velocity = Vector3.zero;
+					Body.velocity = Vector3.zero;
 				}
 			}
 		}
@@ -163,7 +163,7 @@ namespace MarsTS.Units {
 
 			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
-			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, true, this);
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, true, this);
 
 			CurrentCommand.Callback.Invoke(newEvent);
 
@@ -185,7 +185,7 @@ namespace MarsTS.Units {
 
 			commands.Activate(order, deserialized.Target);
 
-			bus.Local(new SneakEvent(bus, this, isSneaking));
+			Bus.Local(new SneakEvent(Bus, this, isSneaking));
 		}
 
 		/*	Flare	*/
@@ -201,9 +201,9 @@ namespace MarsTS.Units {
 			Flare firedFlare = Instantiate(flarePrefab, position, Quaternion.Euler(Vector3.zero)).GetComponent<Flare>();
 			firedFlare.Init(this);
 
-			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, false, this);
 
-			CurrentCommand.CompleteCommand(bus, this);
+			CurrentCommand.CompleteCommand(Bus, this);
 
 			Stop();
 		}

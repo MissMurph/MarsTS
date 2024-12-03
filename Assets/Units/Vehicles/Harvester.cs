@@ -128,7 +128,7 @@ namespace MarsTS.Units {
 			if (DepositTarget != null) {
 				if (depositableDetector.IsDetected(DepositTarget)) {
 					TrackedTarget = null;
-					currentPath = Path.Empty;
+					CurrentPath = Path.Empty;
 
 					if (currentCooldown <= 0f) DepositResources();
 
@@ -144,7 +144,7 @@ namespace MarsTS.Units {
 			if (HarvestTarget != null) {
 				if (registeredTurrets["turret_main"].IsInRange(HarvestTarget)) {
 					TrackedTarget = null;
-					currentPath = Path.Empty;
+					CurrentPath = Path.Empty;
 				}
 				else if (!ReferenceEquals(TrackedTarget, HarvestTarget.GameObject.transform)) {
 					SetTarget(HarvestTarget.GameObject.transform);
@@ -153,19 +153,19 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void FixedUpdate () {
-			velocity = body.velocity.sqrMagnitude;
+			velocity = Body.velocity.sqrMagnitude;
 
 			if (ground.Grounded) {
-				if (!currentPath.IsEmpty) {
-					Vector3 targetWaypoint = currentPath[pathIndex];
+				if (!CurrentPath.IsEmpty) {
+					Vector3 targetWaypoint = CurrentPath[PathIndex];
 
 					Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
 					float targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
 
 					float newAngle = Mathf.MoveTowardsAngle(CurrentAngle, targetAngle, turnSpeed * Time.fixedDeltaTime);
-					body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, newAngle, transform.eulerAngles.z));
+					Body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, newAngle, transform.eulerAngles.z));
 
-					Vector3 currentVelocity = body.velocity;
+					Vector3 currentVelocity = Body.velocity;
 					Vector3 adjustedVelocity = Vector3.ProjectOnPlane(transform.forward, ground.Slope.normal);
 
 					adjustedVelocity *= currentVelocity.magnitude;
@@ -174,20 +174,20 @@ namespace MarsTS.Units {
 						float accelCap = 1f - (velocity / (topSpeed * topSpeed));
 
 						//This moves the velocity according to the rotation of the unit
-						body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
+						Body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
 
 						//Relative so it can take into account the forward vector of the car
-						body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
+						Body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
 					}
 
 					if (velocity > topSpeed * topSpeed) {
-						Vector3 direction = body.velocity.normalized;
+						Vector3 direction = Body.velocity.normalized;
 						direction *= topSpeed;
-						body.velocity = direction;
+						Body.velocity = direction;
 					}
 				}
 				else if (velocity >= 0.5f) {
-					body.AddRelativeForce(-body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
+					Body.AddRelativeForce(-Body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
 				}
 			}
 		}
@@ -231,7 +231,7 @@ namespace MarsTS.Units {
 			if (order is Commandlet<IHarvestable> deserialized) {
 				HarvestTarget = deserialized.Target;
 
-				bus.AddListener<ResourceHarvestedEvent>(OnExtraction);
+				Bus.AddListener<ResourceHarvestedEvent>(OnExtraction);
 
 				EntityCache.TryGet(HarvestTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
@@ -246,7 +246,7 @@ namespace MarsTS.Units {
 				DepositTarget = deserialized.Target;
 				TrackedTarget = deserialized.Target.GameObject.transform;
 
-				bus.AddListener<HarvesterDepositEvent>(OnDeposit);
+				Bus.AddListener<HarvesterDepositEvent>(OnDeposit);
 
 				order.Callback.AddListener(DepositCancelled);
 			}
@@ -254,13 +254,13 @@ namespace MarsTS.Units {
 
 		protected virtual void DepositResources () {
 			storageComp.Consume(DepositTarget.Deposit("resource_unit", depositAmount));
-			bus.Global(new HarvesterDepositEvent(bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity, DepositTarget));
+			Bus.Global(new HarvesterDepositEvent(Bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity, DepositTarget));
 			currentCooldown += cooldown;
 		}
 
 		private void OnDeposit (HarvesterDepositEvent _event) {
 			if (Stored <= 0) {
-				bus.RemoveListener<HarvesterDepositEvent>(OnDeposit);
+				Bus.RemoveListener<HarvesterDepositEvent>(OnDeposit);
 
 				//CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
 
@@ -289,7 +289,7 @@ namespace MarsTS.Units {
 				DepositTarget = closestBank;
 				TrackedTarget = DepositTarget.GameObject.transform;
 
-				bus.AddListener<HarvesterDepositEvent>(OnDeposit);
+				Bus.AddListener<HarvesterDepositEvent>(OnDeposit);
 			}
 		}
 
@@ -311,16 +311,16 @@ namespace MarsTS.Units {
 		}
 
 		private void OnDepositDepleted (UnitDeathEvent _event) {
-			bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
+			Bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
-			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, false, this);
 
 			CurrentCommand.Callback.Invoke(newEvent);
 		}
 
 		private void HarvestCancelled (CommandCompleteEvent _event) {
 			if (_event.Command is Commandlet<IHarvestable> deserialized && _event.IsCancelled) {
-				bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
+				Bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
@@ -333,7 +333,7 @@ namespace MarsTS.Units {
 
 		private void DepositCancelled (CommandCompleteEvent _event) {
 			if (_event.Command is Commandlet<IDepositable> deserialized && _event.IsCancelled) {
-				bus.RemoveListener<HarvesterDepositEvent>(OnDeposit);
+				Bus.RemoveListener<HarvesterDepositEvent>(OnDeposit);
 
 				DepositTarget = null;
 				HarvestTarget = null;

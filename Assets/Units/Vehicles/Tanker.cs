@@ -29,24 +29,24 @@ namespace MarsTS.Units {
 		}
 
 		protected override void Update () {
-			if (!currentPath.IsEmpty) {
-				Vector3 targetWaypoint = currentPath[pathIndex];
+			if (!CurrentPath.IsEmpty) {
+				Vector3 targetWaypoint = CurrentPath[PathIndex];
 				float distance = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).magnitude;
 
 				if (distance <= waypointCompletionDistance) {
-					pathIndex++;
+					PathIndex++;
 				}
 
-				if (pathIndex >= currentPath.Length) {
-					bus.Local(new PathCompleteEvent(bus, true));
-					currentPath = Path.Empty;
+				if (PathIndex >= CurrentPath.Length) {
+					Bus.Local(new PathCompleteEvent(Bus, true));
+					CurrentPath = Path.Empty;
 				}
 			}
 
 			if (DepositTarget != null) {
 				if (depositableDetector.IsDetected(DepositTarget)) {
 					TrackedTarget = null;
-					currentPath = Path.Empty;
+					CurrentPath = Path.Empty;
 
 					if (currentCooldown <= 0f) DepositResources();
 
@@ -62,7 +62,7 @@ namespace MarsTS.Units {
 			if (HarvestTarget != null) {
 				if (harvestableDetector.IsDetected(HarvestTarget)) {
 					TrackedTarget = null;
-					currentPath = Path.Empty;
+					CurrentPath = Path.Empty;
 
 					if (currentHarvestCooldown <= 0f) SiphonOil();
 
@@ -76,14 +76,14 @@ namespace MarsTS.Units {
 
 		private void SiphonOil () {
 			int harvested = HarvestTarget.Harvest("oil", this, harvestAmount, storageComp.Submit);
-			bus.Global(new ResourceHarvestedEvent(bus, HarvestTarget, this, ResourceHarvestedEvent.Side.Harvester, harvested, "oil", Stored, Capacity));
+			Bus.Global(new ResourceHarvestedEvent(Bus, HarvestTarget, this, ResourceHarvestedEvent.Side.Harvester, harvested, "oil", Stored, Capacity));
 
 			currentHarvestCooldown += harvestCooldown;
 		}
 
 		protected override void DepositResources () {
 			storageComp.Consume(DepositTarget.Deposit("oil", depositAmount));
-			bus.Global(new HarvesterDepositEvent(bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity, DepositTarget));
+			Bus.Global(new HarvesterDepositEvent(Bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity, DepositTarget));
 			currentCooldown += cooldown;
 		}
 	}

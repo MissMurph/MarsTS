@@ -23,7 +23,7 @@ namespace MarsTS.Units {
 
 		public float Range => _sensor.Range;
 
-		private IAttackable _target;
+		private UnitReference<IAttackable> _target = new UnitReference<IAttackable>();
 
 		private ISelectable _parent;
 		private EventAgent _bus;
@@ -52,11 +52,11 @@ namespace MarsTS.Units {
 				var repairCommand = commandableUnit.CurrentCommand as Commandlet<IAttackable>;
 
 				if (_sensor.IsDetected(repairCommand.Target)) {
-					_target = repairCommand.Target;
+					_target.Set(repairCommand.Target, repairCommand.Target.GameObject);
 				}
 			}
 
-			if (_target == null) {
+			if (_target.Get == null) {
 				float distance = Range;
 				IAttackable currentClosest = null;
 
@@ -72,33 +72,34 @@ namespace MarsTS.Units {
 					}
 				}
 
-				if (currentClosest != null) _target = currentClosest;
+				if (currentClosest != null) _target.Set(currentClosest, currentClosest.GameObject);
 			}
 
-			if (_target != null && _sensor.IsDetected(_target) && _currentCooldown <= 0) {
+			if (_target.Get != null && _sensor.IsDetected(_target.Get) && _currentCooldown <= 0) {
 				Repair();
 			}
 		}
 
 		private void FixedUpdate () {
-			if (_target != null && _sensor.Detected.Contains(_target)) {
+			if (_target.Get != null && _sensor.Detected.Contains(_target.Get)) {
 				barrel.transform.LookAt(_target.GameObject.transform, Vector3.up);
 			}
 		}
 
 		private void Repair () {
-			_target.Attack(-_repairAmount);
+			_target.Get.Attack(-_repairAmount);
 			_currentCooldown += _cooldown;
 		}
 
 		private void OnSensorUpdate (SensorUpdateEvent<IAttackable> @event) {
-			if (@event.Detected == true) {
-				if (_target == null) {
-					_target = @event.Target;
+			if (@event.Detected) {
+				if (_target.Get == null)
+				{
+					_target.Set(@event.Target, @event.Target.GameObject);
 				}
 			}
-			else if (ReferenceEquals(@event.Target, _target)) {
-				_target = null;
+			else if (ReferenceEquals(@event.Target, _target.Get)) {
+				_target.Set(null, null);
 			}
 		}
 

@@ -14,7 +14,7 @@ namespace MarsTS.Commands {
 		private string commandKey;
 
 		public ISerializedCommand Reader () {
-			return new SerializedMoveCommandlet {
+			return new SerializedAttackableCommandlet {
 				Key = Key
 			};
 		}

@@ -129,9 +129,9 @@ namespace MarsTS.Commands {
 			EventAgent buildingEvents = constructionGhost.GetComponent<EventAgent>();
 
 			buildingNetworking.Spawn();
-			ghost.InitializeGhost(building.RegistryKey, constructionWorkRequired, Cost);
 			ghost.SetOwner(faction);
-			
+			ghost.InitializeGhost(building.RegistryKey, constructionWorkRequired, Cost);
+
 			WithdrawResourcesFromFaction(faction);
 
 			buildingEvents.AddListener<EntityInitEvent>(

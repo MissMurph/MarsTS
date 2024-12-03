@@ -101,6 +101,32 @@ namespace MarsTS.Buildings
             _entityComponent = GetComponent<Entity>();
         }
 
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+
+            if (NetworkManager.Singleton.IsServer)
+            {
+                AttachServerListeners();
+
+                if (CurrentConstruction > 0)
+                {
+                    float constructedProportion = (float)CurrentConstruction / ConstructionRequired;
+                    currentHealth.Value = Mathf.RoundToInt(maxHealth.Value * constructedProportion);
+                    
+                }
+                else
+                {
+                    currentHealth.Value = 0;
+                }
+            }
+
+            if (NetworkManager.Singleton.IsClient)
+            {
+                AttachClientListeners();
+            }
+        }
+
         public virtual void InitializeGhost(string buildingKey, int constructionWorkRequired, params CostEntry[] constructionCost)
         {
             if (!NetworkManager.Singleton.IsServer) return;
@@ -123,8 +149,8 @@ namespace MarsTS.Buildings
             UnitType = buildingBeingConstructed.UnitType;
             Icon = buildingBeingConstructed.Icon;
             
-            _healthPerConstructionPoint =
-                Mathf.RoundToInt((float)buildingBeingConstructed.MaxHealth / CurrentConstruction);
+            _healthPerConstructionPoint = 
+                Mathf.RoundToInt((float)buildingBeingConstructed.MaxHealth / ConstructionRequired);
         }
 
         [Rpc(SendTo.NotServer)]
@@ -133,7 +159,7 @@ namespace MarsTS.Buildings
             UpdatePropertiesClient(buildingKey);
             InstantiateChildObjects();
         }
-        
+
         private void UpdatePropertiesClient(string buildingKey)
         {
             Building buildingBeingConstructed = Registry.Get<Building>(buildingKey);
@@ -150,7 +176,7 @@ namespace MarsTS.Buildings
             var selectionCircle = Instantiate(_buildingBeingConstructed.transform.Find("SelectionCircle"), transform);
             var mapSquare = Instantiate(_buildingBeingConstructed.transform.Find("MapSquare"), transform);
             var barOrientation = Instantiate(_buildingBeingConstructed.transform.Find("BarOrientation"), transform);
-            var hitCollider = Instantiate(_buildingBeingConstructed.transform.Find("Collider"), transform);
+            Instantiate(_buildingBeingConstructed.transform.Find("Collider"), transform);
             var selectionCollider = Instantiate(_buildingBeingConstructed.transform.Find("SelectionCollider"), transform);
 
             if (CurrentConstruction > 0)
@@ -179,32 +205,6 @@ namespace MarsTS.Buildings
             }
         }
 
-        public override void OnNetworkSpawn()
-        {
-            base.OnNetworkSpawn();
-
-            if (NetworkManager.Singleton.IsServer)
-            {
-                AttachServerListeners();
-
-                if (CurrentConstruction > 0)
-                {
-                    float constructedProportion = (float)CurrentConstruction / ConstructionRequired;
-                    currentHealth.Value = Mathf.RoundToInt(maxHealth.Value * constructedProportion);
-                    
-                }
-                else
-                {
-                    currentHealth.Value = 0;
-                }
-            }
-
-            if (NetworkManager.Singleton.IsClient)
-            {
-                AttachClientListeners();
-            }
-        }
-
         private void AttachServerListeners() { }
 
         private void AttachClientListeners()
@@ -212,6 +212,8 @@ namespace MarsTS.Buildings
             _bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
 
             EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
+            
+            currentHealth.OnValueChanged += OnHurt;
 
             owner.OnValueChanged += (_, _)
                 => _bus.Local(new UnitOwnerChangeEvent(_bus, this, Owner));
@@ -231,6 +233,8 @@ namespace MarsTS.Buildings
 
         private void CompleteConstruction()
         {
+            SendCompletionClientEventRpc();
+            
             Building newBuilding = Instantiate(_buildingBeingConstructed, transform.position, transform.rotation);
             NetworkObject buildingNetworking = newBuilding.GetComponent<NetworkObject>();
             
@@ -239,6 +243,12 @@ namespace MarsTS.Buildings
             
             _bus.Global(new UnitDeathEvent(_bus, this));
             Destroy(gameObject, 0.1f);
+        }
+
+        [Rpc(SendTo.NotServer)]
+        private void SendCompletionClientEventRpc()
+        {
+            _bus.Global(new UnitDeathEvent(_bus, this));
         }
 
         private void OnUnitInfoDisplayed(UnitInfoEvent @event)
@@ -288,6 +298,19 @@ namespace MarsTS.Buildings
                 _bus.Global(new UnitDeathEvent(_bus, this));
                 Destroy(gameObject, 0.1f);
             }
+        }
+
+        private void OnHurt(int previousvalue, int newvalue)
+        {
+            if (Health <= 0) 
+            {
+                _bus.Global(new UnitDeathEvent(_bus, this));
+
+                //if (NetworkManager.Singleton.IsServer) 
+                    //Destroy(gameObject, 0.1f);
+            }
+            else 
+                _bus.Global(new UnitHurtEvent(_bus, this));
         }
 
         // TODO: Convert into IAttackable & ISelectable extension method

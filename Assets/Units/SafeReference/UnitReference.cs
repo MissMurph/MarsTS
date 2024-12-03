@@ -1,48 +1,44 @@
 using MarsTS.Entities;
 using MarsTS.Events;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data.SqlTypes;
 using UnityEngine;
 
-namespace MarsTS.Units {
+namespace MarsTS.Units
+{
+    // TODO: Make T : IUnit so we can imply gameobject from it
+    public class UnitReference<T> where T : class
+    {
+        public T Get { get; private set; }
 
-	public class UnitReference<T> where T : class {
+        public GameObject GameObject { get; private set; }
 
-		private GameObject unitObject;
+        public void Set(T newValue, GameObject _unit)
+        {
+            if (Get != null)
+            {
+                EntityCache.TryGet(GameObject.name + ":eventAgent", out EventAgent oldAgent);
+                oldAgent.RemoveListener<UnitDeathEvent>(OnEntityDeath);
+                oldAgent.RemoveListener<EntityVisibleEvent>(OnEntityVisible);
+            }
 
-		public T Get { get { return value; } }
+            Get = newValue;
+            GameObject = _unit;
 
-		public GameObject GameObject { get { return unitObject; } }
+            if (Get != null)
+            {
+                EntityCache.TryGet(_unit.name + ":eventAgent", out EventAgent agent);
+                agent.AddListener<UnitDeathEvent>(OnEntityDeath);
+                agent.AddListener<EntityVisibleEvent>(OnEntityVisible);
+            }
+        }
 
-		private T value;
+        private void OnEntityDeath(UnitDeathEvent _event)
+        {
+            Set(null, null);
+        }
 
-		public void Set (T newValue, GameObject _unit) {
-			if (value != null) {
-				EntityCache.TryGet(unitObject.name + ":eventAgent", out EventAgent oldAgent);
-				oldAgent.RemoveListener<UnitDeathEvent>(OnEntityDeath);
-				oldAgent.RemoveListener<EntityVisibleEvent>(OnEntityVisible);
-			}
-
-			value = newValue;
-			unitObject = _unit;
-
-			if (value != null) {
-				EntityCache.TryGet(_unit.name + ":eventAgent", out EventAgent agent);
-				agent.AddListener<UnitDeathEvent>(OnEntityDeath);
-				agent.AddListener<EntityVisibleEvent>(OnEntityVisible);
-			}
-		}
-
-		private void OnEntityDeath (UnitDeathEvent _event) {
-			Set(null, null);
-		}
-
-		private void OnEntityVisible (EntityVisibleEvent _event) {
-			if (!_event.Visible) {
-				Set(null, null);
-			}
-		}
-	}
+        private void OnEntityVisible(EntityVisibleEvent _event)
+        {
+            if (!_event.Visible) Set(null, null);
+        }
+    }
 }

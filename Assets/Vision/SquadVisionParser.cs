@@ -19,7 +19,7 @@ namespace MarsTS.Vision {
 			bus.AddListener<SquadRegisterEvent>(OnMemberRegister);
 		}
 
-		protected override void Start () {
+		private void Start () {
 			EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
 		}
 

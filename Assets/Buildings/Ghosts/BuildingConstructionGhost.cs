@@ -108,17 +108,6 @@ namespace MarsTS.Buildings
             if (NetworkManager.Singleton.IsServer)
             {
                 AttachServerListeners();
-
-                if (CurrentConstruction > 0)
-                {
-                    float constructedProportion = (float)CurrentConstruction / ConstructionRequired;
-                    currentHealth.Value = Mathf.RoundToInt(maxHealth.Value * constructedProportion);
-                    
-                }
-                else
-                {
-                    currentHealth.Value = 0;
-                }
             }
 
             if (NetworkManager.Singleton.IsClient)
@@ -135,6 +124,8 @@ namespace MarsTS.Buildings
             InstantiateChildObjects();
             
             InitializeGhostClientRpc(buildingKey);
+
+            _bus.Local(new UnitInitEvent(this, _bus));
         }
 
         protected void UpdateProperties(string buildingKey, int constructionWorkRequired, params CostEntry[] constructionCost)
@@ -143,6 +134,16 @@ namespace MarsTS.Buildings
 
             ConstructionRequired = constructionWorkRequired;
             MaxHealth = buildingBeingConstructed.MaxHealth;
+            
+            if (CurrentConstruction > 0)
+            {
+                float constructedProportion = (float)CurrentConstruction / ConstructionRequired;
+                Health = Mathf.RoundToInt(maxHealth.Value * constructedProportion);
+            }
+            else
+            {
+                Health = 1;
+            }
             
             _buildingBeingConstructed = buildingBeingConstructed;
             _constructionCost = constructionCost;

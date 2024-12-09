@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MarsTS.Entities;
@@ -38,6 +39,8 @@ namespace MarsTS.Units
 
         protected Dictionary<string, HashSet<GameObject>> DetectedColliders = new Dictionary<string, HashSet<GameObject>>();
 
+        protected List<Collider> QueuedColliders = new List<Collider>();
+
         protected ISelectable Parent;
 
         protected EventAgent Bus;
@@ -64,6 +67,16 @@ namespace MarsTS.Units
             EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
         }
 
+        protected void Update()
+        {
+            if (!IsInitialized || Parent == null || QueuedColliders.Count <= 0) return;
+
+            foreach (var collision in QueuedColliders)
+            {
+                OnTriggerEnter(collision);
+            }
+        }
+
         protected void OnEntityInit(EntityInitEvent _event)
         {
             if (_event.Phase == Phase.Pre) return;
@@ -73,7 +86,11 @@ namespace MarsTS.Units
 
         protected virtual void OnTriggerEnter(Collider other)
         {
-            if (!IsInitialized) return;
+            if (!IsInitialized || Parent == null)
+            {
+                QueuedColliders.Add(other);
+                return;
+            }
 
             if (EntityCache.TryGet(other.transform.root.name, out Entity entityComp)
                 && entityComp.TryGet(out T target))

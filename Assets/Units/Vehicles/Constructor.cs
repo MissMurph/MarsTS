@@ -114,7 +114,7 @@ namespace MarsTS.Units {
 						Body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
 
 						//Relative so it can take into account the forward vector of the car
-						Body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
+						Body.AddRelativeForce(Vector3.forward * (acceleration * accelCap * Time.fixedDeltaTime), ForceMode.Acceleration);
 					}
 
 					if (_velocity > topSpeed * topSpeed) {
@@ -179,6 +179,7 @@ namespace MarsTS.Units {
 				EntityCache.TryGet(_event.Targetable.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.RemoveListener<UnitHurtEvent>(OnTargetHealed);
+				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
 				CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, false, this);
 
@@ -190,6 +191,7 @@ namespace MarsTS.Units {
 			EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
 
 			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
+			targetBus.RemoveListener<UnitHurtEvent>(OnTargetHealed);
 
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, true, this);
 

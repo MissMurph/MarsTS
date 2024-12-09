@@ -128,20 +128,20 @@ namespace MarsTS.Commands {
 			NetworkObject buildingNetworking = constructionGhost.GetComponent<NetworkObject>();
 			EventAgent buildingEvents = constructionGhost.GetComponent<EventAgent>();
 
+			buildingEvents.AddListener<UnitInitEvent>(
+				_ => {
+					//if (@event.Phase == Phase.Pre) 
+					//return;
+					
+					CommandRegistry.Get<Repair>("repair").Construct(ghost, factionId, selection, inclusive);
+				}
+			);
+			
 			buildingNetworking.Spawn();
 			ghost.SetOwner(faction);
 			ghost.InitializeGhost(building.RegistryKey, constructionWorkRequired, Cost);
 
 			WithdrawResourcesFromFaction(faction);
-
-			buildingEvents.AddListener<EntityInitEvent>(
-				@event => {
-					if (@event.Phase == Phase.Pre) 
-						return;
-					
-					CommandRegistry.Get<Repair>("repair").Construct(ghost as IAttackable, factionId, selection, inclusive);
-				}
-			);
 		}
 
 		public override CostEntry[] GetCost () {

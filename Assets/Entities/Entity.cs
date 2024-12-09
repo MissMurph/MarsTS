@@ -51,8 +51,8 @@ namespace MarsTS.Entities {
 			name = $"{registryKey}:{Id}";
 			
 			//GetComponent<NetworkObject>().Spawn();
-			PostInitEvents();
 			SynchronizeClientRpc(Id);
+			PostInitEvents();
 		}
 
 		[Rpc(SendTo.NotServer)]

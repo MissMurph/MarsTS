@@ -28,12 +28,11 @@ namespace MarsTS.Buildings
         public string UnitType { get; private set; }
 
         public string RegistryKey => "buildingConstructionGhost:" + UnitType;
-        public Faction Owner => TeamCache.Faction(owner.Value);
+        public Faction Owner => TeamCache.Faction(_owner);
 
         public Sprite Icon { get; private set; }
 
-        [SerializeField] private NetworkVariable<int> owner =
-            new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
+        private int _owner;
 
         /*  ITaggable Properties    */
         public string Key => "selectable";
@@ -216,8 +215,8 @@ namespace MarsTS.Buildings
             
             currentHealth.OnValueChanged += OnHurt;
 
-            owner.OnValueChanged += (_, _)
-                => _bus.Local(new UnitOwnerChangeEvent(_bus, this, Owner));
+            //owner.OnValueChanged += (_, _)
+                //=> _bus.Local(new UnitOwnerChangeEvent(_bus, this, Owner));
         }
 
         private void CancelConstruction()
@@ -323,8 +322,17 @@ namespace MarsTS.Buildings
 
         public bool SetOwner(Faction player)
         {
-            owner.Value = player.Id;
+            _owner = player.Id;
+            SetOwnerClientRpc(_owner);
+            _bus.Local(new UnitOwnerChangeEvent(_bus, this, Owner));
             return true;
+        }
+
+        [Rpc(SendTo.NotServer)]
+        private void SetOwnerClientRpc(int newId)
+        {
+            _owner = newId;
+            _bus.Local(new UnitOwnerChangeEvent(_bus, this, Owner));
         }
 
         public BuildingConstructionGhost Get() => this;

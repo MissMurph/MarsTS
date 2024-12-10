@@ -19,7 +19,7 @@ namespace MarsTS.Commands {
 
 		protected override void Deserialize (SerializedCommandWrapper data) {
 			SerializedAttackableCommandlet deserialized = (SerializedAttackableCommandlet)data.commandletData;
-
+			
 			Name = data.Key;
 			Commander = TeamCache.Faction(data.Faction);
 			EntityCache.TryGet(deserialized.TargetUnit, out IAttackable unit);

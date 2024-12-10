@@ -137,6 +137,8 @@ namespace MarsTS.Commands {
 				}
 			);
 			
+			Debug.Log($"Faction: {factionId}");
+			
 			buildingNetworking.Spawn();
 			ghost.SetOwner(faction);
 			ghost.InitializeGhost(building.RegistryKey, constructionWorkRequired, Cost);

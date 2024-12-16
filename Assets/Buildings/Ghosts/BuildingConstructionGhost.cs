@@ -322,6 +322,8 @@ namespace MarsTS.Buildings
 
         public bool SetOwner(Faction player)
         {
+            if (!NetworkManager.Singleton.IsServer) return false;
+            
             _owner = player.Id;
             SetOwnerClientRpc(_owner);
             _bus.Local(new UnitOwnerChangeEvent(_bus, this, Owner));

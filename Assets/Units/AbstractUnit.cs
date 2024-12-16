@@ -50,7 +50,7 @@ namespace MarsTS.Units {
 
 		public Sprite Icon => icon;
 
-		public Faction Owner => TeamCache.Faction(owner.Value);
+		public Faction Owner => TeamCache.Faction(owner);
 
 		[Header("Unit Details")]
 
@@ -61,7 +61,7 @@ namespace MarsTS.Units {
 		private string type;
 
 		[SerializeField]
-		protected NetworkVariable<int> owner = new(writePerm: NetworkVariableWritePermission.Server);
+		protected int owner;
 
 		/*	ITaggable Properties	*/
 
@@ -177,8 +177,6 @@ namespace MarsTS.Units {
 
 			Bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
 			Bus.AddListener<CommandStartEvent>(ExecuteOrder);
-
-			owner.OnValueChanged += (oldValue, newValue) => Bus.Local(new UnitOwnerChangeEvent(Bus, this, Owner));
 		}
 
 		protected void AttachServerListeners () {
@@ -353,10 +351,21 @@ namespace MarsTS.Units {
 			return Owner.GetRelationship(other);
 		}
 
-		public bool SetOwner (Faction player) {
-			owner.Value = player.Id;
-			//bus.Local(new UnitOwnerChangeEvent(bus, this, Owner));
+		public bool SetOwner (Faction player)
+		{
+			if (!NetworkManager.Singleton.IsServer) return false;
+			
+			owner = player.Id;
+			SetOwnerClientRpc(owner);
+			Bus.Local(new UnitOwnerChangeEvent(Bus, this, Owner));
 			return true;
+		}
+
+		[Rpc(SendTo.NotServer)]
+		private void SetOwnerClientRpc(int newId)
+		{
+			owner = newId;
+			Bus.Local(new UnitOwnerChangeEvent(Bus, this, Owner));
 		}
 
 		public void Attack (int damage) {

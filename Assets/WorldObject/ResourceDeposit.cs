@@ -1,143 +1,148 @@
+using System;
 using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.UI;
 using MarsTS.Units;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace MarsTS.World {
+namespace MarsTS.World
+{
+    public class ResourceDeposit : MonoBehaviour, IHarvestable, ISelectable, ITaggable<ResourceDeposit>
+    {
+        public GameObject GameObject => gameObject;
+        public IUnit Unit => this;
 
-	public class ResourceDeposit : MonoBehaviour, IHarvestable, ISelectable, ITaggable<ResourceDeposit> {
+        /*	ISelectable Properties	*/
 
-		public GameObject GameObject => gameObject;
-		public IUnit Unit => this;
+        public int Id => _entityComponent.Id;
 
-		/*	ISelectable Properties	*/
+        public string UnitType => _key;
 
-		public int Id { get { return entityComponent.Id; } }
+        public string RegistryKey => UnitType + ":" + _key;
 
-		public string UnitType { get { return key; } }
+        [SerializeField] private string _key;
 
-		public string RegistryKey { get { return UnitType + ":" + key; } }
+        public Faction Owner => null;
 
-		[SerializeField]
-		private string key;
+        public Sprite Icon => _icon;
 
-		public Faction Owner { get { return null; } }
+        [SerializeField] private Sprite _icon;
 
-		public Sprite Icon { get { return icon; } }
+        /*	ITaggable Properties	*/
 
-		[SerializeField]
-		private Sprite icon;
+        public string Key => "selectable";
 
-		/*	ITaggable Properties	*/
+        public Type Type => typeof(ResourceDeposit);
 
-		public string Key { get { return "selectable"; } }
+        /*	IHarvestable Properties	*/
 
-		public Type Type { get { return typeof(ResourceDeposit); } }
+        public int OriginalAmount { get; private set; }
 
-		/*	IHarvestable Properties	*/
+        public int StoredAmount => _attribute.Amount;
 
-		public int OriginalAmount { get { return startingAmount; } }
+        /*	Deposit Fields	*/
 
-		private int startingAmount;
+        private Entity _entityComponent;
 
-		public int StoredAmount { get { return attribute.Amount; } }
+        protected EventAgent _bus;
 
-		/*	Deposit Fields	*/
+        private GameObject _selectionCircle;
 
-		private Entity entityComponent;
+        //This is just for the registry key, some examples:
+        //deposit:scrap
+        //deposit:oil_slick
+        //deposit:shale_oil
+        //deposit:biomass
+        //deposit:rock
+        [SerializeField] private string _depositType;
 
-		protected EventAgent bus;
+        protected EntityAttribute _attribute;
 
-		GameObject selectionCircle;
+        protected virtual void Awake()
+        {
+            _entityComponent = GetComponent<Entity>();
+            _attribute = GetComponent<EntityAttribute>();
+            _bus = GetComponent<EventAgent>();
+            _selectionCircle = transform.Find("SelectionCircle").gameObject;
+            _selectionCircle.SetActive(false);
+        }
 
-		//This is just for the registry key, some examples:
-		//deposit:scrap
-		//deposit:oil_slick
-		//deposit:shale_oil
-		//deposit:biomass
-		//deposit:rock
-		[SerializeField]
-		private string depositType;
+        private void Start()
+        {
+            //selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
+            OriginalAmount = _attribute.Amount;
+            EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
+        }
 
-		protected EntityAttribute attribute; 
+        public bool CanHarvest(string resourceKey, ISelectable unit)
+        {
+            if (resourceKey == _depositType) return true;
+            return false;
+        }
 
-		protected virtual void Awake () {
-			entityComponent = GetComponent<Entity>();
-			attribute = GetComponent<EntityAttribute>();
-			bus = GetComponent<EventAgent>();
-			selectionCircle = transform.Find("SelectionCircle").gameObject;
-			selectionCircle.SetActive(false);
-		}
+        public ResourceDeposit Get() => this;
 
-		private void Start () {
-			//selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
-			startingAmount = attribute.Amount;
-			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
-		}
+        public Relationship GetRelationship(Faction player) => Relationship.Neutral;
 
-		public bool CanHarvest (string resourceKey, ISelectable unit) {
-			if (resourceKey == depositType) return true;
-			return false;
-		}
+        public virtual int Harvest(
+            string resourceKey,
+            ISelectable harvester,
+            int harvestAmount,
+            Func<int, int> extractor
+        ) {
+            int availableAmount = Mathf.Min(harvestAmount, _attribute.Amount);
 
-		public ResourceDeposit Get () {
-			return this;
-		}
+            int finalAmount = extractor(availableAmount);
 
-		public Relationship GetRelationship (Faction player) {
-			return Relationship.Neutral;
-		}
+            if (finalAmount > 0)
+            {
+                _bus.Global(new ResourceHarvestedEvent(_bus, this, harvester, ResourceHarvestedEvent.Side.Deposit,
+                    finalAmount, resourceKey, StoredAmount, OriginalAmount));
+                _attribute.Amount -= finalAmount;
+            }
 
-		public virtual int Harvest (string resourceKey, ISelectable harvester, int harvestAmount, Func<int, int> extractor) {
-			int availableAmount = Mathf.Min(harvestAmount, attribute.Amount);
+            if (StoredAmount <= 0)
+            {
+                _bus.Global(new UnitDeathEvent(_bus, this));
+                Destroy(gameObject, 0.01f);
+            }
 
-			int finalAmount = extractor(availableAmount);
+            return finalAmount;
+        }
 
-			if (finalAmount > 0) {
-				bus.Global(new ResourceHarvestedEvent(bus, this, harvester, ResourceHarvestedEvent.Side.Deposit, finalAmount, resourceKey, StoredAmount, OriginalAmount));
-				attribute.Amount -= finalAmount;
-			}
-			
-			if (StoredAmount <= 0) {
-				bus.Global(new UnitDeathEvent(bus, this));
-				Destroy(gameObject, 0.01f);
-			}
+        public void Select(bool status)
+        {
+            _selectionCircle.SetActive(status);
+            _bus.Local(new UnitSelectEvent(_bus, status));
+        }
 
-			return finalAmount;
-		}
+        public void Hover(bool status)
+        {
+            //These are seperated due to the Player Selection Check
+            if (status)
+            {
+                _selectionCircle.SetActive(true);
+                _bus.Local(new UnitHoverEvent(_bus, status));
+            }
+            else if (!Player.Main.HasSelected(this))
+            {
+                _selectionCircle.SetActive(false);
+                _bus.Local(new UnitHoverEvent(_bus, status));
+            }
+        }
 
-		public void Select (bool status) {
-			selectionCircle.SetActive(status);
-			bus.Local(new UnitSelectEvent(bus, status));
-		}
+        public bool SetOwner(Faction player) => false;
 
-		public void Hover (bool status) {
-			//These are seperated due to the Player Selection Check
-			if (status) {
-				selectionCircle.SetActive(true);
-				bus.Local(new UnitHoverEvent(bus, status));
-			}
-			else if (!Player.Main.HasSelected(this)) {
-				selectionCircle.SetActive(false);
-				bus.Local(new UnitHoverEvent(bus, status));
-			}
-		}
-
-		public bool SetOwner (Faction player) {
-			return false;
-		}
-
-		private void OnUnitInfoDisplayed (UnitInfoEvent _event) {
-			if (ReferenceEquals(_event.Unit, this)) {
-				ResourceInfo info = _event.Info.Module<ResourceInfo>("deposit");
-				info.CurrentDeposit = this;
-			}
-		}
-	}
+        private void OnUnitInfoDisplayed(UnitInfoEvent _event)
+        {
+            if (ReferenceEquals(_event.Unit, this))
+            {
+                ResourceInfo info = _event.Info.Module<ResourceInfo>("deposit");
+                info.CurrentDeposit = this;
+            }
+        }
+    }
 }

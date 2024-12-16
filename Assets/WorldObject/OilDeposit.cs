@@ -35,17 +35,17 @@ namespace MarsTS.World {
 
 		public override int Harvest (string resourceKey, ISelectable harvester, int harvestAmount, Func<int, int> extractor) {
             if (harvester is Pumpjack) {
-                int availableAmount = Mathf.Min(harvestAmount, attribute.Amount);
+                int availableAmount = Mathf.Min(harvestAmount, _attribute.Amount);
 
                 int finalAmount = extractor(availableAmount);
 
                 if (finalAmount > 0) {
-                    bus.Global(new ResourceHarvestedEvent(bus, this, harvester, ResourceHarvestedEvent.Side.Deposit, finalAmount, resourceKey, StoredAmount, OriginalAmount));
-                    attribute.Amount -= finalAmount;
+                    _bus.Global(new ResourceHarvestedEvent(_bus, this, harvester, ResourceHarvestedEvent.Side.Deposit, finalAmount, resourceKey, StoredAmount, OriginalAmount));
+                    _attribute.Amount -= finalAmount;
                 }
 
                 if (StoredAmount <= 0) {
-                    bus.Global(new UnitDeathEvent(bus, this));
+                    _bus.Global(new UnitDeathEvent(_bus, this));
                     Destroy(gameObject, 0.01f);
                 }
 

@@ -44,13 +44,13 @@ namespace MarsTS.Units {
 			}
 
 			if (DepositTarget != null) {
-				if (depositableDetector.IsDetected(DepositTarget)) {
+				if (_depositableDetector.IsDetected(DepositTarget)) {
 					TrackedTarget = null;
 					CurrentPath = Path.Empty;
 
-					if (currentCooldown <= 0f) DepositResources();
+					if (_currentCooldown <= 0f) DepositResources();
 
-					currentCooldown -= Time.deltaTime;
+					_currentCooldown -= Time.deltaTime;
 				}
 				else if (!ReferenceEquals(TrackedTarget, DepositTarget.GameObject.transform)) {
 					SetTarget(DepositTarget.GameObject.transform);
@@ -75,16 +75,16 @@ namespace MarsTS.Units {
 		}
 
 		private void SiphonOil () {
-			int harvested = HarvestTarget.Harvest("oil", this, harvestAmount, storageComp.Submit);
+			int harvested = HarvestTarget.Harvest("oil", this, harvestAmount, _storageComp.Submit);
 			Bus.Global(new ResourceHarvestedEvent(Bus, HarvestTarget, this, ResourceHarvestedEvent.Side.Harvester, harvested, "oil", Stored, Capacity));
 
 			currentHarvestCooldown += harvestCooldown;
 		}
 
 		protected override void DepositResources () {
-			storageComp.Consume(DepositTarget.Deposit("oil", depositAmount));
+			_storageComp.Consume(DepositTarget.Deposit("oil", _depositAmount));
 			Bus.Global(new HarvesterDepositEvent(Bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity, DepositTarget));
-			currentCooldown += cooldown;
+			_currentCooldown += _cooldown;
 		}
 	}
 }

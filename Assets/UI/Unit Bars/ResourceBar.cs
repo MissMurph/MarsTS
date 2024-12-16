@@ -33,7 +33,7 @@ namespace MarsTS.UI {
 				FillLevel = (float)deposit.StoredAmount / deposit.OriginalAmount;
 
 				bus.AddListener<ResourceHarvestedEvent>((_event) => {
-					FillLevel = (float)_event.Deposit.StoredAmount / _event.Deposit.OriginalAmount;
+					FillLevel = (float)_event.Unit.StoredAmount / _event.Unit.OriginalAmount;
 				});
 
 				bus.AddListener<UnitHoverEvent>((_event) => {

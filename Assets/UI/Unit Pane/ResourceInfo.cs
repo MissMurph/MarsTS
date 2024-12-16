@@ -84,9 +84,9 @@ namespace MarsTS.UI {
 		}
 
 		private void OnResourceHarvested (ResourceHarvestedEvent _event) {
-			if (_event.EventSide == ResourceHarvestedEvent.Side.Deposit && ReferenceEquals(_event.Deposit, CurrentDeposit)) {
-				CurrentValue = _event.Deposit.StoredAmount;
-				MaxValue = _event.Deposit.OriginalAmount;
+			if (_event.EventSide == ResourceHarvestedEvent.Side.Deposit && ReferenceEquals(_event.Unit, CurrentDeposit)) {
+				CurrentValue = _event.Unit.StoredAmount;
+				MaxValue = _event.Unit.OriginalAmount;
 			}
 		}
 

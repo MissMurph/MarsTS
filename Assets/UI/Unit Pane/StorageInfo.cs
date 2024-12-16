@@ -1,119 +1,116 @@
 using MarsTS.Events;
 using MarsTS.Units;
-using MarsTS.World;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-namespace MarsTS.UI {
+namespace MarsTS.UI
+{
+    public class StorageInfo : MonoBehaviour, IInfoModule
+    {
+        public int CurrentValue
+        {
+            get => _currentValue;
+            set
+            {
+                _currentValue = value;
 
-	public class StorageInfo : MonoBehaviour, IInfoModule {
+                FillLevel = (float)_currentValue / MaxValue;
 
-		public int CurrentValue {
-			get {
-				return currentValue;
-			}
-			set {
-				currentValue = value;
+                _text.text = _currentValue + " / " + MaxValue;
+            }
+        }
 
-				FillLevel = (float)currentValue / MaxValue;
+        private int _currentValue = 1;
 
-				text.text = currentValue + " / " + MaxValue;
-			}
-		}
+        public int MaxValue
+        {
+            get => _maxValue;
+            set
+            {
+                _maxValue = value;
 
-		private int currentValue = 1;
+                FillLevel = (float)_currentValue / MaxValue;
 
-		public int MaxValue {
-			get {
-				return maxValue;
-			}
-			set {
-				maxValue = value;
+                _text.text = $"{CurrentValue} / {_maxValue}";
+            }
+        }
 
-				FillLevel = (float)currentValue / MaxValue;
+        private int _maxValue = 1;
 
-				text.text = CurrentValue + " / " + maxValue;
-			}
-		}
+        private float FillLevel
+        {
+            set
+            {
+                float rightEdge = _literalSize - _literalSize * value;
+                _barTransform.offsetMax = new Vector2(-rightEdge, 0f);
+            }
+        }
 
-		private int maxValue = 1;
+        public ISelectable CurrentUnit { get; set; }
 
-		private float FillLevel {
-			set {
-				float rightEdge = literalSize - (literalSize * value);
-				barTransform.offsetMax = new Vector2(-rightEdge, 0f);
-			}
-		}
+        public GameObject GameObject => gameObject;
 
-		public ISelectable CurrentUnit {
-			get {
-				return currentUnit;
-			}
-			set {
-				currentUnit = value;
+        public string Name => "storage";
 
-				//CurrentValue = value.StoredAmount;
-				//MaxValue = value.OriginalAmount;
-			}
-		}
+        private TextMeshProUGUI _text;
+        private RectTransform _barTransform;
 
-		private ISelectable currentUnit;
+        private float _literalSize;
 
-		public GameObject GameObject { get { return gameObject; } }
+        private void Awake()
+        {
+            _text = transform.Find("Number").GetComponent<TextMeshProUGUI>();
+            _barTransform = transform.Find("Bar") as RectTransform;
 
-		public string Name { get { return "storage"; } }
+            //xMax is the max literal x co-ords from the center, so if we multiply by 2 that gets us the literal size
+            _literalSize = _barTransform.rect.xMax * 2;
+        }
 
-		private TextMeshProUGUI text;
-		private RectTransform barTransform;
+        private void Start()
+        {
+            EventBus.AddListener<UnitDeathEvent>(OnEntityDeath);
+            EventBus.AddListener<ResourceHarvestedEvent>(OnResourceHarvested);
+            EventBus.AddListener<HarvesterDepositEvent>(OnResourceDeposited);
+        }
 
-		private float literalSize;
+        private void OnResourceHarvested(ResourceHarvestedEvent _event)
+        {
+            if (ReferenceEquals(_event.Unit, CurrentUnit) && _event.EventSide == ResourceHarvestedEvent.Side.Deposit)
+            {
+                CurrentValue = _event.StoredAmount;
+                MaxValue = _event.Capacity;
+            }
+            else if (ReferenceEquals(_event.Harvester, CurrentUnit) &&
+                     _event.EventSide == ResourceHarvestedEvent.Side.Harvester)
+            {
+                CurrentValue = _event.StoredAmount;
+                MaxValue = _event.Capacity;
+            }
+        }
 
-		private void Awake () {
-			text = transform.Find("Number").GetComponent<TextMeshProUGUI>();
-			barTransform = transform.Find("Bar") as RectTransform;
+        private void OnResourceDeposited(HarvesterDepositEvent _event)
+        {
+            if (ReferenceEquals(_event.Bank, CurrentUnit) && _event.EventSide == HarvesterDepositEvent.Side.Bank)
+            {
+                CurrentValue = _event.StoredAmount;
+                MaxValue = _event.Capacity;
+            }
+            else if (ReferenceEquals(_event.Harvester, CurrentUnit) && _event.EventSide == HarvesterDepositEvent.Side.Harvester)
+            {
+                CurrentValue = _event.StoredAmount;
+                MaxValue = _event.Capacity;
+            }
+        }
 
-			//xMax is the max literal x co-ords from the center, so if we multiply by 2 that gets us the literal size
-			literalSize = barTransform.rect.xMax * 2;
-		}
+        private void OnEntityDeath(UnitDeathEvent _event)
+        {
+            if (ReferenceEquals(_event.Unit, CurrentUnit)) CurrentUnit = null;
+        }
 
-		private void Start () {
-			EventBus.AddListener<UnitDeathEvent>(OnEntityDeath);
-			EventBus.AddListener<ResourceHarvestedEvent>(OnResourceHarvested);
-			EventBus.AddListener<HarvesterDepositEvent>(OnResourceDeposited);
-		}
-
-		private void OnResourceHarvested (ResourceHarvestedEvent _event) {
-			if (ReferenceEquals(_event.Deposit, CurrentUnit) && _event.EventSide == ResourceHarvestedEvent.Side.Deposit) {
-				CurrentValue = _event.StoredAmount;
-				MaxValue = _event.Capacity;
-			}
-			else if (ReferenceEquals(_event.Harvester, CurrentUnit) && _event.EventSide == ResourceHarvestedEvent.Side.Harvester) {
-				CurrentValue = _event.StoredAmount;
-				MaxValue = _event.Capacity;
-			}
-		}
-
-		private void OnResourceDeposited (HarvesterDepositEvent _event) {
-			if (ReferenceEquals(_event.Bank, CurrentUnit) && _event.EventSide == HarvesterDepositEvent.Side.Bank) {
-				CurrentValue = _event.StoredAmount;
-				MaxValue = _event.Capacity;
-			} else if (ReferenceEquals(_event.Harvester, CurrentUnit) && _event.EventSide == HarvesterDepositEvent.Side.Harvester) {
-				CurrentValue = _event.StoredAmount;
-				MaxValue = _event.Capacity;
-			}
-		}
-
-		private void OnEntityDeath (UnitDeathEvent _event) {
-			if (ReferenceEquals(_event.Unit, CurrentUnit)) {
-				CurrentUnit = null;
-			}
-		}
-
-		public T Get<T> () {
-			if (this is T output) return output;
-			return default;
-		}
-	}
+        public T Get<T>()
+        {
+            if (this is T output) return output;
+            return default;
+        }
+    }
 }

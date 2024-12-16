@@ -1,109 +1,111 @@
 using MarsTS.Commands;
 using MarsTS.Events;
-using MarsTS.Teams;
 using MarsTS.World;
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Units {
-
-    public class HarvesterTurret : MonoBehaviour {
-
+namespace MarsTS.Units
+{
+    public class HarvesterTurret : MonoBehaviour
+    {
         //This is how many units per second
-        [SerializeField]
-        private int harvestRate;
+        [SerializeField] private int _harvestRate;
 
-		private int harvestAmount;
+        private int _harvestAmount;
 
-		private float cooldown;
-		private float currentCooldown;
+        private float _cooldown;
+        private float _currentCooldown;
 
-		private ResourceStorage localStorage;
+        private ResourceStorage _localStorage;
 
-		[SerializeField]
-		private GameObject barrel;
+        [SerializeField] private GameObject _barrel;
 
-		public float Range { get { return sensor.Range; } }
+        public float Range => _sensor.Range;
 
-		private IHarvestable target;
+        private IHarvestable _target;
 
-		private ISelectable parent;
-		private EventAgent bus;
+        private ISelectable _parent;
+        private EventAgent _bus;
 
-		private HarvestSensor sensor;
+        private HarvestSensor _sensor;
 
-		private void Awake () {
-			parent = GetComponentInParent<ISelectable>();
-			bus = GetComponentInParent<EventAgent>();
-			sensor = GetComponent<HarvestSensor>();
+        private void Awake()
+        {
+            _parent = GetComponentInParent<ISelectable>();
+            _bus = GetComponentInParent<EventAgent>();
+            _sensor = GetComponent<HarvestSensor>();
 
-			bus.AddListener<SensorUpdateEvent<IHarvestable>>(OnSensorUpdate);
+            _bus.AddListener<SensorUpdateEvent<IHarvestable>>(OnSensorUpdate);
 
-			localStorage = GetComponentInParent<ResourceStorage>();
+            _localStorage = GetComponentInParent<ResourceStorage>();
+            _localStorage.AttributeChangeEvent += OnStorageValueChange;
 
-			cooldown = 1f / harvestRate;
-			harvestAmount = (int)(harvestRate * cooldown);
-		}
+            _cooldown = 1f / _harvestRate;
+            _harvestAmount = (int)(_harvestRate * _cooldown);
+        }
 
-		private void Update () {
-			if (!NetworkManager.Singleton.IsServer) return;
+        private void Update()
+        {
+            if (!NetworkManager.Singleton.IsServer) return;
 
-			if (currentCooldown >= 0f) {
-				currentCooldown -= Time.deltaTime;
-			}
+            if (_currentCooldown >= 0f) _currentCooldown -= Time.deltaTime;
 
-			if (parent is ICommandable commandableUnit && commandableUnit.CurrentCommand != null && commandableUnit.CurrentCommand.Name == "harvest") {
-				Commandlet<IHarvestable> harvestCommand = commandableUnit.CurrentCommand as Commandlet<IHarvestable>;
+            if (_parent is ICommandable commandableUnit && commandableUnit.CurrentCommand != null &&
+                commandableUnit.CurrentCommand.Name == "harvest")
+            {
+                var harvestCommand = commandableUnit.CurrentCommand as Commandlet<IHarvestable>;
 
-				if (sensor.IsDetected(harvestCommand.Target)) {
-					target = harvestCommand.Target;
-				}
-			}
+                if (_sensor.IsDetected(harvestCommand.Target)) _target = harvestCommand.Target;
+            }
 
-			if (target == null) {
-				foreach (IHarvestable unit in sensor.Detected) {
-					target = unit;
-					break;
-				}
-			}
+            if (_target == null)
+                foreach (IHarvestable unit in _sensor.Detected)
+                {
+                    _target = unit;
+                    break;
+                }
 
-			if (target != null && sensor.IsDetected(target) && currentCooldown <= 0) {
-				Harvest();
-			}
-		}
+            if (_target != null && _sensor.IsDetected(_target) && _currentCooldown <= 0) Harvest();
+        }
 
-		private void FixedUpdate () {
-			if (!NetworkManager.Singleton.IsServer) return;
+        private void FixedUpdate()
+        {
+            if (!NetworkManager.Singleton.IsServer) return;
 
-			if (target != null && sensor.IsDetected(target)) {
-				barrel.transform.LookAt(target.GameObject.transform, Vector3.up);
-			}
-		}
+            if (_target != null && _sensor.IsDetected(_target))
+                _barrel.transform.LookAt(_target.GameObject.transform, Vector3.up);
+        }
 
-		private void Harvest () {
-			IHarvestable harvestable = target as IHarvestable;
+        private void Harvest()
+        {
+            IHarvestable harvestable = _target;
 
-			int harvested = harvestable.Harvest("resource_unit", parent, harvestAmount, localStorage.Submit);
-			bus.Global(new ResourceHarvestedEvent(bus, harvestable, parent, ResourceHarvestedEvent.Side.Harvester, harvested, "resource_unit", localStorage.Amount, localStorage.Capacity));
+            int harvested = harvestable.Harvest("resource_unit", _parent, _harvestAmount, _localStorage.Submit);
+            
+            _bus.Global(new ResourceHarvestedEvent(_bus, harvestable, _parent, ResourceHarvestedEvent.Side.Harvester,
+                harvested, "resource_unit", _localStorage.Amount, _localStorage.Capacity));
 
-			currentCooldown += cooldown;
-		}
+            _currentCooldown += _cooldown;
+        }
 
-		private void OnSensorUpdate (SensorUpdateEvent<IHarvestable> _event) {
-			if (_event.Detected == true) {
-				if (target == null) {
-					target = _event.Target;
-				}
-			}
-			else if (ReferenceEquals(_event.Target, target)) {
-				target = null;
-			}
-		}
+        private void OnStorageValueChange(int oldValue, int newValue)
+        {
+            _bus.Global(new ResourceHarvestedEvent(_bus, harvestable, _parent, ResourceHarvestedEvent.Side.Harvester,
+                harvested, "resource_unit", _localStorage.Amount, _localStorage.Capacity));
+        }
 
-		public bool IsInRange (IHarvestable target) {
-			return sensor.IsDetected(target);
-		}
-	}
+        private void OnSensorUpdate(SensorUpdateEvent<IHarvestable> _event)
+        {
+            if (_event.Detected)
+            {
+                if (_target == null) _target = _event.Target;
+            }
+            else if (ReferenceEquals(_event.Target, _target))
+            {
+                _target = null;
+            }
+        }
+
+        public bool IsInRange(IHarvestable target) => _sensor.IsDetected(target);
+    }
 }

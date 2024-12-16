@@ -304,7 +304,7 @@ namespace MarsTS.Units {
 			if (roughneckSquad.Stored >= roughneckSquad.Capacity) {
 				bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
-				EntityCache.TryGet(_event.Deposit.GameObject.transform.root.name, out EventAgent targetBus);
+				EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.RemoveListener<UnitDeathEvent>(OnDepositDepleted);
 

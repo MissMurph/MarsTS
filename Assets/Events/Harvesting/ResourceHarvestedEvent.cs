@@ -8,8 +8,7 @@ namespace MarsTS.Events {
 
 	public class ResourceHarvestedEvent : ResourceEvent {
 		
-		public IHarvestable Deposit { get; private set; }
-		public ISelectable Harvester { get; private set; }
+		public ISelectable Unit { get; private set; }
 		public Side EventSide { get; private set; }
 
 		public int HarvestAmount { get; private set; }
@@ -17,11 +16,22 @@ namespace MarsTS.Events {
 		public int Capacity { get; private set; }
 
 
-		public ResourceHarvestedEvent (EventAgent _source, IHarvestable _deposit, ISelectable _harvester, Side _eventSide, int _harvestAmount, string _resourceType, int _storedAmount, int _capacity) : base("Harvested", _source, _resourceType) {
-			Deposit = _deposit;
+		public ResourceHarvestedEvent (
+            EventAgent _source, 
+            ISelectable unit, 
+            Side _eventSide, 
+            int _harvestAmount, 
+            string _resourceType, 
+            int _storedAmount, 
+            int _capacity
+        ) : base(
+			"Harvested", 
+			_source, 
+			_resourceType
+		) {
+			Unit = unit;
 			HarvestAmount = _harvestAmount;
 			EventSide = _eventSide;
-			Harvester = _harvester;
 			StoredAmount = _storedAmount;
 			Capacity = _capacity;
 		}

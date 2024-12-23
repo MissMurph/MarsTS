@@ -171,8 +171,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 452040235065412164}
-  - component: {fileID: 9151996519447173059}
   - component: {fileID: -8439132190853912419}
+  - component: {fileID: 9151996519447173059}
   - component: {fileID: 7880851597027462242}
   - component: {fileID: 452040235065412184}
   - component: {fileID: 1150365006578497603}
@@ -211,6 +211,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-8439132190853912419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 452040235016441161}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 599435774
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &9151996519447173059
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -225,27 +246,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   registryKey: flattank
   toTag: []
---- !u!114 &-8439132190853912419
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 452040235016441161}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3772417854
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
 --- !u!114 &7880851597027462242
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -264,8 +264,7 @@ MonoBehaviour:
     m_InternalValue: 0
   icon: {fileID: 21300000, guid: 8fb8be3b4f3cda64689a1769771fca53, type: 3}
   type: flattank
-  owner:
-    m_InternalValue: 0
+  owner: 0
   boundCommands:
   - move
   - stop

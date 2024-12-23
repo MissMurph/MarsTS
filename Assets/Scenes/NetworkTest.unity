@@ -2979,10 +2979,19 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 44666714}
     m_Modifications:
+    - target: {fileID: 1384445389, guid: 5c7112a92d6457a4baf12670d9669733, type: 3}
+      propertyPath: _name
+      value: storage
+      objectReference: {fileID: 0}
     - target: {fileID: 8336015430637053979, guid: 5c7112a92d6457a4baf12670d9669733,
         type: 3}
       propertyPath: m_Name
       value: ResourceStorage
+      objectReference: {fileID: 0}
+    - target: {fileID: 8336015430637053979, guid: 5c7112a92d6457a4baf12670d9669733,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8336015430637054052, guid: 5c7112a92d6457a4baf12670d9669733,
         type: 3}
@@ -3089,8 +3098,7 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 1384445389, guid: 5c7112a92d6457a4baf12670d9669733, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5c7112a92d6457a4baf12670d9669733, type: 3}
 --- !u!1 &1335219375
 GameObject:
@@ -4164,30 +4172,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1836550455 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8336015430637053979, guid: 5c7112a92d6457a4baf12670d9669733,
-    type: 3}
-  m_PrefabInstance: {fileID: 1334058526}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &1836550456 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8336015430637054052, guid: 5c7112a92d6457a4baf12670d9669733,
     type: 3}
   m_PrefabInstance: {fileID: 1334058526}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1836550457
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1836550455}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 06a41e019cf576f4aa0781279a31c1b3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1847970146
 GameObject:
   m_ObjectHideFlags: 0
@@ -5633,6 +5623,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 44666714}
     m_Modifications:
+    - target: {fileID: 1384445389, guid: 5c7112a92d6457a4baf12670d9669733, type: 3}
+      propertyPath: _name
+      value: deposit
+      objectReference: {fileID: 0}
     - target: {fileID: 8336015430637053979, guid: 5c7112a92d6457a4baf12670d9669733,
         type: 3}
       propertyPath: m_Name

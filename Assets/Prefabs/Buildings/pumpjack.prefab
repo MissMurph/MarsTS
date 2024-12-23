@@ -145,6 +145,7 @@ GameObject:
   - component: {fileID: 3454774584343477042}
   - component: {fileID: 3094678107637244672}
   - component: {fileID: 5132257282321271846}
+  - component: {fileID: -1105662473589906674}
   m_Layer: 0
   m_Name: pumpjack
   m_TagString: Untagged
@@ -186,7 +187,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 201990641
+  GlobalObjectIdHash: 2231663777
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -225,8 +226,7 @@ MonoBehaviour:
   - {fileID: 3668977582584003210}
   - {fileID: 3668977583830543927}
   - {fileID: 4305377559586832187}
-  capacity: 2000
-  harvestRate: 5
+  _harvestRate: 5
 --- !u!114 &3668977583793415181
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -308,6 +308,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   productionSpeed: 1
+--- !u!114 &-1105662473589906674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3668977583793415411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db75fe7896a566744b02bc8532aebeab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _key: 
+  _startingValue: 0
+  _capacity: 2000
+  _resourceKey: oil
 --- !u!1 &3668977583830543927
 GameObject:
   m_ObjectHideFlags: 0
@@ -496,7 +512,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7066145069961772964}
-  - component: {fileID: 2055887779487163739}
+  - component: {fileID: 6740566618811649316}
   - component: {fileID: 6852110456137419960}
   - component: {fileID: 6459182225533642230}
   m_Layer: 0
@@ -521,7 +537,7 @@ Transform:
   m_Father: {fileID: 4305377559586832186}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2055887779487163739
+--- !u!114 &6740566618811649316
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -530,9 +546,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 4819029633232838517}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 32dc3ebd8d388df4da8604ad563add4c, type: 3}
+  m_Script: {fileID: 11500000, guid: ffede7701679440479b740e4f6245f82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _storage: {fileID: -1105662473589906674}
 --- !u!33 &6852110456137419960
 MeshFilter:
   m_ObjectHideFlags: 0

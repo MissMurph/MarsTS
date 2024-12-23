@@ -266,6 +266,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffede7701679440479b740e4f6245f82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _storage: {fileID: 5456957795722013601}
 --- !u!33 &6811850401960122035
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -538,9 +539,9 @@ GameObject:
   m_Component:
   - component: {fileID: 3758000306492427156}
   - component: {fileID: 3758000306492427241}
+  - component: {fileID: -8091255082020761022}
   - component: {fileID: 3758000306492427159}
   - component: {fileID: 3758000306492427158}
-  - component: {fileID: -8091255082020761022}
   - component: {fileID: 3758000306492427154}
   - component: {fileID: 5456957795722013601}
   - component: {fileID: 1897545057432171859}
@@ -595,6 +596,27 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &-8091255082020761022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3758000306492427157}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 1896190280
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &3758000306492427159
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -621,27 +643,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80e809a2901f3c24a914b37a7eb11e9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &-8091255082020761022
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3758000306492427157}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1896190280
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
 --- !u!114 &3758000306492427154
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -655,13 +656,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth:
-    m_InternalValue: 0
+    m_InternalValue: 200
   currentHealth:
     m_InternalValue: 0
   icon: {fileID: 21300000, guid: 0c7bd8e875a4117439f1e5714a518e0b, type: 3}
   type: harvester
-  owner:
-    m_InternalValue: 0
+  owner: 0
   boundCommands:
   - move
   - stop
@@ -672,11 +672,11 @@ MonoBehaviour:
   - {fileID: 3758000306350165283}
   - {fileID: 4091789543579619753}
   - {fileID: 2193349266834965501}
-  topSpeed: 5
-  acceleration: 800
-  turnSpeed: 45
-  angleTolerance: 25
-  depositRate: 100
+  _topSpeed: 5
+  _acceleration: 800
+  _turnSpeed: 45
+  _angleTolerance: 25
+  _depositRate: 100
 --- !u!114 &5456957795722013601
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -689,10 +689,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db75fe7896a566744b02bc8532aebeab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: 
-  startingValue: 0
-  capacity: 500
-  resourceKey: resource_unit
+  _key: 
+  _startingValue: 0
+  _capacity: 500
+  _resourceKey: resource_unit
 --- !u!114 &1897545057432171859
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -905,8 +905,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7787fb3d03f89164a8bedd9f06b468fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  harvestRate: 20
-  barrel: {fileID: 317408812239464569}
+  _harvestRate: 20
+  _barrel: {fileID: 317408812239464569}
 --- !u!135 &7936878566158919061
 SphereCollider:
   m_ObjectHideFlags: 0

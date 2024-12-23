@@ -520,9 +520,10 @@ GameObject:
   m_Component:
   - component: {fileID: 5416129086686114803}
   - component: {fileID: 2286530688346317263}
-  - component: {fileID: 5416129086686114805}
+  - component: {fileID: 3852121183982828961}
+  - component: {fileID: -5872467056105390491}
   - component: {fileID: 5416129086686114802}
-  - component: {fileID: 5416129086686114807}
+  - component: {fileID: 5416129086686114805}
   - component: {fileID: 2503274381758573132}
   m_Layer: 0
   m_Name: oil_slick
@@ -562,10 +563,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 369bb10e9393f9545849c4727e502bb4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: oil_slick
-  icon: {fileID: 21300000, guid: 357daeff9bc5e444f80c022a80831c0d, type: 3}
-  depositType: oil
---- !u!114 &5416129086686114805
+  _key: 
+  _icon: {fileID: 0}
+  _depositType: 
+--- !u!114 &3852121183982828961
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -574,9 +575,34 @@ MonoBehaviour:
   m_GameObject: {fileID: 5416129086686114800}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80e809a2901f3c24a914b37a7eb11e9b, type: 3}
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2514538362
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+--- !u!114 &-5872467056105390491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5416129086686114800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db75fe7896a566744b02bc8532aebeab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _key: 
+  _startingValue: 0
+  _capacity: 0
+  _resourceKey: 
 --- !u!114 &5416129086686114802
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -590,7 +616,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   registryKey: resourceDeposit
---- !u!114 &5416129086686114807
+  toTag: []
+--- !u!114 &5416129086686114805
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -599,11 +626,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 5416129086686114800}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62494fe637960d944b4dc95f2de7df3a, type: 3}
+  m_Script: {fileID: 11500000, guid: 80e809a2901f3c24a914b37a7eb11e9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: oil
-  startingValue: 10000
 --- !u!54 &2503274381758573132
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -666,6 +691,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffede7701679440479b740e4f6245f82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _storage: {fileID: 0}
 --- !u!33 &3721344520434847031
 MeshFilter:
   m_ObjectHideFlags: 0

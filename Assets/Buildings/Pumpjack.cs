@@ -117,9 +117,10 @@ namespace MarsTS.Buildings
 
                 if (finalAmount > 0)
                 {
-                    Bus.Global(new ResourceHarvestedEvent(Bus, this, harvester, ResourceHarvestedEvent.Side.Deposit,
-                        finalAmount, "oil", StoredAmount, capacity));
-                    StoredAmount -= finalAmount;
+                    /*Bus.Global(new ResourceHarvestedEvent(Bus, this, harvester, ResourceHarvestedEvent.Side.Deposit,
+                        finalAmount, "oil", StoredAmount, capacity));*/
+                    //StoredAmount -= finalAmount;
+                    _resourceStorage.Consume(finalAmount);
                 }
 
                 return finalAmount;

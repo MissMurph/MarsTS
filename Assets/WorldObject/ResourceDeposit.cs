@@ -99,7 +99,7 @@ namespace MarsTS.World
 
             if (finalAmount > 0)
             {
-                _bus.Global(new ResourceHarvestedEvent(_bus, this, harvester, ResourceHarvestedEvent.Side.Deposit,
+                _bus.Global(new ResourceHarvestedEvent(_bus, this, ResourceHarvestedEvent.Side.Deposit,
                     finalAmount, resourceKey, StoredAmount, OriginalAmount));
                 _attribute.Amount -= finalAmount;
             }

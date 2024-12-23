@@ -380,7 +380,18 @@ namespace MarsTS.Units {
 
 		private void SiphonOil () {
 			int harvested = HarvestTarget.Get.Harvest("oil", this, harvestAmount, roughneckSquad.storageComp.Submit);
-			bus.Global(new ResourceHarvestedEvent(bus, HarvestTarget.Get, this, ResourceHarvestedEvent.Side.Harvester, harvested, "oil", roughneckSquad.Stored, roughneckSquad.Capacity));
+			
+			bus.Global(
+				new ResourceHarvestedEvent(
+					bus, 
+					this, 
+					ResourceHarvestedEvent.Side.Harvester,
+					harvested,
+					"oil",
+					roughneckSquad.Stored,
+					roughneckSquad.Capacity
+				)
+			);
 
 			currentHarvestCooldown += harvestCooldown;
 		}

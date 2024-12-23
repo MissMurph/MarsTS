@@ -50,7 +50,7 @@ namespace MarsTS.Units {
 		}
 
 		public void OnMemberHarvest (ResourceHarvestedEvent _event) {
-			bus.Global(new ResourceHarvestedEvent(bus, _event.Unit, this, ResourceHarvestedEvent.Side.Harvester, _event.HarvestAmount, _event.Resource, Stored, Capacity));
+			bus.Global(new ResourceHarvestedEvent(bus, this, ResourceHarvestedEvent.Side.Harvester, _event.HarvestAmount, _event.Resource, Stored, Capacity));
 		}
 
 		public void OnMemberDeposit (HarvesterDepositEvent _event) {

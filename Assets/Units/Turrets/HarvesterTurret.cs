@@ -38,7 +38,7 @@ namespace MarsTS.Units
             _bus.AddListener<SensorUpdateEvent<IHarvestable>>(OnSensorUpdate);
 
             _localStorage = GetComponentInParent<ResourceStorage>();
-            _localStorage.AttributeChangeEvent += OnStorageValueChange;
+            _localStorage.OnAttributeChange += OnStorageValueChange;
 
             _cooldown = 1f / _harvestRate;
             _harvestAmount = (int)(_harvestRate * _cooldown);
@@ -82,7 +82,7 @@ namespace MarsTS.Units
 
             int harvested = harvestable.Harvest("resource_unit", _parent, _harvestAmount, _localStorage.Submit);
             
-            _bus.Global(new ResourceHarvestedEvent(_bus, harvestable, _parent, ResourceHarvestedEvent.Side.Harvester,
+            _bus.Global(new ResourceHarvestedEvent(_bus, _parent, ResourceHarvestedEvent.Side.Harvester,
                 harvested, "resource_unit", _localStorage.Amount, _localStorage.Capacity));
 
             _currentCooldown += _cooldown;
@@ -90,8 +90,8 @@ namespace MarsTS.Units
 
         private void OnStorageValueChange(int oldValue, int newValue)
         {
-            _bus.Global(new ResourceHarvestedEvent(_bus, harvestable, _parent, ResourceHarvestedEvent.Side.Harvester,
-                harvested, "resource_unit", _localStorage.Amount, _localStorage.Capacity));
+            _bus.Global(new ResourceHarvestedEvent(_bus, _parent, ResourceHarvestedEvent.Side.Harvester,
+                newValue - oldValue, "resource_unit", _localStorage.Amount, _localStorage.Capacity));
         }
 
         private void OnSensorUpdate(SensorUpdateEvent<IHarvestable> _event)

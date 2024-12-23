@@ -10,30 +10,28 @@ namespace MarsTS.Events {
 		
 		public ISelectable Unit { get; private set; }
 		public Side EventSide { get; private set; }
-
 		public int HarvestAmount { get; private set; }
 		public int StoredAmount { get; private set; }
 		public int Capacity { get; private set; }
 
-
 		public ResourceHarvestedEvent (
-            EventAgent _source, 
+            EventAgent source, 
             ISelectable unit, 
-            Side _eventSide, 
-            int _harvestAmount, 
-            string _resourceType, 
-            int _storedAmount, 
-            int _capacity
+            Side eventSide, 
+            int harvestAmount, 
+            string resourceType, 
+            int storedAmount, 
+            int capacity
         ) : base(
-			"Harvested", 
-			_source, 
-			_resourceType
+			$"{resourceType}Harvested", 
+			source, 
+			resourceType
 		) {
 			Unit = unit;
-			HarvestAmount = _harvestAmount;
-			EventSide = _eventSide;
-			StoredAmount = _storedAmount;
-			Capacity = _capacity;
+			HarvestAmount = harvestAmount;
+			EventSide = eventSide;
+			StoredAmount = storedAmount;
+			Capacity = capacity;
 		}
 
 		public enum Side {

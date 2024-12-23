@@ -5,6 +5,7 @@ using MarsTS.Units;
 using MarsTS.World;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace MarsTS.Buildings
 {
@@ -12,19 +13,15 @@ namespace MarsTS.Buildings
     {
         /*	IHarvestable Properties	*/
 
-        public int OriginalAmount => capacity;
-
-        [SerializeField] 
-        private int capacity;
-
-        public int StoredAmount { get; private set; }
+        public int OriginalAmount => _resourceStorage.Capacity;
+        public int StoredAmount => _resourceStorage.Amount;
 
         /*	Pumpjack Fields	*/
 
         private OilDeposit _exploitedDeposit;
 
         [SerializeField] 
-        private int harvestRate;
+        private int _harvestRate;
 
         private int _harvestAmount;
         private float _cooldown;
@@ -32,12 +29,14 @@ namespace MarsTS.Buildings
 
         private GameObject _oilDetector;
 
+        private ResourceStorage _resourceStorage;
+
         protected override void Awake()
         {
             base.Awake();
 
-            _cooldown = 1f / harvestRate;
-            _harvestAmount = (int)(harvestRate * _cooldown);
+            _cooldown = 1f / _harvestRate;
+            _harvestAmount = (int)(_harvestRate * _cooldown);
             _currentCooldown = _cooldown;
 
             _oilDetector = transform.Find("OilCollider").gameObject;
@@ -63,9 +62,9 @@ namespace MarsTS.Buildings
 
             if (_currentCooldown <= 0)
             {
-                int harvested = _exploitedDeposit.Harvest("oil", this, _harvestAmount, Pump);
+                _exploitedDeposit.Harvest("oil", this, _harvestAmount, _resourceStorage.Submit);
                 
-                Bus.Global(new ResourceHarvestedEvent(
+                /*Bus.Global(new ResourceHarvestedEvent(
                     Bus, 
                     _exploitedDeposit, 
                     this, 
@@ -75,7 +74,7 @@ namespace MarsTS.Buildings
                     StoredAmount, 
                     capacity
                     )
-                );
+                );*/
 
                 _currentCooldown += _cooldown;
             }
@@ -94,17 +93,6 @@ namespace MarsTS.Buildings
 
         public virtual bool CanHarvest(string resourceKey, ISelectable unit) =>
             resourceKey == "oil" && (unit.Owner == Owner || unit.UnitType == "roughneck");
-
-        private int Pump(int amount)
-        {
-            int newAmount = Mathf.Min(capacity, StoredAmount + amount);
-
-            int difference = newAmount - StoredAmount;
-
-            StoredAmount = newAmount;
-
-            return difference;
-        }
 
         public virtual int Harvest(string resourceKey, ISelectable harvester, int harvestAmount,
             Func<int, int> extractor)
@@ -135,10 +123,8 @@ namespace MarsTS.Buildings
 
             if (ReferenceEquals(_event.Unit, this))
             {
-                StorageInfo info = _event.Info.Module<StorageInfo>("storage");
-                info.CurrentUnit = this;
-                info.CurrentValue = StoredAmount;
-                info.MaxValue = capacity;
+                UnitResourceStorageInfo info = _event.Info.Module<UnitResourceStorageInfo>("storage");
+                info.SetStorage(_resourceStorage);
             }
         }
 

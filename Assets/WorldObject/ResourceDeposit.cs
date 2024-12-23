@@ -41,7 +41,7 @@ namespace MarsTS.World
 
         public int OriginalAmount { get; private set; }
 
-        public int StoredAmount => _attribute.Amount;
+        public int StoredAmount => _resourceStorage.Amount;
 
         /*	Deposit Fields	*/
 
@@ -59,12 +59,12 @@ namespace MarsTS.World
         //deposit:rock
         [SerializeField] private string _depositType;
 
-        protected EntityAttribute _attribute;
+        protected ResourceStorage _resourceStorage;
 
         protected virtual void Awake()
         {
             _entityComponent = GetComponent<Entity>();
-            _attribute = GetComponent<EntityAttribute>();
+            _resourceStorage = GetComponent<ResourceStorage>();
             _bus = GetComponent<EventAgent>();
             _selectionCircle = transform.Find("SelectionCircle").gameObject;
             _selectionCircle.SetActive(false);
@@ -73,7 +73,7 @@ namespace MarsTS.World
         private void Start()
         {
             //selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
-            OriginalAmount = _attribute.Amount;
+            OriginalAmount = _resourceStorage.Amount;
             EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
         }
 
@@ -93,7 +93,7 @@ namespace MarsTS.World
             int harvestAmount,
             Func<int, int> extractor
         ) {
-            int availableAmount = Mathf.Min(harvestAmount, _attribute.Amount);
+            int availableAmount = Mathf.Min(harvestAmount, _resourceStorage.Amount);
 
             int finalAmount = extractor(availableAmount);
 
@@ -101,7 +101,7 @@ namespace MarsTS.World
             {
                 _bus.Global(new ResourceHarvestedEvent(_bus, this, ResourceHarvestedEvent.Side.Deposit,
                     finalAmount, resourceKey, StoredAmount, OriginalAmount));
-                _attribute.Amount -= finalAmount;
+                _resourceStorage.Consume(finalAmount);
             }
 
             if (StoredAmount <= 0)
@@ -140,8 +140,8 @@ namespace MarsTS.World
         {
             if (ReferenceEquals(_event.Unit, this))
             {
-                ResourceInfo info = _event.Info.Module<ResourceInfo>("deposit");
-                info.CurrentDeposit = this;
+                UnitResourceStorageInfo info = _event.Info.Module<UnitResourceStorageInfo>("deposit");
+                info.SetStorage(_resourceStorage);
             }
         }
     }

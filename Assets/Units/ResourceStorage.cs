@@ -1,6 +1,5 @@
 using MarsTS.Entities;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace MarsTS.Units
 {
@@ -11,10 +10,8 @@ namespace MarsTS.Units
         [SerializeField] private int _capacity;
         [SerializeField] private string _resourceKey;
 
-        protected override void Awake()
+        private void Awake()
         {
-            base.Awake();
-
             _key = "storage:" + _resourceKey;
         }
 

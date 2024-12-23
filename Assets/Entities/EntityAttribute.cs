@@ -4,14 +4,14 @@ using UnityEngine;
 
 namespace MarsTS.Entities
 {
-    public class EntityAttribute : MonoBehaviour, ITaggable<EntityAttribute>
+    public class EntityAttribute : NetworkBehaviour, ITaggable<EntityAttribute>
     {
-        public event Action<int, int> AttributeChangeEvent;
+        public event Action<int, int> OnAttributeChange;
         
         public virtual int Amount
         {
             get => _stored.Value;
-            set => _stored.Value = value < 0 ? 0 : value;
+            protected set => _stored.Value = value < 0 ? 0 : value;
         }
 
         [SerializeField] protected string _key;
@@ -27,11 +27,16 @@ namespace MarsTS.Entities
 
         public EntityAttribute Get() => this;
 
-        protected virtual void Awake()
+        public override void OnNetworkSpawn()
         {
-            _stored.OnValueChanged += (oldValue, newValue) => AttributeChangeEvent?.Invoke(oldValue, newValue);
-            Amount = _startingValue;
+            if (NetworkManager.Singleton.IsServer) 
+                Amount = _startingValue;
+            
+            if (NetworkManager.Singleton.IsClient) 
+                _stored.OnValueChanged += OnStoredValueChange;
         }
+
+        private void OnStoredValueChange(int oldValue, int newValue) => OnAttributeChange?.Invoke(oldValue, newValue);
 
         public virtual int Submit(int amount)
         {

@@ -7,28 +7,22 @@ namespace MarsTS.UI {
 
     public abstract class UnitBar : MonoBehaviour {
 
-		protected MeshRenderer barRenderer;
+		protected MeshRenderer _barRenderer;
 
-		private MaterialPropertyBlock matBlock;
+		private MaterialPropertyBlock _matBlock;
 
-		protected float FillLevel {
-			get {
-				return fill;
-			}
-			set {
-				fill = value;
+		private static readonly int FillShaderProperty = Shader.PropertyToID("_Fill");
 
-				barRenderer.GetPropertyBlock(matBlock);
-				matBlock.SetFloat("_Fill", fill);
-				barRenderer.SetPropertyBlock(matBlock);
-			}
+		protected void UpdateBarWithFillLevel(float value)
+		{
+			_barRenderer.GetPropertyBlock(_matBlock);
+			_matBlock.SetFloat(FillShaderProperty, value);
+			_barRenderer.SetPropertyBlock(_matBlock);
 		}
 
-		private float fill;
-
 		protected virtual void Awake () {
-			barRenderer = GetComponent<MeshRenderer>();
-			matBlock = new MaterialPropertyBlock();
+			_barRenderer = GetComponent<MeshRenderer>();
+			_matBlock = new MaterialPropertyBlock();
 		}
 
 		protected virtual void Update () {

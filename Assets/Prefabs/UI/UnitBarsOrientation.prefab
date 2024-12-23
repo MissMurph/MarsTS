@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 705547712862037177}
   - component: {fileID: 705547712862037188}
   m_Layer: 0
-  m_Name: 'HealthOrientation '
+  m_Name: UnitBarsOrientation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

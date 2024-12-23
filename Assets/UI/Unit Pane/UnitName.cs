@@ -10,19 +10,24 @@ namespace MarsTS.UI {
 
 		public string Name => "name";
 
-		private TextMeshProUGUI text;
+		private TextMeshProUGUI _text;
 
 		public T Get<T> () {
 			if (this is T output) return output;
 			return default;
 		}
 
+		public void Deactivate()
+		{
+			gameObject.SetActive(false);
+		}
+
 		private void Awake () {
-			text = GetComponentInChildren<TextMeshProUGUI>();
+			_text = GetComponentInChildren<TextMeshProUGUI>();
 		}
 
 		public void Text (string name) {
-			text.text = name;
+			_text.text = name;
 		}
 	}
 }

@@ -1,70 +1,74 @@
 using MarsTS.Events;
 using MarsTS.Units;
-using MarsTS.World;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.PackageManager;
 using UnityEngine;
 
-namespace MarsTS.UI {
+namespace MarsTS.UI
+{
+    public class ResourceBar : UnitBar
+    {
+        private bool _hasStored;
+        private bool _isHoveredOrSelected;
 
-    public class ResourceBar : UnitBar {
+        [SerializeField] private ResourceStorage _storage;
 
-		private bool HasStored {
-			get {
-				return hasStored;
-			}
-			set {
-				barRenderer.enabled = value;
-				hasStored = value;
-			}
-		}
+        private void Start()
+        {
+            _hasStored = false;
+            _isHoveredOrSelected = false;
 
-        private bool hasStored;
+            _storage.OnAttributeChange += OnStorageValueChanged;
 
-		private void Start () {
-			HasStored = false;
+            UpdateValue(_storage.Amount, _storage.Capacity);
 
-			EventAgent bus = GetComponentInParent<EventAgent>();
+            EventAgent bus = GetComponentInParent<EventAgent>();
 
-			ISelectable parent = GetComponentInParent<ISelectable>();
+            bus.AddListener<UnitHoverEvent>(OnUnitHover);
+            bus.AddListener<UnitSelectEvent>(OnUnitSelect);
+        }
 
-			if (parent is IHarvestable deposit) {
-				FillLevel = (float)deposit.StoredAmount / deposit.OriginalAmount;
+        private void OnStorageValueChanged(int oldValue, int newValue)
+        {
+            UpdateValue(newValue, _storage.Capacity);
+        }
 
-				bus.AddListener<ResourceHarvestedEvent>((_event) => {
-					FillLevel = (float)_event.Unit.StoredAmount / _event.Unit.OriginalAmount;
-				});
+        private void UpdateValue(int currentValue, int maxValue)
+        {
+            UpdateBarWithFillLevel((float)currentValue / maxValue);
 
-				bus.AddListener<UnitHoverEvent>((_event) => {
-					if (_event.Status) barRenderer.enabled = true;
-					else if (!HasStored) barRenderer.enabled = false;
-				});
+            if (currentValue > 0)
+            {
+                if (!_isHoveredOrSelected)
+                    _barRenderer.enabled = true;
 
-				bus.AddListener<UnitSelectEvent>((_event) => {
-					if (_event.Status) barRenderer.enabled = true;
-					else if (!HasStored) barRenderer.enabled = false;
-				});
-			}
-			else {
-				ResourceStorage localStorage = GetComponentInParent<ResourceStorage>();
+                _hasStored = true;
+            }
+            else
+            {
+                if (!_isHoveredOrSelected)
+                    _barRenderer.enabled = false;
 
-				FillLevel = (float)localStorage.Amount / localStorage.Capacity;
+                _hasStored = false;
+            }
+        }
 
-				bus.AddListener<ResourceHarvestedEvent>((_event) => {
-					FillLevel = (float)_event.StoredAmount / _event.Capacity;
+        private void OnUnitHover(UnitHoverEvent _event)
+        {
+            _isHoveredOrSelected = _event.Status;
 
-					if (FillLevel > 0f) HasStored = true;
-					else HasStored = false;
-				});
+            if (_event.Status)
+                _barRenderer.enabled = true;
+            else if (!_hasStored)
+                _barRenderer.enabled = false;
+        }
 
-				bus.AddListener<HarvesterDepositEvent>((_event) => {
-					FillLevel = (float)_event.StoredAmount / _event.Capacity;
+        private void OnUnitSelect(UnitSelectEvent _event)
+        {
+            _isHoveredOrSelected = _event.Status;
 
-					if (FillLevel > 0f) HasStored = true;
-					else HasStored = false;
-				});
-			}
-		}
-	}
+            if (_event.Status)
+                _barRenderer.enabled = true;
+            else if (!_hasStored)
+                _barRenderer.enabled = false;
+        }
+    }
 }

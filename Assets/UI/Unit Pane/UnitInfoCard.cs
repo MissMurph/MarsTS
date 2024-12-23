@@ -77,7 +77,7 @@ namespace MarsTS.UI {
 
         public void Deactivate () {
             foreach (IInfoModule module in registered.Values) {
-                module.GameObject.SetActive(false);
+	            module.Deactivate();
             }
 
 			registered["name"].GameObject.SetActive(false);

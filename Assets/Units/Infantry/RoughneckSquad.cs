@@ -142,10 +142,8 @@ namespace MarsTS.Units {
 			if (ReferenceEquals(_event.Unit, this)) {
 				base.OnUnitInfoDisplayed(_event);
 
-				StorageInfo storage = _event.Info.Module<StorageInfo>("storage");
-				storage.CurrentUnit = this;
-				storage.CurrentValue = Stored;
-				storage.MaxValue = Capacity;
+				UnitResourceStorageInfo storage = _event.Info.Module<UnitResourceStorageInfo>("storage");
+				storage.SetStorage(storageComp);
 			}
 		}
 

@@ -2801,8 +2801,8 @@ MonoBehaviour:
     type: 3}
   canvas: {fileID: 1681768854}
   startPositions:
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 1865915098}
+  - {fileID: 1249455914}
   headquartersPrefab: {fileID: 6932056313230598578, guid: 48b87e07407faa94089badc723dbf8ae,
     type: 3}
   teamCachePrefab: {fileID: 2392192272356994767, guid: 1c5f94134e44aca4ebce6827d691a600,
@@ -3108,6 +3108,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80e809a2901f3c24a914b37a7eb11e9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1249455914 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3033657787660267931, guid: c2d5a694f114e4349906354c99396adf,
+    type: 3}
+  m_PrefabInstance: {fileID: 816297032}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd0d6a8257c94d03b825ef86c4f591c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!224 &1299972794 stripped
@@ -4356,6 +4368,18 @@ MonoBehaviour:
   visionUpdateTime: 0.25
   drawGizmos: 0
   Dirty: 0
+--- !u!114 &1865915098 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3033657787660267931, guid: c2d5a694f114e4349906354c99396adf,
+    type: 3}
+  m_PrefabInstance: {fileID: 1903684238}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd0d6a8257c94d03b825ef86c4f591c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1874011893
 GameObject:
   m_ObjectHideFlags: 0

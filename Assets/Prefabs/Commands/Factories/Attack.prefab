@@ -70,5 +70,6 @@ MonoBehaviour:
   Pointer:
     texture: {fileID: 2800000, guid: 48bcdb65ce6311c4ebd090cf85d7c6c0, type: 3}
     target: {x: 16, y: 16}
-  orderPrefab: {fileID: 0}
+  orderPrefab: {fileID: 6106885258408690114, guid: aa6fcc6bf9eba1f43b325844b5b51934,
+    type: 3}
   description: Orders the unit to follow and attack the targeted unit

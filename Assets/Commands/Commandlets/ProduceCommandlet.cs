@@ -87,8 +87,8 @@ namespace MarsTS.Commands {
 			
 			var deserialized = (SerializedProduceCommandlet)_data.commandletData;
 
-			ProductionRequired = deserialized._productionRequired;
-			target = Registry.Prefab(deserialized._prefabKey);
+			ProductionRequired = deserialized.ProductionRequired;
+			target = Registry.Prefab(deserialized.PrefabKey);
 		}
 	}
 }

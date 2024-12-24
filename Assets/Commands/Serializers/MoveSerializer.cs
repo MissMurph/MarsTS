@@ -1,45 +1,46 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Commands {
+namespace MarsTS.Commands
+{
+    public class MoveSerializer : MonoBehaviour, ICommandSerializer
+    {
+        public string Key => _commandKey;
 
-    public class MoveSerializer : MonoBehaviour, ICommandSerializer {
+        [SerializeField] private string _commandKey;
 
-		public string Key { get { return commandKey; } }
+        public ISerializedCommand Reader() =>
+            new SerializedMoveCommandlet
+            {
+                Key = Key
+            };
 
-		[SerializeField]
-		private string commandKey;
+        public ISerializedCommand Writer(Commandlet data)
+        {
+            MoveCommandlet superType = data as MoveCommandlet;
 
-		public ISerializedCommand Reader () {
-			return new SerializedMoveCommandlet {
-				Key = Key
-			};
-		}
+            return new SerializedMoveCommandlet
+            {
+                Key = Key,
+                Faction = superType.Commander.Id,
+                Id = superType.Id,
+                TargetPosition = superType.Target
+            };
+        }
+    }
 
-		public ISerializedCommand Writer (Commandlet _data) {
-			MoveCommandlet superType = _data as MoveCommandlet;
+    public struct SerializedMoveCommandlet : ISerializedCommand
+    {
+        public string Key { get; set; }
+        public int Faction { get; set; }
+        public int Id { get; set; }
 
-			return new SerializedMoveCommandlet {
-				Key = Key,
-				Faction = superType.Commander.Id,
-				Id = superType.Id,
-				_targetPosition = superType.Target,
-			};
-		}
-	}
+        public Vector3 TargetPosition;
 
-	public struct SerializedMoveCommandlet : ISerializedCommand {
-
-		public string Key { get; set; }
-		public int Faction { get; set; }
-		public int Id { get; set; }
-
-		public Vector3 _targetPosition;
-
-		public void NetworkSerialize<T> (BufferSerializer<T> serializer) where T : IReaderWriter {
-			serializer.SerializeValue(ref _targetPosition);
-		}
-	}
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref TargetPosition);
+        }
+    }
 }

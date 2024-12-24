@@ -67,9 +67,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   icon: {fileID: 21300000, guid: b01ada254429cfc4a8e9cdd30947b1d6, type: 3}
-  IconColor: {r: 0, g: 0, b: 0, a: 0}
   Pointer:
     texture: {fileID: 2800000, guid: 323be32cef4bd0a4aae04b9582355198, type: 3}
     target: {x: 0, y: 0}
-  orderPrefab: {fileID: 0}
-  description: Order the unit to harvest the selected object
+  orderPrefab: {fileID: 7696571262672903744, guid: 431e566947e6f464fbf83132d5b081bf,
+    type: 3}
+  _description: Order the unit to harvest the selected object for resources

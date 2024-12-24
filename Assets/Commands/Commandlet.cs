@@ -55,7 +55,7 @@ namespace MarsTS.Commands {
 		protected virtual ISerializedCommand Serialize () => CommandSerializers.Write(this);
 
 		protected virtual void SpawnAndSync () {
-			var data = Serialize();
+			ISerializedCommand data = Serialize();
 
 			GetComponent<NetworkObject>().Spawn();
 			SynchronizeClientRpc(new SerializedCommandWrapper() { commandletData = data });

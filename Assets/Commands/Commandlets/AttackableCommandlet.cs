@@ -1,29 +1,29 @@
+using System;
 using MarsTS.Entities;
 using MarsTS.Teams;
 using MarsTS.Units;
 using UnityEngine;
 
-namespace MarsTS.Commands {
+namespace MarsTS.Commands
+{
+    public class AttackableCommandlet : Commandlet<IAttackable>
+    {
+        public override string Key => Name;
 
-	public class AttackableCommandlet : Commandlet<IAttackable> {
+        [SerializeField] private GameObject _targetGameObj;
 
-		public override string Key => Name;
+        public override Commandlet Clone() => throw new NotImplementedException();
 
-		[SerializeField]
-		private GameObject targetGameObj;
+        protected override void Deserialize(SerializedCommandWrapper data)
+        {
+            SerializedAttackableCommandlet deserialized = (SerializedAttackableCommandlet)data.commandletData;
 
-		public override Commandlet Clone()
-		{
-			throw new System.NotImplementedException();
-		}
-
-		protected override void Deserialize (SerializedCommandWrapper data) {
-			SerializedAttackableCommandlet deserialized = (SerializedAttackableCommandlet)data.commandletData;
-			
-			Name = data.Key;
-			Commander = TeamCache.Faction(data.Faction);
-			EntityCache.TryGet(deserialized.TargetUnit, out IAttackable unit);
-			target = unit;
-		}
-	}
+            Name = data.Key;
+            Commander = TeamCache.Faction(data.Faction);
+            EntityCache.TryGet(deserialized.TargetUnit, out IAttackable unit);
+            target = unit;
+            
+            _targetGameObj = target.GameObject;
+        }
+    }
 }

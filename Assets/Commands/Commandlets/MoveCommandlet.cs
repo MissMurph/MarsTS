@@ -19,7 +19,7 @@ namespace MarsTS.Commands {
 
 	        Name = _data.Key;
 	        Commander = TeamCache.Faction(_data.Faction);
-	        target = deserialized._targetPosition;
+	        target = deserialized.TargetPosition;
         }
     }
 }

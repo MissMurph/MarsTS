@@ -38,6 +38,8 @@ namespace MarsTS.Commands {
 				NetworkObject commandNetworking = constructed.GetComponent<NetworkObject>();
 				commandNetworking.Spawn();
 
+				commandNetworking.transform.parent = transform;
+
 				RegisterCommandClientRpc(commandNetworking);
 			}
 		}

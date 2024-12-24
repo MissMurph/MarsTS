@@ -383,18 +383,23 @@ namespace MarsTS.Units
                 && harvestable.StoredAmount > 0
                 && harvestable.CanHarvest(_storageComp.Resource, this))
             {
-                //return CommandRegistry.Get<Harvest>("harvest").Construct(harvestable);
+                CommandRegistry.Get<Harvest>("harvest")
+                    .Construct(harvestable, owner, Player.ListSelected, Player.Include);
+                
+                return;
             }
 
             if (target is IDepositable deserialized
                 && Stored > 0)
             {
-                //return CommandRegistry.Get<Deposit>("deposit").Construct(deserialized);
+                CommandRegistry.Get<Deposit>("deposit")
+                    .Construct(deserialized, owner, Player.ListSelected, Player.Include);
+                
+                return;
             }
 
-            //return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
-
-            throw new NotImplementedException();
+            CommandRegistry.Get<Move>("move")
+                .Construct(target.GameObject.transform.position, owner, Player.ListSelected, Player.Include);
         }
 
         protected override void OnUnitInfoDisplayed(UnitInfoEvent _event)

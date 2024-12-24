@@ -144,7 +144,7 @@ GameObject:
   - component: {fileID: 7104668611416931312}
   - component: {fileID: -944040897465334132}
   - component: {fileID: 7104668611416931319}
-  - component: {fileID: 7104668611416931314}
+  - component: {fileID: 108060393720168797}
   - component: {fileID: 796086041458483785}
   m_Layer: 0
   m_Name: minerals
@@ -184,9 +184,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce6fd5855c926d44cb75b6184cafaec7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: minerals
-  icon: {fileID: 21300000, guid: 15ea3726cb10f8349a424bbb4043c745, type: 3}
-  depositType: resource_unit
+  _key: minerals
+  _icon: {fileID: 21300000, guid: 15ea3726cb10f8349a424bbb4043c745, type: 3}
+  _depositType: resource_unit
 --- !u!114 &7104668611416931312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -211,7 +211,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2914608137
+  GlobalObjectIdHash: 1912137090
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -234,7 +234,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   registryKey: resourceDeposit
   toTag: []
---- !u!114 &7104668611416931314
+--- !u!114 &108060393720168797
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -243,11 +243,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 7104668611416931317}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62494fe637960d944b4dc95f2de7df3a, type: 3}
+  m_Script: {fileID: 11500000, guid: db75fe7896a566744b02bc8532aebeab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: resource_unit
-  startingValue: 10000
+  _key: 
+  _startingValue: 1000
+  _capacity: 1000
+  _resourceKey: resource_unit
 --- !u!54 &796086041458483785
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -594,7 +596,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffede7701679440479b740e4f6245f82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _storage: {fileID: 0}
+  _storage: {fileID: 108060393720168797}
 --- !u!33 &7733315656084499760
 MeshFilter:
   m_ObjectHideFlags: 0

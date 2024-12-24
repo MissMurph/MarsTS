@@ -206,7 +206,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4367344837201828623}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -22.3, y: -1, z: -7.4}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -246,7 +246,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 950120036
+  GlobalObjectIdHash: 1295136212
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -295,10 +295,8 @@ MonoBehaviour:
   - produce/harvester
   - produce/tanker
   - produce/scoutcar
-  constructionWork: 100
-  currentWork: 100
-  ghost: {fileID: 5300347722092395766, guid: 4191f665be7da1d478f0619eb973c086, type: 3}
-  constructionCost: []
+  selectionGhost: {fileID: 0}
+  constructionGhost: {fileID: 0}
   visionObjects:
   - {fileID: 8926580804881163808}
   - {fileID: 4367344839216842102}

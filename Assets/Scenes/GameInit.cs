@@ -5,6 +5,7 @@ using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using MarsTS.Editor;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -19,7 +20,7 @@ namespace MarsTS {
 		private Transform canvas;
 
 		[SerializeField]
-		private Transform[] startPositions;
+		private EntitySpawner[] startPositions;
 
 		[SerializeField]
 		private NetworkObject headquartersPrefab;
@@ -39,6 +40,11 @@ namespace MarsTS {
 			NetworkManager.Singleton.OnClientStarted += OnClientStart;
 
 			EventBus.AddListener<PlayerInitEvent>(SpawnHeadquarters);
+			
+			foreach (var spawner in startPositions)
+			{
+				spawner.SetDeferredSpawn(true);
+			}
 		}
 
 		private void OnClientStart () {
@@ -83,13 +89,11 @@ namespace MarsTS {
 			foreach (Faction toSpawnHqFor in players) {
 				if (toSpawnHqFor.Id == 0) continue;
 
-				NetworkObject hqNetwork = Instantiate(headquartersPrefab, startPositions[spawnedCount].position,
-					startPositions[spawnedCount].rotation);
-
-				hqNetwork.Spawn();
+				var spawner = startPositions[spawnedCount];
 				
-				ISelectable hq = hqNetwork.GetComponent<ISelectable>();
-				hq.SetOwner(toSpawnHqFor);
+				spawner.SetOwner(toSpawnHqFor.Id);
+				
+				spawner.SpawnEntity();
 
 				spawnedCount++;
 			}

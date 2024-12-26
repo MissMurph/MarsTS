@@ -63,9 +63,6 @@ namespace MarsTS.Players {
 		public static UIController UI => Main._uiController;
 		private UIController _uiController;
 
-		public static List<IDepositable> Depositables => Main._depositables;
-		private readonly List<IDepositable> _depositables = new List<IDepositable>();
-
 		private ISelectable _currentHover;
 
 		private void Awake () {
@@ -82,7 +79,6 @@ namespace MarsTS.Players {
 
 		private void Start () {
 			EventBus.AddListener<UnitDeathEvent>(OnEntityDeath);
-			EventBus.AddListener<UnitOwnerChangeEvent>(OnUnitOwnershipChange);
 
 			_alternate = false;
 		}
@@ -169,7 +165,7 @@ namespace MarsTS.Players {
 
 		private Roster GetRoster (string key) {
 			Roster map = _selected.GetValueOrDefault(key, new Roster());
-			if (!_selected.ContainsKey(key)) _selected.Add(key, map);
+			_selected.TryAdd(key, map);
 			return map;
 		}
 
@@ -241,19 +237,6 @@ namespace MarsTS.Players {
 				//This isn't the best method to update selection, as when units die we don't want the 
 				//primary selected to be jumping around a lot, will have to come up with something better
 				EventBus.Global(new PlayerSelectEvent(Selected));
-			}
-
-			if (_event.Unit.Owner.Id == Commander.Id
-				&& _event.Unit is IDepositable deserialized
-				&& _depositables.Contains(deserialized)) {
-				_depositables.Remove(deserialized);
-			}
-		}
-
-		private void OnUnitOwnershipChange (UnitOwnerChangeEvent _event) {
-			if (_event.Unit.Owner.Id == Commander.Id
-				&& _event.Unit is IDepositable deserialized) {
-				_depositables.Add(deserialized);
 			}
 		}
 

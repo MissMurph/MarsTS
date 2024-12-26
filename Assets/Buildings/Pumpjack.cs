@@ -5,7 +5,6 @@ using MarsTS.Units;
 using MarsTS.World;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace MarsTS.Buildings
 {
@@ -20,8 +19,7 @@ namespace MarsTS.Buildings
 
         private OilDeposit _exploitedDeposit;
 
-        [SerializeField] 
-        private int _harvestRate;
+        [SerializeField] private int _harvestRate;
 
         private int _harvestAmount;
         private float _cooldown;
@@ -34,6 +32,8 @@ namespace MarsTS.Buildings
         protected override void Awake()
         {
             base.Awake();
+
+            _resourceStorage = GetComponent<ResourceStorage>();
 
             _cooldown = 1f / _harvestRate;
             _harvestAmount = (int)(_harvestRate * _cooldown);
@@ -63,15 +63,15 @@ namespace MarsTS.Buildings
             if (_currentCooldown <= 0)
             {
                 _exploitedDeposit.Harvest("oil", this, _harvestAmount, _resourceStorage.Submit);
-                
+
                 /*Bus.Global(new ResourceHarvestedEvent(
-                    Bus, 
-                    _exploitedDeposit, 
-                    this, 
+                    Bus,
+                    _exploitedDeposit,
+                    this,
                     ResourceHarvestedEvent.Side.Harvester,
-                    harvested, 
-                    "oil", 
-                    StoredAmount, 
+                    harvested,
+                    "oil",
+                    StoredAmount,
                     capacity
                     )
                 );*/
@@ -104,12 +104,10 @@ namespace MarsTS.Buildings
                 int finalAmount = extractor(availableAmount);
 
                 if (finalAmount > 0)
-                {
                     /*Bus.Global(new ResourceHarvestedEvent(Bus, this, harvester, ResourceHarvestedEvent.Side.Deposit,
                         finalAmount, "oil", StoredAmount, capacity));*/
                     //StoredAmount -= finalAmount;
                     _resourceStorage.Consume(finalAmount);
-                }
 
                 return finalAmount;
             }

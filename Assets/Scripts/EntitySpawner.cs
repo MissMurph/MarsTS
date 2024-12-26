@@ -34,7 +34,13 @@ namespace MarsTS.Editor
 
         private void OnPlayerInit(PlayerInitEvent _event)
         {
-            if (_deferSpawn || !NetworkManager.Singleton.IsServer) return;
+            if (!NetworkManager.Singleton.IsServer)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            
+            if (_deferSpawn) return;
 
             InstantiateAndSpawnEntity();
         }

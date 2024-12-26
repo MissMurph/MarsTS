@@ -8,6 +8,7 @@ using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.UI;
 using MarsTS.World;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -120,6 +121,8 @@ namespace MarsTS.Units
         protected override void Update()
         {
             base.Update();
+
+            if (!NetworkManager.Singleton.IsServer) return;
 
             if (DepositTarget != null)
             {
@@ -298,7 +301,7 @@ namespace MarsTS.Units
             IDepositable closestBank = null;
             float currentDist = 1000f;
 
-            foreach (IDepositable bank in Player.Depositables)
+            foreach (IDepositable bank in Owner.GetOwnedDepositables())
             {
                 float newDistance = Vector3.Distance(bank.GameObject.transform.position, transform.position);
 

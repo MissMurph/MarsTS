@@ -49,15 +49,13 @@ namespace MarsTS.Buildings
 
         public Sprite Icon => icon;
 
-        public Faction Owner => TeamCache.Faction(owner.Value);
+        public Faction Owner => TeamCache.Faction(_owner);
 
         [SerializeField] private Sprite icon;
 
         [SerializeField] private string type;
 
-        [SerializeField]
-        protected NetworkVariable<int> owner =
-            new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
+        [SerializeField] protected int _owner;
 
         /*	ITaggable Properties	*/
 
@@ -134,9 +132,6 @@ namespace MarsTS.Buildings
 
             EventBus.AddListener<ResearchCompleteEvent>(OnGlobalResearchComplete);
             EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
-
-            owner.OnValueChanged += (_, _) 
-                => Bus.Local(new UnitOwnerChangeEvent(Bus, this, Owner));
         }
 
         protected virtual void Upgrade(Commandlet order)
@@ -246,8 +241,19 @@ namespace MarsTS.Buildings
 
         public bool SetOwner(Faction player)
         {
-            owner.Value = player.Id;
+            if (!NetworkManager.Singleton.IsServer) return false;
+
+            _owner = player.Id;
+            SetOwnerClientRpc(_owner);
+            Bus.Global(new UnitOwnerChangeEvent(Bus, this, Owner));
             return true;
+        }
+
+        [Rpc(SendTo.NotServer)]
+        private void SetOwnerClientRpc(int newId)
+        {
+            _owner = newId;
+            Bus.Global(new UnitOwnerChangeEvent(Bus, this, Owner));
         }
 
         public virtual void Attack(int damage)

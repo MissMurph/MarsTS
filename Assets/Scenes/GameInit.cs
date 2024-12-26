@@ -1,102 +1,139 @@
-using MarsTS.Events;
-using MarsTS.Teams;
-using MarsTS.UI;
-using MarsTS.Units;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MarsTS.Editor;
+using MarsTS.Events;
+using MarsTS.Teams;
+using MarsTS.UI;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS {
+namespace MarsTS
+{
+    public class GameInit : MonoBehaviour
+    {
+        private static GameInit Instance;
+        
+        [SerializeField] private GameStartButton gameStartButton;
 
-    public class GameInit : MonoBehaviour {
+        [SerializeField] private Transform canvas;
 
-        [SerializeField]
-        private GameStartButton gameStartButton;
+        [SerializeField] private EntitySpawner[] startPositions;
 
-		[SerializeField]
-		private Transform canvas;
+        [SerializeField] private NetworkObject headquartersPrefab;
 
-		[SerializeField]
-		private EntitySpawner[] startPositions;
+        [SerializeField] private NetworkObject teamCachePrefab;
 
-		[SerializeField]
-		private NetworkObject headquartersPrefab;
+        [SerializeField] private NetworkObject commandRegistryPrefab;
 
-		[SerializeField]
-		private NetworkObject teamCachePrefab;
+        [SerializeField] private NetworkObject commandCachePrefab;
 
-		[SerializeField]
-		private NetworkObject commandRegistryPrefab;
+        private readonly Dictionary<ulong, GameObject> _players = new Dictionary<ulong, GameObject>();
+        private readonly Dictionary<ulong, bool> _playersReadyToStart = new Dictionary<ulong, bool>();
 
-		[SerializeField] private NetworkObject commandCachePrefab;
+        private void Awake()
+        {
+            Instance = this;
+        }
 
-		private readonly Dictionary<ulong, GameObject> _players = new Dictionary<ulong, GameObject>();
+        private void Start()
+        {
+            NetworkManager.Singleton.OnServerStarted += OnServerStart;
+            NetworkManager.Singleton.OnClientStarted += OnClientStart;
 
-		private void Start () {
-			NetworkManager.Singleton.OnServerStarted += OnServerStart;
-			NetworkManager.Singleton.OnClientStarted += OnClientStart;
+            EventBus.AddListener<PlayerInitEvent>(OnClientPlayerInit);
 
-			EventBus.AddListener<PlayerInitEvent>(SpawnHeadquarters);
-			
-			foreach (var spawner in startPositions)
-			{
-				spawner.SetDeferredSpawn(true);
-			}
-		}
+            foreach (EntitySpawner spawner in startPositions)
+            {
+                spawner.SetDeferredSpawn(true);
+            }
+        }
 
-		private void OnClientStart () {
-			GameStartButton button = Instantiate(gameStartButton, canvas);
+        private void OnClientStart()
+        {
+            GameStartButton button = Instantiate(gameStartButton, canvas);
 
-			//if (NetworkManager.Singleton.Is) ;
+            //if (NetworkManager.Singleton.Is) ;
 
-			button.StartGame += OnGameStart;
+            button.StartGame += OnGameStart;
 
-			button.Init();
-		}
+            button.Init();
+        }
 
-		private void OnServerStart () {
-			NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-		}
+        private void OnClientPlayerInit(PlayerInitEvent _event)
+        {
+           // SendPlayerReadyServerRpc(NetworkManager.Singleton.LocalClient.ClientId);
+        }
 
-		private void OnClientConnected (ulong id) {
-			_players[id] = NetworkManager.Singleton.ConnectedClients[id].PlayerObject.gameObject;
-		}
+        public static void PlayerReady(ulong id)
+        {
+            if (!Instance._playersReadyToStart.TryGetValue(id, out bool value))
+                Debug.LogWarning($"Client {id} not cached!");
+            else
+                Instance._playersReadyToStart[id] = true;
 
-		private void OnGameStart () {
-			TransmitGameStartServerRpc();
-		}
+            if (Instance._playersReadyToStart.Values.Any(ready => !ready))
+            {
+                return;
+            }
 
-		[Rpc(SendTo.Server)]
-		private void TransmitGameStartServerRpc() => InitializeGameManagers();
+            Instance.SpawnHeadquarters();
+        }
 
-		private void InitializeGameManagers() {
-			Instantiate(teamCachePrefab, transform).Spawn();
-			TeamCache.Init(_players.Keys.ToArray());
-			Instantiate(commandRegistryPrefab, transform).Spawn();
-			Instantiate(commandCachePrefab, transform).Spawn();
-		}
+        private void OnServerStart()
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+        }
 
-		private void SpawnHeadquarters(PlayerInitEvent @event) {
-			if (!NetworkManager.Singleton.IsServer) return;
-			
-			List<Faction> players = TeamCache.Players;
+        private void OnClientConnected(ulong id)
+        {
+            _players[id] = NetworkManager.Singleton.ConnectedClients[id].PlayerObject.gameObject;
+            _playersReadyToStart[id] = false;
+        }
 
-			int spawnedCount = 0;
+        private void OnClientDisconnected(ulong id)
+        {
+            _players.Remove(id);
+            _playersReadyToStart.Remove(id);
+        }
 
-			foreach (Faction toSpawnHqFor in players) {
-				if (toSpawnHqFor.Id == 0) continue;
+        private void OnGameStart()
+        {
+            TransmitGameStartServerRpc();
+        }
 
-				var spawner = startPositions[spawnedCount];
-				
-				spawner.SetOwner(toSpawnHqFor.Id);
-				
-				spawner.SpawnEntity();
+        [Rpc(SendTo.Server)]
+        private void TransmitGameStartServerRpc() => InitializeGameManagers();
 
-				spawnedCount++;
-			}
-		}
+        private void InitializeGameManagers()
+        {
+            Instantiate(teamCachePrefab, transform).Spawn();
+            TeamCache.Init(_players.Keys.ToArray());
+            Instantiate(commandRegistryPrefab, transform).Spawn();
+            Instantiate(commandCachePrefab, transform).Spawn();
+        }
+
+        private void SpawnHeadquarters()
+        {
+            if (!NetworkManager.Singleton.IsServer) return;
+
+            List<Faction> players = TeamCache.Players;
+
+            int spawnedCount = 0;
+
+            foreach (Faction toSpawnHqFor in players)
+            {
+                if (toSpawnHqFor.Id == 0) continue;
+
+                EntitySpawner spawner = startPositions[spawnedCount];
+
+                spawner.SetOwner(toSpawnHqFor.Id);
+
+                spawner.SpawnEntity();
+
+                spawnedCount++;
+            }
+        }
     }
 }

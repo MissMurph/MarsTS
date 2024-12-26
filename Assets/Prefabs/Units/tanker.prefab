@@ -1073,13 +1073,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth:
-    m_InternalValue: 0
+    m_InternalValue: 150
   currentHealth:
     m_InternalValue: 0
   icon: {fileID: 21300000, guid: 213ab92289ed63f4c89b4c0f25d90343, type: 3}
   type: tanker
-  owner:
-    m_InternalValue: 0
+  owner: 0
   boundCommands:
   - move
   - stop
@@ -1090,12 +1089,12 @@ MonoBehaviour:
   - {fileID: 7680554594309416084}
   - {fileID: 1730746830768490085}
   - {fileID: 4666152948652239434}
-  topSpeed: 8
-  acceleration: 700
-  turnSpeed: 55
-  angleTolerance: 35
-  depositRate: 100
-  harvestRate: 100
+  _topSpeed: 5
+  _acceleration: 800
+  _turnSpeed: 45
+  _angleTolerance: 25
+  _depositRate: 100
+  _harvestRate: 25
 --- !u!54 &7680554594384699998
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1150,10 +1149,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db75fe7896a566744b02bc8532aebeab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: 
-  startingValue: 0
-  capacity: 500
-  resourceKey: oil
+  _key: 
+  _startingValue: 0
+  _capacity: 250
+  _resourceKey: oil
 --- !u!114 &2434953027732606424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1378,6 +1377,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffede7701679440479b740e4f6245f82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _storage: {fileID: 1516258249182937622}
 --- !u!33 &16144345823346436
 MeshFilter:
   m_ObjectHideFlags: 0

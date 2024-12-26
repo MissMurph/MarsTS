@@ -43,9 +43,12 @@ namespace MarsTS.Teams {
 			}
 		}
 
-		public static List<Faction> Players => _instance._factions.Values.ToList();
+		public static List<Faction> Players => _instance._factions
+			.Values
+			.Where(faction => faction.Id > 1)
+			.ToList();
 
-		public static Team Observer => _instance._teamMap[0];
+		public static Team Observer => _instance._teamMap[1];
 
 		private void Awake () {
 			_instance = this;
@@ -68,22 +71,39 @@ namespace MarsTS.Teams {
 			};
 
 			_bus.Global(@event);
+
+			Faction none = SpawnNewFaction(_dummyObserverPrefab, 0);
+			//_factions[0] = none;
 			
-			SpawnNewFaction(_dummyObserverPrefab, 0);
+			Faction observer = SpawnNewFaction(_dummyObserverPrefab, 1);
+			//_factions[1] = observer;
 
 			foreach (ulong id in players) {
 				int factionId = Mathf.RoundToInt(Mathf.Pow(2, _instance._factions.Count));
 				Faction faction = SpawnNewFaction(_factionPrefab, factionId);
-				_factions[factionId] = faction;
 				
-				int teamId = _teamMap.Count + 1;
-				CreateTeamInstance(teamId);
-				AddFactionToTeam(faction.Id, teamId);
 				AssignPlayerToFaction(id, faction.Id);
 			}
 
 			@event.Phase = Phase.Post;
 			_bus.Global(@event);
+		}
+
+		private Faction SpawnNewFaction(Faction prefab, int factionId) {
+			Faction faction = Instantiate(prefab);
+
+			NetworkObject networkFaction = faction.GetComponent<NetworkObject>();
+			networkFaction.Spawn();
+			
+			faction.SetId(factionId);
+			
+			_factions[factionId] = faction;
+				
+			int teamId = _teamMap.Count + 1;
+			CreateTeamInstance(teamId);
+			AddFactionToTeam(faction.Id, teamId);
+
+			return faction;
 		}
 
 		private void CreateTeamInstance(int teamId) {
@@ -117,17 +137,6 @@ namespace MarsTS.Teams {
 
 		[Rpc(SendTo.NotServer)]
 		private void AddFactionToTeamClientRpc(int factionId, int teamId) => AddFactionToTeam(factionId, teamId);
-
-		private static Faction SpawnNewFaction(Faction prefab, int factionId) {
-			Faction faction = Instantiate(prefab);
-
-			NetworkObject networkFaction = faction.GetComponent<NetworkObject>();
-			networkFaction.Spawn();
-			
-			faction.SetId(factionId);
-
-			return faction;
-		}
 
 		public static int RegisterFaction(Faction faction) {
 			if (NetworkManager.Singleton.IsServer) 

@@ -12,8 +12,6 @@ GameObject:
   - component: {fileID: 1192591062718886568}
   - component: {fileID: 1192591062718886571}
   - component: {fileID: 3742538023138355781}
-  - component: {fileID: 3742538023138355778}
-  - component: {fileID: 3742538023138355777}
   m_Layer: 0
   m_Name: DummyObserver
   m_TagString: Untagged
@@ -69,7 +67,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff85e32f27553a240b87f4b0f3c788b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: -1
+  _id: 0
 --- !u!114 &3742538023138355781
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -82,31 +80,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80e809a2901f3c24a914b37a7eb11e9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &3742538023138355778
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3742538023138355790}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c55a22115458cc4488f89142fbe05258, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  key: resource_unit
-  startingAmount: 5000
---- !u!114 &3742538023138355777
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3742538023138355790}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c55a22115458cc4488f89142fbe05258, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  key: oil
-  startingAmount: 100

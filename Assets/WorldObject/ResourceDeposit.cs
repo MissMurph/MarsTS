@@ -25,7 +25,7 @@ namespace MarsTS.World
 
         [SerializeField] private string _key;
 
-        public Faction Owner => null;
+        public Faction Owner => TeamCache.Faction(0);
 
         public Sprite Icon => _icon;
 

@@ -1032,6 +1032,7 @@ MonoBehaviour:
       - {fileID: 11400000, guid: 5600874d247d54a46a4b03a929dacfa2, type: 2}
       - {fileID: 11400000, guid: db582a1e10077b546a85375f511aa5c9, type: 2}
       - {fileID: 11400000, guid: f3026500ce10bff4da12d84e2ed146e9, type: 2}
+      - {fileID: 11400000, guid: 42563a30220ad1f419d014f7b47bca20, type: 2}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0
@@ -2407,6 +2408,7 @@ GameObject:
   - component: {fileID: 836136703}
   - component: {fileID: 836136704}
   - component: {fileID: 836136705}
+  - component: {fileID: 836136706}
   m_Layer: 0
   m_Name: CommandSerializers
   m_TagString: Untagged
@@ -2545,6 +2547,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _commandKey: deposit
+--- !u!114 &836136706
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 836136695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b09e7ca6107e26b4bb134c045de508ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _commandKey: research
 --- !u!1 &854723095
 GameObject:
   m_ObjectHideFlags: 0

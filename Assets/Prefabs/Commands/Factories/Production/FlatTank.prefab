@@ -67,7 +67,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   icon: {fileID: 0}
-  IconColor: {r: 0, g: 0, b: 0, a: 0}
   Pointer:
     texture: {fileID: 0}
     target: {x: 0, y: 0}
@@ -78,8 +77,5 @@ MonoBehaviour:
   unitPrefab: {fileID: 452040235016441161, guid: 160c6e924a2b7dd428126aa4f46fd60b,
     type: 3}
   timeRequired: 60
-  cost:
-  - key: resource_unit
-    amount: 450
-  - key: oil
-    amount: 100
+  Cost: []
+  _commandKey: produce

@@ -57,7 +57,7 @@ namespace MarsTS.Teams
 
             foreach (Technology startingTech in GetComponentsInChildren<Technology>())
             {
-                _research[startingTech.key] = startingTech;
+                _research[startingTech.Key] = startingTech;
             }
         }
 
@@ -136,7 +136,11 @@ namespace MarsTS.Teams
 
         public void SubmitResearch(Technology product)
         {
-            _research[product.key] = product;
+            NetworkObject productNetworking = product.GetComponent<NetworkObject>();
+            productNetworking.Spawn();
+            productNetworking.TrySetParent(transform);
+            
+            _research[product.Key] = product;
         }
         
         private Roster GetRoster (string key) {

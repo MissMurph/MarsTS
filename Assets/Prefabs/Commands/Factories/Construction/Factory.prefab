@@ -74,3 +74,5 @@ MonoBehaviour:
   description: The Factory is a vulnerable building that can produce units much quicker
     than the Scrapyard and is specialized enough to construct tanks
   building: {fileID: 786404291129723528, guid: 99e1bf818329ce04c841228c3d27e06b, type: 3}
+  constructionWorkRequired: 5
+  Cost: []

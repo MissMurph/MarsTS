@@ -78,3 +78,4 @@ MonoBehaviour:
     type: 3}
   timeRequired: 1
   Cost: []
+  _commandKey: produce

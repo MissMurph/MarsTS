@@ -77,5 +77,7 @@ MonoBehaviour:
     from enemies.
   building: {fileID: 5367866818507981619, guid: e2416d01d4b5eca45b50219bfa76d7ce,
     type: 3}
+  constructionWorkRequired: 5
+  Cost: []
   snapPrefab: {fileID: 2123405586041306835, guid: b3212ea83705a974bb3d3938232075da,
     type: 3}

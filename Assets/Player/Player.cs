@@ -240,10 +240,6 @@ namespace MarsTS.Players {
 			}
 		}
 
-		public static void SubmitResearch (Technology product) {
-			Commander.SubmitResearch(product);
-		}
-
 		private void OnDestroy () {
 			Main = null;
 		}

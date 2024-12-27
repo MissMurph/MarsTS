@@ -7,16 +7,16 @@ using UnityEngine;
 namespace MarsTS.Commands {
 
 	public class Upgrade : Produce {
-		public override string Name { get { return "upgrade/" + unitPrefab.name; } }
+		public override string Name { get { return "upgrade/" + _unitPrefab.name; } }
 
 		public override Sprite Icon { get { return icon; } }
 
-		public override string Description { get { return description; } }
+		public override string Description { get { return _description; } }
 
 		public override void StartSelection () {
 			bool canAfford = true;
 
-			foreach (CostEntry entry in Cost) {
+			foreach (CostEntry entry in _cost) {
 				if (Player.Commander.GetResource(entry.key).Amount < entry.amount) {
 					canAfford = false;
 					break;
@@ -26,7 +26,7 @@ namespace MarsTS.Commands {
 			if (canAfford) {
 				//Player.Main.DeliverCommand(Construct(prefab), Player.Include);
 
-				foreach (CostEntry entry in Cost) {
+				foreach (CostEntry entry in _cost) {
 					Player.Commander.GetResource(entry.key).Withdraw(entry.amount);
 				}
 			}
@@ -39,13 +39,13 @@ namespace MarsTS.Commands {
 		public override CostEntry[] GetCost () {
 			List<CostEntry> spool = new List<CostEntry>();
 
-			foreach (CostEntry entry in Cost) {
+			foreach (CostEntry entry in _cost) {
 				spool.Add(entry);
 			}
 
 			CostEntry time = new CostEntry();
 			time.key = "time";
-			time.amount = timeRequired;
+			time.amount = _timeRequired;
 
 			spool.Add(time);
 

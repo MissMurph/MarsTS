@@ -167,8 +167,9 @@ namespace MarsTS.Buildings
             Bus.RemoveListener<CommandCompleteEvent>(ResearchComplete);
 
             IProducable order = _event.Command as IProducable;
-            Technology product = Instantiate(order.Product, Owner.transform, false).GetComponent<Technology>();
-            Player.SubmitResearch(product);
+            Technology product = Instantiate(order.Product).GetComponent<Technology>();
+            
+            Owner.SubmitResearch(product);
 
             for (int i = 0; i < boundCommands.Length; i++)
                 if (boundCommands[i] == _event.Command.Command.Name)

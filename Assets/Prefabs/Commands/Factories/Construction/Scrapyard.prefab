@@ -75,3 +75,5 @@ MonoBehaviour:
     to produce all civilian units and even scout cars, however, at a slow rate
   building: {fileID: 4367344837201828850, guid: d7c5d84192531db42bf9768732143f5a,
     type: 3}
+  constructionWorkRequired: 5
+  Cost: []

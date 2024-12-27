@@ -1,71 +1,16 @@
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Units;
-using System.Collections;
 using System.Collections.Generic;
+using MarsTS.Players;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace MarsTS.Commands {
+namespace MarsTS.Commands
+{
+    public class Research : Produce
+    {
+        protected override string CommandKey => "research";
+        
+        public override string Description => _description;
 
-    public class Research : CommandFactory<GameObject> {
-
-		public override string Name { get { return "research/" + prefab.name; } }
-
-		public override string Description { get { return description; } }
-
-		[SerializeField]
-		protected string description;
-
-		[SerializeField]
-		protected GameObject prefab;
-
-		[SerializeField]
-		protected int timeRequired;
-
-		[SerializeField]
-		protected CostEntry[] cost;
-
-		public override void StartSelection () {
-			bool canAfford = true;
-
-			foreach (CostEntry entry in cost) {
-				if (Player.Commander.GetResource(entry.key).Amount < entry.amount) {
-					canAfford = false;
-					break;
-				}
-			}
-
-			if (canAfford) {
-				//Player.Main.DistributeCommand(Construct(prefab), Player.Include);
-
-				foreach (CostEntry entry in cost) {
-					Player.Commander.GetResource(entry.key).Withdraw(entry.amount);
-				}
-			}
-		}
-
-		/*public override Commandlet Construct (GameObject _target) {
-			return new UpgradeCommandlet("research", _target, timeRequired, cost);
-		}*/
-
-		public override CostEntry[] GetCost () {
-			List<CostEntry> spool = new List<CostEntry>();
-
-			foreach (CostEntry entry in cost) {
-				spool.Add(entry);
-			}
-
-			CostEntry time = new CostEntry();
-			time.key = "time";
-			time.amount = timeRequired;
-
-			spool.Add(time);
-
-			return spool.ToArray();
-		}
-
-		public override void CancelSelection () {
-
-		}
-	}
+        public override Sprite Icon => icon;
+    }
 }

@@ -75,5 +75,7 @@ MonoBehaviour:
     using a Tanker unit to deliver Oil back to a base.
   building: {fileID: 3668977583793415408, guid: 90807326f2b3c0a4fb6ada1169a4e440,
     type: 3}
+  constructionWorkRequired: 5
+  Cost: []
   snapPrefab: {fileID: 2123405586041306835, guid: b3212ea83705a974bb3d3938232075da,
     type: 3}

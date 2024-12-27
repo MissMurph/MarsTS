@@ -271,6 +271,12 @@ namespace MarsTS.Buildings
 
         public void Attack(int damage)
         {
+            UnitHurtEvent hurtEvent = new UnitHurtEvent(_bus, this, damage);
+            hurtEvent.Phase = Phase.Pre;
+            _bus.Global(hurtEvent);
+            
+            damage = hurtEvent.Damage;
+
             if (damage < 0)
             {
                 CurrentConstruction -= damage;
@@ -281,8 +287,9 @@ namespace MarsTS.Buildings
                 Health = Mathf.Clamp(Health, 0, MaxHealth);
 
                 _model.localScale = Vector3.one * progress;
-                
-                _bus.Global(new UnitHurtEvent(_bus, this));
+
+                hurtEvent.Phase = Phase.Post;
+                _bus.Global(hurtEvent);
 
                 if (progress >= 1f) CompleteConstruction();
                 return;
@@ -291,7 +298,9 @@ namespace MarsTS.Buildings
             if (Health <= 0) return;
             
             Health -= damage;
-            _bus.Global(new UnitHurtEvent(_bus, this));
+
+            hurtEvent.Phase = Phase.Post;
+            _bus.Global(hurtEvent);
 
             if (Health <= 0)
             {
@@ -300,7 +309,7 @@ namespace MarsTS.Buildings
             }
         }
 
-        private void OnHurt(int previousvalue, int newvalue)
+        private void OnHurt(int oldHealth, int newHealth)
         {
             if (Health <= 0) 
             {
@@ -309,8 +318,12 @@ namespace MarsTS.Buildings
                 //if (NetworkManager.Singleton.IsServer) 
                     //Destroy(gameObject, 0.1f);
             }
-            else 
-                _bus.Global(new UnitHurtEvent(_bus, this));
+            else
+            {
+                UnitHurtEvent hurtEvent = new UnitHurtEvent(_bus, this, oldHealth - newHealth);
+                hurtEvent.Phase = Phase.Post;
+                _bus.Global(hurtEvent);
+            }
         }
 
         // TODO: Convert into IAttackable & ISelectable extension method

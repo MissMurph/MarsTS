@@ -141,7 +141,9 @@ namespace MarsTS.Buildings
 
         private void OnChildHurt(UnitHurtEvent _event)
         {
-            Bus.Global(new UnitHurtEvent(Bus, this));
+            UnitHurtEvent hurtEvent = new UnitHurtEvent(Bus, this, _event.Damage);
+            hurtEvent.Phase = Phase.Post;
+            Bus.Global(hurtEvent);
         }
 
         private void OnChildVisionUpdate(EntityVisibleEvent _event)
@@ -174,8 +176,15 @@ namespace MarsTS.Buildings
             if (damage < 0 && base.Health >= MaxHealth)
                 return;
 
+            UnitHurtEvent hurtEvent = new UnitHurtEvent(Bus, this, damage);
+            hurtEvent.Phase = Phase.Pre;
+            Bus.Global(hurtEvent);
+
+            damage = hurtEvent.Damage;
             base.Health -= damage;
-            Bus.Global(new UnitHurtEvent(Bus, this));
+
+            hurtEvent.Phase = Phase.Post;
+            Bus.Global(hurtEvent);
 
             if (base.Health <= 0)
             {

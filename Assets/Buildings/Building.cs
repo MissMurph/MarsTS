@@ -263,9 +263,16 @@ namespace MarsTS.Buildings
             
             if (damage < 0 && Health >= MaxHealth) 
                 return;
-            
+
+            UnitHurtEvent hurtEvent = new UnitHurtEvent(Bus, this, damage);
+            hurtEvent.Phase = Phase.Pre;
+            Bus.Global(hurtEvent);
+
+            damage = hurtEvent.Damage;
             Health -= damage;
-            Bus.Global(new UnitHurtEvent(Bus, this));
+
+            hurtEvent.Phase = Phase.Post;
+            Bus.Global(hurtEvent);
 
             if (Health <= 0)
             {

@@ -20,7 +20,7 @@ namespace MarsTS.Buildings
 
         public void Detonate()
         {
-            _explosion.Init(damage, Owner);
+            _explosion.Init(damage, Owner, this);
             _explosion.gameObject.SetActive(true);
             _explosion.transform.SetParent(null, true);
 

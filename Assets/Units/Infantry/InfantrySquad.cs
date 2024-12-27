@@ -186,8 +186,11 @@ namespace MarsTS.Units {
 			members[newEntry.key] = newEntry;
 		}
 
-		private void OnMemberHurt (UnitHurtEvent _event) {
-			bus.Global(new UnitHurtEvent(bus, this));
+		private void OnMemberHurt (UnitHurtEvent _event)
+		{
+			UnitHurtEvent hurtEvent = new UnitHurtEvent(bus, this, _event.Damage);
+			hurtEvent.Phase = Phase.Post;
+			bus.Global(hurtEvent);
 		}
 
 		private void OnMemberDeath (UnitDeathEvent _event) {

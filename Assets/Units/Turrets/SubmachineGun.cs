@@ -21,40 +21,40 @@ namespace MarsTS.Units {
 		private bool isSneaking;
 
 		private void Start () {
-			bus.AddListener<SneakEvent>(OnSneak);
+			_bus.AddListener<SneakEvent>(OnSneak);
 			isSneaking = false;
 		}
 
 		protected override void Update () {
-			if (currentCooldown >= 0f) currentCooldown -= Time.deltaTime;
+			if (CurrentCooldown >= 0f) CurrentCooldown -= Time.deltaTime;
 			if (currentBurstCooldown >= 0f) currentBurstCooldown -= Time.deltaTime;
 
-			if (parent is ICommandable commandableUnit && commandableUnit.CurrentCommand != null && commandableUnit.CurrentCommand.Name == "attack") {
+			if (_parent is ICommandable commandableUnit && commandableUnit.CurrentCommand != null && commandableUnit.CurrentCommand.Name == "attack") {
 				Commandlet<IAttackable> attackCommand = commandableUnit.CurrentCommand as Commandlet<IAttackable>;
 
-				if (sensor.IsDetected(attackCommand.Target)) {
-					target = attackCommand.Target;
+				if (_sensor.IsDetected(attackCommand.Target)) {
+					_target = attackCommand.Target;
 				}
 			}
 
-			if (target == null) {
-				float distance = sensor.Range * sensor.Range;
+			if (_target == null) {
+				float distance = _sensor.Range * _sensor.Range;
 				IAttackable currentClosest = null;
 
-				foreach (IAttackable unit in sensor.Detected) {
-					if (unit.GetRelationship(parent.Owner) == Relationship.Hostile) {
-						float newDistance = Vector3.Distance(sensor.GetDetectedCollider(unit.GameObject.name).transform.position, transform.position);
+				foreach (IAttackable unit in _sensor.Detected) {
+					if (unit.GetRelationship(_parent.Owner) == Relationship.Hostile) {
+						float newDistance = Vector3.Distance(_sensor.GetDetectedCollider(unit.GameObject.name).transform.position, transform.position);
 
 						if (newDistance < distance) {
 							currentClosest = unit;
 						}
 					}
 				}
-				if (currentClosest != null) target = currentClosest;
+				if (currentClosest != null) _target = currentClosest;
 			}
 
-			if (!isSneaking && target != null && sensor.IsDetected(target) && currentBurstCooldown <= 0 && currentCooldown <= 0) {
-				FireProjectile(sensor.GetDetectedCollider(target.GameObject.name).transform.position);
+			if (!isSneaking && _target != null && _sensor.IsDetected(_target) && currentBurstCooldown <= 0 && CurrentCooldown <= 0) {
+				FireProjectile(_sensor.GetDetectedCollider(_target.GameObject.name).transform.position);
 				firedCount++;
 
 				if (firedCount >= burstCount) {

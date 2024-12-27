@@ -324,15 +324,26 @@ namespace MarsTS.Units {
 		}
 
 		public void Attack (int damage) {
-			if (Health <= 0) return;
-			if (damage < 0 && currentHealth >= maxHealth) return;
+			if (Health <= 0) 
+				return;
+			
+			if (damage < 0 && currentHealth >= maxHealth) 
+				return;
+			
+			UnitHurtEvent hurtEvent = new UnitHurtEvent(bus, this, damage);
+			hurtEvent.Phase = Phase.Pre;
+			bus.Global(hurtEvent);
+
+			damage = hurtEvent.Damage;
 			currentHealth -= damage;
+
+			hurtEvent.Phase = Phase.Post;
+			bus.Global(hurtEvent);
 
 			if (currentHealth <= 0) {
 				bus.Global(new UnitDeathEvent(bus, this));
 				Destroy(gameObject);
 			}
-			else bus.Global(new UnitHurtEvent(bus, this));
 		}
 
 		public InfantryMember Get () {

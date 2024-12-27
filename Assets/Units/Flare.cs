@@ -95,11 +95,15 @@ namespace MarsTS.Units {
 			}
 		}
 
-		private void Update () {
+		private void Update ()
+		{
+			int previousHealth = currentHealth;
 			currentLifeTime -= Time.deltaTime;
 			currentHealth = Mathf.RoundToInt(maxHealth * (currentLifeTime / lifeTime));
 
-			bus.Global(new UnitHurtEvent(bus, this));
+			UnitHurtEvent hurtEvent = new UnitHurtEvent(bus, this, previousHealth - currentHealth);
+			hurtEvent.Phase = Phase.Post;
+			bus.Global(hurtEvent);
 
 			if (currentLifeTime <= 0) {
 				bus.Global(new UnitDeathEvent(bus, this));

@@ -1,100 +1,104 @@
 using MarsTS.Commands;
 using MarsTS.Events;
 using MarsTS.Teams;
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Units {
+namespace MarsTS.Units
+{
+    public class ArtilleryTurret : ProjectileTurret
+    {
+        private bool _isDeployed;
+        private Quaternion _startingPos;
+        private GameObject _rangeIndicator;
 
-    public class ArtilleryTurret : ProjectileTurret {
+        protected override void Awake()
+        {
+            base.Awake();
 
-		private Quaternion startingPos;
+            _rangeIndicator = transform.root.Find("RangeIndicator").gameObject;
+        }
 
-		private bool isDeployed;
+        private void Start()
+        {
+            _startingPos = _barrel.transform.localRotation;
 
-		private GameObject rangeIndicator;
+            _bus.AddListener<DeployEvent>(OnDeploy);
+            _bus.AddListener<UnitSelectEvent>(OnSelect);
+            _bus.AddListener<UnitHoverEvent>(OnHover);
+        }
 
-		protected override void Awake () {
-			base.Awake();
+        protected override void Update()
+        {
+            if (!NetworkManager.Singleton.IsServer) return;
 
-			rangeIndicator = transform.root.Find("RangeIndicator").gameObject;
-		}
+            if (_isDeployed)
+            {
+                if (CurrentCooldown >= 0f)
+                {
+                    CurrentCooldown -= Time.deltaTime;
+                    _bus.Local(new WorkEvent(_bus, _parent, _cooldown, _cooldown - CurrentCooldown));
+                }
 
-		private void Start () {
-			startingPos = barrel.transform.localRotation;
+                if (_parent is ICommandable commandableUnit && commandableUnit.CurrentCommand != null &&
+                    commandableUnit.CurrentCommand.Name == "attack")
+                {
+                    var attackCommand = commandableUnit.CurrentCommand as Commandlet<IAttackable>;
 
-			bus.AddListener<DeployEvent>(OnDeploy);
-			bus.AddListener<UnitSelectEvent>(OnSelect);
-			bus.AddListener<UnitHoverEvent>(OnHover);
-		}
+                    if (_sensor.IsDetected(attackCommand.Target)) _target = attackCommand.Target;
+                }
 
-		protected override void Update () {
-			if (isDeployed) {
-				if (currentCooldown >= 0f) {
-					currentCooldown -= Time.deltaTime;
-					bus.Local(new WorkEvent(bus, parent, cooldown, cooldown - currentCooldown));
-				}
+                if (_target == null)
+                {
+                    float distance = _sensor.Range * _sensor.Range;
+                    IAttackable currentClosest = null;
 
-				if (parent is ICommandable commandableUnit && commandableUnit.CurrentCommand != null && commandableUnit.CurrentCommand.Name == "attack") {
-					Commandlet<IAttackable> attackCommand = commandableUnit.CurrentCommand as Commandlet<IAttackable>;
+                    foreach (IAttackable unit in _sensor.Detected)
+                    {
+                        if (unit.GetRelationship(_parent.Owner) == Relationship.Hostile)
+                        {
+                            float newDistance =
+                                Vector3.Distance(_sensor.GetDetectedCollider(unit.GameObject.name).transform.position,
+                                    transform.position);
 
-					if (sensor.IsDetected(attackCommand.Target)) {
-						target = attackCommand.Target;
-					}
-				}
+                            if (newDistance < distance) currentClosest = unit;
+                        }
+                    }
 
-				if (target == null) {
-					float distance = sensor.Range * sensor.Range;
-					IAttackable currentClosest = null;
+                    if (currentClosest != null) _target = currentClosest;
+                }
 
-					foreach (IAttackable unit in sensor.Detected) {
-						if (unit.GetRelationship(parent.Owner) == Relationship.Hostile) {
-							float newDistance = Vector3.Distance(sensor.GetDetectedCollider(unit.GameObject.name).transform.position, transform.position);
+                if (_target != null && _sensor.IsDetected(_target) && CurrentCooldown <= 0)
+                    FireProjectile(_sensor.GetDetectedCollider(_target.GameObject.name).transform.position);
+            }
+            else
+            {
+                _barrel.transform.localRotation = _startingPos;
 
-							if (newDistance < distance) {
-								currentClosest = unit;
-							}
-						}
-					}
+                if (CurrentCooldown >= 0f) CurrentCooldown -= Time.deltaTime;
+            }
+        }
 
-					if (currentClosest != null) target = currentClosest;
-				}
+        private void OnDeploy(DeployEvent evnt)
+        {
+            _isDeployed = evnt.IsDeployed;
+            _rangeIndicator.SetActive(evnt.IsDeployed);
+        }
 
-				if (target != null && sensor.IsDetected(target) && currentCooldown <= 0) {
-					FireProjectile(sensor.GetDetectedCollider(target.GameObject.name).transform.position);
-				}
-			}
-			else {
-				barrel.transform.localRotation = startingPos;
+        private void OnSelect(UnitSelectEvent evnt)
+        {
+            if (_isDeployed && evnt.Status)
+                _rangeIndicator.SetActive(true);
+            else
+                _rangeIndicator.SetActive(false);
+        }
 
-				if (currentCooldown >= 0f) {
-					currentCooldown -= Time.deltaTime;
-				}
-			}
-		}
-
-		private void OnDeploy (DeployEvent _event) {
-			isDeployed = _event.IsDeployed;
-			rangeIndicator.SetActive(_event.IsDeployed);
-		}
-
-		private void OnSelect (UnitSelectEvent _event) {
-			if (isDeployed && _event.Status) {
-				rangeIndicator.SetActive(true);
-			}
-			else {
-				rangeIndicator.SetActive(false);
-			}
-		}
-
-		private void OnHover (UnitHoverEvent _event) {
-			if (isDeployed && _event.Status) {
-				rangeIndicator.SetActive(true);
-			}
-			else {
-				rangeIndicator.SetActive(false);
-			}
-		}
-	}
+        private void OnHover(UnitHoverEvent evnt)
+        {
+            if (_isDeployed && evnt.Status)
+                _rangeIndicator.SetActive(true);
+            else
+                _rangeIndicator.SetActive(false);
+        }
+    }
 }

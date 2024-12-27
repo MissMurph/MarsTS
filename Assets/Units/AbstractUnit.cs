@@ -364,7 +364,16 @@ namespace MarsTS.Units
         {
             if (Health <= 0) return;
             if (damage < 0 && Health >= MaxHealth) return;
+            
+            UnitHurtEvent hurtEvent = new UnitHurtEvent(Bus, this, damage);
+            hurtEvent.Phase = Phase.Pre;
+            Bus.Global(hurtEvent);
+
+            damage = hurtEvent.Damage;
             Health -= damage;
+
+            hurtEvent.Phase = Phase.Post;
+            Bus.Global(hurtEvent);
         }
 
         protected virtual void OnHurt(int oldHealth, int newHealth)
@@ -378,7 +387,9 @@ namespace MarsTS.Units
             }
             else
             {
-                Bus.Global(new UnitHurtEvent(Bus, this));
+                UnitHurtEvent hurtEvent = new UnitHurtEvent(Bus, this, oldHealth - newHealth);
+                hurtEvent.Phase = Phase.Post;
+                Bus.Global(hurtEvent);
             }
         }
 

@@ -85,7 +85,6 @@ namespace MarsTS.Units
             {
                 RegistryKey = entity.RegistryKey;
                 Type = entity.GetType();
-                Debug.Log($"Registered Type: {Type}");
             }
 
             if (!entity.RegistryKey.Equals(RegistryKey))

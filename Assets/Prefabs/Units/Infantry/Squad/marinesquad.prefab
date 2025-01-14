@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8069000943633701442}
   - component: {fileID: 8069000943633701463}
   - component: {fileID: 8069000943633701447}
+  - component: {fileID: 2428667069961821763}
   - component: {fileID: 8069000943633701444}
   - component: {fileID: 8069000943633701446}
   - component: {fileID: 5651113232441273719}
@@ -86,6 +87,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80e809a2901f3c24a914b37a7eb11e9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2428667069961821763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8069000943633701443}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &8069000943633701444
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -99,6 +121,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   registryKey: marinesquad
+  toTag: []
 --- !u!54 &8069000943633701446
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -140,6 +163,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visionRange: 0
+  owner: 0
 --- !u!1001 &1849632758294720935
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -147,6 +171,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 8069000943633701442}
     m_Modifications:
+    - target: {fileID: -6601665496579273572, guid: a9f490aa50af63244bb222d3ab0e05f0,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 30504548
+      objectReference: {fileID: 0}
     - target: {fileID: 5018127803035628516, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}
       propertyPath: m_RootOrder
@@ -160,7 +189,7 @@ PrefabInstance:
     - target: {fileID: 5018127803035628516, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5018127803035628516, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}
@@ -234,6 +263,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 8069000943633701442}
     m_Modifications:
+    - target: {fileID: -6601665496579273572, guid: a9f490aa50af63244bb222d3ab0e05f0,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 4042161619
+      objectReference: {fileID: 0}
     - target: {fileID: 5018127803035628516, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}
       propertyPath: m_RootOrder
@@ -247,7 +281,7 @@ PrefabInstance:
     - target: {fileID: 5018127803035628516, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5018127803035628516, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}
@@ -321,6 +355,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 8069000943633701442}
     m_Modifications:
+    - target: {fileID: -6601665496579273572, guid: a9f490aa50af63244bb222d3ab0e05f0,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1466158376
+      objectReference: {fileID: 0}
     - target: {fileID: 5018127803035628516, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}
       propertyPath: m_RootOrder
@@ -334,7 +373,7 @@ PrefabInstance:
     - target: {fileID: 5018127803035628516, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5018127803035628516, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}
@@ -408,6 +447,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 8069000943633701442}
     m_Modifications:
+    - target: {fileID: -6601665496579273572, guid: a9f490aa50af63244bb222d3ab0e05f0,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1566606193
+      objectReference: {fileID: 0}
     - target: {fileID: 5018127803035628516, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}
       propertyPath: m_RootOrder
@@ -421,7 +465,7 @@ PrefabInstance:
     - target: {fileID: 5018127803035628516, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5018127803035628516, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}

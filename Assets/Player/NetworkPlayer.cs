@@ -36,7 +36,7 @@ namespace MarsTS.Players
             InstantiateClientControllerClientRpc();
         }
 
-        [Rpc(SendTo.Owner)]
+        [Rpc(SendTo.NotServer)]
         private void InstantiateClientControllerClientRpc()
         {
             _faction = TeamCache.GetAssignedFaction(_playerId);

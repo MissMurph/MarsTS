@@ -1,3 +1,4 @@
+using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Teams;
 using MarsTS.Units;
@@ -12,6 +13,7 @@ namespace MarsTS.Editor
         [SerializeField] private int _owner;
         // Tells the spawner to wait until manually called if true
         [SerializeField] private bool _deferSpawn;
+        [SerializeField] private bool _destroyOnSpawn = true;
 
         private GameObject _model;
 
@@ -19,7 +21,8 @@ namespace MarsTS.Editor
 
         private void Awake()
         {
-            EventBus.AddListener<PlayerInitEvent>(OnPlayerInit);
+            GameInit.OnSpawnEntities += OnPlayerInit;
+            //EventBus.AddListener<PlayerInitEvent>(OnPlayerInit);
         }
 
         /// <summary>Will tell the spawner to wait until <see cref="SpawnEntity"/> is called before spawning.</summary>
@@ -27,12 +30,16 @@ namespace MarsTS.Editor
 
         public void SetOwner(int newValue) => _owner = newValue;
 
-        public void SpawnEntity()
+        public void SetEntity(GameObject prefab) => _prefab = prefab;
+
+        public void SetDestroyOnSpawn(bool value) => _destroyOnSpawn = value;
+
+        public Entity SpawnEntity()
         {
-            InstantiateAndSpawnEntity();
+            return InstantiateAndSpawnEntity();
         }
 
-        private void OnPlayerInit(PlayerInitEvent _event)
+        private void OnPlayerInit()
         {
             if (!NetworkManager.Singleton.IsServer)
             {
@@ -45,18 +52,22 @@ namespace MarsTS.Editor
             InstantiateAndSpawnEntity();
         }
 
-        private void InstantiateAndSpawnEntity()
+        private Entity InstantiateAndSpawnEntity()
         {
             GameObject instantiated = Instantiate(_prefab, transform.position, transform.rotation);
             var selectable = instantiated.GetComponent<ISelectable>();
             var networkObject = instantiated.GetComponent<NetworkObject>();
+            var entity = instantiated.GetComponent<Entity>();
 
             networkObject.Spawn();
             
             if (_owner > 0) 
                 selectable.SetOwner(TeamCache.Faction(_owner));
             
-            Destroy(gameObject);
+            if (_destroyOnSpawn) 
+                Destroy(gameObject, 0.1f);
+
+            return entity;
         }
 
         private void OnValidate()

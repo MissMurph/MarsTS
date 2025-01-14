@@ -7,6 +7,7 @@ using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
 namespace MarsTS.Units {
 
@@ -88,12 +89,19 @@ namespace MarsTS.Units {
 			currentDepositCooldown = depositCooldown;
 		}
 
-		protected override void OnEntityInit (EntityInitEvent _event) {
+		public override void OnNetworkSpawn()
+		{
+			base.OnNetworkSpawn();
+
+			if (!NetworkManager.Singleton.IsServer) return;
+			
+			_bus.AddListener<EntityInitEvent>(OnEntityInit);
+		}
+
+		private void OnEntityInit (EntityInitEvent _event) {
 			if (_event.Phase == Phase.Post) return;
 
 			roughneckSquad = squad as RoughneckSquad;
-
-			base.OnEntityInit(_event);
 		}
 
 		protected override void Update () {
@@ -108,7 +116,7 @@ namespace MarsTS.Units {
 			if (AttackTarget.Get != null) {
 				if (equippedWeapon.IsInRange(AttackTarget.Get)) {
 					TrackedTarget = null;
-					currentPath = Path.Empty;
+					_currentPath = Path.Empty;
 				}
 				else if (!ReferenceEquals(TrackedTarget, AttackTarget.GameObject.transform)) {
 					SetTarget(AttackTarget.GameObject.transform);
@@ -118,7 +126,7 @@ namespace MarsTS.Units {
 			if (RepairTarget.Get != null) {
 				if (repairSensor.IsDetected(RepairTarget.Get)) {
 					TrackedTarget = null;
-					currentPath = Path.Empty;
+					_currentPath = Path.Empty;
 
 					if (currentRepairCooldown <= 0f) FireRepair();
 				}
@@ -130,7 +138,7 @@ namespace MarsTS.Units {
 			if (DepositTarget.Get != null) {
 				if (depositableDetector.IsDetected(DepositTarget.Get)) {
 					TrackedTarget = null;
-					currentPath = Path.Empty;
+					_currentPath = Path.Empty;
 
 					if (currentRepairCooldown <= 0f) DepositResources();
 
@@ -146,7 +154,7 @@ namespace MarsTS.Units {
 			if (HarvestTarget.Get != null) {
 				if (harvestableDetector.IsDetected(HarvestTarget.Get)) {
 					TrackedTarget = null;
-					currentPath = Path.Empty;
+					_currentPath = Path.Empty;
 
 					if (currentHarvestCooldown <= 0f) SiphonOil();
 
@@ -217,7 +225,7 @@ namespace MarsTS.Units {
 
 			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
-			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, true, this);
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(_bus, CurrentCommand, true, this);
 
 			CurrentCommand.Callback.Invoke(newEvent);
 
@@ -229,14 +237,14 @@ namespace MarsTS.Units {
 			Commandlet<bool> deserialized = order as Commandlet<bool>;
 			if (deserialized.Target) {
 				isSneaking = true;
-				currentSpeed = sneakSpeed;
+				_currentSpeed = sneakSpeed;
 			}
 			else {
 				isSneaking = false;
-				currentSpeed = moveSpeed;
+				_currentSpeed = _moveSpeed;
 			}
 
-			bus.Local(new SneakEvent(bus, this, isSneaking));
+			_bus.Local(new SneakEvent(_bus, this, isSneaking));
 		}
 
 		/*	Repair	*/
@@ -244,7 +252,7 @@ namespace MarsTS.Units {
 			if (order is Commandlet<IAttackable> deserialized) {
 				IAttackable unit = deserialized.Target;
 
-				if (unit.GetRelationship(owner) == Relationship.Owned || unit.GetRelationship(owner) == Relationship.Friendly) {
+				if (unit.GetRelationship(_owner) == Relationship.Owned || unit.GetRelationship(_owner) == Relationship.Friendly) {
 					RepairTarget.Set(unit, unit.GameObject);
 
 					EntityCache.TryGet(RepairTarget.GameObject.transform.root.name, out EventAgent targetBus);
@@ -277,7 +285,7 @@ namespace MarsTS.Units {
 
 				targetBus.RemoveListener<UnitHurtEvent>(OnTargetHealed);
 
-				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+				CommandCompleteEvent newEvent = new CommandCompleteEvent(_bus, CurrentCommand, false, this);
 
 				CurrentCommand.Callback.Invoke(newEvent);
 			}
@@ -288,7 +296,7 @@ namespace MarsTS.Units {
 			if (order is Commandlet<IHarvestable> deserialized) {
 				HarvestTarget.Set(deserialized.Target, deserialized.Target.GameObject);
 
-				bus.AddListener<ResourceHarvestedEvent>(OnExtraction);
+				_bus.AddListener<ResourceHarvestedEvent>(OnExtraction);
 
 				EntityCache.TryGet(HarvestTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
@@ -302,29 +310,29 @@ namespace MarsTS.Units {
 			if (CurrentCommand == null) return;
 
 			if (roughneckSquad.Stored >= roughneckSquad.Capacity) {
-				bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
+				_bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
 				EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.RemoveListener<UnitDeathEvent>(OnDepositDepleted);
 
-				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+				CommandCompleteEvent newEvent = new CommandCompleteEvent(_bus, CurrentCommand, false, this);
 
 				CurrentCommand.Callback.Invoke(newEvent);
 			}
 		}
 
 		private void OnDepositDepleted (UnitDeathEvent _event) {
-			bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
+			_bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
-			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(_bus, CurrentCommand, false, this);
 
 			CurrentCommand.Callback.Invoke(newEvent);
 		}
 
 		private void HarvestCancelled (CommandCompleteEvent _event) {
 			if (_event.Command is Commandlet<IHarvestable> deserialized) {
-				bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
+				_bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
@@ -341,7 +349,7 @@ namespace MarsTS.Units {
 				DepositTarget.Set(deserialized.Target, deserialized.Target.GameObject);
 				TrackedTarget = deserialized.Target.GameObject.transform;
 
-				bus.AddListener<HarvesterDepositEvent>(OnDeposit);
+				_bus.AddListener<HarvesterDepositEvent>(OnDeposit);
 
 				order.Callback.AddListener(DepositCancelled);
 			}
@@ -349,7 +357,7 @@ namespace MarsTS.Units {
 
 		private void DepositCancelled (CommandCompleteEvent _event) {
 			if (_event.Command is Commandlet<IDepositable> deserialized && _event.IsCancelled) {
-				bus.RemoveListener<HarvesterDepositEvent>(OnDeposit);
+				_bus.RemoveListener<HarvesterDepositEvent>(OnDeposit);
 
 				DepositTarget.Set(null, null);
 				HarvestTarget.Set(null, null);
@@ -360,9 +368,9 @@ namespace MarsTS.Units {
 			if (CurrentCommand == null) return;
 
 			if (roughneckSquad.Stored <= 0) {
-				bus.RemoveListener<HarvesterDepositEvent>(OnDeposit);
+				_bus.RemoveListener<HarvesterDepositEvent>(OnDeposit);
 
-				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+				CommandCompleteEvent newEvent = new CommandCompleteEvent(_bus, CurrentCommand, false, this);
 
 				CurrentCommand.Callback.Invoke(newEvent);
 
@@ -381,9 +389,9 @@ namespace MarsTS.Units {
 		private void SiphonOil () {
 			int harvested = HarvestTarget.Get.Harvest("oil", this, harvestAmount, roughneckSquad.storageComp.Submit);
 			
-			bus.Global(
+			_bus.Global(
 				new ResourceHarvestedEvent(
-					bus, 
+					_bus, 
 					this, 
 					ResourceHarvestedEvent.Side.Harvester,
 					harvested,
@@ -398,7 +406,7 @@ namespace MarsTS.Units {
 
 		private void DepositResources () {
 			roughneckSquad.storageComp.Consume(DepositTarget.Get.Deposit("oil", depositAmount));
-			bus.Global(new HarvesterDepositEvent(bus, this, HarvesterDepositEvent.Side.Harvester, roughneckSquad.Stored, roughneckSquad.Capacity, DepositTarget.Get));
+			_bus.Global(new HarvesterDepositEvent(_bus, this, HarvesterDepositEvent.Side.Harvester, roughneckSquad.Stored, roughneckSquad.Capacity, DepositTarget.Get));
 			currentDepositCooldown += depositCooldown;
 		}
 	}

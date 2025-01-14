@@ -26,8 +26,8 @@ namespace MarsTS.Units {
 					return;
 			}
 
-			if (inclusive) commands.Enqueue(order);
-			else commands.Execute(order);
+			if (inclusive) _commands.Enqueue(order);
+			else _commands.Execute(order);
 		}
 
 		/*	Adrenaline	*/
@@ -36,39 +36,39 @@ namespace MarsTS.Units {
 			if (!CanCommand(order.Name)) return;
 			Commandlet<bool> deserialized = order as Commandlet<bool>;
 
-			commands.Activate(order, deserialized.Target);
+			_commands.Activate(order, deserialized.Target);
 
-			bus.AddListener<CooldownEvent>(AdrenalineCooldown);
+			_bus.AddListener<CooldownEvent>(AdrenalineCooldown);
 
-			foreach (MemberEntry entry in members.Values) {
+			foreach (MemberEntry entry in _members.Values) {
 				entry.member.Order(order, false);
 			}
 		}
 
 		private void AdrenalineComplete (CommandActiveEvent _event) {
-			bus.RemoveListener<CommandActiveEvent>(AdrenalineComplete);
+			_bus.RemoveListener<CommandActiveEvent>(AdrenalineComplete);
 
 			if (!_event.Activity) {
-				foreach (MemberEntry entry in members.Values) {
+				foreach (MemberEntry entry in _members.Values) {
 					entry.bus.Local(_event);
 				}
 			}
 		}
 
 		private void AdrenalineCooldown (CooldownEvent _event) {
-			if (commands.Active.Contains(_event.CommandKey) && _event.Complete) {
-				bus.RemoveListener<CooldownEvent>(AdrenalineCooldown);
+			if (_commands.Active.Contains(_event.CommandKey) && _event.Complete) {
+				_bus.RemoveListener<CooldownEvent>(AdrenalineCooldown);
 
-				foreach (MemberEntry entry in members.Values) {
+				foreach (MemberEntry entry in _members.Values) {
 					entry.bus.Local(_event);
 				}
 
-				commands.Deactivate(_event.CommandKey);
+				_commands.Deactivate(_event.CommandKey);
 			}
 		}
 
 		public override CommandFactory Evaluate (ISelectable target) {
-			if (target is IAttackable && target.GetRelationship(owner) == Relationship.Hostile) {
+			if (target is IAttackable && target.GetRelationship(_owner) == Relationship.Hostile) {
 				return CommandRegistry.Get("attack");
 			}
 
@@ -76,7 +76,7 @@ namespace MarsTS.Units {
 		}
 
 		public override void AutoCommand (ISelectable target) {
-			if (target is IAttackable attackable && target.GetRelationship(owner) == Relationship.Hostile) {
+			if (target is IAttackable attackable && target.GetRelationship(_owner) == Relationship.Hostile) {
 				//return CommandRegistry.Get<Attack>("attack").Construct(attackable);
 			}
 
@@ -87,7 +87,7 @@ namespace MarsTS.Units {
 
 		public override bool CanCommand (string key) {
 			if (key == "adrenaline") {
-				return owner.IsResearched("adrenaline");
+				return _owner.IsResearched("adrenaline");
 			}
 
 			return base.CanCommand(key);

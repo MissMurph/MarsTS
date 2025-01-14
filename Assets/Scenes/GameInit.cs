@@ -12,6 +12,9 @@ namespace MarsTS
 {
     public class GameInit : MonoBehaviour
     {
+        public static event Action OnSpawnPlayers;
+        public static event Action OnSpawnEntities;
+        
         private static GameInit Instance;
         
         [SerializeField] private GameStartButton gameStartButton;
@@ -71,6 +74,8 @@ namespace MarsTS
                 Debug.LogWarning($"Client {id} not cached!");
             else
                 Instance._playersReadyToStart[id] = true;
+            
+            Debug.Log($"{id} ready");
 
             if (Instance._playersReadyToStart.Values.Any(ready => !ready))
             {
@@ -117,6 +122,8 @@ namespace MarsTS
         private void SpawnHeadquarters()
         {
             if (!NetworkManager.Singleton.IsServer) return;
+            
+            OnSpawnEntities?.Invoke();
 
             List<Faction> players = TeamCache.Players;
 

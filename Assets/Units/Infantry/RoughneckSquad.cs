@@ -35,7 +35,7 @@ namespace MarsTS.Units {
 		protected override void Update () {
 			base.Update();
 
-			foreach (MemberEntry entry in members.Values) {
+			foreach (MemberEntry entry in _members.Values) {
 				resourceBar.transform.position = entry.member.transform.position;
 				break;
 			}
@@ -50,11 +50,11 @@ namespace MarsTS.Units {
 		}
 
 		public void OnMemberHarvest (ResourceHarvestedEvent _event) {
-			bus.Global(new ResourceHarvestedEvent(bus, this, ResourceHarvestedEvent.Side.Harvester, _event.HarvestAmount, _event.Resource, Stored, Capacity));
+			_bus.Global(new ResourceHarvestedEvent(_bus, this, ResourceHarvestedEvent.Side.Harvester, _event.HarvestAmount, _event.Resource, Stored, Capacity));
 		}
 
 		public void OnMemberDeposit (HarvesterDepositEvent _event) {
-			bus.Global(new HarvesterDepositEvent(bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity, _event.Bank));
+			_bus.Global(new HarvesterDepositEvent(_bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity, _event.Bank));
 		}
 
 		public override void Order (Commandlet order, bool inclusive) {
@@ -81,17 +81,17 @@ namespace MarsTS.Units {
 					return;
 			}
 
-			if (inclusive) commands.Enqueue(order);
-			else commands.Execute(order);
+			if (inclusive) _commands.Enqueue(order);
+			else _commands.Execute(order);
 		}
 
 		private void SquadSneak (Commandlet order) {
 			if (!CanCommand(order.Name)) return;
 			Commandlet<bool> deserialized = order as Commandlet<bool>;
 
-			commands.Activate(order, deserialized.Target);
+			_commands.Activate(order, deserialized.Target);
 
-			foreach (MemberEntry entry in members.Values) {
+			foreach (MemberEntry entry in _members.Values) {
 				entry.member.Order(order, false);
 			}
 		}
@@ -109,7 +109,7 @@ namespace MarsTS.Units {
 				return CommandRegistry.Get("deposit");
 			}
 
-			if (target is IAttackable && target.GetRelationship(owner) == Relationship.Hostile) {
+			if (target is IAttackable && target.GetRelationship(_owner) == Relationship.Hostile) {
 				return CommandRegistry.Get("attack");
 			}
 
@@ -129,7 +129,7 @@ namespace MarsTS.Units {
 				//return CommandRegistry.Get<Deposit>("deposit").Construct(depositable);
 			}
 
-			if (target is IAttackable attackable && target.GetRelationship(owner) == Relationship.Hostile) {
+			if (target is IAttackable attackable && target.GetRelationship(_owner) == Relationship.Hostile) {
 				//return CommandRegistry.Get<Attack>("attack").Construct(attackable);
 			}
 

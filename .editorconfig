@@ -10,6 +10,19 @@ csharp_style_var_elsewhere = false:suggestion
 csharp_style_var_for_built_in_types = false:suggestion
 csharp_style_var_when_type_is_apparent = false:suggestion
 
+dotnet_naming_rule.custom_rule.import_to_resharper = True
+dotnet_naming_rule.custom_rule.resharper_description = Non-public Unity Serialized Fields
+dotnet_naming_rule.custom_rule.resharper_guid = 06ff72be-6fc1-4948-896a-1d1950e0e67f
+dotnet_naming_rule.custom_rule.severity = warning
+dotnet_naming_rule.custom_rule.style = lower_camel_case_style
+dotnet_naming_rule.custom_rule.symbols = custom_symbols
+dotnet_naming_style.lower_camel_case_style.capitalization = camel_case
+dotnet_naming_style.lower_camel_case_style.required_prefix = _
+dotnet_naming_symbols.custom_symbols.applicable_accessibilities = local,internal,private,protected,protected_internal,private_protected
+dotnet_naming_symbols.custom_symbols.applicable_kinds = 
+dotnet_naming_symbols.custom_symbols.resharper_applicable_kinds = unity_serialised_field
+dotnet_naming_symbols.custom_symbols.resharper_required_modifiers = static, instance
+
 # ReSharper properties
 resharper_braces_for_foreach = required_for_multiline_statement
 resharper_csharp_other_braces = next_line

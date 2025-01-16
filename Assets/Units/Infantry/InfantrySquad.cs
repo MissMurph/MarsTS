@@ -77,7 +77,7 @@ namespace MarsTS.Units
 
                 foreach (MemberEntry unitEntry in _members.Values)
                 {
-                    output.Add(unitEntry.member);
+                    output.Add(unitEntry.Member);
                 }
 
                 return output;
@@ -100,8 +100,7 @@ namespace MarsTS.Units
         [FormerlySerializedAs("dummyColliderPrefab")] [SerializeField]
         protected GameObject _dummyColliderPrefab;
 
-        [SerializeField]
-        protected InfantryMember _memberPrefab;
+        [SerializeField] protected InfantryMember _memberPrefab;
 
         protected EventAgent _bus;
 
@@ -119,7 +118,7 @@ namespace MarsTS.Units
 
                 foreach (MemberEntry unitEntry in _members.Values)
                 {
-                    current += unitEntry.member.Health;
+                    current += unitEntry.Member.Health;
                 }
 
                 return current;
@@ -134,7 +133,7 @@ namespace MarsTS.Units
 
                 foreach (MemberEntry unitEntry in _members.Values)
                 {
-                    max += unitEntry.member.MaxHealth;
+                    max += unitEntry.Member.MaxHealth;
                 }
 
                 return max;
@@ -149,13 +148,12 @@ namespace MarsTS.Units
             _bus = GetComponent<EventAgent>();
             _commands = GetComponent<CommandQueue>();
             _squadVisibility = GetComponent<SquadVisionParser>();
-            
+
             _bus.AddListener<EntityInitEvent>(OnEntityInit);
         }
 
         public override void OnNetworkSpawn()
         {
-            
         }
 
         private void SpawnAndInitializeMembers()
@@ -165,38 +163,35 @@ namespace MarsTS.Units
                 Debug.LogError($"{typeof(InfantrySquad)} {gameObject.name} Couldn't find misc:spawner prefab!");
                 return;
             }
-            
+
             _spawnerPrefab = prefab.GetComponent<EntitySpawner>();
-            Vector3 memberHalfExtents = _memberPrefab.transform.Find("GroundCollider").GetComponent<Collider>().bounds.extents;
+            Vector3 memberHalfExtents =
+                _memberPrefab.transform.Find("GroundCollider").GetComponent<Collider>().bounds.extents;
 
             EntitySpawner spawner = Instantiate(_spawnerPrefab, transform.position, transform.rotation);
             spawner.SetEntity(_memberPrefab.gameObject);
 
             InfantryMember firstMember = spawner.SpawnEntity().GetComponent<InfantryMember>();
             RegisterMember(firstMember);
-            
+
             for (int i = 1; i < _maxMembers - _members.Count; i++)
+            for (int x = -1; x < 1; x++)
+            for (int y = -1; y < 1; y++)
             {
-                for (int x = -1; x < 1; x++)
-                {
-                    for (int y = -1; y < 1; y++)
-                    {
-                        if (x == 0 && y == 0) continue;
+                if (x == 0 && y == 0) continue;
 
-                        Vector3 pos = new Vector3(
-                            transform.position.x + (x * memberHalfExtents.x * 2),
-                            transform.position.y,
-                            transform.position.z + (y * memberHalfExtents.z * 2)
-                        );
+                Vector3 pos = new Vector3(
+                    transform.position.x + x * memberHalfExtents.x * 2,
+                    transform.position.y,
+                    transform.position.z + y * memberHalfExtents.z * 2
+                );
 
-                        if (Physics.CheckBox(pos, memberHalfExtents)) continue;
+                if (Physics.CheckBox(pos, memberHalfExtents)) continue;
 
-                        spawner.transform.position = pos;
-                        
-                        InfantryMember member = spawner.SpawnEntity().GetComponent<InfantryMember>();
-                        RegisterMember(member);
-                    }
-                }
+                spawner.transform.position = pos;
+
+                InfantryMember member = spawner.SpawnEntity().GetComponent<InfantryMember>();
+                RegisterMember(member);
             }
         }
 
@@ -204,11 +199,11 @@ namespace MarsTS.Units
         {
             if (evnt.Phase == Phase.Pre) return;
             if (!NetworkManager.Singleton.IsServer) return;
-            
+
             foreach (EntitySpawner spawner in GetComponentsInChildren<EntitySpawner>())
             {
                 spawner.SetEntity(_memberPrefab.gameObject);
-                var entity = spawner.SpawnEntity();
+                Entity entity = spawner.SpawnEntity();
                 RegisterMember(entity.GetComponent<InfantryMember>());
             }
 
@@ -229,9 +224,9 @@ namespace MarsTS.Units
 
             foreach (MemberEntry entry in _members.Values)
             {
-                entry.selectionCollider.transform.position = entry.member.transform.position;
-                entry.detectableCollider.transform.position = entry.member.transform.position;
-                _squadAvgPos += entry.member.transform.position;
+                entry.SelectionCollider.transform.position = entry.Member.transform.position;
+                entry.DetectableCollider.transform.position = entry.Member.transform.position;
+                _squadAvgPos += entry.Member.transform.position;
             }
 
             _squadAvgPos /= _members.Count;
@@ -264,13 +259,13 @@ namespace MarsTS.Units
             Transform dummyCollider = Instantiate(_dummyColliderPrefab, transform).transform;
             dummyCollider.position = _event.ParentEntity.transform.position;
 
-            newEntry.key = _event.ParentEntity.name;
-            newEntry.member = _event.ParentEntity.Get<InfantryMember>("selectable");
-            newEntry.selectionCollider = newSelectionCollider;
-            newEntry.detectableCollider = dummyCollider;
-            newEntry.bus = _event.Source;
+            newEntry.Key = _event.ParentEntity.name;
+            newEntry.Member = _event.ParentEntity.Get<InfantryMember>("selectable");
+            newEntry.SelectionCollider = newSelectionCollider;
+            newEntry.DetectableCollider = dummyCollider;
+            newEntry.Bus = _event.Source;
 
-            _members[newEntry.key] = newEntry;
+            _members[newEntry.Key] = newEntry;
         }
 
         private void OnMemberHurt(UnitHurtEvent _event)
@@ -284,10 +279,10 @@ namespace MarsTS.Units
         {
             MemberEntry deadEntry = _members[_event.Unit.GameObject.name];
 
-            _members.Remove(deadEntry.key);
+            _members.Remove(deadEntry.Key);
 
-            Destroy(deadEntry.selectionCollider.gameObject);
-            deadEntry.detectableCollider.position = Vector3.down * 1000f;
+            Destroy(deadEntry.SelectionCollider.gameObject);
+            deadEntry.DetectableCollider.position = Vector3.down * 1000f;
             //dummysToDestroy.Add(deadEntry.detectableCollider.gameObject);
 
 
@@ -300,7 +295,7 @@ namespace MarsTS.Units
             {
                 foreach (MemberEntry entry in _members.Values)
                 {
-                    entry.detectableCollider.transform.position = Vector3.down * 1000f;
+                    entry.DetectableCollider.transform.position = Vector3.down * 1000f;
                 }
             }
         }
@@ -308,7 +303,7 @@ namespace MarsTS.Units
         private void OnMemberVisionUpdate(EntityVisibleEvent _event)
         {
             if (_members.TryGetValue(_event.UnitName, out MemberEntry entry))
-                entry.selectionCollider.gameObject.SetActive(_event.Visible);
+                entry.SelectionCollider.gameObject.SetActive(_event.Visible);
             //entry.detectableCollider.gameObject.SetActive(_event.Visible);
         }
 
@@ -316,7 +311,7 @@ namespace MarsTS.Units
         {
             foreach (MemberEntry entry in _members.Values)
             {
-                entry.member.Order(_event.Command, false);
+                entry.Member.Order(_event.Command, false);
             }
         }
 
@@ -357,7 +352,7 @@ namespace MarsTS.Units
         {
             foreach (MemberEntry entry in _members.Values)
             {
-                entry.member.Hover(status);
+                entry.Member.Hover(status);
             }
         }
 
@@ -365,7 +360,7 @@ namespace MarsTS.Units
         {
             foreach (MemberEntry entry in _members.Values)
             {
-                entry.member.Select(status);
+                entry.Member.Select(status);
             }
         }
 
@@ -405,14 +400,14 @@ namespace MarsTS.Units
 
             return canUse;
         }
-    }
 
-    public class MemberEntry
-    {
-        public string key;
-        public InfantryMember member;
-        public Transform selectionCollider;
-        public Transform detectableCollider;
-        public EventAgent bus;
+        protected class MemberEntry
+        {
+            public string Key;
+            public InfantryMember Member;
+            public Transform SelectionCollider;
+            public Transform DetectableCollider;
+            public EventAgent Bus;
+        }
     }
 }

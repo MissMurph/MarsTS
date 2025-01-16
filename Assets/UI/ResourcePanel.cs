@@ -1,56 +1,59 @@
+using System.Collections.Generic;
 using MarsTS.Events;
 using MarsTS.Players;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MarsTS.UI {
+namespace MarsTS.UI
+{
+    public class ResourcePanel : MonoBehaviour
+    {
+        private Dictionary<string, TextMeshProUGUI> counters;
 
-    public class ResourcePanel : MonoBehaviour {
+        [SerializeField] private GameObject CounterPrefab;
 
-		private Dictionary<string, TextMeshProUGUI> counters;
+        private void Awake()
+        {
+            counters = new Dictionary<string, TextMeshProUGUI>();
+        }
 
-		[SerializeField]
-		private GameObject CounterPrefab;
+        private void Start()
+        {
+            EventBus.AddListener<PlayerInitEvent>(OnPlayerInit);
+        }
 
-		private void Awake () {
-			counters = new Dictionary<string, TextMeshProUGUI>();
-		}
+        private void OnPlayerInit(PlayerInitEvent _event)
+        {
+            foreach (PlayerResource used in Player.Commander.Resources)
+            {
+                GameObject newCounter = Instantiate(CounterPrefab, transform);
 
-		private void Start () {
-			EventBus.AddListener<ResourceUpdateEvent>(OnPlayerResourceUpdate);
-			EventBus.AddListener<PlayerInitEvent>(OnPlayerInit);
-		}
+                RectTransform counterRect = newCounter.transform as RectTransform;
+                counterRect.anchoredPosition = new Vector3(55 + 105 * counters.Count, -25, 0);
 
-		private void OnPlayerInit (PlayerInitEvent _event) {
-			foreach (PlayerResource used in Player.Commander.Resources) {
-				GameObject newCounter = Instantiate(CounterPrefab, transform);
+                Image icon = newCounter.transform.Find("Icon").GetComponent<Image>();
 
-				RectTransform counterRect = newCounter.transform as RectTransform;
-				counterRect.anchoredPosition = new Vector3(55 + (105 * counters.Count), -25, 0);
+                icon.sprite = ResourceRegistry.Get(used.Key).Icon;
 
-				Image icon = newCounter.transform.Find("Icon").GetComponent<Image>();
+                counters[used.Key] = newCounter.transform.Find("Counter").GetComponent<TextMeshProUGUI>();
+                counters[used.Key].text = used.Amount.ToString();
+            }
 
-				icon.sprite = ResourceRegistry.Get(used.Key).Icon;
+            RectTransform rect = transform as RectTransform;
 
-				counters[used.Key] = newCounter.transform.Find("Counter").GetComponent<TextMeshProUGUI>();
-				counters[used.Key].text = used.Amount.ToString();
-			}
+            rect.sizeDelta = new Vector2(100 * counters.Count + 5 * (counters.Count + 1), 50);
+            rect.anchoredPosition = new Vector3(rect.sizeDelta.x / 2, -25);
 
-			RectTransform rect = transform as RectTransform;
+            EventBus.AddListener<ResourceUpdateEvent>(OnPlayerResourceUpdate);
+        }
 
-			rect.sizeDelta = new Vector2((100 * counters.Count) + (5 * (counters.Count + 1)), 50);
-			rect.anchoredPosition = new Vector3(rect.sizeDelta.x / 2, -25);
-		}
+        private void OnPlayerResourceUpdate(ResourceUpdateEvent _event)
+        {
+            if (!Player.Commander.Equals(_event.Player)) return;
 
-		private void OnPlayerResourceUpdate (ResourceUpdateEvent _event) {
-			if (!Player.Commander.Equals(_event.Player)) return;
-			
-			if (counters.TryGetValue(_event.Resource.Key, out TextMeshProUGUI counter)) {
-				counter.text = _event.Amount.ToString();
-			}
-		}
-	}
+            if (counters.TryGetValue(_event.Resource.Key, out TextMeshProUGUI counter))
+                counter.text = _event.Amount.ToString();
+        }
+    }
 }

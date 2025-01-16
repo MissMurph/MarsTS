@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8069000943633701442}
+  - component: {fileID: 2428667069961821763}
   - component: {fileID: 8069000943633701463}
   - component: {fileID: 8069000943633701447}
-  - component: {fileID: 2428667069961821763}
   - component: {fileID: 8069000943633701444}
   - component: {fileID: 8069000943633701446}
   - component: {fileID: 5651113232441273719}
@@ -42,51 +42,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8069000943633701463
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8069000943633701443}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 681e25f1d1cdcba479e9a760c1926e67, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  icon: {fileID: 21300000, guid: 7b310fd733c4d954b9820f3acefc223d, type: 3}
-  type: marinesquad
-  owner: {fileID: 0}
-  boundCommands:
-  - move
-  - stop
-  - attack
-  - 
-  - 
-  - 
-  - adrenaline
-  maxMembers: 4
-  startingMembers:
-  - {fileID: 7096565732476092449}
-  - {fileID: 5876642140069949535}
-  - {fileID: 5876642139791623678}
-  - {fileID: 5876642139797191825}
-  selectionColliderPrefab: {fileID: 9214751274111025718, guid: 72ffa4fa3b209e145b96035530e816d6,
-    type: 3}
-  dummyColliderPrefab: {fileID: 8232080259298972479, guid: 768b1ff8a3ec9d0439b13efbf8c84b65,
-    type: 3}
---- !u!114 &8069000943633701447
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8069000943633701443}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80e809a2901f3c24a914b37a7eb11e9b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &2428667069961821763
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -99,7 +54,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 0
+  GlobalObjectIdHash: 3736342496
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -108,6 +63,52 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &8069000943633701463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8069000943633701443}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 681e25f1d1cdcba479e9a760c1926e67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _icon: {fileID: 21300000, guid: 7b310fd733c4d954b9820f3acefc223d, type: 3}
+  _type: marinesquad
+  _owner: {fileID: 0}
+  _boundCommands:
+  - move
+  - stop
+  - attack
+  - 
+  - 
+  - 
+  - adrenaline
+  _maxMembers: 4
+  _startingMembers:
+  - {fileID: 7096565732476092449}
+  - {fileID: 5876642140069949535}
+  - {fileID: 5876642139791623678}
+  - {fileID: 5876642139797191825}
+  _selectionColliderPrefab: {fileID: 9214751274111025718, guid: 72ffa4fa3b209e145b96035530e816d6,
+    type: 3}
+  _dummyColliderPrefab: {fileID: 8232080259298972479, guid: 768b1ff8a3ec9d0439b13efbf8c84b65,
+    type: 3}
+  _memberPrefab: {fileID: 0}
+--- !u!114 &8069000943633701447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8069000943633701443}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80e809a2901f3c24a914b37a7eb11e9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &8069000943633701444
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -174,7 +175,7 @@ PrefabInstance:
     - target: {fileID: -6601665496579273572, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 30504548
+      value: 730850571
       objectReference: {fileID: 0}
     - target: {fileID: 5018127803035628516, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}
@@ -266,7 +267,7 @@ PrefabInstance:
     - target: {fileID: -6601665496579273572, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 4042161619
+      value: 2333770643
       objectReference: {fileID: 0}
     - target: {fileID: 5018127803035628516, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}
@@ -358,7 +359,7 @@ PrefabInstance:
     - target: {fileID: -6601665496579273572, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 1466158376
+      value: 1856072642
       objectReference: {fileID: 0}
     - target: {fileID: 5018127803035628516, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}
@@ -450,7 +451,7 @@ PrefabInstance:
     - target: {fileID: -6601665496579273572, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 1566606193
+      value: 1899177968
       objectReference: {fileID: 0}
     - target: {fileID: 5018127803035628516, guid: a9f490aa50af63244bb222d3ab0e05f0,
         type: 3}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MarsTS.Events;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace MarsTS.Entities
 {
@@ -11,16 +12,31 @@ namespace MarsTS.Entities
     {
         public int Id { get; private set; }
 
-        public string Key => registryKey;
+        public string Key => _registryKey;
 
-        [SerializeField] private string registryKey;
+        /// <summary>This safer init event will post immediately if the entity is already initialized</summary>
+        public event Action<Phase> OnEntityInit
+        {
+            add
+            {
+                if (Id > 0)
+                    value.Invoke(Phase.Post);
+                else
+                    _onEntityInitEvents += value;
+            }
+            remove => _onEntityInitEvents -= value;
+        }
+
+        private Action<Phase> _onEntityInitEvents;
+        
+        [FormerlySerializedAs("registryKey")] [SerializeField] private string _registryKey;
 
         private Dictionary<string, ITaggable> _registeredTaggables;
         private Dictionary<string, Component> _taggedComponents;
 
         private EventAgent _eventAgent;
 
-        [SerializeField] private TagReference[] toTag;
+        [FormerlySerializedAs("toTag")] [SerializeField] private TagReference[] _toTag;
 
         private void Awake()
         {
@@ -36,7 +52,7 @@ namespace MarsTS.Entities
 
             if (TryGetComponent(out NetworkObject found)) _taggedComponents["networking"] = found;
 
-            foreach (TagReference entry in toTag)
+            foreach (TagReference entry in _toTag)
             {
                 _taggedComponents[entry.Tag] = entry.Component;
             }
@@ -47,7 +63,7 @@ namespace MarsTS.Entities
             if (!NetworkManager.Singleton.IsServer) return;
 
             Id = EntityCache.Register(this);
-            name = $"{registryKey}:{Id}";
+            name = $"{_registryKey}:{Id}";
 
             //GetComponent<NetworkObject>().Spawn();
             SynchronizeClientRpc(Id);
@@ -62,7 +78,7 @@ namespace MarsTS.Entities
         private void SynchronizeClientRpc(int id)
         {
             Id = id;
-            name = $"{registryKey}:{Id}";
+            name = $"{_registryKey}:{Id}";
             EntityCache.Register(this);
             PostInitEvents();
         }
@@ -71,10 +87,13 @@ namespace MarsTS.Entities
         {
             EntityInitEvent initCall = new EntityInitEvent(this, _eventAgent);
 
+            // Broken up into two steps for silly business, I think, I don't quite remember lmao
             initCall.Phase = Phase.Pre;
+            _onEntityInitEvents?.Invoke(Phase.Pre);
             _eventAgent.Global(initCall);
 
             initCall.Phase = Phase.Post;
+            _onEntityInitEvents?.Invoke(Phase.Post);
             _eventAgent.Global(initCall);
         }
 

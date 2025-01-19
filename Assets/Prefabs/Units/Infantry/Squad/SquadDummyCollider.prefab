@@ -10,8 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 3857458525362710644}
   - component: {fileID: 6340266341041773518}
+  - component: {fileID: 2551301999969300836}
   m_Layer: 19
-  m_Name: DummyCollider
+  m_Name: SquadDummyCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -46,3 +47,16 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2551301999969300836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8232080259298972479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8a682e34e8e98c4cb9826d056f48c17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _trackedMember: {fileID: 0}

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MarsTS.Commands;
 using MarsTS.Editor;
 using MarsTS.Entities;
@@ -110,37 +111,9 @@ namespace MarsTS.Units
 
         protected EntitySpawner _spawnerPrefab;
 
-        public int Health
-        {
-            get
-            {
-                int current = 0;
+        public int Health => _members.Values.Sum(unitEntry => unitEntry.Member.Health);
 
-                foreach (MemberEntry unitEntry in _members.Values)
-                {
-                    current += unitEntry.Member.Health;
-                }
-
-                return current;
-            }
-        }
-
-        public int MaxHealth
-        {
-            get
-            {
-                int max = 0;
-
-                foreach (MemberEntry unitEntry in _members.Values)
-                {
-                    max += unitEntry.Member.MaxHealth;
-                }
-
-                return max;
-            }
-        }
-
-        //protected List<GameObject> dummysToDestroy = new List<GameObject>();
+        public int MaxHealth => _memberPrefab.MaxHealth * _maxMembers;
 
         protected virtual void Awake()
         {
@@ -149,11 +122,32 @@ namespace MarsTS.Units
             _commands = GetComponent<CommandQueue>();
             _squadVisibility = GetComponent<SquadVisionParser>();
 
-            _bus.AddListener<EntityInitEvent>(OnEntityInit);
+            _entityComponent.OnEntityInit += OnSquadEntityInit;
         }
 
         public override void OnNetworkSpawn()
         {
+            if (NetworkManager.Singleton.IsServer) AttachServerListeners();
+            if (NetworkManager.Singleton.IsClient) AttachClientListeners();
+        }
+
+        protected virtual void AttachServerListeners()
+        {
+            _bus.AddListener<CommandStartEvent>(ExecuteOrder);
+
+        }
+
+        protected virtual void AttachClientListeners()
+        {
+            EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
+        }
+
+        private void OnSquadEntityInit(Phase phase)
+        {
+            if (!NetworkManager.Singleton.IsServer) return;
+            if (phase == Phase.Pre) return;
+
+            SpawnAndInitializeMembers();
         }
 
         private void SpawnAndInitializeMembers()
@@ -172,7 +166,15 @@ namespace MarsTS.Units
             spawner.SetEntity(_memberPrefab.gameObject);
 
             InfantryMember firstMember = spawner.SpawnEntity().GetComponent<InfantryMember>();
-            RegisterMember(firstMember);
+            
+            // this is client only...
+            Transform firstSelectionCollider = Instantiate(_selectionColliderPrefab, transform).transform;
+            firstSelectionCollider.position = firstMember.transform.position;
+
+            Transform firstDummyCollider = Instantiate(_dummyColliderPrefab, transform).transform;
+            firstDummyCollider.position = firstMember.transform.position;
+            
+            AttachMemberListeners(firstMember);
 
             for (int i = 1; i < _maxMembers - _members.Count; i++)
             for (int x = -1; x < 1; x++)
@@ -191,29 +193,16 @@ namespace MarsTS.Units
                 spawner.transform.position = pos;
 
                 InfantryMember member = spawner.SpawnEntity().GetComponent<InfantryMember>();
-                RegisterMember(member);
+                
+                // this is client only...
+                Transform newSelectionCollider = Instantiate(_selectionColliderPrefab, transform).transform;
+                newSelectionCollider.position = firstMember.transform.position;
+
+                Transform newDummyCollider = Instantiate(_dummyColliderPrefab, transform).transform;
+                newDummyCollider.position = firstMember.transform.position;
+                
+                AttachMemberListeners(member);
             }
-        }
-
-        private void OnEntityInit(EntityInitEvent evnt)
-        {
-            if (evnt.Phase == Phase.Pre) return;
-            if (!NetworkManager.Singleton.IsServer) return;
-
-            foreach (EntitySpawner spawner in GetComponentsInChildren<EntitySpawner>())
-            {
-                spawner.SetEntity(_memberPrefab.gameObject);
-                Entity entity = spawner.SpawnEntity();
-                RegisterMember(entity.GetComponent<InfantryMember>());
-            }
-
-            SpawnAndInitializeMembers();
-        }
-
-        protected virtual void Start()
-        {
-            EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
-            _bus.AddListener<CommandStartEvent>(ExecuteOrder);
         }
 
         protected virtual void Update()
@@ -224,8 +213,6 @@ namespace MarsTS.Units
 
             foreach (MemberEntry entry in _members.Values)
             {
-                entry.SelectionCollider.transform.position = entry.Member.transform.position;
-                entry.DetectableCollider.transform.position = entry.Member.transform.position;
                 _squadAvgPos += entry.Member.transform.position;
             }
 
@@ -234,42 +221,57 @@ namespace MarsTS.Units
             transform.position = _squadAvgPos;
         }
 
-        protected virtual void RegisterMember(InfantryMember unit)
+        protected virtual void AttachMemberListeners(InfantryMember unit)
         {
             unit.SetOwner(_owner);
-            unit.squad = this;
+            unit.SetSquad(this);
 
             EventAgent unitEvents = unit.GetComponent<EventAgent>();
+            Entity memberEntity = unit.GetComponent<Entity>();
+
+            memberEntity.OnEntityInit += phase =>
+            {
+                if (phase == Phase.Pre) 
+                    return;
+                
+                RegisterMember(unit);
+            };
+            
             unitEvents.AddListener<UnitDeathEvent>(OnMemberDeath);
             unitEvents.AddListener<UnitHurtEvent>(OnMemberHurt);
-            unitEvents.AddListener<EntityInitEvent>(OnMemberInit);
-            unitEvents.AddListener<EntityVisibleEvent>(OnMemberVisionUpdate);
 
             _bus.Local(new SquadRegisterEvent(_bus, this, unit));
         }
 
-        protected virtual void OnMemberInit(EntityInitEvent _event)
+        [Rpc(SendTo.NotServer)]
+        protected void RegisterMemberClientRpc(string entityName)
         {
-            if (_event.Phase == Phase.Post) return;
+            if (!EntityCache.TryGet(entityName, out InfantryMember member))
+            {
+                Debug.LogError($"[CLIENT] Failed to find Entity {entityName} for registering infantry member!");
+                return;
+            }
+            
+            RegisterMember(member);
+        }
+        
+        protected virtual void RegisterMember(InfantryMember member)
+        {
             MemberEntry newEntry = new MemberEntry();
 
-            Transform newSelectionCollider = Instantiate(_selectionColliderPrefab, transform).transform;
-            newSelectionCollider.position = _event.ParentEntity.transform.position;
-
-            Transform dummyCollider = Instantiate(_dummyColliderPrefab, transform).transform;
-            dummyCollider.position = _event.ParentEntity.transform.position;
-
-            newEntry.Key = _event.ParentEntity.name;
-            newEntry.Member = _event.ParentEntity.Get<InfantryMember>("selectable");
-            newEntry.SelectionCollider = newSelectionCollider;
-            newEntry.DetectableCollider = dummyCollider;
-            newEntry.Bus = _event.Source;
+            newEntry.Key = member.name;
+            newEntry.Member = member;
+            newEntry.Bus = member.GetComponent<EventAgent>();
 
             _members[newEntry.Key] = newEntry;
+
+            if (NetworkManager.Singleton.IsServer) 
+                RegisterMemberClientRpc(newEntry.Key);
         }
 
         private void OnMemberHurt(UnitHurtEvent _event)
         {
+            // client
             UnitHurtEvent hurtEvent = new UnitHurtEvent(_bus, this, _event.Damage);
             hurtEvent.Phase = Phase.Post;
             _bus.Global(hurtEvent);
@@ -281,30 +283,11 @@ namespace MarsTS.Units
 
             _members.Remove(deadEntry.Key);
 
-            Destroy(deadEntry.SelectionCollider.gameObject);
-            deadEntry.DetectableCollider.position = Vector3.down * 1000f;
-            //dummysToDestroy.Add(deadEntry.detectableCollider.gameObject);
-
-
             if (_members.Count <= 0)
             {
                 _bus.Global(new UnitDeathEvent(_bus, this));
                 Destroy(gameObject);
             }
-            else
-            {
-                foreach (MemberEntry entry in _members.Values)
-                {
-                    entry.DetectableCollider.transform.position = Vector3.down * 1000f;
-                }
-            }
-        }
-
-        private void OnMemberVisionUpdate(EntityVisibleEvent _event)
-        {
-            if (_members.TryGetValue(_event.UnitName, out MemberEntry entry))
-                entry.SelectionCollider.gameObject.SetActive(_event.Visible);
-            //entry.detectableCollider.gameObject.SetActive(_event.Visible);
         }
 
         protected virtual void ExecuteOrder(CommandStartEvent _event)
@@ -405,8 +388,6 @@ namespace MarsTS.Units
         {
             public string Key;
             public InfantryMember Member;
-            public Transform SelectionCollider;
-            public Transform DetectableCollider;
             public EventAgent Bus;
         }
     }

@@ -26,13 +26,13 @@ namespace MarsTS.Units
         public int Health
         {
             get => _currentHealth.Value;
-            set => _currentHealth.Value = value;
+            private set => _currentHealth.Value = value;
         }
 
         public int MaxHealth
         {
             get => _maxHealth.Value;
-            set => _maxHealth.Value = value;
+            private set => _maxHealth.Value = value;
         }
 
         [FormerlySerializedAs("maxHealth")] [SerializeField]
@@ -52,7 +52,7 @@ namespace MarsTS.Units
 
         public Sprite Icon => _icon;
 
-        public Faction Owner => squad.Owner;
+        public Faction Owner => _squad.Owner;
 
         [FormerlySerializedAs("icon")] [SerializeField] private Sprite _icon;
 
@@ -68,9 +68,9 @@ namespace MarsTS.Units
 
         /*	ICommandable Properties	*/
 
-        public Commandlet CurrentCommand => squad.CurrentCommand;
+        public Commandlet CurrentCommand => _squad.CurrentCommand;
 
-        public Commandlet[] CommandQueue => squad.CommandQueue;
+        public Commandlet[] CommandQueue => _squad.CommandQueue;
 
         public List<string> Active => throw new NotImplementedException();
 
@@ -80,9 +80,9 @@ namespace MarsTS.Units
 
         /*	Infantry Fields	*/
 
-        private Entity _entityComponent;
+        protected Entity _entityComponent;
 
-        public InfantrySquad squad;
+        protected InfantrySquad _squad;
 
         [FormerlySerializedAs("moveSpeed")] [SerializeField] protected float _moveSpeed;
 
@@ -230,6 +230,11 @@ namespace MarsTS.Units
             }
         }
 
+        public void SetSquad(InfantrySquad squad)
+        {
+            _squad = squad;
+        }
+
         public void OnDrawGizmos()
         {
             if (!_currentPath.IsEmpty)
@@ -269,11 +274,6 @@ namespace MarsTS.Units
         {
             _currentPath = Path.Empty;
             _target = null;
-
-            //CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, false, this);
-            //bus.Global(_event);
-
-            //CurrentCommand = null;
         }
 
         public virtual void Order(Commandlet order, bool inclusive)
@@ -380,7 +380,7 @@ namespace MarsTS.Units
             }
             else
             {
-                UnitHurtEvent hurtEvent = new UnitHurtEvent(_bus, squad, oldHealth - newHealth);
+                UnitHurtEvent hurtEvent = new UnitHurtEvent(_bus, this, oldHealth - newHealth);
                 hurtEvent.Phase = Phase.Post;
                 _bus.Global(hurtEvent);
             }

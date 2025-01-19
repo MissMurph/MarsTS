@@ -93,15 +93,16 @@ namespace MarsTS.Units {
 		{
 			base.OnNetworkSpawn();
 
-			if (!NetworkManager.Singleton.IsServer) return;
+			_entityComponent.OnEntityInit += OnEntityInit;
 			
-			_bus.AddListener<EntityInitEvent>(OnEntityInit);
+			if (!NetworkManager.Singleton.IsServer) return;
 		}
 
-		private void OnEntityInit (EntityInitEvent _event) {
-			if (_event.Phase == Phase.Post) return;
+		private void OnEntityInit (Phase phase) {
+			if (phase == Phase.Post
+			    || _squad == null) return;
 
-			roughneckSquad = squad as RoughneckSquad;
+			roughneckSquad = _squad as RoughneckSquad;
 		}
 
 		protected override void Update () {

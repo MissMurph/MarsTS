@@ -24,6 +24,8 @@ namespace MarsTS.Units
 
             _memberBus = member.GetComponent<EventAgent>();
 
+            transform.position = member.transform.position;
+
             AttachListenersToMember();
             
             _isInitialized = true;

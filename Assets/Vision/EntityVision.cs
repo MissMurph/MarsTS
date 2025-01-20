@@ -75,10 +75,10 @@ namespace MarsTS.Vision {
 			owner = _event.NewOwner.Id;
 		}
 
-		protected virtual void OnVisionUpdate (VisionUpdateEvent _event)
+		protected virtual void OnVisionUpdate (VisionUpdateEvent evnt)
 		{
 			if (owner == 0 || parent == null) return;
-			if (_event.Phase != Phase.Pre) return;
+			if (evnt.Phase != Phase.Pre) return;
 			
 			int visibility = GameVision.VisibleTo(gameObject);
 			// Add owner bit to the vision mask

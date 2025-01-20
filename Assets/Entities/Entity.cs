@@ -70,10 +70,6 @@ namespace MarsTS.Entities
             PostInitEvents();
         }
 
-        private void Start()
-        {
-        }
-
         [Rpc(SendTo.NotServer)]
         private void SynchronizeClientRpc(int id)
         {

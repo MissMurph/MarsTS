@@ -38,11 +38,12 @@ namespace MarsTS.Units
             }
         }
 
-        protected override void AttachMemberListeners(InfantryMember unit)
+        protected override void AttachMemberServerListeners(InfantryMember unit)
         {
-            base.AttachMemberListeners(unit);
+            base.AttachMemberServerListeners(unit);
 
             EventAgent unitEvents = unit.GetComponent<EventAgent>();
+            
             unitEvents.AddListener<ResourceHarvestedEvent>(OnMemberHarvest);
             unitEvents.AddListener<HarvesterDepositEvent>(OnMemberDeposit);
         }

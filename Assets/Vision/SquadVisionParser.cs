@@ -1,53 +1,50 @@
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Units;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Events;
-using static UnityEngine.UI.CanvasScaler;
+using MarsTS.Events;
 
-namespace MarsTS.Vision {
+namespace MarsTS.Vision
+{
+    public class SquadVisionParser : EntityVision
+    {
+        private readonly Dictionary<string, EntityVision> _squadVision = new Dictionary<string, EntityVision>();
 
-    public class SquadVisionParser : EntityVision {
+        protected override void Awake()
+        {
+            base.Awake();
 
-		private Dictionary<string, EntityVision> squadVision = new Dictionary<string, EntityVision>();
+            bus.AddListener<SquadRegisterEvent>(OnMemberRegister);
+        }
 
-		protected override void Awake () {
-			base.Awake();
+        public void OnMemberRegister(SquadRegisterEvent evnt)
+        {
+            EventAgent unitEvents = evnt.RegisteredMember.GameObject.GetComponent<EventAgent>();
+            unitEvents.AddListener<UnitDeathEvent>(OnMemberDeath);
+            unitEvents.AddListener<EntityInitEvent>(OnMemberInit);
+        }
 
-			bus.AddListener<SquadRegisterEvent>(OnMemberRegister);
-		}
+        protected override void OnVisionUpdate(VisionUpdateEvent evnt)
+        {
+            if (evnt.Phase == Phase.Post)
+            {
+                visibleTo = 0;
 
-		private void Start () {
-			EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
-		}
+                foreach (EntityVision childVision in _squadVision.Values)
+                {
+                    visibleTo |= childVision.VisibleTo;
+                }
+            }
+        }
 
-		public void OnMemberRegister (SquadRegisterEvent _event) {
-			EventAgent unitEvents = _event.RegisteredMember.GameObject.GetComponent<EventAgent>();
-			unitEvents.AddListener<UnitDeathEvent>(OnMemberDeath);
-			unitEvents.AddListener<EntityInitEvent>(OnMemberInit);
-		}
+        private void OnMemberDeath(UnitDeathEvent evnt)
+        {
+            string deadKey = evnt.Unit.GameObject.name;
 
-		protected override void OnVisionUpdate (VisionUpdateEvent _event) {
-			if (_event.Phase == Phase.Post) {
-				visibleTo = 0;
+            _squadVision.Remove(deadKey);
+        }
 
-				foreach (EntityVision childVision in squadVision.Values) {
-					visibleTo |= childVision.VisibleTo;
-				}
-			}
-		}
-
-		private void OnMemberDeath (UnitDeathEvent _event) {
-			string deadKey = _event.Unit.GameObject.name;
-
-			squadVision.Remove(deadKey);
-		}
-
-		private void OnMemberInit (EntityInitEvent _event) {
-			if (_event.Phase == Phase.Post) return;
-			squadVision[_event.ParentEntity.name] = _event.ParentEntity.Get<EntityVision>("vision");
-		}
-	}
+        private void OnMemberInit(EntityInitEvent evnt)
+        {
+            if (evnt.Phase == Phase.Post) return;
+            _squadVision[evnt.ParentEntity.name] = evnt.ParentEntity.Get<EntityVision>("vision");
+        }
+    }
 }

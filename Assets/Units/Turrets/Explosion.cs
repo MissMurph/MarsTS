@@ -52,7 +52,7 @@ namespace MarsTS.Units {
 
 		private void OnDestroy ()
 		{
-			if (!NetworkManager.Singleton.IsServer) ;
+			if (!NetworkManager.Singleton.IsServer) return;
 			
 			foreach (Collider other in _hit) {
 				if (other == null) continue;

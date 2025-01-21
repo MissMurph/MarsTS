@@ -19,7 +19,7 @@ namespace MarsTS.Editor
 
         private MeshFilter[] _meshRenderers;
 
-        private void Awake()
+        private void Start()
         {
             GameInit.OnSpawnEntities += OnPlayerInit;
             //EventBus.AddListener<PlayerInitEvent>(OnPlayerInit);

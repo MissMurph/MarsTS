@@ -2,54 +2,57 @@ using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.Units;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.UI {
+namespace MarsTS.UI
+{
+    public class SelectionCircle : MonoBehaviour
+    {
+        private SpriteRenderer _circleRenderer;
+        private SpriteMask _mask;
 
-    public class SelectionCircle : MonoBehaviour {
+        private MaterialPropertyBlock _matBlock;
 
-        private SpriteRenderer circleRenderer;
-		private SpriteMask mask;
+        private EventAgent _bus;
+        private ISelectable _parent;
 
-		private MaterialPropertyBlock matBlock;
+        private void Awake()
+        {
+            _circleRenderer = GetComponent<SpriteRenderer>();
+            _bus = GetComponentInParent<EventAgent>();
+            _mask = GetComponentInChildren<SpriteMask>();
+            _parent = GetComponentInParent<ISelectable>();
+            _matBlock = new MaterialPropertyBlock();
 
-		private EventAgent bus;
-		private ISelectable parent;
+            //bus.AddListener<EntityInitEvent>(OnEntityInit);
+            _bus.AddListener<UnitSelectEvent>(OnSelect);
+            _bus.AddListener<UnitHoverEvent>(OnHover);
+            _bus.AddListener<UnitOwnerChangeEvent>(OnTeamChange);
+        }
 
-		private void Awake () {
-			circleRenderer = GetComponent<SpriteRenderer>();
-			bus = GetComponentInParent<EventAgent>();
-			mask = GetComponentInChildren<SpriteMask>();
-			parent = GetComponentInParent<ISelectable>();
-			matBlock = new MaterialPropertyBlock();
+        private void Start()
+        {
+            _circleRenderer.enabled = false;
+            _mask.enabled = false;
+        }
 
-			//bus.AddListener<EntityInitEvent>(OnEntityInit);
-			bus.AddListener<UnitSelectEvent>(OnSelect);
-			bus.AddListener<UnitHoverEvent>(OnHover);
-			bus.AddListener<UnitOwnerChangeEvent>(OnTeamChange);
-		}
+        private void OnTeamChange(UnitOwnerChangeEvent _event)
+        {
+            _circleRenderer.GetPropertyBlock(_matBlock);
+            _matBlock.SetColor("_Color", _parent.GetRelationship(Player.Commander).Colour());
+            _circleRenderer.SetPropertyBlock(_matBlock);
+        }
 
-		private void Start () {
-			circleRenderer.enabled = false;
-			mask.enabled = false;
-		}
+        private void OnSelect(UnitSelectEvent _event)
+        {
+            _circleRenderer.enabled = _event.Status;
+            _mask.enabled = _event.Status;
+        }
 
-		private void OnTeamChange (UnitOwnerChangeEvent _event) {
-			circleRenderer.GetPropertyBlock(matBlock);
-			matBlock.SetColor("_Color", parent.GetRelationship(Player.Commander).Colour());
-			circleRenderer.SetPropertyBlock(matBlock);
-		}
-
-		private void OnSelect (UnitSelectEvent _event) {
-			circleRenderer.enabled = _event.Status;
-			mask.enabled = _event.Status;
-		}
-
-		private void OnHover (UnitHoverEvent _event) {
-			circleRenderer.enabled = _event.Status;
-			mask.enabled = _event.Status;
-		}
-	}
+        private void OnHover(UnitHoverEvent _event)
+        {
+            _circleRenderer.enabled = _event.Status;
+            _mask.enabled = _event.Status;
+        }
+    }
 }

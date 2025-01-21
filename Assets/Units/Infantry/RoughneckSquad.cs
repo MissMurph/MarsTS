@@ -115,7 +115,7 @@ namespace MarsTS.Units
                 && Stored > 0)
                 return CommandRegistry.Get("deposit");
 
-            if (target is IAttackable && target.GetRelationship(_owner) == Relationship.Hostile)
+            if (target is IAttackable && target.GetRelationship(Owner) == Relationship.Hostile)
                 return CommandRegistry.Get("attack");
 
             return CommandRegistry.Get("move");
@@ -137,7 +137,7 @@ namespace MarsTS.Units
                 //return CommandRegistry.Get<Deposit>("deposit").Construct(depositable);
             }
 
-            if (target is IAttackable attackable && target.GetRelationship(_owner) == Relationship.Hostile)
+            if (target is IAttackable attackable && target.GetRelationship(Owner) == Relationship.Hostile)
             {
                 //return CommandRegistry.Get<Attack>("attack").Construct(attackable);
             }

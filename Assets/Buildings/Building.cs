@@ -112,8 +112,6 @@ namespace MarsTS.Buildings
 
         public override void OnNetworkSpawn()
         {
-            base.OnNetworkSpawn();
-
             if (NetworkManager.Singleton.IsServer)
             {
                 Health = MaxHealth;

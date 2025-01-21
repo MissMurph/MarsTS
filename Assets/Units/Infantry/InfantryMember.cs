@@ -82,6 +82,7 @@ namespace MarsTS.Units
 
         protected Entity _entityComponent;
 
+        [SerializeField]
         protected InfantrySquad _squad;
 
         [FormerlySerializedAs("moveSpeed")] [SerializeField] protected float _moveSpeed;
@@ -150,8 +151,6 @@ namespace MarsTS.Units
         {
             if (NetworkManager.Singleton.IsServer)
             {
-                StartCoroutine(UpdatePath());
-                
                 _currentHealth = _maxHealth;
                 _currentSpeed = _moveSpeed;
             }
@@ -160,6 +159,8 @@ namespace MarsTS.Units
             {
                 _bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
             }
+            
+            StartCoroutine(UpdatePath());
             
             // TODO: Find a better spot for this, realistically this should be called in the Attach funcs
             _currentHealth.OnValueChanged += OnHurt;

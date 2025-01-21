@@ -62,6 +62,11 @@ namespace MarsTS.Entities
         {
             if (!NetworkManager.Singleton.IsServer) return;
 
+            GameInit.OnSpawnEntities += Initialize;
+        }
+
+        private void Initialize()
+        {
             Id = EntityCache.Register(this);
             name = $"{_registryKey}:{Id}";
 

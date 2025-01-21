@@ -32,8 +32,8 @@ namespace MarsTS.Units
 
         public string RegistryKey => "unit:" + UnitType;
 
-        public Faction Owner => _owner;
-
+        public Faction Owner => TeamCache.Faction(_owner);
+        
         public Sprite Icon => _icon;
 
         [FormerlySerializedAs("icon")] [SerializeField]
@@ -42,8 +42,7 @@ namespace MarsTS.Units
         [FormerlySerializedAs("type")] [SerializeField]
         private string _type;
 
-        [FormerlySerializedAs("owner")] [SerializeField]
-        protected Faction _owner;
+        [SerializeField] protected int _owner;
 
         /*	ITaggable Properties	*/
 
@@ -134,7 +133,6 @@ namespace MarsTS.Units
         protected virtual void AttachServerListeners()
         {
             _bus.AddListener<CommandStartEvent>(ExecuteOrder);
-
         }
 
         protected virtual void AttachClientListeners()
@@ -230,7 +228,7 @@ namespace MarsTS.Units
 
             _members[newEntry.Key] = newEntry;
             
-            member.SetOwner(_owner);
+            member.SetOwner(Owner);
             member.SetSquad(this);
             
             InstantiateDummyColliders(member);
@@ -363,8 +361,19 @@ namespace MarsTS.Units
 
         public bool SetOwner(Faction player)
         {
-            _owner = player;
+            if (!NetworkManager.Singleton.IsServer) return false;
+            
+            _owner = player.Id;
+            SetOwnerClientRpc(_owner);
+            _bus.Global(new UnitOwnerChangeEvent(_bus, this, Owner));
+            
             return true;
+        }
+
+        [Rpc(SendTo.NotServer)]
+        private void SetOwnerClientRpc(int newId)
+        {
+            
         }
 
         protected virtual void OnUnitInfoDisplayed(UnitInfoEvent _event)

@@ -13,7 +13,20 @@ namespace MarsTS
     public class GameInit : MonoBehaviour
     {
         public static event Action OnSpawnPlayers;
-        public static event Action OnSpawnEntities;
+        public static event Action OnSpawnEntities
+        {
+            add
+            {
+                if (Instance._hasSpawnEventFired)
+                    value.Invoke();
+                else
+                    Instance._onSpawnEntities += value;
+            }
+            remove => Instance._onSpawnEntities -= value;
+        }
+
+        private event Action _onSpawnEntities;
+        private bool _hasSpawnEventFired;
         
         private static GameInit Instance;
         
@@ -122,8 +135,9 @@ namespace MarsTS
         private void SpawnHeadquarters()
         {
             if (!NetworkManager.Singleton.IsServer) return;
-            
-            OnSpawnEntities?.Invoke();
+
+            _hasSpawnEventFired = true;
+            _onSpawnEntities?.Invoke();
 
             List<Faction> players = TeamCache.Players;
 

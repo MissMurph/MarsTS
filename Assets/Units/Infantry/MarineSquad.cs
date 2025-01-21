@@ -73,7 +73,7 @@ namespace MarsTS.Units
 
         public override CommandFactory Evaluate(ISelectable target)
         {
-            if (target is IAttackable && target.GetRelationship(_owner) == Relationship.Hostile)
+            if (target is IAttackable && target.GetRelationship(Owner) == Relationship.Hostile)
                 return CommandRegistry.Get("attack");
 
             return CommandRegistry.Get("move");
@@ -81,7 +81,7 @@ namespace MarsTS.Units
 
         public override void AutoCommand(ISelectable target)
         {
-            if (target is IAttackable attackable && target.GetRelationship(_owner) == Relationship.Hostile)
+            if (target is IAttackable attackable && target.GetRelationship(Owner) == Relationship.Hostile)
             {
                 //return CommandRegistry.Get<Attack>("attack").Construct(attackable);
             }
@@ -93,7 +93,8 @@ namespace MarsTS.Units
 
         public override bool CanCommand(string key)
         {
-            if (key == "adrenaline") return _owner.IsResearched("adrenaline");
+            if (key == "adrenaline") 
+                return Owner.IsResearched("adrenaline");
 
             return base.CanCommand(key);
         }

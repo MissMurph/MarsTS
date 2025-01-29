@@ -45,6 +45,8 @@ namespace MarsTS.Units
 
         protected EventAgent Bus;
 
+        protected Entity _parentEntity;
+
         protected bool IsInitialized;
 
         protected virtual void Awake()
@@ -53,13 +55,15 @@ namespace MarsTS.Units
             SensorCollider.enabled = false;
             Bus = GetComponentInParent<EventAgent>();
             Parent = GetComponentInParent<ISelectable>();
+            _parentEntity = GetComponentInParent<Entity>();
 
             foreach (Collider colliderToIgnore in transform.root.GetComponentsInChildren<Collider>())
             {
-                Physics.IgnoreCollision(SensorCollider, colliderToIgnore);
+                Physics.IgnoreCollision(SensorCollider, colliderToIgnore, true);
             }
 
-            Bus.AddListener<EntityInitEvent>(OnEntityInit);
+            //Bus.AddListener<EntityInitEvent>(OnEntityInit);
+            _parentEntity.OnEntityInit += OnEntityInit;
         }
 
         protected virtual void Start()
@@ -69,7 +73,11 @@ namespace MarsTS.Units
 
         protected void Update()
         {
-            if (!IsInitialized || Parent == null || QueuedColliders.Count <= 0) return;
+            if (!IsInitialized 
+                || Parent == null 
+                || Parent.Owner == null 
+                || QueuedColliders.Count <= 0
+            ) return;
 
             foreach (var collision in QueuedColliders)
             {
@@ -77,21 +85,25 @@ namespace MarsTS.Units
             }
         }
 
-        protected void OnEntityInit(EntityInitEvent _event)
+        protected void OnEntityInit(Phase phase)
         {
-            if (_event.Phase == Phase.Pre) return;
+            if (phase == Phase.Pre) 
+                return;
+            
             IsInitialized = true;
             SensorCollider.enabled = true;
         }
 
         protected virtual void OnTriggerEnter(Collider other)
         {
-            if (!IsInitialized || Parent == null)
+            if (!IsInitialized || Parent == null || Parent.Owner == null)
             {
                 QueuedColliders.Add(other);
                 return;
             }
 
+            if (other.transform.root.name == transform.root.name) return;
+            
             if (EntityCache.TryGet(other.transform.root.name, out Entity entityComp)
                 && entityComp.TryGet(out T target))
             {
@@ -109,6 +121,8 @@ namespace MarsTS.Units
                     Bus.Local(new SensorUpdateEvent<T>(Bus, target, true));
                 }
             }
+
+            QueuedColliders.Remove(other);
         }
 
         protected virtual void OnTriggerExit(Collider other)

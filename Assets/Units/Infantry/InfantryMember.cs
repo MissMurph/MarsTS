@@ -35,11 +35,14 @@ namespace MarsTS.Units
             private set => _maxHealth.Value = value;
         }
 
-        [FormerlySerializedAs("maxHealth")] [SerializeField]
+        [FormerlySerializedAs("maxHealth")]
+        [SerializeField]
         protected NetworkVariable<int> _maxHealth =
             new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
 
-        [FormerlySerializedAs("currentHealth")] [SerializeField] protected NetworkVariable<int> _currentHealth =
+        [FormerlySerializedAs("currentHealth")]
+        [SerializeField]
+        protected NetworkVariable<int> _currentHealth =
             new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
 
         /*	ISelectable Properties	*/
@@ -52,13 +55,19 @@ namespace MarsTS.Units
 
         public Sprite Icon => _icon;
 
-        public Faction Owner => _squad.Owner;
+        public Faction Owner => _squad?.Owner ?? _owner;
 
-        [FormerlySerializedAs("icon")] [SerializeField] private Sprite _icon;
+        [FormerlySerializedAs("icon")]
+        [SerializeField]
+        private Sprite _icon;
 
-        [FormerlySerializedAs("type")] [SerializeField] private string _type;
+        [FormerlySerializedAs("type")]
+        [SerializeField]
+        private string _type;
 
-        [FormerlySerializedAs("owner")] [SerializeField] protected Faction _owner;
+        [FormerlySerializedAs("owner")]
+        [SerializeField]
+        protected Faction _owner;
 
         /*	ITaggable Properties	*/
 
@@ -68,24 +77,28 @@ namespace MarsTS.Units
 
         /*	ICommandable Properties	*/
 
-        public Commandlet CurrentCommand => _squad.CurrentCommand;
+        public Commandlet CurrentCommand => _squad?.CurrentCommand ?? _commandQueueComponent.Current;
 
-        public Commandlet[] CommandQueue => _squad.CommandQueue;
+        public Commandlet[] CommandQueue => _squad?.CommandQueue ?? _commandQueueComponent.Queue;
 
-        public List<string> Active => throw new NotImplementedException();
+        public List<string> Active => _squad?.Active ?? _commandQueueComponent.Active;
 
-        public List<Timer> Cooldowns => throw new NotImplementedException();
+        public List<Timer> Cooldowns => _squad?.Cooldowns ?? _commandQueueComponent.Cooldowns;
 
-        public int Count => throw new NotImplementedException();
+        public int Count => _squad?.Count ?? _commandQueueComponent.Count;
 
         /*	Infantry Fields	*/
 
         protected Entity _entityComponent;
 
+        protected CommandQueue _commandQueueComponent;
+
         [SerializeField]
         protected InfantrySquad _squad;
 
-        [FormerlySerializedAs("moveSpeed")] [SerializeField] protected float _moveSpeed;
+        [FormerlySerializedAs("moveSpeed")]
+        [SerializeField]
+        protected float _moveSpeed;
 
         protected float _currentSpeed;
 
@@ -131,11 +144,15 @@ namespace MarsTS.Units
         private const float MinPathUpdateTime = .5f;
         private const float PathUpdateMoveThreshold = .5f;
 
-        [FormerlySerializedAs("waypointCompletionDistance")] [SerializeField] protected float _waypointCompletionDistance;
+        [FormerlySerializedAs("waypointCompletionDistance")]
+        [SerializeField]
+        protected float _waypointCompletionDistance;
 
         protected EventAgent _bus;
 
-        [FormerlySerializedAs("hideables")] [SerializeField] private GameObject[] _hideables;
+        [FormerlySerializedAs("hideables")]
+        [SerializeField]
+        private GameObject[] _hideables;
 
         protected virtual void Awake()
         {
@@ -143,6 +160,7 @@ namespace MarsTS.Units
             _entityComponent = GetComponent<Entity>();
             _bus = GetComponent<EventAgent>();
             _ground = GetComponent<GroundDetection>();
+            _commandQueueComponent = GetComponent<CommandQueue>();
 
             _isSelected = false;
         }
@@ -155,13 +173,10 @@ namespace MarsTS.Units
                 _currentSpeed = _moveSpeed;
             }
 
-            if (NetworkManager.Singleton.IsClient)
-            {
-                _bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
-            }
-            
+            if (NetworkManager.Singleton.IsClient) _bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
+
             StartCoroutine(UpdatePath());
-            
+
             // TODO: Find a better spot for this, realistically this should be called in the Attach funcs
             _currentHealth.OnValueChanged += OnHurt;
         }
@@ -187,7 +202,7 @@ namespace MarsTS.Units
         protected virtual void FixedUpdate()
         {
             if (!NetworkManager.Singleton.IsServer) return;
-            
+
             if (_ground.Grounded)
             {
                 //Dunno why we need this check on the infantry member when we don't need it on any other unit type...
@@ -198,7 +213,8 @@ namespace MarsTS.Units
                     Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0,
                         targetWaypoint.z - transform.position.z).normalized;
                     float targetAngle = Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg + 90f;
-                    _rigidBody.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, targetAngle, transform.eulerAngles.z));
+                    _rigidBody.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, targetAngle,
+                        transform.eulerAngles.z));
 
                     Vector3 moveDirection = Vector3.ProjectOnPlane(transform.forward, _ground.Slope.normal);
 
@@ -233,6 +249,19 @@ namespace MarsTS.Units
 
         public void SetSquad(InfantrySquad squad)
         {
+            _squad = squad;
+            SetSquadClientRpc(squad.name);
+        }
+
+        [Rpc(SendTo.NotServer)]
+        private void SetSquadClientRpc(string squadEntityName)
+        {
+            if (!EntityCache.TryGet(squadEntityName, out InfantrySquad squad))
+            {
+                Debug.LogError($"Couldn't find {typeof(InfantrySquad)} with name {squadEntityName}!");
+                return;
+            }
+
             _squad = squad;
         }
 
@@ -337,7 +366,7 @@ namespace MarsTS.Units
         public bool SetOwner(Faction player)
         {
             if (!NetworkManager.Singleton.IsServer) return false;
-            
+
             _owner = player;
             SetOwnerClientRpc(_owner.Id);
             _bus.Global(new UnitOwnerChangeEvent(_bus, this, Owner));

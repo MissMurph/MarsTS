@@ -410,6 +410,7 @@ GameObject:
   - component: {fileID: 3080163069376764759}
   - component: {fileID: 4068115413929702530}
   - component: {fileID: 5198616124178707546}
+  - component: {fileID: 3096966860693249879}
   m_Layer: 0
   m_Name: marine
   m_TagString: Infantry
@@ -451,7 +452,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1639784880
+  GlobalObjectIdHash: 99823079
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -479,7 +480,7 @@ MonoBehaviour:
   _icon: {fileID: 0}
   _type: marine
   _owner: {fileID: 0}
-  squad: {fileID: 0}
+  _squad: {fileID: 0}
   _moveSpeed: 3
   _waypointCompletionDistance: 1.5
   _hideables:
@@ -527,8 +528,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  registryKey: marine
-  toTag: []
+  _registryKey: marine
+  _toTag: []
 --- !u!114 &4068115413929702530
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -555,6 +556,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   visionRange: 15
   owner: 0
+--- !u!114 &3096966860693249879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5018127803035628517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 866af88a2db170c42a48b68ed236afd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5198616123038943943
 GameObject:
   m_ObjectHideFlags: 0

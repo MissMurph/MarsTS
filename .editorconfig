@@ -29,4 +29,5 @@ resharper_csharp_other_braces = next_line
 resharper_for_other_types = use_var_when_evident
 resharper_method_or_operator_body = expression_body
 resharper_object_creation_when_type_evident = explicitly_typed
+resharper_place_field_attribute_on_same_line = false
 </wpf:ResourceDictionary>

@@ -120,7 +120,7 @@ namespace MarsTS.Units
             _bus = GetComponent<EventAgent>();
             _commands = GetComponent<CommandQueue>();
             _squadVisibility = GetComponent<SquadVisionParser>();
-
+            
             _entityComponent.OnEntityInit += OnSquadEntityInit;
         }
 
@@ -157,35 +157,49 @@ namespace MarsTS.Units
             }
 
             _spawnerPrefab = prefab.GetComponent<EntitySpawner>();
-            Vector3 memberHalfExtents =
-                _memberPrefab.transform.Find("GroundCollider").GetComponent<Collider>().bounds.extents;
 
             EntitySpawner spawner = Instantiate(_spawnerPrefab, transform.position, transform.rotation);
             spawner.SetEntity(_memberPrefab.gameObject);
+            spawner.SetOwner(Owner.Id);
 
             InfantryMember firstMember = spawner.SpawnEntity().GetComponent<InfantryMember>();
+
+            AttachMemberInitListener(firstMember);
+
+            //We capture pos here as squad will move around while instantiating
+            Vector3 spawnPos = transform.position;
             
-            AttachMemberServerListeners(firstMember);
+            Vector3 memberHalfExtents =
+                firstMember.transform.Find("GroundCollider").GetComponent<Collider>().bounds.size;
 
             for (int i = 1; i < _maxMembers - _members.Count; i++)
-            for (int x = -1; x < 1; x++)
-            for (int y = -1; y < 1; y++)
             {
-                if (x == 0 && y == 0) continue;
+                for (int x = -1; x < 1; x++)
+                {
+                    for (int y = -1; y < 1; y++)
+                    {
+                        if (x == 0 && y == 0) continue;
 
-                Vector3 pos = new Vector3(
-                    transform.position.x + x * memberHalfExtents.x * 2,
-                    transform.position.y,
-                    transform.position.z + y * memberHalfExtents.z * 2
-                );
+                        Vector3 pos = new Vector3(
+                            spawnPos.x + (x * memberHalfExtents.x * 2),
+                            spawnPos.y,
+                            spawnPos.z + (y * memberHalfExtents.z * 2)
+                        );
 
-                if (Physics.CheckBox(pos, memberHalfExtents)) continue;
+                        Debug.Log($"{x},{y} : {pos}");
 
-                spawner.transform.position = pos;
+                        if (Physics.CheckBox(pos, memberHalfExtents))
+                        {
+                            continue;
+                        }
 
-                InfantryMember member = spawner.SpawnEntity().GetComponent<InfantryMember>();
-                
-                AttachInitListener(member);
+                        spawner.transform.position = pos;
+
+                        InfantryMember member = spawner.SpawnEntity().GetComponent<InfantryMember>();
+
+                        AttachMemberInitListener(member);
+                    }
+                }
             }
         }
 
@@ -205,7 +219,7 @@ namespace MarsTS.Units
             transform.position = _squadAvgPos;
         }
 
-        private void AttachInitListener(InfantryMember unit)
+        private void AttachMemberInitListener(InfantryMember unit)
         {
             Entity memberEntity = unit.GetComponent<Entity>();
 

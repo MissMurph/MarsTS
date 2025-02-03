@@ -54,8 +54,11 @@ namespace MarsTS
 
         private void Start()
         {
-            NetworkManager.Singleton.OnServerStarted += OnServerStart;
-            NetworkManager.Singleton.OnClientStarted += OnClientStart;
+            // NetworkManager.Singleton.OnServerStarted += OnServerStart;
+            // NetworkManager.Singleton.OnClientStarted += OnClientStart;
+
+            if (NetworkManager.Singleton.IsServer) OnServerStart();
+            if (NetworkManager.Singleton.IsClient) OnClientStart();
 
             EventBus.AddListener<PlayerInitEvent>(OnClientPlayerInit);
 
@@ -74,6 +77,17 @@ namespace MarsTS
             button.StartGame += OnGameStart;
 
             button.Init();
+        }
+
+        private void OnServerStart()
+        {
+            foreach ((ulong id, NetworkClient client) in NetworkManager.Singleton.ConnectedClients)
+            {
+                Instance._players[id] = client.PlayerObject.gameObject;
+            }
+            
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
         }
 
         private void OnClientPlayerInit(PlayerInitEvent _event)
@@ -96,12 +110,6 @@ namespace MarsTS
             }
 
             Instance.SpawnHeadquarters();
-        }
-
-        private void OnServerStart()
-        {
-            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
         }
 
         private void OnClientConnected(ulong id)

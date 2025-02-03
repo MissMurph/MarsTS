@@ -54,7 +54,7 @@ MonoBehaviour:
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
-  ActiveSceneSynchronization: 0
+  ActiveSceneSynchronization: 1
   SceneMigrationSynchronization: 1
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
@@ -73,7 +73,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _icon: {fileID: 21300000, guid: 7b310fd733c4d954b9820f3acefc223d, type: 3}
   _type: marinesquad
-  _owner: {fileID: 0}
+  _owner: 0
   _boundCommands:
   - move
   - stop

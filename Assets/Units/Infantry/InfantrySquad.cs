@@ -162,17 +162,22 @@ namespace MarsTS.Units
             spawner.SetEntity(_memberPrefab.gameObject);
             spawner.SetOwner(Owner.Id);
 
+            //We capture pos here as squad will move around while instantiating
+            Vector3 spawnPos = transform.position;
+            
             InfantryMember firstMember = spawner.SpawnEntity().GetComponent<InfantryMember>();
 
             AttachMemberInitListener(firstMember);
 
-            //We capture pos here as squad will move around while instantiating
-            Vector3 spawnPos = transform.position;
-            
             Vector3 memberHalfExtents =
-                firstMember.transform.Find("GroundCollider").GetComponent<Collider>().bounds.size;
+                firstMember.transform
+                    .Find("GroundCollider")
+                    .GetComponent<BoxCollider>()
+                    .size;
 
-            for (int i = 1; i < _maxMembers - _members.Count; i++)
+            Debug.Log($"extents: {memberHalfExtents}");
+
+            for (int i = 1; i < _maxMembers - _members.Count - 1; i++)
             {
                 for (int x = -1; x < 1; x++)
                 {
@@ -181,9 +186,9 @@ namespace MarsTS.Units
                         if (x == 0 && y == 0) continue;
 
                         Vector3 pos = new Vector3(
-                            spawnPos.x + (x * memberHalfExtents.x * 2),
+                            spawnPos.x + (x * memberHalfExtents.x * 4),
                             spawnPos.y,
-                            spawnPos.z + (y * memberHalfExtents.z * 2)
+                            spawnPos.z + (y * memberHalfExtents.z * 4)
                         );
 
                         Debug.Log($"{x},{y} : {pos}");
@@ -387,7 +392,8 @@ namespace MarsTS.Units
         [Rpc(SendTo.NotServer)]
         private void SetOwnerClientRpc(int newId)
         {
-            
+            _owner = newId;
+            _bus.Global(new UnitOwnerChangeEvent(_bus, this, Owner));
         }
 
         protected virtual void OnUnitInfoDisplayed(UnitInfoEvent _event)
@@ -419,6 +425,11 @@ namespace MarsTS.Units
             //if (production.CanCommand(key)) canUse = true;
 
             return canUse;
+        }
+
+        public override void OnDestroy()
+        {
+            _members.Clear();
         }
 
         protected class MemberEntry

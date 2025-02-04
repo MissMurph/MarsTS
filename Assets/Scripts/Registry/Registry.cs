@@ -15,6 +15,9 @@ namespace MarsTS.Prefabs
         private void Awake()
         {
             _instance = this;
+            DontDestroyOnLoad(gameObject);
+
+            Debug.Log($"Registry Awake");
 
             _registries = new Dictionary<string, IRegistry>();
 

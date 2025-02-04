@@ -1,8 +1,8 @@
-using System;
+#if UNITY_EDITOR
+using ParrelSync;
 using Unity.Netcode;
 using UnityEditor;
 using UnityEditor.SceneManagement;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace MarsTS.Editor
@@ -10,7 +10,7 @@ namespace MarsTS.Editor
     [InitializeOnLoad]
     public class QuickSceneLauncher
     {
-        private Scene _playingScene;
+        private static bool _isServer;
 
         private const string LaunchScenePath = "Assets/Scenes/LaunchScene.unity";
         private const string ActiveEditorScene = "PreviousScenePath";
@@ -20,6 +20,8 @@ namespace MarsTS.Editor
         static QuickSceneLauncher()
         {
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+
+            _isServer = ClonesManager.GetArgument() != "client";
         }
 
         private static void OnPlayModeStateChanged(PlayModeStateChange state)
@@ -37,10 +39,19 @@ namespace MarsTS.Editor
                     break;
                 }
                 case PlayModeStateChange.EnteredPlayMode 
-                when EditorPrefs.GetBool(IsEditorInitialization):
+                    when EditorPrefs.GetBool(IsEditorInitialization)
+                    && _isServer:
                 {
                     NetworkManager.Singleton.OnServerStarted += OnServerStarted;
                     NetworkManager.Singleton.StartHost();
+
+                    break;
+                }
+                case PlayModeStateChange.EnteredPlayMode 
+                    when EditorPrefs.GetBool(IsEditorInitialization)
+                         && !_isServer:
+                {
+                    NetworkManager.Singleton.StartClient();
 
                     break;
                 }
@@ -56,8 +67,16 @@ namespace MarsTS.Editor
         {
             string prevScene = EditorPrefs.GetString(ActiveEditorScene);
 
+            NetworkManager.Singleton.SceneManager.VerifySceneBeforeLoading += ValidateScene;
             NetworkManager.Singleton.SceneManager.OnSceneEvent += OnSceneLoaded;
             NetworkManager.Singleton.SceneManager.LoadScene(prevScene, LoadSceneMode.Additive);
+        }
+
+        private static bool ValidateScene(int sceneIndex, string sceneName, LoadSceneMode loadSceneMode) => sceneName != "LaunchScene";
+
+        private static void OnClientStarted()
+        {
+            
         }
 
         private static void OnSceneLoaded(SceneEvent evnt)
@@ -67,3 +86,4 @@ namespace MarsTS.Editor
         }
     }
 }
+#endif

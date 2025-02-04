@@ -56,7 +56,7 @@ namespace MarsTS
         {
             // NetworkManager.Singleton.OnServerStarted += OnServerStart;
             // NetworkManager.Singleton.OnClientStarted += OnClientStart;
-
+            
             if (NetworkManager.Singleton.IsServer) OnServerStart();
             if (NetworkManager.Singleton.IsClient) OnClientStart();
 
@@ -66,6 +66,8 @@ namespace MarsTS
             {
                 spawner.SetDeferredSpawn(true);
             }
+            
+            
         }
 
         private void OnClientStart()

@@ -236,6 +236,7 @@ GameObject:
   - component: {fileID: 1188445019}
   - component: {fileID: 1188445018}
   - component: {fileID: 1188445017}
+  - component: {fileID: 1188445020}
   m_Layer: 0
   m_Name: PrefabRegistry
   m_TagString: Untagged
@@ -286,6 +287,8 @@ MonoBehaviour:
   _namespace: ratworx
   _prefabsToRegister:
   - {fileID: 3033657787660267909, guid: c2d5a694f114e4349906354c99396adf, type: 3}
+  - {fileID: 3742538023138355790, guid: ce1afabb11073aa41ad11ecfac15990c, type: 3}
+  - {fileID: 3742538023138355790, guid: 53ff142631c328d43913faeeec7f29f2, type: 3}
 --- !u!114 &1188445016
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -364,3 +367,21 @@ MonoBehaviour:
   - {fileID: 4002054096274699913, guid: 9fe1e05b90714ce49a1c10552559d96f, type: 3}
   - {fileID: 8069000943633701443, guid: fdbf4b0740ccf4a42a9c67cb4d3762d6, type: 3}
   - {fileID: 7248859610773361695, guid: b8ae55b487a53814988a1ce86421e8a1, type: 3}
+--- !u!114 &1188445020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1188445009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19e281ca35aa438d9842bb19758eefd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _key: game_managers
+  _namespace: ratworx
+  _prefabsToRegister:
+  - {fileID: 9042840666149580307, guid: 1c5f94134e44aca4ebce6827d691a600, type: 3}
+  - {fileID: 7418287015359400986, guid: bce9c5cd19b7cb6458b42eb7af5d8e18, type: 3}
+  - {fileID: 7010238093460766732, guid: 5f5bba34149d92d46a788a2e0d378b68, type: 3}

@@ -159,6 +159,7 @@ namespace MarsTS.Units
             _spawnerPrefab = prefab.GetComponent<EntitySpawner>();
 
             EntitySpawner spawner = Instantiate(_spawnerPrefab, transform.position, transform.rotation);
+            spawner.SetDeferredSpawn(true);
             spawner.SetEntity(_memberPrefab.gameObject);
             spawner.SetOwner(Owner.Id);
 
@@ -175,8 +176,6 @@ namespace MarsTS.Units
                     .GetComponent<BoxCollider>()
                     .size;
 
-            Debug.Log($"extents: {memberHalfExtents}");
-
             for (int i = 1; i < _maxMembers - _members.Count - 1; i++)
             {
                 for (int x = -1; x < 1; x++)
@@ -190,8 +189,6 @@ namespace MarsTS.Units
                             spawnPos.y,
                             spawnPos.z + (y * memberHalfExtents.z * 4)
                         );
-
-                        Debug.Log($"{x},{y} : {pos}");
 
                         if (Physics.CheckBox(pos, memberHalfExtents))
                         {
@@ -216,6 +213,8 @@ namespace MarsTS.Units
 
             foreach (MemberEntry entry in _members.Values)
             {
+                if (!entry.Member) continue;
+                
                 _squadAvgPos += entry.Member.transform.position;
             }
 

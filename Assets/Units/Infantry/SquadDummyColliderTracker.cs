@@ -53,7 +53,8 @@ namespace MarsTS.Units
         private void Update()
         {
             if (!_isInitialized
-                || _isSelfDestructing) return;
+                || _isSelfDestructing
+                || !_trackedMember) return;
 
             transform.position = _trackedMember.transform.position;
         }

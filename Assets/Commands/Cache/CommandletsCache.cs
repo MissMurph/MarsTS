@@ -2,14 +2,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using MarsTS.Events;
+using MarsTS.Prefabs;
 using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Commands
 {
-    public class CommandCache : NetworkBehaviour
+    public class CommandletsCache : NetworkBehaviour
     {
-        private static CommandCache _instance;
+        private static CommandletsCache _instance;
 
         [SerializeField]
         private float staleCheckInterval = 10f;
@@ -37,6 +38,12 @@ namespace MarsTS.Commands
             activeCommands = new Dictionary<int, Commandlet>();
             staleCommands = new Dictionary<int, Commandlet>();
             staleCheckRequests = new Dictionary<int, List<bool>>();
+
+            if (!NetworkManager.Singleton.IsServer) return;
+
+            GameInit.OnSpawnSystems += OnSystemsSpawn;
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
         }
 
         private void Start()
@@ -44,14 +51,10 @@ namespace MarsTS.Commands
             EventBus.AddListener<CommandCompleteEvent>(OnCommandComplete);
         }
 
-        public override void OnNetworkSpawn()
+        private void OnSystemsSpawn()
         {
-            if (NetworkManager.Singleton.IsServer)
-            {
-                // TODO: Refactor this for player count changes IE disconnect
-                // Host is considered a connected client, so we check for all -1
-                clientCount = NetworkManager.Singleton.ConnectedClients.Count - 1;
-            }
+            // Host is considered a connected client, so we check for all -1
+            clientCount = NetworkManager.Singleton.ConnectedClients.Count - 1;
         }
 
         private void Update()
@@ -66,6 +69,10 @@ namespace MarsTS.Commands
             staleCheckTimer += staleCheckInterval;
         }
 
+        private void OnClientConnected(ulong clientId) => clientCount++;
+
+        private void OnClientDisconnected(ulong clientId) => clientCount--;
+
         public static int Register(Commandlet commandlet)
         {
             if (commandlet.Id > 0)
@@ -79,16 +86,6 @@ namespace MarsTS.Commands
             
             _instanceCount++;
             return _instance.activeCommands.TryAdd(_instanceCount, commandlet) ? _instanceCount : -1;
-        }
-
-        public static bool TryGet(int id, out Commandlet output)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static bool TryGet<T>(int id, Commandlet<T> output)
-        {
-            throw new NotImplementedException();
         }
 
         private static void OnCommandComplete(CommandCompleteEvent _event)

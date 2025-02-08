@@ -9,6 +9,6 @@ namespace MarsTS.Prefabs
         event Action<string, GameObject> OnPrefabRegistered;
         bool RegisterPrefab(string key, GameObject prefab);
         bool TryGetPrefab(string key, out GameObject prefab);
-        List<GameObject> GetAllPrefabs();
+        List<(string, GameObject)> GetAllPrefabs();
     }
 }

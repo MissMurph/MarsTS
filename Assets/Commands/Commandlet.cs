@@ -22,7 +22,7 @@ namespace MarsTS.Commands {
 		public abstract string Key { get; }
 		public List<string> commandedUnits = new List<string>();
 		public int Id { get; protected set; } = 0;
-		public bool IsStale => CommandCache.IsStale(Id);
+		public bool IsStale => CommandletsCache.IsStale(Id);
 
 		public virtual void StartCommand (EventAgent eventAgent, ICommandable unit) {
 			commandedUnits.Add(unit.GameObject.name);
@@ -72,7 +72,7 @@ namespace MarsTS.Commands {
 			Commander = TeamCache.Faction(_data.Faction);
 			Id = _data.Id;
 
-			CommandCache.Register(this);
+			CommandletsCache.Register(this);
 		}
 
 		protected bool TryGetQueue(ICommandable unit, out CommandQueue queue) 
@@ -92,7 +92,7 @@ namespace MarsTS.Commands {
 			target = _target;
 			Commander = _commander;
 
-			Id = CommandCache.Register(this);
+			Id = CommandletsCache.Register(this);
 
 			if (Id <= -1)
 			{

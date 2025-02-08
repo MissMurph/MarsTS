@@ -46,7 +46,7 @@ namespace MarsTS.UI {
 		public void UpdateUnit (string name, int count) {
 			//nameText.text = name;
 
-			Registry.TryGet(name, out ISelectable unit);
+			Registry.TryGetObject(name, out ISelectable unit);
 
 			icon.sprite = unit.Icon;
 

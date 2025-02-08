@@ -129,7 +129,7 @@ namespace MarsTS.Buildings
 
         protected void UpdateProperties(string buildingKey, int constructionWorkRequired, params CostEntry[] constructionCost)
         { 
-            Registry.TryGet(buildingKey, out Building buildingBeingConstructed);
+            Registry.TryGetObject(buildingKey, out Building buildingBeingConstructed);
 
             ConstructionRequired = constructionWorkRequired;
             MaxHealth = buildingBeingConstructed.MaxHealth;
@@ -162,7 +162,7 @@ namespace MarsTS.Buildings
 
         private void UpdatePropertiesClient(string buildingKey)
         {
-            Registry.TryGet(buildingKey, out Building buildingBeingConstructed);
+            Registry.TryGetObject(buildingKey, out Building buildingBeingConstructed);
             
             _buildingBeingConstructed = buildingBeingConstructed;
             UnitType = buildingBeingConstructed.UnitType;

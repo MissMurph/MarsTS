@@ -237,6 +237,8 @@ GameObject:
   - component: {fileID: 1188445018}
   - component: {fileID: 1188445017}
   - component: {fileID: 1188445020}
+  - component: {fileID: 1188445022}
+  - component: {fileID: 1188445021}
   m_Layer: 0
   m_Name: PrefabRegistry
   m_TagString: Untagged
@@ -385,3 +387,72 @@ MonoBehaviour:
   - {fileID: 9042840666149580307, guid: 1c5f94134e44aca4ebce6827d691a600, type: 3}
   - {fileID: 7418287015359400986, guid: bce9c5cd19b7cb6458b42eb7af5d8e18, type: 3}
   - {fileID: 7010238093460766732, guid: 5f5bba34149d92d46a788a2e0d378b68, type: 3}
+--- !u!114 &1188445021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1188445009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19e281ca35aa438d9842bb19758eefd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _key: commandlets
+  _namespace: ratworx
+  _prefabsToRegister:
+  - {fileID: 5062450205701061265, guid: 496d2a571139ad64789835691b11f38a, type: 3}
+  - {fileID: 262308078846228063, guid: aa6fcc6bf9eba1f43b325844b5b51934, type: 3}
+  - {fileID: 6791844101537434035, guid: abe49472517413a49a4fa5a5eef3ecd4, type: 3}
+  - {fileID: 8512689890038300718, guid: 431e566947e6f464fbf83132d5b081bf, type: 3}
+  - {fileID: 3432517498960488343, guid: b920430aca906c946a58b104f6e932aa, type: 3}
+  - {fileID: 9078585913170648526, guid: d9ec859147772184c9b3d31f69961193, type: 3}
+  - {fileID: 262308078846228063, guid: 837d5944aef796548a81a1f5796733e8, type: 3}
+  - {fileID: 1035222882716711203, guid: 198236874e2b3444983b43b2295a5dc0, type: 3}
+--- !u!114 &1188445022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1188445009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19e281ca35aa438d9842bb19758eefd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _key: command_factories
+  _namespace: ratworx
+  _prefabsToRegister:
+  - {fileID: 3057062535865282921, guid: 705b289a8fe32ab4692b1fb42493a980, type: 3}
+  - {fileID: 267881640687602153, guid: 67f74f53e9686d14c89aff129fe6a627, type: 3}
+  - {fileID: 5531349524687077590, guid: a7762e4366a09ec438263cef42b11ca9, type: 3}
+  - {fileID: 4956332122052170237, guid: 4b21372b3825745408cb0e99442bbb71, type: 3}
+  - {fileID: 404730182787911687, guid: d7819fcd6c2949b4fa9aa8125af0741c, type: 3}
+  - {fileID: 6270591665017431547, guid: a98af4ccdefea134eb78e539bc29a66d, type: 3}
+  - {fileID: 2628187842892179046, guid: 769c2924105cd7944a8a40eca896ae95, type: 3}
+  - {fileID: 2033957362125453448, guid: 36e7e7ced7219a6458d1982d4d2cf8e1, type: 3}
+  - {fileID: 2516520199932329893, guid: 10a912caee5228a4ea6320d96c9e97de, type: 3}
+  - {fileID: 1678601764323031716, guid: e2819091bd77a1a479697ac4f37e8339, type: 3}
+  - {fileID: 3942030250463890289, guid: c26e8c65a851ef54c8c1faf4fed9bd3b, type: 3}
+  - {fileID: 7036491822777011155, guid: 906ea77dbd11fad4b8b6077e4b94ae3d, type: 3}
+  - {fileID: 879774765586949614, guid: 84e2e88dd43782f4abcf09c6af49a2e3, type: 3}
+  - {fileID: 2839346840436041531, guid: 60ca6af2dec75b34db9143d40188fcf9, type: 3}
+  - {fileID: 5355092533762780797, guid: 8aaf0fb5ac6ecff40879c349ab5a722d, type: 3}
+  - {fileID: 4770566795186112188, guid: 0407cd29e1c591045802a1349758ee20, type: 3}
+  - {fileID: 5363801698708360245, guid: 8c9ed7776cdcef04c8b2c738cc61b557, type: 3}
+  - {fileID: 4549821421290068857, guid: 7b526a600aa91d94c97593414d53c81c, type: 3}
+  - {fileID: 4833290154102639190, guid: 97a6849b7bb2b2c4ab616cb085145d5a, type: 3}
+  - {fileID: 1335519548087172115, guid: fb6483885b8cb3d40a98f83909f86825, type: 3}
+  - {fileID: 4161531848220810385, guid: 08fefc25c2f753f438ec6032663c6a3f, type: 3}
+  - {fileID: 4254971363239813339, guid: bd4fe3a908b2bcc4c86aaf2adcdf8551, type: 3}
+  - {fileID: 3180229016746917293, guid: dd04437f453864241921bb8016b4bfca, type: 3}
+  - {fileID: 797379463676092401, guid: 86a9b9527e2d6b64089e7f323fcfd4b3, type: 3}
+  - {fileID: 421249461419999900, guid: 6fb01a40884cf2b4d8622fddea542753, type: 3}
+  - {fileID: 8717826713107361596, guid: ed7cbda3532c5cf4da16102be7b8d7a6, type: 3}
+  - {fileID: 1204772066833501042, guid: 23db4d1714b7bcb418875b4eb02c11ff, type: 3}
+  - {fileID: 9186986798613985688, guid: e2b8b828fa319254e824b1a6a3f45aba, type: 3}
+  - {fileID: 6836113184707497441, guid: 4a4cdbdd978776d48b9c73927f80275c, type: 3}
+  - {fileID: 6072907398140352285, guid: 9a4e77d392b8c5d498b1228346d0f35d, type: 3}
+  - {fileID: 4994562280578182596, guid: aec665ee761274a4d9074fd2ae5386ef, type: 3}

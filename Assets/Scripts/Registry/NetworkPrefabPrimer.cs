@@ -10,7 +10,8 @@ namespace MarsTS.Prefabs
         private void Start()
         {
             List<GameObject> networkPrefabs = Registry.GetAllPrefabs()
-                .Where(prefab => prefab.TryGetComponent<NetworkObject>(out _))
+                .Where(kvp => kvp.Item2.TryGetComponent<NetworkObject>(out _))
+                .Select(kvp => kvp.Item2)
                 .ToList();
 
             foreach (GameObject prefab in networkPrefabs)

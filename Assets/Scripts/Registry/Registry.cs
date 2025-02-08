@@ -17,8 +17,6 @@ namespace MarsTS.Prefabs
             _instance = this;
             DontDestroyOnLoad(gameObject);
 
-            Debug.Log($"Registry Awake");
-
             _registries = new Dictionary<string, IRegistry>();
 
             IRegistry[] childRegistries = GetComponentsInChildren<IRegistry>();
@@ -41,7 +39,7 @@ namespace MarsTS.Prefabs
             // TODO: Post registry complete event
         }
 
-        public static bool TryGet<T>(string key, out T registryObject)
+        public static bool TryGetObject<T>(string key, out T registryObject)
         {
             registryObject = default;
             
@@ -87,11 +85,26 @@ namespace MarsTS.Prefabs
             return false;
         }
 
-        public static List<GameObject> GetAllPrefabs()
+        public static bool TryGetPrefabRegistry(string key, out IPrefabRegistry output)
+        {
+            if (!_instance._registries.TryGetValue(key, out IRegistry registry)
+                || registry is not IPrefabRegistry prefabRegistry)
+            {
+                // TODO: Replace with logger
+                Debug.LogWarning($"{typeof(IPrefabRegistry)} registry with key {key} not found!");
+                output = default;
+                return false;
+            }
+
+            output = prefabRegistry;
+            return true;
+        }
+
+        public static List<(string, GameObject)> GetAllPrefabs()
         {
             if (_instance == null) return null;
 
-            var prefabs = new List<GameObject>();
+            var prefabs = new List<(string, GameObject)>();
             
             foreach (IRegistry registry in _instance._registries.Values)
             {

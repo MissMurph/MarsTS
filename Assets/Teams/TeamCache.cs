@@ -61,11 +61,11 @@ namespace MarsTS.Teams {
 			_playersToFactionsMap = new Dictionary<ulong, int>();
 		}
 
-		public static void Init (ulong[] players) {
+		public static void Init (IEnumerable<ulong> players) {
 			_instance.InitTeams(players);
 		}
 
-		private void InitTeams (ulong[] players) {
+		private void InitTeams (IEnumerable<ulong> players) {
 			TeamsInitEvent @event = new TeamsInitEvent(_bus) {
 				Phase = Phase.Pre
 			};

@@ -12,6 +12,21 @@ namespace MarsTS
 {
     public class GameInit : MonoBehaviour
     {
+        public static event Action OnSpawnSystems
+        {
+            add
+            {
+                if (Instance._hasSystemSpawnEventFired)
+                    value.Invoke();
+                else
+                    Instance._onSpawnSystems += value;
+            }
+            remove => Instance._onSpawnSystems -= value;
+        }
+        
+        private event Action _onSpawnSystems;
+        private bool _hasSystemSpawnEventFired;
+        
         public static event Action OnSpawnPlayers;
         public static event Action OnSpawnEntities
         {
@@ -44,7 +59,7 @@ namespace MarsTS
 
         [SerializeField] private NetworkObject commandCachePrefab;
 
-        private readonly Dictionary<ulong, GameObject> _players = new Dictionary<ulong, GameObject>();
+        private readonly HashSet<ulong> _players = new HashSet<ulong>();
         private readonly Dictionary<ulong, bool> _playersReadyToStart = new Dictionary<ulong, bool>();
 
         private void Awake()
@@ -83,10 +98,10 @@ namespace MarsTS
 
         private void OnServerStart()
         {
-            foreach ((ulong id, NetworkClient client) in NetworkManager.Singleton.ConnectedClients)
-            {
-                Instance._players[id] = client.PlayerObject.gameObject;
-            }
+            ulong serverId = NetworkManager.Singleton.LocalClientId;
+
+            Instance._players.Add(serverId); 
+            Instance._playersReadyToStart[serverId] = true;
             
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
@@ -104,7 +119,8 @@ namespace MarsTS
             else
                 Instance._playersReadyToStart[id] = true;
             
-            Debug.Log($"{id} ready");
+            // TODO: Verbose logging
+            //Debug.Log($"{id} ready");
 
             if (Instance._playersReadyToStart.Values.Any(ready => !ready))
             {
@@ -116,7 +132,7 @@ namespace MarsTS
 
         private void OnClientConnected(ulong id)
         {
-            _players[id] = NetworkManager.Singleton.ConnectedClients[id].PlayerObject.gameObject;
+            _players.Add(id);
             _playersReadyToStart[id] = false;
         }
 
@@ -137,8 +153,8 @@ namespace MarsTS
         private void InitializeGameManagers()
         {
             Instantiate(teamCachePrefab, transform).Spawn();
-            TeamCache.Init(_players.Keys.ToArray());
-            Instantiate(commandRegistryPrefab, transform).Spawn();
+            TeamCache.Init(_players.ToArray());
+            //Instantiate(commandRegistryPrefab, transform).Spawn();
             Instantiate(commandCachePrefab, transform).Spawn();
         }
 

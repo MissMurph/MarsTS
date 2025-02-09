@@ -21,10 +21,11 @@ namespace MarsTS.Players
             // This is being set on both the client objects
             _playerId = NetworkObject.OwnerClientId;
 
+            EventBus.AddListener<TeamsInitEvent>(OnTeamInit);
+            
             if (NetworkManager.LocalClient.ClientId != _playerId) 
                 return;
-            
-            EventBus.AddListener<TeamsInitEvent>(OnTeamInit);
+
             EventBus.AddListener<PlayerInitEvent>(OnPlayerInit);
         }
 

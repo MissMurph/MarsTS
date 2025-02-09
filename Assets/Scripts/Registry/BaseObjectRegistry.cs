@@ -1,15 +1,12 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using MarsTS.Buildings;
-using MarsTS.Units;
 using UnityEngine;
-using UnityEngine.Serialization;
+using MarsTS.Logging;
 
 namespace MarsTS.Prefabs
 {
-    public abstract class BaseEntityRegistry<T> : MonoBehaviour, IPrefabRegistry, IObjectRegistry<T>
+    public abstract class BaseObjectRegistry<T> : MonoBehaviour, IPrefabRegistry, IObjectRegistry<T>
     {
         public event Action<string, GameObject> OnPrefabRegistered;
         public event Action<string, T> OnEntityRegistered;
@@ -40,12 +37,16 @@ namespace MarsTS.Prefabs
 
         protected bool RegisterPrefabAndObject(string key, T registryObject, GameObject prefab)
         {
-            if (_registeredPrefabs.ContainsKey(key) || _registeredObjects.ContainsKey(key))
-                Debug.LogWarning(
-                    $"Entity {key} of Type {typeof(T)} already registered with {Key}:{Namespace}! Overriding");
+            string casedKey = key.ToLower();
+            
+            if (_registeredPrefabs.ContainsKey(casedKey) || _registeredObjects.ContainsKey(casedKey))
+                RatLogger.Error?.Log(
+                    $"Entity {casedKey} of Type {typeof(T)} already registered with {Key}:{Namespace}! Overriding");
 
-            _registeredPrefabs[key] = prefab;
-            _registeredObjects[key] = registryObject;
+            _registeredPrefabs[casedKey] = prefab;
+            _registeredObjects[casedKey] = registryObject;
+            
+            RatLogger.Verbose?.Log($"Registered Object of type {typeof(T)} {Namespace}:{_key}:{casedKey}");
 
             return true;
         }
@@ -73,7 +74,9 @@ namespace MarsTS.Prefabs
         public bool TryGetObject(string key, out T registryObject) =>
             _registeredObjects.TryGetValue(key, out registryObject);
 
-        public List<GameObject> GetAllPrefabs() => _registeredPrefabs.Values.ToList();
+        public List<(string, GameObject)> GetAllPrefabs() => _registeredPrefabs
+            .Select(kvp => (kvp.Key, kvp.Value))
+            .ToList();
 
         public List<T> GetAllObjects() => _registeredObjects.Values.ToList();
     }

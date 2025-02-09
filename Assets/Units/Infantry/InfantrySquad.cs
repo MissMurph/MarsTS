@@ -350,7 +350,7 @@ namespace MarsTS.Units
             else _commands.Execute(order);
         }
 
-        public virtual CommandFactory Evaluate(ISelectable target) => CommandRegistry.Get("move");
+        public virtual CommandFactory Evaluate(ISelectable target) => CommandPrimer.Get("move");
 
         public virtual void AutoCommand(ISelectable target)
         {

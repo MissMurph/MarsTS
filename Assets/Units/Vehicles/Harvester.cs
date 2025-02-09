@@ -370,13 +370,13 @@ namespace MarsTS.Units
                 && Stored < Capacity
                 && harvestable.StoredAmount > 0
                 && harvestable.CanHarvest(_storageComp.Resource, this))
-                return CommandRegistry.Get("harvest");
+                return CommandPrimer.Get("harvest");
 
             if (target is IDepositable
                 && Stored > 0)
-                return CommandRegistry.Get("deposit");
+                return CommandPrimer.Get("deposit");
 
-            return CommandRegistry.Get("move");
+            return CommandPrimer.Get("move");
         }
 
         public override void AutoCommand(ISelectable target)
@@ -386,7 +386,7 @@ namespace MarsTS.Units
                 && harvestable.StoredAmount > 0
                 && harvestable.CanHarvest(_storageComp.Resource, this))
             {
-                CommandRegistry.Get<Harvest>("harvest")
+                CommandPrimer.Get<Harvest>("harvest")
                     .Construct(harvestable, owner, Player.ListSelected, Player.Include);
                 
                 return;
@@ -395,13 +395,13 @@ namespace MarsTS.Units
             if (target is IDepositable deserialized
                 && Stored > 0)
             {
-                CommandRegistry.Get<Deposit>("deposit")
+                CommandPrimer.Get<Deposit>("deposit")
                     .Construct(deserialized, owner, Player.ListSelected, Player.Include);
                 
                 return;
             }
 
-            CommandRegistry.Get<Move>("move")
+            CommandPrimer.Get<Move>("move")
                 .Construct(target.GameObject.transform.position, owner, Player.ListSelected, Player.Include);
         }
 

@@ -184,10 +184,10 @@ namespace MarsTS.Units {
 
 		public override CommandFactory Evaluate (ISelectable target) {
 			if (target is IAttackable && target.GetRelationship(Owner) == Relationship.Hostile) {
-				return CommandRegistry.Get("attack");
+				return CommandPrimer.Get("attack");
 			}
 
-			return CommandRegistry.Get("move");
+			return CommandPrimer.Get("move");
 		}
 
 		public override void AutoCommand (ISelectable target) {

@@ -56,7 +56,7 @@ namespace MarsTS.Commands {
 		private void OnPlayerInit(PlayerInitEvent @event) {
 			if (@event.Phase != Phase.Post) return;
 			
-			orderPrefab = CommandRegistry.Get<CommandFactory<IAttackable>>("repair").Prefab;
+			orderPrefab = CommandPrimer.Get<CommandFactory<IAttackable>>("repair").Prefab;
 		}
 
 		protected virtual void Update () {
@@ -133,7 +133,7 @@ namespace MarsTS.Commands {
 					//if (@event.Phase == Phase.Pre) 
 					//return;
 					
-					CommandRegistry.Get<Repair>("repair").Construct(ghost, factionId, selection, inclusive);
+					CommandPrimer.Get<Repair>("repair").Construct(ghost, factionId, selection, inclusive);
 				}
 			);
 			

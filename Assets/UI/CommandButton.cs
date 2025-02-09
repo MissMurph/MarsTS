@@ -43,7 +43,7 @@ namespace MarsTS.UI {
                 return;
             }
 
-            if (!CommandRegistry.TryGet(key, out CommandFactory factory)) 
+            if (!CommandPrimer.TryGet(key, out CommandFactory factory)) 
 	            return;
 
             current = factory;

@@ -216,10 +216,10 @@ namespace MarsTS.Units {
 				&& (target.GetRelationship(Owner) == Relationship.Owned || target.GetRelationship(Owner) == Relationship.Friendly)
 				//&& (target.GameObject.CompareTag("vehicle") || target.GameObject.CompareTag("building"))
 				&& attackable.Health < attackable.MaxHealth) {
-				return CommandRegistry.Get("repair");
+				return CommandPrimer.Get("repair");
 			}
 
-			return CommandRegistry.Get("move");
+			return CommandPrimer.Get("move");
 		}
 
 		public override void AutoCommand (ISelectable target) {
@@ -230,7 +230,7 @@ namespace MarsTS.Units {
 				//CommandRegistry.Get<Repair>("repair").Construct(attackable, Player.SerializedSelected);
 			}
 
-			CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position, Player.ListSelected);
+			CommandPrimer.Get<Move>("move").Construct(target.GameObject.transform.position, Player.ListSelected);
 		}
 
 		public override bool CanCommand (string key) {

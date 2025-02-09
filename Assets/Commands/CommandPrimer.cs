@@ -6,9 +6,9 @@ using UnityEngine;
 
 namespace MarsTS.Commands
 {
-    public class Commands : NetworkBehaviour
+    public class CommandPrimer : NetworkBehaviour
     {
-        private static Commands _instance;
+        private static CommandPrimer _instance;
 
         private Dictionary<string, CommandFactory> _registered;
         
@@ -66,8 +66,8 @@ namespace MarsTS.Commands
         [Rpc(SendTo.NotServer)]
         private void RegisterCommandClientRpc(string key)
         {
-            if (!Registry.TryGetPrefab(key, out GameObject prefab)
-                || prefab.TryGetComponent(out CommandFactory factory))
+            if (!Registry.TryGetPrefab($"command_factories:{key}", out GameObject prefab)
+                || !prefab.TryGetComponent(out CommandFactory factory))
             {
                 Debug.LogError($"Couldn't find registered prefab {key}!");
                 return;

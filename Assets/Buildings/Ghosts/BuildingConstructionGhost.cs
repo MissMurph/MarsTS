@@ -359,7 +359,7 @@ namespace MarsTS.Buildings
             if (order.Name == "cancelConstruction") CancelConstruction();
         }
 
-        public CommandFactory Evaluate(ISelectable target) => CommandRegistry.Get("move");
+        public CommandFactory Evaluate(ISelectable target) => CommandPrimer.Get("move");
 
         public void AutoCommand(ISelectable target) { }
 

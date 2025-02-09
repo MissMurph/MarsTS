@@ -69,20 +69,13 @@ namespace MarsTS
 
         private void Start()
         {
-            // NetworkManager.Singleton.OnServerStarted += OnServerStart;
-            // NetworkManager.Singleton.OnClientStarted += OnClientStart;
-            
             if (NetworkManager.Singleton.IsServer) OnServerStart();
             if (NetworkManager.Singleton.IsClient) OnClientStart();
-
-            EventBus.AddListener<PlayerInitEvent>(OnClientPlayerInit);
-
+            
             foreach (EntitySpawner spawner in startPositions)
             {
                 spawner.SetDeferredSpawn(true);
             }
-            
-            
         }
 
         private void OnClientStart()
@@ -105,11 +98,6 @@ namespace MarsTS
             
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
-        }
-
-        private void OnClientPlayerInit(PlayerInitEvent _event)
-        {
-           // SendPlayerReadyServerRpc(NetworkManager.Singleton.LocalClient.ClientId);
         }
 
         public static void PlayerReady(ulong id)
@@ -156,12 +144,17 @@ namespace MarsTS
             TeamCache.Init(_players.ToArray());
             //Instantiate(commandRegistryPrefab, transform).Spawn();
             Instantiate(commandCachePrefab, transform).Spawn();
+
+            // We set to true before firing the event, as some listeners will subscribe partway through
+            _hasSystemSpawnEventFired = true;
+            _onSpawnSystems?.Invoke();
         }
 
         private void SpawnHeadquarters()
         {
             if (!NetworkManager.Singleton.IsServer) return;
 
+            // We set to true before firing the event, as some listeners will subscribe partway through
             _hasSpawnEventFired = true;
             _onSpawnEntities?.Invoke();
 

@@ -109,16 +109,16 @@ namespace MarsTS.Units
                 && Stored < Capacity
                 && harvestable.StoredAmount > 0
                 && harvestable.CanHarvest(storageComp.Resource, this))
-                return CommandRegistry.Get("harvest");
+                return CommandPrimer.Get("harvest");
 
             if (target is IDepositable
                 && Stored > 0)
-                return CommandRegistry.Get("deposit");
+                return CommandPrimer.Get("deposit");
 
             if (target is IAttackable && target.GetRelationship(Owner) == Relationship.Hostile)
-                return CommandRegistry.Get("attack");
+                return CommandPrimer.Get("attack");
 
-            return CommandRegistry.Get("move");
+            return CommandPrimer.Get("move");
         }
 
         public override void AutoCommand(ISelectable target)

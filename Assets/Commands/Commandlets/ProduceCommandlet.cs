@@ -26,7 +26,7 @@ namespace MarsTS.Commands {
 
 		public Dictionary<string, int> Cost { get; private set; }
 		public GameObject Product => Target;
-		public override CommandFactory Command => CommandRegistry.Get(Name + "/" + Product.name);
+		public override CommandFactory Command => CommandPrimer.Get(Name + "/" + Product.name);
 
 		public override string Key => Name;
 

@@ -41,11 +41,11 @@ namespace MarsTS.UI {
 			if (string.IsNullOrEmpty(_boundCommands[index])) return;
 
 			if (!string.IsNullOrEmpty(_currentlyTargetingCommand)) 
-				CommandRegistry.Get(_currentlyTargetingCommand).CancelSelection();
+				CommandPrimer.Get(_currentlyTargetingCommand).CancelSelection();
 
 			_currentlyTargetingCommand = _boundCommands[index];
 
-			CommandFactory bound = CommandRegistry.Get(_boundCommands[index]);
+			CommandFactory bound = CommandPrimer.Get(_boundCommands[index]);
 			bound.StartSelection();
 		}
 

@@ -18,7 +18,7 @@ namespace MarsTS.Commands {
 		public string Name { get; protected set; }
 		public Faction Commander { get; protected set; }
 		public UnityEvent<CommandCompleteEvent> Callback = new UnityEvent<CommandCompleteEvent>();
-		public virtual CommandFactory Command => CommandRegistry.Get(Key);
+		public virtual CommandFactory Command => CommandPrimer.Get(Key);
 		public abstract string Key { get; }
 		public List<string> commandedUnits = new List<string>();
 		public int Id { get; protected set; } = 0;

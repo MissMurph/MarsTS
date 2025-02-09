@@ -57,7 +57,6 @@ namespace MarsTS.Commands
             _registered[factoryToRegister.Name] = factoryToRegister;
         }
 
-        // TODO: Convert all usages to Commands.Get
         public static T Get<T>(string key) where T : CommandFactory
         {
             if (_instance._registered.TryGetValue(key, out CommandFactory entry))
@@ -67,7 +66,6 @@ namespace MarsTS.Commands
             throw new ArgumentException("Command " + key + " of type " + typeof(T) + " not found");
         }
 
-        // TODO: Convert all usages to Commands.Get
         public static CommandFactory Get(string key)
         {
             if (_instance._registered.TryGetValue(key, out CommandFactory entry)) return entry;
@@ -89,7 +87,6 @@ namespace MarsTS.Commands
             return false;
         }
 
-        // TODO: Convert all usages to Commands.TryGet
         public static bool TryGet(string key, out CommandFactory command)
         {
             command = default;

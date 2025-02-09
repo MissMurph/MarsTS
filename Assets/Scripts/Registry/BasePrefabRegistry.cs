@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using MarsTS.Logging;
 using UnityEngine;
 
 namespace MarsTS.Prefabs
@@ -34,18 +35,22 @@ namespace MarsTS.Prefabs
 
         public bool RegisterPrefab(string key, GameObject prefab)
         {
-            if (_registeredPrefabs.ContainsKey(key))
-            {
-                Debug.LogWarning($"Prefab {key} already registered with {Key}:{Namespace}! Overriding");
-            }
+            string casedKey = key.ToLower();
+            
+            if (_registeredPrefabs.ContainsKey(casedKey)) 
+                Debug.LogWarning($"Prefab {casedKey} already registered with {Key}:{Namespace}! Overriding");
 
-            _registeredPrefabs[key] = prefab;
+            _registeredPrefabs[casedKey] = prefab;
+            
+            RatLogger.Verbose?.Log($"Registered prefab of {Namespace}:{_key}:{casedKey}");
 
             return true;
         }
 
         public bool TryGetPrefab(string key, out GameObject prefab) => _registeredPrefabs.TryGetValue(key, out prefab);
 
-        public List<GameObject> GetAllPrefabs() => _registeredPrefabs.Values.ToList();
+        public List<(string, GameObject)> GetAllPrefabs() => _registeredPrefabs
+            .Select(kvp => (kvp.Key, kvp.Value))
+            .ToList();
     }
 }

@@ -16,15 +16,16 @@ namespace MarsTS.Players
 
         private Faction _faction;
 
-        private void Awake()
-        {
-            EventBus.AddListener<TeamsInitEvent>(OnTeamInit);
-            EventBus.AddListener<PlayerInitEvent>(OnPlayerInit);
-        }
-
         public override void OnNetworkSpawn()
         {
-            _playerId = NetworkManager.Singleton.LocalClient.ClientId;
+            // This is being set on both the client objects
+            _playerId = NetworkObject.OwnerClientId;
+
+            if (NetworkManager.LocalClient.ClientId != _playerId) 
+                return;
+            
+            EventBus.AddListener<TeamsInitEvent>(OnTeamInit);
+            EventBus.AddListener<PlayerInitEvent>(OnPlayerInit);
         }
 
         private void OnTeamInit(TeamsInitEvent @event)

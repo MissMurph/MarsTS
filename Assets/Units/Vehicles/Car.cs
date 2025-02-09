@@ -215,18 +215,18 @@ namespace MarsTS.Units {
 
 		public override CommandFactory Evaluate (ISelectable target) {
 			if (target is IAttackable && target.GetRelationship(Owner) == Relationship.Hostile) {
-				return CommandRegistry.Get("attack");
+				return CommandPrimer.Get("attack");
 			}
 
-			return CommandRegistry.Get("move");
+			return CommandPrimer.Get("move");
 		}
 
 		public override void AutoCommand (ISelectable target) {
 			if (target is IAttackable deserialized && target.GetRelationship(Owner) == Relationship.Hostile) {
-				CommandRegistry.Get<Attack>("attack").Construct(deserialized, Player.ListSelected);
+				CommandPrimer.Get<Attack>("attack").Construct(deserialized, Player.ListSelected);
 			}
 
-			CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position, Player.ListSelected);
+			CommandPrimer.Get<Move>("move").Construct(target.GameObject.transform.position, Player.ListSelected);
 		}
 	}
 }

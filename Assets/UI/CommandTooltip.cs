@@ -33,7 +33,7 @@ namespace MarsTS.UI {
 		}
 
 		public void ShowCommand (string commandKey) {
-            CommandFactory source = CommandRegistry.Get(commandKey);
+            CommandFactory source = CommandPrimer.Get(commandKey);
 
             commandName.text = source.name;
             icon.sprite = source.Icon;

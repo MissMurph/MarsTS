@@ -1,5 +1,4 @@
 ﻿using MarsTS.Buildings;
-using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players.Input;
@@ -11,6 +10,7 @@ using MarsTS.World;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MarsTS.Commands;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -185,7 +185,7 @@ namespace MarsTS.Players {
 				else if (walkableHit.collider != null) {
 					Vector3 hitPos = walkableHit.point;
 
-					CommandRegistry.Get<Move>("move").Construct(hitPos, ListSelected);
+					CommandPrimer.Get<Move>("move").Construct(hitPos, ListSelected);
 					return;
 				}
 			}

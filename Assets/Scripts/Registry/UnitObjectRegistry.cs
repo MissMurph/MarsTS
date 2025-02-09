@@ -2,7 +2,7 @@ using MarsTS.Units;
 
 namespace MarsTS.Prefabs
 {
-    public class UnitEntityRegistry : BaseEntityRegistry<ISelectable>
+    public class UnitObjectRegistry : BaseObjectRegistry<ISelectable>
     {
         
     }

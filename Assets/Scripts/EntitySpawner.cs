@@ -1,5 +1,6 @@
 using MarsTS.Entities;
 using MarsTS.Events;
+using MarsTS.Logging;
 using MarsTS.Teams;
 using MarsTS.Units;
 using Unity.Netcode;
@@ -21,6 +22,12 @@ namespace MarsTS.Editor
 
         private void Start()
         {
+            if (!NetworkManager.Singleton.IsServer)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            
             GameInit.OnSpawnEntities += OnPlayerInit;
             //EventBus.AddListener<PlayerInitEvent>(OnPlayerInit);
         }
@@ -41,12 +48,6 @@ namespace MarsTS.Editor
 
         private void OnPlayerInit()
         {
-            if (!NetworkManager.Singleton.IsServer)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            
             if (_deferSpawn) return;
 
             InstantiateAndSpawnEntity();
@@ -54,6 +55,8 @@ namespace MarsTS.Editor
 
         private Entity InstantiateAndSpawnEntity()
         {
+            RatLogger.Verbose?.Log($"Spawning {_prefab.name}");
+            
             GameObject instantiated = Instantiate(_prefab, transform.position, transform.rotation);
             var selectable = instantiated.GetComponent<ISelectable>();
             var networkObject = instantiated.GetComponent<NetworkObject>();

@@ -27,7 +27,7 @@ namespace MarsTS.Buildings
         public int Id => _entityComponent.Id;
         public string UnitType { get; private set; }
 
-        public string RegistryKey => "buildingConstructionGhost:" + UnitType;
+        public string RegistryKey => "buildingConstructionGhost";
         public Faction Owner => TeamCache.Faction(_owner);
 
         public Sprite Icon { get; private set; }
@@ -129,7 +129,7 @@ namespace MarsTS.Buildings
 
         protected void UpdateProperties(string buildingKey, int constructionWorkRequired, params CostEntry[] constructionCost)
         { 
-            Registry.TryGetObject(buildingKey, out Building buildingBeingConstructed);
+            Registry.TryGetObject($"building:{buildingKey}", out Building buildingBeingConstructed);
 
             ConstructionRequired = constructionWorkRequired;
             MaxHealth = buildingBeingConstructed.MaxHealth;
@@ -162,7 +162,7 @@ namespace MarsTS.Buildings
 
         private void UpdatePropertiesClient(string buildingKey)
         {
-            Registry.TryGetObject(buildingKey, out Building buildingBeingConstructed);
+            Registry.TryGetObject($"building:{buildingKey}", out Building buildingBeingConstructed);
             
             _buildingBeingConstructed = buildingBeingConstructed;
             UnitType = buildingBeingConstructed.UnitType;

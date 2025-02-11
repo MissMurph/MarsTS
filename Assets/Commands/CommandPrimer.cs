@@ -53,21 +53,16 @@ namespace MarsTS.Commands
             networkObject.TrySetParent(transform);
             
             RegisterFactory(key, factory);
+            RegisterCommandClientRpc(key, networkObject);
         }
 
-        private void RegisterFactory(string key, CommandFactory factory)
-        {
-            _registered[key] = factory;
-
-            if (NetworkManager.Singleton.IsServer) 
-                RegisterCommandClientRpc(key);
-        }
+        private void RegisterFactory(string key, CommandFactory factory) => _registered[key] = factory;
 
         [Rpc(SendTo.NotServer)]
-        private void RegisterCommandClientRpc(string key)
+        private void RegisterCommandClientRpc(string key, NetworkObjectReference netRef)
         {
-            if (!Registry.TryGetPrefab($"command_factories:{key}", out GameObject prefab)
-                || !prefab.TryGetComponent(out CommandFactory factory))
+            if (!netRef.TryGet(out NetworkObject networkObject)
+                || !networkObject.TryGetComponent(out CommandFactory factory))
             {
                 Debug.LogError($"Couldn't find registered prefab {key}!");
                 return;

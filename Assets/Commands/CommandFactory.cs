@@ -3,6 +3,7 @@ using MarsTS.Teams;
 using MarsTS.UI;
 using System;
 using System.Collections.Generic;
+using MarsTS.Prefabs;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -36,8 +37,8 @@ namespace MarsTS.Commands {
 		public override Type TargetType => typeof(T);
 	}
 
-	public abstract class CommandFactory : NetworkBehaviour {
-
+	public abstract class CommandFactory : NetworkBehaviour, IRegistryObject<CommandFactory>
+	{
 		public abstract string Name { get; }
 		public abstract Type TargetType { get; }
 		public virtual Sprite Icon => icon;
@@ -55,5 +56,9 @@ namespace MarsTS.Commands {
 		private void Start() {
 			//GetComponent<NetworkObject>().Spawn();
 		}
+
+		public string RegistryType => "command_factory";
+		public string RegistryKey => Name;
+		public CommandFactory Get() => this;
 	}
 }

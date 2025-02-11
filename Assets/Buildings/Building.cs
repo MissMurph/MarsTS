@@ -4,6 +4,7 @@ using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players;
+using MarsTS.Prefabs;
 using MarsTS.Research;
 using MarsTS.Teams;
 using MarsTS.UI;
@@ -15,9 +16,9 @@ using UnityEngine;
 namespace MarsTS.Buildings
 {
     public abstract class Building : NetworkBehaviour, 
-        ISelectable, 
-        ITaggable<Building>, 
-        IAttackable, 
+        ISelectable,
+        ITaggable<Building>,
+        IAttackable,
         ICommandable
     {
         public GameObject GameObject => gameObject;
@@ -45,7 +46,8 @@ namespace MarsTS.Buildings
 
         public string UnitType => type;
 
-        public string RegistryKey => "building:" + UnitType;
+        public string RegistryType => "building";
+        public string RegistryKey => UnitType;
 
         public Sprite Icon => icon;
 

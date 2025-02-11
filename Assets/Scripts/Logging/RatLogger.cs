@@ -6,8 +6,10 @@ namespace MarsTS.Logging
 {
     public class RatLogger
     {
-        private const string RatworxLogPrefix = "[RATWORX]";
-
+        // Uncomment with release
+        //private const string RatworxLogPrefix = "[RATWORX]";
+        private const string RatworxLogPrefix = "";
+        
 #nullable enable
         public static RatLogger? Error { get; private set; }   = new RatLogger(LogLevel.Error);
         public static RatLogger? Warning { get; private set; } = new RatLogger(LogLevel.Warning); 

@@ -31,7 +31,11 @@ namespace MarsTS.Commands
         [FormerlySerializedAs("Cost")] [SerializeField]
         protected CostEntry[] _cost;
 
-        private ISelectable _unit;
+        private ISelectable _unit
+        {
+            get;
+            set;
+        }
 
         [SerializeField] private string _commandKey = "produce";
 

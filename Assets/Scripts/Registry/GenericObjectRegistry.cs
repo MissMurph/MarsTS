@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using MarsTS.Logging;
+using UnityEngine;
 
-namespace MarsTS.Prefabs
+namespace MarsTS.Prefabs.ObjectRegistries
 {
-    public abstract class BaseObjectRegistry<T> : MonoBehaviour, 
-        IPrefabRegistry, 
+    public class GenericObjectRegistry<T> : MonoBehaviour,
+        IPrefabRegistry,
         IObjectRegistry<T>
-        where T : IRegistryObject<T>
     {
         public event Action<string, GameObject> OnPrefabRegistered;
         public event Action<string, T> OnObjectRegistered;
@@ -40,7 +39,7 @@ namespace MarsTS.Prefabs
 
         private bool RegisterPrefabAndObject(string key, T registryObject, GameObject prefab)
         {
-            string casedKey = registryObject.RegistryKey.ToLower();
+            string casedKey = key.ToLower();
             
             if (_registeredPrefabs.ContainsKey(casedKey) || _registeredObjects.ContainsKey(casedKey))
                 RatLogger.Error?.Log(
@@ -57,7 +56,7 @@ namespace MarsTS.Prefabs
         public bool RegisterPrefab(string key, GameObject prefab)
         {
             if (prefab.TryGetComponent(out T component))
-                return RegisterPrefabAndObject(component.RegistryKey, component, prefab);
+                return RegisterPrefabAndObject(key, component, prefab);
 
             RatLogger.Error?.Log($"Attempted to register Prefab {key} to registry of Type {typeof(T)}: {Key}:{Namespace}");
             return false;
@@ -66,7 +65,7 @@ namespace MarsTS.Prefabs
         public bool RegisterObject(string key, T registryObject)
         {
             if (registryObject is Component component)
-                return RegisterPrefabAndObject(registryObject.RegistryKey, registryObject, component.gameObject);
+                return RegisterPrefabAndObject(key, registryObject, component.gameObject);
             
             RatLogger.Error?.Log($"Cannot register object {key} of Type {typeof(T)}! Object is not a component and no GameObject has been provided!");
             return false;

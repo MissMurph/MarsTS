@@ -1,158 +1,212 @@
+using System;
 using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.UI;
 using MarsTS.Vision;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace MarsTS.Units {
+    public class Flare : NetworkBehaviour, 
+        ISelectable, 
+        ITaggable<Flare>, 
+        IAttackable 
+    {
+        [FormerlySerializedAs("lifeTime")]
+        [SerializeField]
+        private float _lifeTime;
 
-    public class Flare : MonoBehaviour, ISelectable, ITaggable<Flare>, IAttackable {
+        private float _currentLifeTime;
+
+        private EventAgent _bus;
+
+        [FormerlySerializedAs("hideables")]
+        [SerializeField]
+        private GameObject[] _hideables;
+
+        public GameObject GameObject => gameObject;
+        public IUnit Unit => this;
+
+        /*	IAttackable Properties	*/
+
+        public int Health
+        {
+            get => _currentHealth.Value;
+            private set => _currentHealth.Value = value;
+        }
+
+        public int MaxHealth => maxHealth;
+
+        private readonly int maxHealth = 100;
 
         [SerializeField]
-        private float lifeTime;
+        private NetworkVariable<int> _currentHealth = new (writePerm: NetworkVariableWritePermission.Server);
 
-		private float currentLifeTime;
+        /*	ISelectable Properties	*/
 
-		private EventAgent bus;
+        public int Id => _entityComponent.Id;
 
-		[SerializeField]
-		private GameObject[] hideables;
+        public string UnitType => _type;
 
-		public GameObject GameObject => gameObject;
-		public IUnit Unit => this;
+        public string RegistryKey => "misc:" + UnitType;
 
-		/*	IAttackable Properties	*/
+        public Sprite Icon => _icon;
 
-		public int Health { get { return currentHealth; } }
+        public Faction Owner => _owner;
 
-		public int MaxHealth { get { return maxHealth; } }
+        [FormerlySerializedAs("owner")]
+        [SerializeField]
+        private Faction _owner;
 
-		protected int maxHealth = 100;
+        [FormerlySerializedAs("type")]
+        [SerializeField]
+        private string _type;
 
-		protected int currentHealth;
+        [FormerlySerializedAs("icon")]
+        [SerializeField]
+        private Sprite _icon;
 
-		/*	ISelectable Properties	*/
+        /*	ITaggable Properties	*/
 
-		public int Id { get { return entityComponent.Id; } }
+        public string Key => "selectable";
 
-		public string UnitType { get { return type; } }
+        public Type Type => typeof(AbstractUnit);
 
-		public string RegistryKey { get { return "misc:" + UnitType; } }
+        private ISelectable _parent;
 
-		public Sprite Icon { get { return icon; } }
+        private Entity _entityComponent;
 
-		public Faction Owner { get { return owner; } }
+        private void Awake() {
+            _bus = GetComponent<EventAgent>();
+            _entityComponent = GetComponent<Entity>();
 
-		[SerializeField]
-		private Faction owner;
+            Health = maxHealth;
+            _currentLifeTime = _lifeTime;
+        }
 
-		[SerializeField]
-		private string type;
+        private void Start() {
+            _bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
 
-		[SerializeField]
-		private Sprite icon;
+            EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
+            EventBus.AddListener<VisionInitEvent>(OnVisionInit);
+        }
 
-		/*	ITaggable Properties	*/
+        public override void OnNetworkSpawn() {
+            base.OnNetworkSpawn();
 
-		public string Key { get { return "selectable"; } }
+            _currentHealth.OnValueChanged += OnHurt;
+        }
 
-		public Type Type { get { return typeof(AbstractUnit); } }
+        private void OnVisionInit(VisionInitEvent _event) {
+            bool visible = GameVision.IsVisible(gameObject);
 
-		private ISelectable parent;
+            foreach (GameObject hideable in _hideables) {
+                hideable.SetActive(visible);
+            }
+        }
 
-		private Entity entityComponent;
+        private void Update() {
+            if (!NetworkManager.Singleton.IsServer) return;
+            
+            int previousHealth = Health;
+            _currentLifeTime -= Time.deltaTime;
+            Health = Mathf.RoundToInt(maxHealth * (_currentLifeTime / _lifeTime));
 
-		private void Awake () {
-			bus = GetComponent<EventAgent>();
-			entityComponent = GetComponent<Entity>();
+            UnitHurtEvent hurtEvent = new UnitHurtEvent(_bus, this, previousHealth - Health);
+            hurtEvent.Phase = Phase.Post;
+            _bus.Global(hurtEvent);
 
-			currentHealth = maxHealth;
-			currentLifeTime = lifeTime;
-		}
+            if (_currentLifeTime <= 0) {
+                _bus.Global(new UnitDeathEvent(_bus, this));
+                Destroy(gameObject);
+            }
+        }
 
-		private void Start () {
-			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
+        private void OnVisionUpdate(EntityVisibleEvent _event) {
+            foreach (GameObject hideable in _hideables) {
+                hideable.SetActive(_event.Visible);
+            }
+        }
 
-			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
-			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
-		}
+        public void Select(bool status) {
+            _bus.Local(new UnitSelectEvent(_bus, status));
+        }
 
-		public void Init (ISelectable _parent) {
-			parent = _parent;
-			owner = parent.Owner;
-		}
+        public void Hover(bool status) {
+            //These are seperated due to the Player Selection Check
+            if (status)
+                _bus.Local(new UnitHoverEvent(_bus, status));
+            else if (!Player.Main.HasSelected(this)) _bus.Local(new UnitHoverEvent(_bus, status));
+        }
 
-		private void OnVisionInit (VisionInitEvent _event) {
-			bool visible = GameVision.IsVisible(gameObject);
+        public Relationship GetRelationship(Faction other) => Owner.GetRelationship(other);
 
-			foreach (GameObject hideable in hideables) {
-				hideable.SetActive(visible);
-			}
-		}
+        public bool SetOwner(Faction player) {
+            if (!NetworkManager.Singleton.IsServer) return false;
+            
+            _owner = player;
+            SetOwnerClientRpc(_owner.Id);
+            _bus.Global(new UnitOwnerChangeEvent(_bus, this, Owner));
+            
+            return true;
+        }
 
-		private void Update ()
-		{
-			int previousHealth = currentHealth;
-			currentLifeTime -= Time.deltaTime;
-			currentHealth = Mathf.RoundToInt(maxHealth * (currentLifeTime / lifeTime));
+        [Rpc(SendTo.NotServer)]
+        private void SetOwnerClientRpc(int newId) {
+            _owner = TeamCache.Faction(newId);
+            _bus.Global(new UnitOwnerChangeEvent(_bus, this, Owner));
+        }
 
-			UnitHurtEvent hurtEvent = new UnitHurtEvent(bus, this, previousHealth - currentHealth);
-			hurtEvent.Phase = Phase.Post;
-			bus.Global(hurtEvent);
+        public Flare Get() => this;
 
-			if (currentLifeTime <= 0) {
-				bus.Global(new UnitDeathEvent(bus, this));
-				Destroy(gameObject);
-			}
-		}
+        private void OnUnitInfoDisplayed(UnitInfoEvent _event) {
+            if (ReferenceEquals(_event.Unit, this)) {
+                HealthInfo info = _event.Info.Module<HealthInfo>("health");
+                info.CurrentUnit = this;
+            }
+        }
 
-		private void OnVisionUpdate (EntityVisibleEvent _event) {
-			foreach (GameObject hideable in hideables) {
-				hideable.SetActive(_event.Visible);
-			}
-		}
+        public void Attack(int damage) {
+            if (Health <= 0) 
+                return;
+            
+            if (damage < 0 && Health >= MaxHealth) 
+                return;
 
-		public void Select (bool status) {
-			bus.Local(new UnitSelectEvent(bus, status));
-		}
+            UnitHurtEvent hurtEvent = new UnitHurtEvent(_bus, this, damage);
+            hurtEvent.Phase = Phase.Pre;
+            _bus.Global(hurtEvent);
 
-		public void Hover (bool status) {
-			//These are seperated due to the Player Selection Check
-			if (status) {
-				bus.Local(new UnitHoverEvent(bus, status));
-			}
-			else if (!Player.Main.HasSelected(this)) {
-				bus.Local(new UnitHoverEvent(bus, status));
-			}
-		}
+            damage = hurtEvent.Damage;
+            Health -= damage;
 
-		public Relationship GetRelationship (Faction other) {
-			return Owner.GetRelationship(other);
-		}
+            hurtEvent.Phase = Phase.Post;
+            _bus.Global(hurtEvent);
 
-		public bool SetOwner (Faction player) {
-			owner = player;
-			return true;
-		}
+            if (Health <= 0)
+            {
+                _bus.Global(new UnitDeathEvent(_bus, this));
+                Destroy(gameObject, 0.1f);
+            }
+        }
 
-		public Flare Get () {
-			return this;
-		}
+        private void OnHurt(int oldHealth, int newHealth) {
+            if (Health <= 0)
+            {
+                _bus.Global(new UnitDeathEvent(_bus, this));
 
-		private void OnUnitInfoDisplayed (UnitInfoEvent _event) {
-			if (ReferenceEquals(_event.Unit, this)) {
-				HealthInfo info = _event.Info.Module<HealthInfo>("health");
-				info.CurrentUnit = this;
-			}
-		}
-
-		public void Attack (int damage) {
-			throw new NotImplementedException();
-		}
-	}
+                if (NetworkManager.Singleton.IsServer)
+                    Destroy(gameObject, 0.1f);
+            }
+            else
+            {
+                UnitHurtEvent hurtEvent = new UnitHurtEvent(_bus, this, oldHealth - newHealth);
+                hurtEvent.Phase = Phase.Post;
+                _bus.Global(hurtEvent);
+            }
+        }
+    }
 }

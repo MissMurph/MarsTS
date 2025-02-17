@@ -65,7 +65,7 @@ namespace MarsTS.Commands {
 
 		[Rpc(SendTo.Server)]
 		private void ConstructCommandletServerRpc(bool status, int factionId, NativeArray<FixedString32Bytes> selection, bool inclusive) {
-			ConstructCommandletServer(status, factionId, selection.ToList(), inclusive);
+			ConstructCommandletServer(status, factionId, selection.ToStringList(), inclusive);
 		}
 	}
 }

@@ -7,10 +7,10 @@ namespace MarsTS.Commands
 {
     public class HarvestableCommandlet : Commandlet<IHarvestable>
     {
-        public override string Key => Name;
-        
         [SerializeField] private GameObject _targetGameObj;
-        
+
+        public override string SerializerKey => "harvest";
+
         public override Commandlet Clone() => throw new System.NotImplementedException();
 
         protected override void Deserialize(SerializedCommandWrapper data)
@@ -20,9 +20,9 @@ namespace MarsTS.Commands
             Name = data.Key;
             Commander = TeamCache.Faction(data.Faction);
             EntityCache.TryGet(deserialized.TargetUnit, out IHarvestable unit);
-            target = unit;
+            _target = unit;
             
-            _targetGameObj = target.GameObject;
+            _targetGameObj = _target.GameObject;
         }
     }
 }

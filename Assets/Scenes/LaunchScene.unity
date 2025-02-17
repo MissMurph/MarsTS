@@ -316,6 +316,8 @@ GameObject:
   - component: {fileID: 1188445024}
   - component: {fileID: 1188445023}
   - component: {fileID: 1188445022}
+  - component: {fileID: 1188445026}
+  - component: {fileID: 1188445025}
   m_Layer: 0
   m_Name: PrefabRegistry
   m_TagString: Untagged
@@ -424,6 +426,9 @@ MonoBehaviour:
   - {fileID: 9078585913170648526, guid: d9ec859147772184c9b3d31f69961193, type: 3}
   - {fileID: 262308078846228063, guid: 837d5944aef796548a81a1f5796733e8, type: 3}
   - {fileID: 1035222882716711203, guid: 198236874e2b3444983b43b2295a5dc0, type: 3}
+  - {fileID: 7415966196967916076, guid: 1c6557882c14cd14683702184e28497b, type: 3}
+  - {fileID: 3236094735460527928, guid: 8b49a0eaeb1aa61488830d961934bdb3, type: 3}
+  - {fileID: 7510338217003625813, guid: a2aabe80c70a3a74a96e77f614e9fd3d, type: 3}
 --- !u!114 &1188445022
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -491,3 +496,36 @@ MonoBehaviour:
   - {fileID: 4002054096274699913, guid: 9fe1e05b90714ce49a1c10552559d96f, type: 3}
   - {fileID: 8069000943633701443, guid: fdbf4b0740ccf4a42a9c67cb4d3762d6, type: 3}
   - {fileID: 7248859610773361695, guid: b8ae55b487a53814988a1ce86421e8a1, type: 3}
+--- !u!114 &1188445025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1188445009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19e281ca35aa438d9842bb19758eefd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _key: upgrades
+  _namespace: ratworx
+  _prefabsToRegister:
+  - {fileID: 2372232947963872719, guid: b9377447398bbe442b8078dfa12a5747, type: 3}
+--- !u!114 &1188445026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1188445009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19e281ca35aa438d9842bb19758eefd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _key: research
+  _namespace: ratworx
+  _prefabsToRegister:
+  - {fileID: 1170798382936629016, guid: 0d3dc3b5ff50c944f87f499e26467bb3, type: 3}
+  - {fileID: 1170798382936629016, guid: 5349d9e8e5a61734b960a1a9d2dc0509, type: 3}

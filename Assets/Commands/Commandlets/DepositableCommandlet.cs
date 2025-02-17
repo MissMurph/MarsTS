@@ -7,22 +7,23 @@ namespace MarsTS.Commands
 {
     public class DepositableCommandlet : Commandlet<IDepositable>
     {
-        public override string Key => Name;
+        [SerializeField]
+        private GameObject _targetGameObj;
 
-        [SerializeField] private GameObject _targetGameObj;
-        
+        public override string SerializerKey => "deposit";
+
         public override Commandlet Clone() => throw new System.NotImplementedException();
 
         protected override void Deserialize(SerializedCommandWrapper data)
         {
             SerializedDepositableCommandlet deserialized = (SerializedDepositableCommandlet)data.commandletData;
 
-            Name = data.Key;
+            Name = data.Name;
             Commander = TeamCache.Faction(data.Faction);
             EntityCache.TryGet(deserialized.TargetUnit, out IDepositable unit);
-            target = unit;
+            _target = unit;
 
-            _targetGameObj = target.GameObject;
+            _targetGameObj = _target.GameObject;
         }
     }
 }

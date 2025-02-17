@@ -5,55 +5,57 @@ using MarsTS.Teams;
 using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using MarsTS.Entities;
+using Unity.Collections;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using MarsTS.Networking;
+using MarsTS.Units;
+using UnityEngine.Serialization;
 
 namespace MarsTS.Commands {
 
     public class Flare : CommandFactory<Vector3> {
 
-		public override string Name { get { return "flare"; } }
+		public override string Name => "flare";
 
-		public override Sprite Icon { get { return icon; } }
+		public override Sprite Icon => icon;
 
-		public override string Description { get { return description; } }
+		public override string Description => _description;
 
+		[FormerlySerializedAs("description")]
 		[SerializeField]
-		private string description;
+		private string _description;
 
+		[FormerlySerializedAs("markerPrefab")]
 		[SerializeField]
-		private GameObject markerPrefab;
-		private Transform markerTransform;
+		private GameObject _markerPrefab;
+		private Transform _markerTransform;
 
+		[FormerlySerializedAs("cooldown")]
 		[SerializeField]
-		private float cooldown;
+		private float _cooldown;
 
+		[FormerlySerializedAs("cost")]
 		[SerializeField]
-		private CostEntry[] cost;
+		private CostEntry[] _cost;
 
-		public override void StartSelection () {
-			bool canAfford = true;
+		public override void StartSelection() {
+			if (!CanFactionAfford(Player.Commander)) return;
 
-			foreach (CostEntry entry in cost) {
-				if (Player.Commander.GetResource(entry.key).Amount < entry.amount) {
-					canAfford = false;
-					break;
-				}
-			}
-
-			if (canAfford) {
-				markerTransform = Instantiate(markerPrefab).transform;
-				Player.Input.Hook("Select", OnSelect);
-				Player.Input.Hook("Order", OnOrder);
-			}
+			_markerTransform = Instantiate(_markerPrefab).transform;
+			Player.Input.Hook("Select", OnSelect);
+			Player.Input.Hook("Order", OnOrder);
 		}
 
 		protected virtual void Update () {
-			if (markerTransform != null) {
+			if (_markerTransform != null) {
 				Ray ray = Player.ViewPort.ScreenPointToRay(Player.MousePos);
 
 				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.WalkableMask)) {
-					markerTransform.position = hit.point;
+					_markerTransform.position = hit.point;
 				}
 			}
 		}
@@ -63,34 +65,27 @@ namespace MarsTS.Commands {
 				Ray ray = Player.ViewPort.ScreenPointToRay(Player.MousePos);
 
 				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.WalkableMask)) {
-					bool canAfford = true;
+					if (!CanFactionAfford(Player.Commander)) return;
 
-					foreach (CostEntry entry in cost) {
-						if (Player.Commander.GetResource(entry.key).Amount < entry.amount) {
-							canAfford = false;
-							break;
-						}
+					string selection = string.Empty;
+					
+					foreach (Roster roster in Player.Selected.Values) {
+						if (!roster.Commands.Contains(Name)) continue;
+
+						// TODO: Replace this with a check for which instance is closest
+						selection = roster.Orderable[0].GameObject.name;
+						break;
 					}
+					
+					Construct(hit.point, selection);
 
-					if (canAfford) {
-						//Player.Main.DistributeCommand(Construct(hit.point), Player.Include);
+					Destroy(_markerTransform.gameObject);
 
-						Destroy(markerTransform.gameObject);
-
-						Player.Input.Release("Select");
-						Player.Input.Release("Order");
-
-						foreach (CostEntry entry in cost) {
-							Player.Commander.GetResource(entry.key).Withdraw(entry.amount);
-						}
-					}
+					Player.Input.Release("Select");
+					Player.Input.Release("Order");
 				}
 			}
 		}
-
-		/*public override Commandlet Construct (Vector3 _target) {
-			return new FlareCommandlet(Name, _target, Player.Commander, cooldown);
-		}*/
 
 		protected virtual void OnOrder (InputAction.CallbackContext context) {
 			if (context.canceled) {
@@ -98,9 +93,47 @@ namespace MarsTS.Commands {
 			}
 		}
 
+		public void Construct(Vector3 hitPoint, string selection) {
+			ConstructCommandletServerRpc(
+				hitPoint, 
+				Player.Commander.Id, 
+				selection, 
+				Player.Include
+			);
+		}
+
+		[Rpc(SendTo.Server)]
+		private void ConstructCommandletServerRpc(
+			Vector3 target,
+			int factionId,
+			string selection,
+			bool inclusive
+		) {
+			ConstructCommandletServer(target, factionId, new List<string>{ selection }, inclusive);
+		}
+
+		protected override void ConstructCommandletServer(Vector3 target, int factionId, ICollection<string> selection, bool inclusive) {
+			Faction faction = TeamCache.Faction(factionId);
+			
+			if (!CanFactionAfford(faction)) return;
+			
+			FlareCommandlet order = (FlareCommandlet)Instantiate(orderPrefab);
+
+			order.InitFlare(Name, target, TeamCache.Faction(factionId), _cooldown, _cost);
+
+			foreach (string entity in selection) {
+				if (EntityCache.TryGet(entity, out ICommandable unit))
+					unit.Order(order, inclusive);
+				else
+					Debug.LogWarning($"ICommandable on Unit {entity} not found! Command {Name} being ignored by unit!");
+			}
+			
+			WithdrawResourcesFromFaction(faction);
+		}
+
 		public override void CancelSelection () {
-			if (markerTransform != null) {
-				Destroy(markerTransform.gameObject);
+			if (_markerTransform != null) {
+				Destroy(_markerTransform.gameObject);
 
 				Player.Input.Release("Select");
 				Player.Input.Release("Order");
@@ -108,44 +141,28 @@ namespace MarsTS.Commands {
 		}
 
 		public override CostEntry[] GetCost () {
-			List<CostEntry> spool = new List<CostEntry>();
+			List<CostEntry> spool = _cost.ToList();
 
-			foreach (CostEntry entry in cost) {
-				spool.Add(entry);
-			}
-
-			CostEntry time = new CostEntry();
-			time.key = "time";
-			time.amount = (int)cooldown;
+			CostEntry time = new CostEntry
+			{
+				key = "time",
+				amount = (int)_cooldown,
+			};
 
 			spool.Add(time);
 
 			return spool.ToArray();
 		}
-	}
-
-	public class FlareCommandlet : Commandlet<Vector3> {
-
-		private float cooldown;
-
-		public FlareCommandlet (string name, Vector3 target, Faction commander, float _cooldown) {
-			cooldown = _cooldown;
-		}
-
-		public override string Key => Name;
-
-		public override void CompleteCommand (EventAgent agent, ICommandable unit, bool isCancelled = false)
+		
+		private bool CanFactionAfford(Faction faction)
+			=> !_cost.Any(entry => faction.GetResource(entry.key).Amount < entry.amount);
+		
+		private void WithdrawResourcesFromFaction(Faction faction)
 		{
-			if (!TryGetQueue(unit, out var queue)) return;
-			
-			if (!isCancelled) queue.Cooldown(this, cooldown);
-
-			base.CompleteCommand(agent, unit, isCancelled);
-		}
-
-		public override Commandlet Clone()
-		{
-			throw new System.NotImplementedException();
+			foreach (CostEntry entry in _cost)
+			{
+				faction.GetResource(entry.key).Withdraw(entry.amount);
+			}
 		}
 	}
 }

@@ -8,13 +8,13 @@ namespace MarsTS.Events
 {
 	public class CommandWorkEvent : CommandEvent 
 	{
-		public string CommandKey { get; private set; }
+		public string CommandName { get; private set; }
 		public IWorkable Work { get; private set; }
 
 		public CommandWorkEvent (EventAgent _source, Commandlet _command, ICommandable _unit, IWorkable _work) 
 			: base("Work", _source, _command, _unit) 
 		{
-			CommandKey = _command.Key;
+			CommandName = _command.Name;
 			Work = _work;
 		}
 	}

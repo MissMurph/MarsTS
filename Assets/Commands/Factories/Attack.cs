@@ -34,7 +34,7 @@ namespace MarsTS.Commands {
 
 			if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.EntityMask) 
 			    && EntityCache.TryGet(hit.collider.transform.parent.name, out IAttackable unit)) {
-				Construct(unit, Player.ListSelected);
+				Construct(unit);
 			}
 
 			CancelSelection();
@@ -47,20 +47,29 @@ namespace MarsTS.Commands {
 			}
 		}
 
-		public void Construct(IAttackable target, List<string> selection) {
-			ConstructCommandletServerRpc(target.GameObject.name, Player.Commander.Id, selection.ToNativeArray32(), Player.Include);
+		public void Construct(IAttackable target) {
+			ConstructCommandletServerRpc(
+				target.GameObject.name, 
+				Player.Commander.Id, 
+				Player.ListSelected.ToNativeArray32(), 
+				Player.Include
+			);
 		}
 		
 		[Rpc(SendTo.Server)]
-		private void ConstructCommandletServerRpc (string target, int factionId, NativeArray<FixedString32Bytes> selection, bool inclusive)
-		{
+		private void ConstructCommandletServerRpc (
+			string target, 
+			int factionId, 
+			NativeArray<FixedString32Bytes> selection, 
+			bool inclusive
+		) {
 			if (!EntityCache.TryGet(target, out IAttackable unit))
 			{
 				Debug.LogError($"Invalid target entity {target} for {Name} Command! Command being ignored!");
 				return;
 			}
 			
-			ConstructCommandletServer(unit, factionId, selection.ToList(), inclusive);
+			ConstructCommandletServer(unit, factionId, selection.ToStringList(), inclusive);
 		}
 
 		public override CostEntry[] GetCost () => Array.Empty<CostEntry>();

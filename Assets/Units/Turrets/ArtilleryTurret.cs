@@ -37,7 +37,7 @@ namespace MarsTS.Units
                 if (CurrentCooldown >= 0f)
                 {
                     CurrentCooldown -= Time.deltaTime;
-                    _bus.Local(new WorkEvent(_bus, _parent, _cooldown, _cooldown - CurrentCooldown));
+                    //_bus.Local(new WorkEvent(_bus, _parent, (int)_cooldown, _cooldown - CurrentCooldown));
                 }
 
                 if (_parent is ICommandable commandableUnit && commandableUnit.CurrentCommand != null &&

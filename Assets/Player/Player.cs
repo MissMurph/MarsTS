@@ -185,7 +185,7 @@ namespace MarsTS.Players {
 				else if (walkableHit.collider != null) {
 					Vector3 hitPos = walkableHit.point;
 
-					CommandPrimer.Get<Move>("move").Construct(hitPos, ListSelected);
+					CommandPrimer.Get<Move>("move").Construct(hitPos);
 					return;
 				}
 			}

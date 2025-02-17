@@ -38,23 +38,27 @@ namespace MarsTS.Commands
             if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask) &&
                 EntityCache.TryGet(hit.collider.transform.parent.name + ":selectable", out ISelectable target) &&
                 target is IDepositable depositable)
-                Construct(depositable, Player.Commander.Id, Player.ListSelected, Player.Include);
+                Construct(depositable);
 
             Player.Input.Release("Select");
             Player.UI.ResetCursor();
         }
 
-        public override void Construct(IDepositable target, int factionId, List<string> selection, bool inclusive)
-        {
-            if (NetworkManager.Singleton.IsServer)
-                ConstructCommandletServer(target, factionId, selection, inclusive);
-            else
-                ConstructCommandletServerRpc(target.GameObject.name, factionId, selection.ToNativeArray32(), inclusive);
+        public void Construct(IDepositable target) {
+            ConstructCommandletServerRpc(
+                target.GameObject.name,
+                Player.Commander.Id,
+                Player.ListSelected.ToNativeArray32(),
+                Player.Include
+            );
         }
 
         [Rpc(SendTo.Server)]
-        private void ConstructCommandletServerRpc(string target, int factionId,
-            NativeArray<FixedString32Bytes> selection, bool inclusive)
+        private void ConstructCommandletServerRpc(
+            string target, 
+            int factionId,
+            NativeArray<FixedString32Bytes> selection, 
+            bool inclusive)
         {
             if (!EntityCache.TryGet(target, out IDepositable unit))
             {
@@ -62,7 +66,7 @@ namespace MarsTS.Commands
                 return;
             }
 
-            ConstructCommandletServer(unit, factionId, selection.ToList(), inclusive);
+            ConstructCommandletServer(unit, factionId, selection.ToStringList(), inclusive);
         }
 
         private void OnOrder(InputAction.CallbackContext context)

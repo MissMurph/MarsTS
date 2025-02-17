@@ -51,7 +51,7 @@ namespace MarsTS.Commands
             if (context.canceled) CancelSelection();
         }
 
-        public override void Construct(IAttackable target, int factionId, List<string> selection, bool inclusive)
+        public void Construct(IAttackable target, int factionId, List<string> selection, bool inclusive)
         {
             if (NetworkManager.Singleton.IsServer)
                 ConstructCommandletServer(target, factionId, selection, inclusive);
@@ -69,7 +69,7 @@ namespace MarsTS.Commands
                 return;
             }
 
-            ConstructCommandletServer(unit, factionId, selection.ToList(), inclusive);
+            ConstructCommandletServer(unit, factionId, selection.ToStringList(), inclusive);
         }
 
         public override CostEntry[] GetCost() => Array.Empty<CostEntry>();

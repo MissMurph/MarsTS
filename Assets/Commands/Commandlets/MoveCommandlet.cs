@@ -7,9 +7,9 @@ using UnityEngine;
 namespace MarsTS.Commands {
 
     public class MoveCommandlet : Commandlet<Vector3> {
-        public override string Key => Name;
+	    public override string SerializerKey => "move";
 
-        public override Commandlet Clone()
+	    public override Commandlet Clone()
         {
 	        throw new System.NotImplementedException();
         }
@@ -19,7 +19,7 @@ namespace MarsTS.Commands {
 
 	        Name = _data.Key;
 	        Commander = TeamCache.Faction(_data.Faction);
-	        target = deserialized.TargetPosition;
+	        _target = deserialized.TargetPosition;
         }
     }
 }

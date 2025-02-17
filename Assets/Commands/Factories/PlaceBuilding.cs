@@ -106,7 +106,7 @@ namespace MarsTS.Commands {
 			int factionId,
 			NativeArray<FixedString32Bytes> selection,
 			bool inclusive
-		) => PlaceBuildingServer(position, rotation, factionId, selection.ToList(), inclusive);
+		) => PlaceBuildingServer(position, rotation, factionId, selection.ToStringList(), inclusive);
 
 		private void PlaceBuildingServer(
 			Vector3 position,
@@ -136,8 +136,6 @@ namespace MarsTS.Commands {
 					CommandPrimer.Get<Repair>("repair").Construct(ghost, factionId, selection, inclusive);
 				}
 			);
-			
-			Debug.Log($"Faction: {factionId}");
 			
 			buildingNetworking.Spawn();
 			ghost.SetOwner(faction);

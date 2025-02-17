@@ -5,6 +5,7 @@ using MarsTS.Teams;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MarsTS.Logging;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -19,6 +20,8 @@ namespace MarsTS.Commands {
 			set => _productionProgress.Value = value;
 		}
 
+		public override string SerializerKey => commandKey;
+
 		[SerializeField]
 		protected NetworkVariable<int> _productionProgress = new(writePerm: NetworkVariableWritePermission.Server);
 
@@ -28,13 +31,14 @@ namespace MarsTS.Commands {
 		public GameObject Product => Target;
 		public override CommandFactory Command => CommandPrimer.Get(Name + "/" + Product.name);
 
-		public override string Key => Name;
-
 		private string commandKey;
 
-		public void Init (string _name, string _commandKey, GameObject _target, Faction _commander, int timeRequired, CostEntry[] cost) {
+		public string ProductRegistryKey { get; private set; }
+
+		public void InitProduce (string _name, string _commandKey, string productRegistryKey, GameObject _target, Faction _commander, int timeRequired, CostEntry[] cost) {
 			ProductionRequired = timeRequired;
 			ProductionProgress = 0;
+			ProductRegistryKey = productRegistryKey;
 
 			commandKey = _commandKey;
 
@@ -46,7 +50,7 @@ namespace MarsTS.Commands {
 
 			//Calling the rest of the Init will also spawn & sync the commandlet, make sure all data is created
 			//BEFORE the sync
-			Init(_name, _target, _commander);
+			Init(_commandKey, _target, _commander);
 		}
 
 		public override void OnNetworkSpawn () {
@@ -78,18 +82,15 @@ namespace MarsTS.Commands {
 			throw new NotImplementedException();
 		}
 
-		protected override ISerializedCommand Serialize () {
-			return CommandSerializers.Write(this);
-		}
-
 		protected override void Deserialize (SerializedCommandWrapper _data) {
 			base.Deserialize(_data);
 			
 			var deserialized = (SerializedProduceCommandlet)_data.commandletData;
 
 			ProductionRequired = deserialized.ProductionRequired;
-			Registry.TryGetPrefab(deserialized.PrefabKey, out GameObject prefab);
-			target = prefab;
+			if (!Registry.TryGetPrefab(deserialized.PrefabKey, out GameObject prefab))
+				RatLogger.Warning?.Log($"Couldn't find registry {deserialized.PrefabKey} for {GetType()}");
+			_target = prefab;
 		}
 	}
 }

@@ -114,14 +114,15 @@ namespace MarsTS.Units
 
         public int MaxHealth => _memberPrefab.MaxHealth * _maxMembers;
 
+        private bool _isInitialized = false;
+        private bool _isInitializing = false;
+
         protected virtual void Awake()
         {
             _entityComponent = GetComponent<Entity>();
             _bus = GetComponent<EventAgent>();
             _commands = GetComponent<CommandQueue>();
             _squadVisibility = GetComponent<SquadVisionParser>();
-            
-            _entityComponent.OnEntityInit += OnSquadEntityInit;
         }
 
         public override void OnNetworkSpawn()
@@ -138,6 +139,32 @@ namespace MarsTS.Units
         protected virtual void AttachClientListeners()
         {
             EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
+        }
+
+        protected virtual void Update() {
+            if (!_isInitialized) {
+                if (!_isInitializing) {
+                    _entityComponent.OnEntityInit += OnSquadEntityInit;
+                    _isInitializing = true;
+                }
+                
+                return;
+            }
+            
+            _squadAvgPos = Vector3.zero;
+
+            if (_members.Count <= 0) return;
+
+            foreach (MemberEntry entry in _members.Values)
+            {
+                if (!entry.Member) continue;
+                
+                _squadAvgPos += entry.Member.transform.position;
+            }
+
+            _squadAvgPos /= _members.Count;
+
+            transform.position = _squadAvgPos;
         }
 
         private void OnSquadEntityInit(Phase phase)
@@ -205,24 +232,6 @@ namespace MarsTS.Units
             }
         }
 
-        protected virtual void Update()
-        {
-            _squadAvgPos = Vector3.zero;
-
-            if (_members.Count <= 0) return;
-
-            foreach (MemberEntry entry in _members.Values)
-            {
-                if (!entry.Member) continue;
-                
-                _squadAvgPos += entry.Member.transform.position;
-            }
-
-            _squadAvgPos /= _members.Count;
-
-            transform.position = _squadAvgPos;
-        }
-
         private void AttachMemberInitListener(InfantryMember unit)
         {
             Entity memberEntity = unit.GetComponent<Entity>();
@@ -259,11 +268,15 @@ namespace MarsTS.Units
 
             if (NetworkManager.Singleton.IsClient) 
                 AttachMemberClientListeners(member);
+
+            if (!_isInitialized) _isInitialized = true;
         }
 
         [Rpc(SendTo.NotServer)]
-        private void RegisterMemberClientRpc(string entityName)
-        {
+        private void RegisterMemberClientRpc(string entityName) {
+            if (NetworkManager.Singleton.IsServer) 
+                return;
+            
             if (!EntityCache.TryGet(entityName, out InfantryMember member))
             {
                 Debug.LogError($"[CLIENT] Failed to find Entity {entityName} for registering infantry member!");

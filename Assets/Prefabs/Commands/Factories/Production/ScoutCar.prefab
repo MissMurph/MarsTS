@@ -72,10 +72,11 @@ MonoBehaviour:
     target: {x: 0, y: 0}
   orderPrefab: {fileID: 9078585913170648512, guid: d9ec859147772184c9b3d31f69961193,
     type: 3}
-  description: A fast moving scouting vehicle that spins in fknnnnnn circles like
+  _description: A fast moving scouting vehicle that spins in fknnnnnn circles like
     an absolute legend
-  unitPrefab: {fileID: 5910861939855668350, guid: a41f1cc34e68f6f4d999b9fabb3db61f,
+  _unitPrefab: {fileID: 5910861939855668350, guid: a41f1cc34e68f6f4d999b9fabb3db61f,
     type: 3}
-  timeRequired: 30
-  Cost: []
+  _timeRequired: 30
+  _cost: []
+  _productRegistryKey: unit:scoutcar
   _commandKey: produce

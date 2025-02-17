@@ -36,6 +36,10 @@ namespace MarsTS.Commands {
 
 		protected bool isServer;
 
+		private int workSpeed;
+		private float workStepTime;
+		private float workTimeToStep;
+
 		protected virtual void Awake () {
 			parent = GetComponent<ISelectable>();
 			orderSource = parent as ICommandable;
@@ -47,6 +51,9 @@ namespace MarsTS.Commands {
 
 			activeCooldowns = new Dictionary<string, Timer>();
 			completedCooldowns = new List<Timer>();
+
+			workStepTime = 1f / workSpeed;
+			workTimeToStep = 0f;
 		}
 
 		public override void OnNetworkSpawn () 
@@ -68,12 +75,11 @@ namespace MarsTS.Commands {
 			}
 
 			if (isServer && Current is IWorkable workOrder) {
-				workOrder.CurrentWork += Time.deltaTime;
-				bus.Global(new CommandWorkEvent(bus, Current, orderSource, workOrder));
+				workTimeToStep -= Time.deltaTime;
 
-				if (workOrder.CurrentWork >= workOrder.WorkRequired) {
-					CompleteCurrentCommand(false);
-					//CompleteCommandClientRpc(false);
+				if (workTimeToStep <= 0) {
+					workOrder.CurrentWork++;
+					workTimeToStep += workStepTime;
 				}
 			}
 
@@ -114,6 +120,9 @@ namespace MarsTS.Commands {
 
 			Current = order;
 			order.Callback.AddListener(OnOrderComplete);
+
+			if (order is IWorkable workable) 
+				workable.OnWork += OnOrderWork;
 
 			order.StartCommand(bus, orderSource);
 		}
@@ -231,7 +240,14 @@ namespace MarsTS.Commands {
 		}
 
 		protected virtual void OnOrderWork (int oldValue, int newValue) {
+			if (Current is not IWorkable workOrder) return;
 
+			if (workOrder.CurrentWork >= workOrder.WorkRequired) {
+				workOrder.OnWork -= OnOrderWork;
+				CompleteCurrentCommand(false);
+			}
+			else
+				bus.Global(new WorkEvent(bus, parent, workOrder.WorkRequired, workOrder.CurrentWork));
 		}
 
 		public CommandQueue Get() => this;

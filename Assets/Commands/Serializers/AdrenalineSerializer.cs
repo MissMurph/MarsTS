@@ -13,7 +13,7 @@ namespace MarsTS.Commands
         public ISerializedCommand Reader()
             => new SerializedAdrenalineCommandlet
             {
-                Key = Key
+                SerializerKey = Key
             };
 
         public ISerializedCommand Writer(Commandlet data)
@@ -22,7 +22,8 @@ namespace MarsTS.Commands
 
             return new SerializedAdrenalineCommandlet
             {
-                Key = Key,
+                Name = data.Name,
+                SerializerKey = Key,
                 Faction = superType.Commander.Id,
                 Id = superType.Id,
                 Status = superType.Target
@@ -32,7 +33,8 @@ namespace MarsTS.Commands
 
     public struct SerializedAdrenalineCommandlet : ISerializedCommand
     {
-        public string Key { get; set; }
+        public string Name { get; set; }
+        public string SerializerKey { get; set; }
         public int Faction { get; set; }
         public int Id { get; set; }
 

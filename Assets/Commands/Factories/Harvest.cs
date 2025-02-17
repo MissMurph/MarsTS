@@ -46,7 +46,7 @@ namespace MarsTS.Commands
             }
         }
 
-        public override void Construct(IHarvestable target, int factionId, List<string> selection, bool inclusive)
+        public void Construct(IHarvestable target, int factionId, List<string> selection, bool inclusive)
         {
             if (NetworkManager.Singleton.IsServer)
                 ConstructCommandletServer(target, factionId, selection, inclusive);
@@ -63,7 +63,7 @@ namespace MarsTS.Commands
                 return;
             }
 
-            ConstructCommandletServer(unit, factionId, selection.ToList(), inclusive);
+            ConstructCommandletServer(unit, factionId, selection.ToStringList(), inclusive);
         }
 
         private void OnOrder(InputAction.CallbackContext context)

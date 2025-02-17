@@ -72,10 +72,11 @@ MonoBehaviour:
     target: {x: 0, y: 0}
   orderPrefab: {fileID: 9078585913170648512, guid: d9ec859147772184c9b3d31f69961193,
     type: 3}
-  description: Unlocks the Adrenaline ability for Marines, which gives them +50%
+  _description: Unlocks the Adrenaline ability for Marines, which gives them +50%
     movement speed for a short time
-  unitPrefab: {fileID: 1170798382936629016, guid: 0d3dc3b5ff50c944f87f499e26467bb3,
+  _unitPrefab: {fileID: 1170798382936629016, guid: 0d3dc3b5ff50c944f87f499e26467bb3,
     type: 3}
-  timeRequired: 5
-  Cost: []
+  _timeRequired: 5
+  _cost: []
+  _productRegistryKey: research:adrenaline
   _commandKey: research

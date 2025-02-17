@@ -4,8 +4,7 @@ using MarsTS.Teams;
 namespace MarsTS.Commands {
 
 	public class SimpleCommandlet : Commandlet<bool> {
-
-		public override string Key => Name;
+		public override string SerializerKey => "simple";
 
 		public override Commandlet Clone () {
 			throw new NotImplementedException();
@@ -14,8 +13,13 @@ namespace MarsTS.Commands {
 		protected override ISerializedCommand Serialize() => CommandSerializers.Write("simple", this);
 
 		protected override void Deserialize (SerializedCommandWrapper data) {
-			Name = data.Key;
+			base.Deserialize(data);
+
+			var deserialized = (SerializedBoolCommandlet)data.commandletData;
+			
+			Name = data.Name;
 			Commander = TeamCache.Faction(data.Faction);
+			_target = deserialized.Status;
 		}
 	}
 }

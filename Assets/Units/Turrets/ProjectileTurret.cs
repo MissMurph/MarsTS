@@ -79,8 +79,9 @@ namespace MarsTS.Units
                 FireProjectile(_sensor.GetDetectedCollider(_target.GameObject.name).transform.position);
         }
 
-        private void FixedUpdate()
-        {
+        private void FixedUpdate() {
+            if (!NetworkManager.Singleton.IsServer) return;
+            
             if (_target != null && _sensor.IsDetected(_target))
                 _barrel.transform.LookAt(_sensor.GetDetectedCollider(_target.GameObject.name).transform.position,
                     Vector3.up);

@@ -4,6 +4,9 @@ using MarsTS.Units;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MarsTS.Entities;
+using MarsTS.Teams;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Commands {
@@ -22,28 +25,48 @@ namespace MarsTS.Commands {
 		private string description;
 
 		[SerializeField]
-		private float deployTime;
+		private int deployTime;
 
 		public override void StartSelection () {
-			int totalCanDeploy = 0;
-			int totalDeployed = 0;
+			var toCommand = new List<ICommandable>();
 
-			//Inspect all selected to make all units using this ability match up with others that are active using
 			foreach (Roster rollup in Player.Selected.Values) {
-				if (rollup.Commands.Contains(Name)) {
-					totalCanDeploy += rollup.Count;
-
-					foreach (ICommandable unit in rollup.Orderable) {
-						if (unit.Active.Count == 0) continue;
-
-						foreach (string activeCommand in unit.Active) {
-							if (activeCommand == "deploy") totalDeployed++;
-						}
-					}
+				if (!rollup.Commands.Contains(Name)) 
+					continue;
+				
+				foreach (ICommandable unit in rollup.Orderable) {
+					if (!unit.Active.Contains(Name))
+						continue;
+						
+					toCommand.Add(unit);
 				}
 			}
 
-			//Player.Main.DeliverCommand(Construct(totalCanDeploy > totalDeployed), Player.Include);
+			foreach (ICommandable unit in toCommand) {
+				Construct(unit.GameObject.name);
+			}
+		}
+
+		public void Construct(string selection) {
+			
+		}
+		
+		[Rpc(SendTo.Server)]
+		private void ConstructCommandletServerRpc(int factionId, string selection, bool inclusive) {
+			ConstructCommandletServer(true, factionId, new List<string>{ selection }, inclusive);
+		}
+
+		protected override void ConstructCommandletServer(bool target, int factionId, ICollection<string> selection, bool inclusive) {
+			DeployCommandlet order = (DeployCommandlet)Instantiate(orderPrefab);
+
+			order.InitDeploy(Name, target, TeamCache.Faction(factionId), deployTime);
+
+			foreach (string entity in selection) {
+				if (EntityCache.TryGet(entity, out ICommandable unit))
+					unit.Order(order, inclusive);
+				else
+					Debug.LogWarning($"ICommandable on Unit {entity} not found! Command {Name} being ignored by unit!");
+			}
 		}
 
 		public override CostEntry[] GetCost () {
@@ -53,18 +76,12 @@ namespace MarsTS.Commands {
 		public override void CancelSelection () {
 
 		}
-
-		/*public override Commandlet Construct (bool _target) {
-			return new UndeployCommandlet(Name, _target, deployTime);
-		}*/
 	}
 
-	public class UndeployCommandlet : Commandlet<bool>, IWorkable {
+	/*public class UndeployCommandlet : Commandlet<bool>, IWorkable {
 
 		public float WorkRequired { get; private set; }
 		public float CurrentWork { get; set; }
-
-		public override string Key => Name;
 
 		public UndeployCommandlet (string _name, bool _status, float _workRequired) {
 			WorkRequired = _workRequired;
@@ -93,5 +110,5 @@ namespace MarsTS.Commands {
 		{
 			throw new NotImplementedException();
 		}
-	}
+	}*/
 }

@@ -24,7 +24,7 @@ namespace MarsTS.Commands {
 
 		[Rpc(SendTo.Server)]
 		private void ConstructCommandletServerRpc(int _factionId, NativeArray<FixedString32Bytes> _selection, bool _inclusive) 
-			=> ConstructCommandletServer(true, _factionId, _selection.ToList(), _inclusive);
+			=> ConstructCommandletServer(true, _factionId, _selection.ToStringList(), _inclusive);
 
 		public override CostEntry[] GetCost () => Array.Empty<CostEntry>();
 

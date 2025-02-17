@@ -223,10 +223,10 @@ namespace MarsTS.Units {
 
 		public override void AutoCommand (ISelectable target) {
 			if (target is IAttackable deserialized && target.GetRelationship(Owner) == Relationship.Hostile) {
-				CommandPrimer.Get<Attack>("attack").Construct(deserialized, Player.ListSelected);
+				CommandPrimer.Get<Attack>("attack").Construct(deserialized);
 			}
 
-			CommandPrimer.Get<Move>("move").Construct(target.GameObject.transform.position, Player.ListSelected);
+			CommandPrimer.Get<Move>("move").Construct(target.GameObject.transform.position);
 		}
 	}
 }

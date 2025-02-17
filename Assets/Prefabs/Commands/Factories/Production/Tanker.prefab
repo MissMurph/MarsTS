@@ -72,10 +72,11 @@ MonoBehaviour:
     target: {x: 0, y: 0}
   orderPrefab: {fileID: 9078585913170648512, guid: d9ec859147772184c9b3d31f69961193,
     type: 3}
-  description: A somewhat slow moving unit that can collect Oil out of pumpjacks
+  _description: A somewhat slow moving unit that can collect Oil out of pumpjacks
     and deposit it in a nearby base
-  unitPrefab: {fileID: 7680554594384699938, guid: 5dfbcfa3d00d7a446bba498c0e40c53e,
+  _unitPrefab: {fileID: 7680554594384699938, guid: 5dfbcfa3d00d7a446bba498c0e40c53e,
     type: 3}
-  timeRequired: 1
-  Cost: []
+  _timeRequired: 1
+  _cost: []
+  _productRegistryKey: unit:tanker
   _commandKey: produce

@@ -11,7 +11,7 @@ namespace MarsTS.Commands {
         [SerializeField]
         private float cooldown;
 
-        public override string Key => Name;
+        public override string SerializerKey => "adrenaline";
 
         public override void ActivateCommand (CommandQueue queue, CommandActiveEvent _event) 
             => queue.Cooldown(this, _event.Activity ? duration : cooldown);
@@ -22,11 +22,11 @@ namespace MarsTS.Commands {
         }
 
         protected override void Deserialize(SerializedCommandWrapper _data) {
-            SerializedAdrenalineCommandlet deserialized = (SerializedAdrenalineCommandlet)_data.commandletData;
+            SerializedBoolCommandlet deserialized = (SerializedBoolCommandlet)_data.commandletData;
 
-            Name = _data.Key;
+            Name = _data.Name;
             Commander = TeamCache.Faction(_data.Faction);
-            target = deserialized.Status;
+            _target = deserialized.Status;
         }
     }
 }

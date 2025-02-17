@@ -49,17 +49,9 @@ namespace MarsTS.Commands {
 			if (isServer && Current != null && Current is IProducable production) {
 				timeToStep -= Time.deltaTime;
 
-				if (timeToStep <= 0) {
-					production.ProductionProgress++;
-
-					if (production.ProductionProgress >= production.ProductionRequired) {
-						//CompleteCurrentCommand(false);
-						//CompleteCommandClientRpc(false);
-					}
-					else bus.Global(ProductionEvent.Step(bus, parent, this, production));
-
-					timeToStep += stepTime;
-				}
+				if (!(timeToStep <= 0)) return;
+				production.ProductionProgress++;
+				timeToStep += stepTime;
 			}
 		}
 

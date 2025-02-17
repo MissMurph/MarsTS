@@ -67,11 +67,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   icon: {fileID: 21300000, guid: d5b028692f5ed214dbc72df512f619b2, type: 3}
-  IconColor: {r: 0, g: 0, b: 0, a: 0}
   Pointer:
     texture: {fileID: 0}
     target: {x: 0, y: 0}
-  orderPrefab: {fileID: 0}
+  orderPrefab: {fileID: 1252041884389066405, guid: 1c6557882c14cd14683702184e28497b,
+    type: 3}
   description: Orders the unit to start sneaking, reducing the distance at enemies
     can see the unit
   deactivateCooldown: 5

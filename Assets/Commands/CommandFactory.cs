@@ -25,10 +25,6 @@ namespace MarsTS.Commands {
 			}
 		}
 
-		public virtual void Construct(T target, int factionId, List<string> selection, bool inclusive) {
-			throw new NotImplementedException();
-		}
-
 		public Commandlet<T> Prefab => orderPrefab;
 		
 		[SerializeField]

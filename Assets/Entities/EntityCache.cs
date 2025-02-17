@@ -14,7 +14,7 @@ namespace MarsTS.Entities {
 
 		private Dictionary<string, Dictionary<int, Entity>> _instanceMap;
 
-		public static int Count {
+		/*public static int Count {
 			get {
 				int output = 0;
 
@@ -24,7 +24,9 @@ namespace MarsTS.Entities {
 
 				return output;
 			}
-		}
+		}*/
+
+		private static int _count = 0;
 
 		public Entity this[string name] {
 			get {
@@ -103,9 +105,10 @@ namespace MarsTS.Entities {
 		}
 
 		//Returns -1 for an unsuccessful register
-		public static int Register (Entity entity) 
-		{
-			int id = Count + 1;
+		public static int Register (Entity entity) {
+			_count++;
+			
+			int id = _count;
 			
 			if (entity.Id > 0)
 			{

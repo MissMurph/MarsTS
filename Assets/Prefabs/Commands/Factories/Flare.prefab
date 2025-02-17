@@ -67,16 +67,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   icon: {fileID: 21300000, guid: b0068cae3c7664444a5b3e56aad5f27d, type: 3}
-  IconColor: {r: 0, g: 0, b: 0, a: 0}
   Pointer:
     texture: {fileID: 0}
     target: {x: 0, y: 0}
-  orderPrefab: {fileID: 0}
-  description: Orders the unit to fire a flare, granting vision in an area around
-    the flare for a short duration
-  markerPrefab: {fileID: 3707825086766513488, guid: bb21ff305e361064b8bad1ade67dedef,
+  orderPrefab: {fileID: 8564561245342522336, guid: a2aabe80c70a3a74a96e77f614e9fd3d,
     type: 3}
-  cooldown: 90
-  cost:
+  _description: Orders the unit to fire a flare, granting vision in an area around
+    the flare for a short duration
+  _markerPrefab: {fileID: 3707825086766513488, guid: bb21ff305e361064b8bad1ade67dedef,
+    type: 3}
+  _cooldown: 90
+  _cost:
   - key: resource_unit
     amount: 50

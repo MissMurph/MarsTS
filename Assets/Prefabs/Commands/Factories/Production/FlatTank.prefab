@@ -72,10 +72,11 @@ MonoBehaviour:
     target: {x: 0, y: 0}
   orderPrefab: {fileID: 9078585913170648512, guid: d9ec859147772184c9b3d31f69961193,
     type: 3}
-  description: A flat, sturdy tank that's able to deal significant damage and move
+  _description: A flat, sturdy tank that's able to deal significant damage and move
     dececntly fast for the Martian terrain.
-  unitPrefab: {fileID: 452040235016441161, guid: 160c6e924a2b7dd428126aa4f46fd60b,
+  _unitPrefab: {fileID: 452040235016441161, guid: 160c6e924a2b7dd428126aa4f46fd60b,
     type: 3}
-  timeRequired: 60
-  Cost: []
+  _timeRequired: 60
+  _cost: []
+  _productRegistryKey: unit:flattank
   _commandKey: produce

@@ -14,7 +14,7 @@ namespace MarsTS.Commands {
 
 		public ISerializedCommand Reader () {
 			return new SerializedBoolCommandlet {
-				Key = Key
+				SerializerKey = Key
 			};
 		}
 
@@ -23,7 +23,8 @@ namespace MarsTS.Commands {
 			var superType = data as Commandlet<bool>;
 			
 			return new SerializedBoolCommandlet {
-				Key = Key,
+				Name = data.Name,
+				SerializerKey = Key,
 				Id = data.Id,
 				Faction = data.Commander.Id,
 				Status = superType.Target,
@@ -33,7 +34,8 @@ namespace MarsTS.Commands {
 
 	public struct SerializedBoolCommandlet : ISerializedCommand 
 	{
-		public string Key { get; set; }
+		public string Name { get; set; }
+		public string SerializerKey { get; set; }
 		public int Faction { get; set; }
 		public int Id { get; set; }
 

@@ -134,17 +134,15 @@ namespace MarsTS.Units
             if (target is IDepositable depositable
                 && Stored > 0)
             {
-                //return CommandRegistry.Get<Deposit>("deposit").Construct(depositable);
+                CommandPrimer.Get<Deposit>("deposit").Construct(depositable);
             }
 
             if (target is IAttackable attackable && target.GetRelationship(Owner) == Relationship.Hostile)
             {
-                //return CommandRegistry.Get<Attack>("attack").Construct(attackable);
+                CommandPrimer.Get<Attack>("attack").Construct(attackable);
             }
 
-            //return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
-
-            throw new NotImplementedException();
+            CommandPrimer.Get<Move>("move").Construct(target.GameObject.transform.position);
         }
 
         protected override void OnUnitInfoDisplayed(UnitInfoEvent _event)

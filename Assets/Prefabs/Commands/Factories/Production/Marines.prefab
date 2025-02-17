@@ -72,11 +72,12 @@ MonoBehaviour:
     target: {x: 0, y: 0}
   orderPrefab: {fileID: 9078585913170648512, guid: d9ec859147772184c9b3d31f69961193,
     type: 3}
-  description: A squad of hardy, high damage marines, used as the bulk of frontline
+  _description: A squad of hardy, high damage marines, used as the bulk of frontline
     forces, they're used to quickly mass an army and overwhelm the enemy. Can be
     upgraded with Adrenaline technology.
-  unitPrefab: {fileID: 8069000943633701443, guid: fdbf4b0740ccf4a42a9c67cb4d3762d6,
+  _unitPrefab: {fileID: 8069000943633701443, guid: fdbf4b0740ccf4a42a9c67cb4d3762d6,
     type: 3}
-  timeRequired: 5
-  Cost: []
+  _timeRequired: 5
+  _cost: []
+  _productRegistryKey: unit:marinesquad
   _commandKey: produce

@@ -14,7 +14,7 @@ namespace MarsTS.Commands
         {
             return new SerializedHarvestableCommandlet
             {
-                Key = Key
+                SerializerKey = Key
             };
         }
 
@@ -29,7 +29,8 @@ namespace MarsTS.Commands
 
             return new SerializedHarvestableCommandlet
             {
-                Key = Key,
+                Name = data.Name,
+                SerializerKey = Key,
                 Faction = superType.Commander.Id,
                 Id = superType.Id,
                 TargetUnit = superType.Target.GameObject.name,
@@ -39,7 +40,8 @@ namespace MarsTS.Commands
 
     public struct SerializedHarvestableCommandlet : ISerializedCommand
     {
-        public string Key { get; set;  }
+        public string Name { get; set; }
+        public string SerializerKey { get; set;  }
         public int Faction { get; set; }
         public int Id { get; set; }
         public string TargetUnit;

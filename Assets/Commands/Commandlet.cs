@@ -9,6 +9,7 @@ using Unity.Netcode;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 namespace MarsTS.Commands {
 
@@ -18,11 +19,17 @@ namespace MarsTS.Commands {
 		public string Name { get; protected set; }
 		public Faction Commander { get; protected set; }
 		public UnityEvent<CommandCompleteEvent> Callback = new UnityEvent<CommandCompleteEvent>();
-		public virtual CommandFactory Command => CommandPrimer.Get(Key);
-		public abstract string Key { get; }
+		public virtual CommandFactory Command => CommandPrimer.Get(Name);
+		public abstract string SerializerKey { get; }
 		public List<string> commandedUnits = new List<string>();
 		public int Id { get; protected set; } = 0;
 		public bool IsStale => CommandletsCache.IsStale(Id);
+
+		protected void InternalInit(string name, Faction commander)
+		{
+			Name = name;
+			Commander = commander;
+		}
 
 		public virtual void StartCommand (EventAgent eventAgent, ICommandable unit) {
 			commandedUnits.Add(unit.GameObject.name);
@@ -68,7 +75,7 @@ namespace MarsTS.Commands {
 
 		protected virtual void Deserialize(SerializedCommandWrapper _data)
 		{
-			Name = _data.Key;
+			Name = _data.Name;
 			Commander = TeamCache.Faction(_data.Faction);
 			Id = _data.Id;
 
@@ -81,16 +88,17 @@ namespace MarsTS.Commands {
 
 	public abstract class Commandlet<T> : Commandlet {
 
-		public T Target => target;
+		public T Target => _target;
 		public override Type TargetType => typeof(T);
 
+		[FormerlySerializedAs("target")]
 		[SerializeField]
-		protected T target;
+		protected T _target;
 
-		public virtual void Init (string _name, T _target, Faction _commander) {
-			Name = _name;
-			target = _target;
-			Commander = _commander;
+		public virtual void Init (string name, T target, Faction commander) {
+			InternalInit(name, commander);
+			
+			_target = target;
 
 			Id = CommandletsCache.Register(this);
 

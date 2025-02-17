@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MarsTS.Entities;
+using MarsTS.Logging;
 using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.Units;
@@ -30,6 +31,9 @@ namespace MarsTS.Commands
 
         [FormerlySerializedAs("Cost")] [SerializeField]
         protected CostEntry[] _cost;
+
+        [SerializeField]
+        protected string _productRegistryKey;
 
         private ISelectable _unit
         {
@@ -85,9 +89,12 @@ namespace MarsTS.Commands
 
             ProduceCommandlet order = Instantiate(orderPrefab) as ProduceCommandlet;
 
-            order.Init(CommandKey, Name, _unitPrefab, TeamCache.Faction(factionId), _timeRequired, _cost);
+            order.InitProduce(Name, CommandKey, _productRegistryKey,_unitPrefab, TeamCache.Faction(factionId), _timeRequired, _cost);
 
-            if (EntityCache.TryGet(selection, out ICommandable unit)) unit.Order(order, true);
+            if (EntityCache.TryGet(selection, out ICommandable unit)) 
+                unit.Order(order, true);
+            else
+                RatLogger.Error?.Log($"Failed to find selected entity {selection} for command {Name}");
 
             WithdrawResourcesFromFaction(faction);
         }

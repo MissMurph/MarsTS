@@ -47,11 +47,11 @@ namespace MarsTS.Commands {
 
 			//Debug.Log(data.Key);
 
-			if (instance.registered.TryGetValue(data.Key, out ICommandSerializer foundSerializer)) {
+			if (instance.registered.TryGetValue(data.SerializerKey, out ICommandSerializer foundSerializer)) {
 				return foundSerializer.Writer(data);
 			}
 
-			throw new ArgumentException("Serializer " + data.Key + " not found, has it been registered?");
+			throw new ArgumentException("Serializer " + data.SerializerKey + " not found, has it been registered?");
 		}
 
 		public static ISerializedCommand Write(string key, Commandlet data)
@@ -62,7 +62,7 @@ namespace MarsTS.Commands {
 				return foundSerializer.Writer(data);
 			}
 			
-			throw new ArgumentException("Serializer " + data.Key + " not found, has it been registered?");
+			throw new ArgumentException("Serializer " + data.SerializerKey + " not found, has it been registered?");
 		}
 
 		public void OnDestroy () {

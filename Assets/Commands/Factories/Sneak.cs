@@ -5,6 +5,11 @@ using MarsTS.Units;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using MarsTS.Entities;
+using MarsTS.Networking;
+using Unity.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Commands {
@@ -44,8 +49,41 @@ namespace MarsTS.Commands {
 				}
 			}
 
-			//Player.Main.DeliverCommand(Construct(totalWithSneak > totalSneakActive), true);
+			Construct(totalWithSneak > totalSneakActive);
 		}
+
+		public void Construct(bool status) {
+			ConstructCommandletServerRpc(
+				status,
+				Player.Commander.Id,
+				Player.ListSelected.ToNativeArray32(),
+				Player.Include
+			);
+		}
+
+		[Rpc(SendTo.Server)]
+		private void ConstructCommandletServerRpc(
+			bool status, 
+			int factionId, 
+			NativeArray<FixedString32Bytes> selection, 
+			bool inclusive
+		) {
+			ConstructCommandletServer(status, factionId, selection.ToStringList(), inclusive);
+		}
+
+		protected override void ConstructCommandletServer(bool target, int factionId, ICollection<string> selection, bool inclusive) {
+			SneakCommandlet order = (SneakCommandlet)Instantiate(orderPrefab);
+
+			order.InitSneak(Name, target, TeamCache.Faction(factionId), deactivateCooldown, reactivateCooldown);
+
+			foreach (string entity in selection) {
+				if (EntityCache.TryGet(entity, out ICommandable unit))
+					unit.Order(order, inclusive);
+				else
+					Debug.LogWarning($"ICommandable on Unit {entity} not found! Command {Name} being ignored by unit!");
+			}
+		}
+
 
 		public override CostEntry[] GetCost () {
 			return new CostEntry[1] { new CostEntry { key = "time", amount = 60} };
@@ -53,35 +91,6 @@ namespace MarsTS.Commands {
 
 		public override void CancelSelection () {
 			
-		}
-
-		/*public override Commandlet Construct (bool target) {
-			return new SneakCommandlet(Name, target, Player.Commander, deactivateCooldown, reactivateCooldown);
-		}*/
-
-		private class SneakCommandlet : Commandlet<bool> {
-
-			private float deactivateCooldown;
-			private float reactivateCooldown;
-
-			public SneakCommandlet (string name, bool target, Faction commander, float _deactivateCooldown, float _reactivateCooldown) {
-				deactivateCooldown = _deactivateCooldown;
-				reactivateCooldown = _reactivateCooldown;
-			}
-
-			public override string Key => Name;
-
-			public override void ActivateCommand (CommandQueue queue, CommandActiveEvent _event) {
-				base.ActivateCommand(queue, _event);
-
-				if (_event.Activity) queue.Cooldown(this, deactivateCooldown);
-				else queue.Cooldown(this, reactivateCooldown);
-			}
-
-			public override Commandlet Clone()
-			{
-				throw new NotImplementedException();
-			}
 		}
 	}
 }

@@ -54,6 +54,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7248859610773361694}
+  - component: {fileID: 5746892229100173464}
   - component: {fileID: 170220148971448779}
   - component: {fileID: 7248859610773361691}
   - component: {fileID: 7248859610773361688}
@@ -89,6 +90,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5746892229100173464
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7248859610773361695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 3868079598
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &170220148971448779
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -101,10 +123,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd88b885457ea1b478b55fb5275fe5cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  icon: {fileID: 21300000, guid: f8d43440bd0a937419c871c849f90618, type: 3}
-  type: roughnecksquad
-  owner: {fileID: 0}
-  boundCommands:
+  _icon: {fileID: 21300000, guid: f8d43440bd0a937419c871c849f90618, type: 3}
+  _type: roughnecksquad
+  _owner: 0
+  _boundCommands:
   - move
   - stop
   - attack
@@ -113,18 +135,20 @@ MonoBehaviour:
   - repair
   - construct/makeshift_pumpjack
   - construct/landmines
-  maxMembers: 5
-  startingMembers:
+  _maxMembers: 5
+  _startingMembers:
   - {fileID: 4376980068627800920}
   - {fileID: 3546832486253438902}
   - {fileID: 3546832486044099405}
   - {fileID: 3546832486644839276}
   - {fileID: 3546832485798285730}
-  selectionColliderPrefab: {fileID: 9214751274111025718, guid: 72ffa4fa3b209e145b96035530e816d6,
+  _selectionColliderPrefab: {fileID: 9214751274111025718, guid: 72ffa4fa3b209e145b96035530e816d6,
     type: 3}
-  dummyColliderPrefab: {fileID: 8232080259298972479, guid: 768b1ff8a3ec9d0439b13efbf8c84b65,
+  _dummyColliderPrefab: {fileID: 8232080259298972479, guid: 768b1ff8a3ec9d0439b13efbf8c84b65,
     type: 3}
-  storageComp: {fileID: 0}
+  _memberPrefab: {fileID: 6170492456115223497, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
+    type: 3}
+  storageComp: {fileID: 7248859610773361685}
 --- !u!114 &7248859610773361691
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -149,7 +173,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  registryKey: roughneckSquad
+  _registryKey: roughneckSquad
+  _toTag: []
 --- !u!54 &7248859610773361690
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -178,10 +203,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db75fe7896a566744b02bc8532aebeab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: oil
-  startingValue: 0
-  capacity: 500
-  resourceKey: oil
+  _key: 
+  _startingValue: 0
+  _capacity: 500
+  _resourceKey: oil
 --- !u!114 &3952897844252921977
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -207,6 +232,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visionRange: 0
+  owner: 0
 --- !u!1 &7248859611045217353
 GameObject:
   m_ObjectHideFlags: 0
@@ -253,6 +279,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffede7701679440479b740e4f6245f82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _storage: {fileID: 7248859610773361685}
 --- !u!33 &7248859611045217354
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -310,6 +337,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7248859610773361694}
     m_Modifications:
+    - target: {fileID: -1809977087990070319, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3868079598
+      objectReference: {fileID: 0}
     - target: {fileID: 974687869533868368, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_Name
@@ -402,6 +434,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7248859610773361694}
     m_Modifications:
+    - target: {fileID: -1809977087990070319, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3868079598
+      objectReference: {fileID: 0}
     - target: {fileID: 974687869533868368, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_Name
@@ -494,6 +531,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7248859610773361694}
     m_Modifications:
+    - target: {fileID: -1809977087990070319, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3868079598
+      objectReference: {fileID: 0}
     - target: {fileID: 974687869533868368, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_Name
@@ -586,6 +628,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7248859610773361694}
     m_Modifications:
+    - target: {fileID: -1809977087990070319, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3868079598
+      objectReference: {fileID: 0}
     - target: {fileID: 974687869533868368, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_Name
@@ -678,6 +725,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7248859610773361694}
     m_Modifications:
+    - target: {fileID: -1809977087990070319, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3868079598
+      objectReference: {fileID: 0}
     - target: {fileID: 974687869533868368, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d,
         type: 3}
       propertyPath: m_Name

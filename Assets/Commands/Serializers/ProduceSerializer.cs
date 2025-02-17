@@ -1,4 +1,5 @@
 using System;
+using MarsTS.Prefabs;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -15,19 +16,25 @@ namespace MarsTS.Commands
         public ISerializedCommand Reader()
             => new SerializedProduceCommandlet
             {
-                Key = Key
+                SerializerKey = Key
             };
 
-        public ISerializedCommand Writer(Commandlet data)
-        {
-            ProduceCommandlet superType = data as ProduceCommandlet;
+        public ISerializedCommand Writer(Commandlet data) {
+            if (data is not ProduceCommandlet superType) 
+                return null;
+
+            string prefabKey = superType.ProductRegistryKey;
+            
+            if (superType.Product.TryGetComponent(out IRegistryObject registryObject)) 
+                prefabKey = $"{registryObject.RegistryType}:{registryObject.RegistryKey}";
 
             return new SerializedProduceCommandlet
             {
-                Key = Key,
+                Name = data.Name,
+                SerializerKey = Key,
                 Faction = superType.Commander.Id,
                 Id = superType.Id,
-                PrefabKey = "unit:" + superType.Product.name,
+                PrefabKey = prefabKey,
                 ProductionRequired = superType.ProductionRequired
             };
         }
@@ -35,7 +42,8 @@ namespace MarsTS.Commands
 
     public struct SerializedProduceCommandlet : ISerializedCommand
     {
-        public string Key { get; set; }
+        public string Name { get; set; }
+        public string SerializerKey { get; set; }
         public int Faction { get; set; }
         public int Id { get; set; }
 

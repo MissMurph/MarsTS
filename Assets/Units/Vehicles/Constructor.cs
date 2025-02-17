@@ -230,7 +230,7 @@ namespace MarsTS.Units {
 				//CommandRegistry.Get<Repair>("repair").Construct(attackable, Player.SerializedSelected);
 			}
 
-			CommandPrimer.Get<Move>("move").Construct(target.GameObject.transform.position, Player.ListSelected);
+			CommandPrimer.Get<Move>("move").Construct(target.GameObject.transform.position);
 		}
 
 		public override bool CanCommand (string key) {

@@ -6,6 +6,7 @@ using MarsTS.Teams;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Units {
@@ -47,9 +48,7 @@ namespace MarsTS.Units {
 			equippedWeapon = GetComponentInChildren<ProjectileTurret>();
 		}
 
-		protected override void Update () {
-			base.Update();
-
+		protected override void ServerUpdate () {
 			//I'd like to move these all to commands, for now they'll remain here
 			//Will start devising a method to do so
 			if (AttackTarget.Get != null) {
@@ -69,13 +68,15 @@ namespace MarsTS.Units {
 
 					FireFlare(flareTarget);
 				}
-				/*else {
+				else {
 					SetTarget(flareTarget);
-				}*/
+				}
 			}
 		}
 
 		protected virtual void FixedUpdate () {
+			if (!NetworkManager.Singleton.IsServer) return;
+			
 			if (ground.Grounded) {
 				//Dunno why we need this check on the infantry member when we don't need it on any other unit type...
 				if (!CurrentPath.IsEmpty && !(PathIndex >= CurrentPath.Length)) {
@@ -98,7 +99,7 @@ namespace MarsTS.Units {
 		}
 
 		public override void Order (Commandlet order, bool inclusive) {
-			if (!GetRelationship(Player.Commander).Equals(Relationship.Owned)) return;
+			if (!GetRelationship(order.Commander).Equals(Relationship.Owned)) return;
 
 			switch (order.Name) {
 				case "attack":
@@ -199,10 +200,11 @@ namespace MarsTS.Units {
 
 		private void FireFlare (Vector3 position) {
 			Flare firedFlare = Instantiate(flarePrefab, position, Quaternion.Euler(Vector3.zero)).GetComponent<Flare>();
-			firedFlare.Init(this);
-
-			CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, false, this);
-
+			NetworkObject networkObject = firedFlare.GetComponent<NetworkObject>();
+			
+			networkObject.Spawn();
+			firedFlare.SetOwner(Owner);
+			
 			CurrentCommand.CompleteCommand(Bus, this);
 
 			Stop();
@@ -218,12 +220,11 @@ namespace MarsTS.Units {
 
 		public override void AutoCommand (ISelectable target) {
 			if (target is IAttackable attackable && target.GetRelationship(Owner) == Relationship.Hostile) {
-				//return CommandRegistry.Get<Attack>("attack").Construct(attackable);
+				CommandPrimer.Get<Attack>("attack").Construct(attackable);
+				return;
 			}
 
-			//return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
-
-			throw new NotImplementedException();
+			CommandPrimer.Get<Move>("move").Construct(target.GameObject.transform.position);
 		}
 	}
 }

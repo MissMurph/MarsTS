@@ -31,6 +31,8 @@ namespace MarsTS.Buildings {
 		private GameObject queueInfo;
 
 		private Transform spawnPoint;
+		
+		
 
 		protected override void Awake () {
 			base.Awake();

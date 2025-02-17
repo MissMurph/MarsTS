@@ -396,13 +396,13 @@ namespace MarsTS.Units
                 && Stored > 0)
             {
                 CommandPrimer.Get<Deposit>("deposit")
-                    .Construct(deserialized, owner, Player.ListSelected, Player.Include);
+                    .Construct(deserialized);
                 
                 return;
             }
 
             CommandPrimer.Get<Move>("move")
-                .Construct(target.GameObject.transform.position, owner, Player.ListSelected, Player.Include);
+                .Construct(target.GameObject.transform.position);
         }
 
         protected override void OnUnitInfoDisplayed(UnitInfoEvent _event)

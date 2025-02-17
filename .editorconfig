@@ -5,7 +5,7 @@
 
 # Microsoft .NET properties
 csharp_indent_braces = false
-csharp_new_line_before_open_brace = all
+csharp_new_line_before_open_brace = accessors,anonymous_methods,anonymous_types,control_blocks,events,indexers,lambdas,object_collection_array_initializers,properties
 csharp_style_var_elsewhere = false:suggestion
 csharp_style_var_for_built_in_types = false:suggestion
 csharp_style_var_when_type_is_apparent = false:suggestion
@@ -25,7 +25,8 @@ dotnet_naming_symbols.custom_symbols.resharper_required_modifiers = static, inst
 
 # ReSharper properties
 resharper_braces_for_foreach = required_for_multiline_statement
-resharper_csharp_other_braces = next_line
+resharper_csharp_empty_block_style = together
+resharper_csharp_other_braces = end_of_line
 resharper_for_other_types = use_var_when_evident
 resharper_method_or_operator_body = expression_body
 resharper_object_creation_when_type_evident = explicitly_typed

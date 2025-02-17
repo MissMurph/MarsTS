@@ -72,11 +72,12 @@ MonoBehaviour:
     target: {x: 0, y: 0}
   orderPrefab: {fileID: 9078585913170648512, guid: d9ec859147772184c9b3d31f69961193,
     type: 3}
-  description: Roughnecks are the field engineers of the native Martians. Capable
+  _description: Roughnecks are the field engineers of the native Martians. Capable
     of camouflaging in all terrain, they can construct hidden oil operations, repair
     buildings and vehicles and prepare ambushes with defensive emplacements.
-  unitPrefab: {fileID: 7248859610773361695, guid: b8ae55b487a53814988a1ce86421e8a1,
+  _unitPrefab: {fileID: 7248859610773361695, guid: b8ae55b487a53814988a1ce86421e8a1,
     type: 3}
-  timeRequired: 5
-  Cost: []
+  _timeRequired: 5
+  _cost: []
+  _productRegistryKey: unit:roughnecksquad
   _commandKey: produce

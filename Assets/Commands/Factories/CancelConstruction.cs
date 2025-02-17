@@ -27,7 +27,7 @@ namespace MarsTS.Commands {
 
 		[Rpc(SendTo.Server)]
 		public void ConstructCommandletServerRpc(int factionId, NativeArray<FixedString32Bytes> selection, bool inclusive) {
-			ConstructCommandletServer(true, factionId, selection.ToList(), inclusive);
+			ConstructCommandletServer(true, factionId, selection.ToStringList(), inclusive);
 		}
 
 		public override CostEntry[] GetCost () {

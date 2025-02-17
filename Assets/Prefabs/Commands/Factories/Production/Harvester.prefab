@@ -72,10 +72,11 @@ MonoBehaviour:
     target: {x: 0, y: 0}
   orderPrefab: {fileID: 9078585913170648512, guid: d9ec859147772184c9b3d31f69961193,
     type: 3}
-  description: A slow moving unit that harvests Resource Units from mineral deposits
+  _description: A slow moving unit that harvests Resource Units from mineral deposits
     and deposits them in a nearby base
-  unitPrefab: {fileID: 3758000306492427157, guid: 90f452b211acc384b80839d8ea68f3f2,
+  _unitPrefab: {fileID: 3758000306492427157, guid: 90f452b211acc384b80839d8ea68f3f2,
     type: 3}
-  timeRequired: 1
-  Cost: []
+  _timeRequired: 1
+  _cost: []
+  _productRegistryKey: unit:harvester
   _commandKey: produce

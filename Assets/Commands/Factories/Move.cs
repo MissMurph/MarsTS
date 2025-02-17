@@ -18,8 +18,8 @@ namespace MarsTS.Commands {
 		[SerializeField]
 		private string description;
 
-		public void Construct (Vector3 target, List<string> selection) {
-			ConstructCommandletServerRpc(target, Player.Commander.Id, selection.ToNativeArray32(), Player.Include);
+		public void Construct (Vector3 target) {
+			ConstructCommandletServerRpc(target, Player.Commander.Id, Player.ListSelected.ToNativeArray32(), Player.Include);
 		}
 
 		[Rpc(SendTo.Server)]
@@ -29,7 +29,7 @@ namespace MarsTS.Commands {
 			NativeArray<FixedString32Bytes> selection, 
 			bool inclusive
 		) {
-			ConstructCommandletServer(target, factionId, selection.ToList(), inclusive);
+			ConstructCommandletServer(target, factionId, selection.ToStringList(), inclusive);
 		}
 
 		public override CostEntry[] GetCost () => Array.Empty<CostEntry>();
@@ -47,7 +47,7 @@ namespace MarsTS.Commands {
 				Ray ray = Player.ViewPort.ScreenPointToRay(cursorPos);
 
 				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.WalkableMask)) {
-					Construct(hit.point, Player.ListSelected);
+					Construct(hit.point);
 				}
 
 				CancelSelection();

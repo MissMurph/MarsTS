@@ -72,10 +72,11 @@ MonoBehaviour:
     target: {x: 0, y: 0}
   orderPrefab: {fileID: 9078585913170648512, guid: d9ec859147772184c9b3d31f69961193,
     type: 3}
-  description: Grants Thermal Vision to Snipers and the Flares they fire, revealing
+  _description: Grants Thermal Vision to Snipers and the Flares they fire, revealing
     all stealthed units in a radius around them.
-  unitPrefab: {fileID: 1170798382936629016, guid: 5349d9e8e5a61734b960a1a9d2dc0509,
+  _unitPrefab: {fileID: 1170798382936629016, guid: 5349d9e8e5a61734b960a1a9d2dc0509,
     type: 3}
-  timeRequired: 5
-  Cost: []
+  _timeRequired: 5
+  _cost: []
+  _productRegistryKey: research:thermalvision
   _commandKey: research

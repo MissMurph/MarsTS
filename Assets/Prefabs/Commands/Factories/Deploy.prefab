@@ -67,11 +67,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   icon: {fileID: 21300000, guid: f82d11b462631ff47a8491a0abe59bf9, type: 3}
-  IconColor: {r: 0, g: 0, b: 0, a: 0}
   Pointer:
     texture: {fileID: 0}
     target: {x: 0, y: 0}
-  orderPrefab: {fileID: 0}
+  orderPrefab: {fileID: 1487153503893369262, guid: 8b49a0eaeb1aa61488830d961934bdb3,
+    type: 3}
   commandName: deploy
   description: Orders the unit to deploy where it is
   deployTime: 5

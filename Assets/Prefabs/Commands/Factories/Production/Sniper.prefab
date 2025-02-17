@@ -72,13 +72,14 @@ MonoBehaviour:
     target: {x: 0, y: 0}
   orderPrefab: {fileID: 9078585913170648512, guid: d9ec859147772184c9b3d31f69961193,
     type: 3}
-  description: Snipers are natural walkers of the land, typically elders of Martian
+  _description: Snipers are natural walkers of the land, typically elders of Martian
     communities. Capable of stealth, they're equipped with a long range sniper rifle
     which can pick off individual infantry units, but are a poor weapon against buildings
     & vehicles. Snipers also have flares they can fire to give themselves extra vision
     for a short time.
-  unitPrefab: {fileID: 4002054096274699913, guid: 9fe1e05b90714ce49a1c10552559d96f,
+  _unitPrefab: {fileID: 4002054096274699913, guid: 9fe1e05b90714ce49a1c10552559d96f,
     type: 3}
-  timeRequired: 5
-  Cost: []
+  _timeRequired: 5
+  _cost: []
+  _productRegistryKey: unit:sniper
   _commandKey: produce

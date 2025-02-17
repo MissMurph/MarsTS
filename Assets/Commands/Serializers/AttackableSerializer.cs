@@ -15,7 +15,7 @@ namespace MarsTS.Commands {
 
 		public ISerializedCommand Reader () {
 			return new SerializedAttackableCommandlet {
-				Key = Key
+				SerializerKey = Key
 			};
 		}
 
@@ -28,7 +28,8 @@ namespace MarsTS.Commands {
 			AttackableCommandlet superType = data as AttackableCommandlet;
 
 			return new SerializedAttackableCommandlet {
-				Key = Key,
+				Name = data.Name,
+				SerializerKey = Key,
 				Faction = superType.Commander.Id,
 				Id = superType.Id,
 				TargetUnit = superType.Target.GameObject.name
@@ -37,8 +38,8 @@ namespace MarsTS.Commands {
 	}
 
 	public struct SerializedAttackableCommandlet : ISerializedCommand {
-
-		public string Key { get; set; }
+		public string Name { get; set; }
+		public string SerializerKey { get; set; }
 		public int Faction { get; set; }
 		public int Id { get; set; }
 

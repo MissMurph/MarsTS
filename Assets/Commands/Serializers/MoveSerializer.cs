@@ -13,18 +13,20 @@ namespace MarsTS.Commands
         public ISerializedCommand Reader() =>
             new SerializedMoveCommandlet
             {
-                Key = Key
+                SerializerKey = Key
             };
 
-        public ISerializedCommand Writer(Commandlet data)
-        {
-            MoveCommandlet superType = data as MoveCommandlet;
+        public ISerializedCommand Writer(Commandlet data) {
+            if (data is not Commandlet<Vector3> superType)
+                throw new ArgumentException(
+                    $"Serializer expected command of type {typeof(Commandlet<Vector3>)}, got {data.GetType()} instead");
 
             return new SerializedMoveCommandlet
             {
-                Key = Key,
-                Faction = superType.Commander.Id,
-                Id = superType.Id,
+                Name = data.Name,
+                SerializerKey = Key,
+                Faction = data.Commander.Id,
+                Id = data.Id,
                 TargetPosition = superType.Target
             };
         }
@@ -32,7 +34,8 @@ namespace MarsTS.Commands
 
     public struct SerializedMoveCommandlet : ISerializedCommand
     {
-        public string Key { get; set; }
+        public string Name { get; set; }
+        public string SerializerKey { get; set; }
         public int Faction { get; set; }
         public int Id { get; set; }
 

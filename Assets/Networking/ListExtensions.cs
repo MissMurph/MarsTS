@@ -24,7 +24,7 @@ namespace MarsTS.Networking
             return serialized;
         }
 
-        public static List<string> ToList(this NativeArray<FixedString32Bytes> nativeArray) 
+        public static List<string> ToStringList(this NativeArray<FixedString32Bytes> nativeArray) 
             => nativeArray.Select(fixedString => fixedString.ToString()).ToList();
     }
 }

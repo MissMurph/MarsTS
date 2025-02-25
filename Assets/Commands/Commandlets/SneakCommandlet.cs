@@ -1,13 +1,17 @@
 using System;
 using MarsTS.Events;
 using MarsTS.Teams;
+using Unity.Netcode;
 
 namespace MarsTS.Commands {
     public class SneakCommandlet : Commandlet<bool> {
 
-        private float _deactivateCooldown;
-        private float _reactivateCooldown;
-
+        private NetworkVariable<float> _deactivateCooldown
+            = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Server);
+        
+        private NetworkVariable<float> _reactivateCooldown
+            = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Server);
+        
         public void InitSneak (
             string commandName, 
             bool target, 
@@ -15,8 +19,8 @@ namespace MarsTS.Commands {
             float deactivateCooldown, 
             float reactivateCooldown
         ) {
-            _deactivateCooldown = deactivateCooldown;
-            _reactivateCooldown = reactivateCooldown;
+            _deactivateCooldown.Value = deactivateCooldown;
+            _reactivateCooldown.Value = reactivateCooldown;
             
             Init(commandName, target, commander);
         }
@@ -27,9 +31,9 @@ namespace MarsTS.Commands {
             base.ActivateCommand(queue, _event);
 
             if (_event.Activity) 
-                queue.Cooldown(this, _deactivateCooldown);
+                queue.Cooldown(this, _deactivateCooldown.Value);
             else 
-                queue.Cooldown(this, _reactivateCooldown);
+                queue.Cooldown(this, _reactivateCooldown.Value);
         }
 
         public override Commandlet Clone()

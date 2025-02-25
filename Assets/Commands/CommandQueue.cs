@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MarsTS.Entities;
+using MarsTS.Logging;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -65,8 +66,6 @@ namespace MarsTS.Commands {
 
 		protected virtual void Update () 
 		{
-			//if (!isServer) return;
-
 			if (isServer && Current == null && commandQueue.Count > 0) {
 				Dequeue();
 				DequeueClientRpc(Current.gameObject);
@@ -137,6 +136,9 @@ namespace MarsTS.Commands {
 		protected virtual void CompleteCurrentCommand (bool _cancelled) 
 		{
 			Current.CompleteCommand(bus, orderSource, _cancelled);
+
+			if (NetworkManager.Singleton.IsServer) 
+				CompleteCommandClientRpc(_cancelled);
 		}
 
 		protected virtual void OnOrderComplete (CommandCompleteEvent _event) 
@@ -192,7 +194,7 @@ namespace MarsTS.Commands {
 
 		/*	Activating Commands	*/
 
-		public virtual void Activate (Commandlet order, bool status) {
+		public void Activate (Commandlet order, bool status) {
 			if (status) {
 				activeCommands[order.Name] = order;
 				order.ActivateCommand(this, new CommandActiveEvent(bus, orderSource, order, status));
@@ -204,26 +206,59 @@ namespace MarsTS.Commands {
 			}
 
 			bus.Global(new CommandActiveEvent(bus, orderSource, order, status));
+
+			if (NetworkManager.Singleton.IsServer)
+				ActivateClientRpc(order.Id, status);
 		}
 
-		public virtual void Deactivate (string key) {
-			if (activeCommands.TryGetValue(key, out Commandlet toDeactivate)) {
-				CommandActiveEvent _event = new CommandActiveEvent(bus, orderSource, toDeactivate, false);
-				toDeactivate.ActivateCommand(this, _event);
-				activeCommands.Remove(toDeactivate.Name);
-				bus.Global(_event);
+		[Rpc(SendTo.NotServer)]
+		private void ActivateClientRpc(int id, bool status) {
+			if (!CommandletsCache.TryGet(id, out Commandlet order)) {
+				RatLogger.Error?.Log($"Couldn't find commandlet {id}! Cannot activate");
+				return;
 			}
+			
+			Activate(order, status);
+		}
+
+		public void Deactivate (string key) {
+			if (!activeCommands.TryGetValue(key, out Commandlet toDeactivate)) return;
+			
+			CommandActiveEvent _event = new CommandActiveEvent(bus, orderSource, toDeactivate, false);
+			toDeactivate.ActivateCommand(this, _event);
+			activeCommands.Remove(toDeactivate.Name);
+			bus.Global(_event);
+
+			if (NetworkManager.Singleton.IsServer) 
+				DeactivateClientRpc(key);
+		}
+
+		[Rpc(SendTo.NotServer)]
+		private void DeactivateClientRpc(string key) {
+			Deactivate(key);
 		}
 
 		/*	Cooldowns	*/
 
-		public virtual void Cooldown (Commandlet order, float time) {
+		public void Cooldown (Commandlet order, float time) {
 			activeCooldowns[order.Name] = new Timer { commandName = order.Name, duration = time, timeRemaining = time };
+
+			if (NetworkManager.Singleton.IsServer) CooldownClientRpc(order.Id, time);
+		}
+
+		[Rpc(SendTo.NotServer)]
+		private void CooldownClientRpc(int id, float time) {
+			if (!CommandletsCache.TryGet(id, out Commandlet order)) {
+				RatLogger.Error?.Log($"Couldn't find Commandlet {id}, cannot start Cooldown");
+				return;
+			}
+			
+			Cooldown(order, time);
 		}
 
 		/*	Misc.	*/
 
-		public virtual void Clear () {
+		public void Clear () {
 			foreach (Commandlet order in commandQueue) 
 				order.CompleteCommand(bus, orderSource, true);
 
@@ -233,6 +268,13 @@ namespace MarsTS.Commands {
 				Current.CompleteCommand(bus, orderSource, true);
 
 			Current = null;
+
+			if (NetworkManager.Singleton.IsServer) ClearClientRpc();
+		}
+
+		[Rpc(SendTo.NotServer)]
+		private void ClearClientRpc() {
+			Clear();
 		}
 
 		public virtual bool CanCommand (string key) {

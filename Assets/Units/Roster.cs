@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using MarsTS.Commands;
+using MarsTS.Logging;
 using UnityEngine;
 
 namespace MarsTS.Units
@@ -89,14 +90,14 @@ namespace MarsTS.Units
 
             if (!entity.RegistryKey.Equals(RegistryKey))
             {
-                Debug.LogWarning("Unit type " + entity.RegistryKey + " doesn't match roster's registered type of " +
-                                 RegistryKey + "!");
+                RatLogger.Error?.Log($"Unit type {entity.RegistryKey} doesn't match roster's registered type of {RegistryKey}!");
                 return false;
             }
 
-            if (!instances.TryAdd(entity.Id, entity))
-                //Debug.LogWarning("Unit " + unit.Id() + " already added to Roster of " + Type + " type!");
+            if (!instances.TryAdd(entity.Id, entity)) {
+                RatLogger.Message?.Log($"Unit {entity.Id} already added to Roster of {Type} type!");
                 return false;
+            }
 
             if (entity is ICommandable orderable)
             {

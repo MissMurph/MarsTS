@@ -187,7 +187,12 @@ namespace MarsTS.Units {
 			commands.Activate(order, deserialized.Target);
 
 			Bus.Local(new SneakEvent(Bus, this, isSneaking));
+			
+			PostSneakEventClientRpc(isSneaking);
 		}
+		
+		[Rpc(SendTo.NotServer)]
+		private void PostSneakEventClientRpc(bool status) => Bus.Local(new SneakEvent(Bus, this, status));
 
 		/*	Flare	*/
 		private void Flare (Commandlet order) {

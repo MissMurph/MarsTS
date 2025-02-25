@@ -246,7 +246,12 @@ namespace MarsTS.Units {
 			}
 
 			_bus.Local(new SneakEvent(_bus, this, isSneaking));
+
+			PostSneakEventClientRpc(isSneaking);
 		}
+
+		[Rpc(SendTo.NotServer)]
+		private void PostSneakEventClientRpc(bool status) => _bus.Local(new SneakEvent(_bus, this, status));
 
 		/*	Repair	*/
 		protected void Repair (Commandlet order) {

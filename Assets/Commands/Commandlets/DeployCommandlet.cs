@@ -45,7 +45,6 @@ namespace MarsTS.Commands {
 
         public override void CompleteCommand (EventAgent eventAgent, ICommandable unit, bool isCancelled = false) {
             if (TryGetQueue(unit, out var queue)) {
-                
                 if (Target) 
                     queue.Activate(this, Target);
                 else

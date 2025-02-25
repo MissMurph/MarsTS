@@ -304,6 +304,7 @@ namespace MarsTS.Units
         {
             _currentPath = Path.Empty;
             _target = null;
+            CurrentCommand.CompleteCommand(_bus, this);
         }
 
         public virtual void Order(Commandlet order, bool inclusive)
@@ -336,7 +337,7 @@ namespace MarsTS.Units
         {
             CommandCompleteEvent newEvent = new CommandCompleteEvent(_bus, CurrentCommand, false, this);
 
-            CurrentCommand.Callback.Invoke(newEvent);
+            CurrentCommand.CompleteCommand(_bus, this);
         }
 
         public virtual void Select(bool status)
@@ -366,6 +367,7 @@ namespace MarsTS.Units
         public bool SetOwner(Faction player)
         {
             if (!NetworkManager.Singleton.IsServer) return false;
+            if (Owner == player) return true;
 
             _owner = player;
             SetOwnerClientRpc(_owner.Id);
@@ -399,14 +401,15 @@ namespace MarsTS.Units
             _bus.Global(hurtEvent);
         }
 
-        protected virtual void OnHurt(int oldHealth, int newHealth)
+        private void OnHurt(int oldHealth, int newHealth)
         {
-            if (Health <= 0)
-            {
+            if (Health <= 0) {
+                if (!NetworkManager.Singleton.IsServer) return;
+                
                 _bus.Global(new UnitDeathEvent(_bus, this));
 
-                if (NetworkManager.Singleton.IsServer)
-                    Destroy(gameObject, 0.1f);
+                SendClientDeathEventClientRpc();
+                Destroy(gameObject, 0.1f);
             }
             else
             {
@@ -414,6 +417,11 @@ namespace MarsTS.Units
                 hurtEvent.Phase = Phase.Post;
                 _bus.Global(hurtEvent);
             }
+        }
+
+        [Rpc(SendTo.NotServer)]
+        private void SendClientDeathEventClientRpc() {
+            _bus.Global(new UnitDeathEvent(_bus, this));
         }
 
         public InfantryMember Get() => this;

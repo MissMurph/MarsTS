@@ -213,11 +213,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cfddc5044ea5904596d89bc7c488606, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectile: {fileID: 5732885903752370511, guid: c53d0750fc9147c4f82636c698100a22,
+  _projectile: {fileID: 5732885903752370511, guid: c53d0750fc9147c4f82636c698100a22,
     type: 3}
-  damage: 150
-  cooldown: 10
-  barrel: {fileID: 5689438752885368348}
+  _damage: 150
+  _cooldown: 10
+  _barrel: {fileID: 5689438752885368348}
 --- !u!135 &7074105209275471447
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -305,8 +305,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1214473942047108565}
-  - component: {fileID: 7230481599974592799}
   - component: {fileID: 6727375179201398625}
+  - component: {fileID: 7230481599974592799}
   - component: {fileID: 6520470998769435003}
   - component: {fileID: 1214473942047108564}
   - component: {fileID: 1214473942047108563}
@@ -347,20 +347,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7230481599974592799
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1214473942990757588}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  registryKey: mobile_artillery
-  toTag: []
 --- !u!114 &6727375179201398625
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -382,6 +368,20 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &7230481599974592799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1214473942990757588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _registryKey: mobile_artillery
+  _toTag: []
 --- !u!114 &6520470998769435003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -400,8 +400,7 @@ MonoBehaviour:
     m_InternalValue: 0
   icon: {fileID: 21300000, guid: db7c4a86328576146aaec74d7401b030, type: 3}
   type: mobile_artillery
-  owner:
-    m_InternalValue: 0
+  owner: 0
   boundCommands:
   - move
   - stop
@@ -973,11 +972,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f81996ae128c4f47884189027df8738, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectile: {fileID: 5732885903752370511, guid: c53d0750fc9147c4f82636c698100a22,
+  _projectile: {fileID: 5732885903752370511, guid: c53d0750fc9147c4f82636c698100a22,
     type: 3}
-  damage: 1
-  cooldown: 0.2
-  barrel: {fileID: 4842768844156703543}
+  _damage: 1
+  _cooldown: 0.2
+  _barrel: {fileID: 4842768844156703543}
 --- !u!135 &2561498697191468304
 SphereCollider:
   m_ObjectHideFlags: 0

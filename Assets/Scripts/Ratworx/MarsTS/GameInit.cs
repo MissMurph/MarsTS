@@ -7,7 +7,7 @@ using Ratworx.MarsTS.UI;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace Scenes
+namespace Ratworx.MarsTS
 {
     public class GameInit : MonoBehaviour
     {

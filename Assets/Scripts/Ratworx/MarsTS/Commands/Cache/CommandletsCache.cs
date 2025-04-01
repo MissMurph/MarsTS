@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Commands;
-using Scenes;
+using Ratworx.MarsTS;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;

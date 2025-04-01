@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Ratworx.MarsTS.Registry;
-using Scenes;
+using Ratworx.MarsTS;
 using Unity.Netcode;
 using UnityEngine;
 

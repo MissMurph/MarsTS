@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using UnityEngine;
 
-namespace Scenes
+namespace Ratworx.MarsTS
 {
 	public class IconRenderer : MonoBehaviour {
 

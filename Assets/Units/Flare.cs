@@ -139,7 +139,7 @@ namespace MarsTS.Units {
             //These are seperated due to the Player Selection Check
             if (status)
                 _bus.Local(new UnitHoverEvent(_bus, status));
-            else if (!Player.Main.HasSelected(this)) _bus.Local(new UnitHoverEvent(_bus, status));
+            else if (!Player.HasSelected(this)) _bus.Local(new UnitHoverEvent(_bus, status));
         }
 
         public Relationship GetRelationship(Faction other) => Owner.GetRelationship(other);

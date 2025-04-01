@@ -1,3 +1,4 @@
+using System;
 using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
@@ -53,6 +54,19 @@ namespace MarsTS.UI
         {
             _circleRenderer.enabled = _event.Status;
             _mask.enabled = _event.Status;
+        }
+
+        private void OnEnable() {
+            bool status = Player.HasSelected(_parent);
+
+            _circleRenderer.enabled = status;
+            _mask.enabled = status;
+        }
+
+        private void OnDisable()
+        {
+            _circleRenderer.enabled = false;
+            _mask.enabled = false;
         }
     }
 }

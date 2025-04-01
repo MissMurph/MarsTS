@@ -395,9 +395,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth:
-    m_InternalValue: 0
+    m_InternalValue: 250
   currentHealth:
-    m_InternalValue: 0
+    m_InternalValue: 250
   icon: {fileID: 21300000, guid: db7c4a86328576146aaec74d7401b030, type: 3}
   type: mobile_artillery
   owner: 0

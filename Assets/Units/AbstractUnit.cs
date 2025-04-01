@@ -336,7 +336,7 @@ namespace MarsTS.Units
             if (status)
                 //selectionCircle.SetActive(true);
                 Bus.Local(new UnitHoverEvent(Bus, status));
-            else if (!Player.Main.HasSelected(this))
+            else if (!Player.HasSelected(this))
                 //selectionCircle.SetActive(false);
                 Bus.Local(new UnitHoverEvent(Bus, status));
         }

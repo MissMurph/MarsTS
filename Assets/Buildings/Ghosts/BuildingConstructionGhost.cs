@@ -371,7 +371,7 @@ namespace MarsTS.Buildings
 
         public void Hover(bool status)
         {
-            if (Player.Main.HasSelected(this)) return;
+            if (Player.HasSelected(this)) return;
 
             _bus.Local(new UnitHoverEvent(_bus, status));
         }

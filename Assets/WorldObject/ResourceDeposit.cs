@@ -127,7 +127,7 @@ namespace MarsTS.World
                 _selectionCircle.SetActive(true);
                 _bus.Local(new UnitHoverEvent(_bus, status));
             }
-            else if (!Player.Main.HasSelected(this))
+            else if (!Player.HasSelected(this))
             {
                 _selectionCircle.SetActive(false);
                 _bus.Local(new UnitHoverEvent(_bus, status));

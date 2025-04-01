@@ -125,7 +125,7 @@ namespace MarsTS.Players {
 			}
 		}
 
-		public bool HasSelected (ISelectable unit) {
+		public static bool HasSelected (ISelectable unit) {
 			if (Selected.TryGetValue(unit.RegistryKey, out Roster typeRoster)) {
 				return typeRoster.Contains(unit.Id);
 			}

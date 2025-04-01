@@ -609,8 +609,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  registryKey: constructor
-  toTag: []
+  _registryKey: constructor
+  _toTag: []
 --- !u!114 &7440311153749639652
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -629,8 +629,7 @@ MonoBehaviour:
     m_InternalValue: 0
   icon: {fileID: 21300000, guid: 2b849b461576ef746b35c0962e52cd0c, type: 3}
   type: constructor
-  owner:
-    m_InternalValue: 0
+  owner: 0
   boundCommands:
   - move
   - stop

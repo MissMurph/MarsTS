@@ -235,7 +235,7 @@ namespace MarsTS.Buildings
 
         public virtual void Hover(bool status)
         {
-            if (Player.Main.HasSelected(this)) return;
+            if (Player.HasSelected(this)) return;
 
             Bus.Local(new UnitHoverEvent(Bus, status));
         }

@@ -79,7 +79,13 @@ namespace MarsTS.Commands {
 				if (workTimeToStep <= 0) {
 					workOrder.CurrentWork++;
 					workTimeToStep += workStepTime;
+
+					bus.Global(new CommandWorkEvent(bus, Current, orderSource, workOrder));
+					SendWorkEventToClientRpc();
 				}
+
+				if (workOrder.CurrentWork >= workOrder.WorkRequired) 
+					CompleteCurrentCommand(false);
 			}
 
 			foreach (Timer cooldown in activeCooldowns.Values) {
@@ -99,6 +105,15 @@ namespace MarsTS.Commands {
 			}
 
 			completedCooldowns = new();
+		}
+
+		[Rpc(SendTo.NotServer)]
+		private void SendWorkEventToClientRpc() {
+			if (Current is IWorkable workOrder) {
+				bus.Global(new CommandWorkEvent(bus, Current, orderSource, workOrder));
+			}
+			else
+				RatLogger.Error?.Log($"Current command {Current.Name} is not {typeof(IWorkable)}! Cannot post work event");
 		}
 
 		/*	Dequeueing Commands	*/

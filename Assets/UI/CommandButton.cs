@@ -80,7 +80,7 @@ namespace MarsTS.UI {
 			if (current is null) return;
             if (_event.Command.Command.Name == current.Name) {
 
-                if (!Player.Main.HasSelected(_event.Unit as ISelectable)) return;
+                if (!Player.HasSelected(_event.Unit as ISelectable)) return;
                 if (Player.UI.PrimarySelected != (_event.Unit as ISelectable)?.RegistryKey) return;
 
 				EvaluateUsability();
@@ -91,7 +91,7 @@ namespace MarsTS.UI {
         private void OnCommandActivate (CommandActiveEvent _event) {
             if (current is null) return;
             if (_event.Command.Name == current.Name
-                && Player.Main.HasSelected(_event.Unit as ISelectable)
+                && Player.HasSelected(_event.Unit as ISelectable)
                 && Player.UI.PrimarySelected == (_event.Unit as ISelectable)?.RegistryKey) {
 				activity.SetActive(_event.Activity);
             }
@@ -100,7 +100,7 @@ namespace MarsTS.UI {
         private void OnCooldownUpdate (CooldownEvent _event) {
 			if (current is null) return;
 			if (_event.CommandKey == current.Name
-                && Player.Main.HasSelected(_event.Unit)
+                && Player.HasSelected(_event.Unit)
                 && Player.UI.PrimarySelected == _event.Unit.RegistryKey) {
 
                 EvaluateCooldown();

@@ -8,7 +8,7 @@ namespace MarsTS.UI {
     public class WorkBar : UnitBar {
 
 		private void Start () {
-			barRenderer.enabled = false;
+			_barRenderer.enabled = false;
 
 			EventAgent bus = GetComponentInParent<EventAgent>();
 
@@ -18,21 +18,21 @@ namespace MarsTS.UI {
 
 		private void OnWorkStep (WorkEvent _event) {
 			if (_event.CurrentWork < _event.WorkRequired) {
-				barRenderer.enabled = true;
-				FillLevel = _event.CurrentWork / _event.WorkRequired;
+				_barRenderer.enabled = true;
+				UpdateBarWithFillLevel(_event.CurrentWork / _event.WorkRequired);
 			}
 			else {
-				barRenderer.enabled = false;
+				_barRenderer.enabled = false;
 			}
 		}
 
 		private void OnWorkStep (CommandWorkEvent _event) {
 			if (_event.Work.CurrentWork < _event.Work.WorkRequired) {
-				barRenderer.enabled = true;
-				FillLevel = _event.Work.CurrentWork / _event.Work.WorkRequired;
+				_barRenderer.enabled = true;
+				UpdateBarWithFillLevel(_event.Work.CurrentWork / _event.Work.WorkRequired);
 			}
 			else {
-				barRenderer.enabled = false;
+				_barRenderer.enabled = false;
 			}
 		}
 	}

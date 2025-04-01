@@ -1,33 +1,35 @@
-using System.Collections;
-using System.Collections.Generic;
+using MarsTS.Events;
+using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.ProBuilder;
+using UnityEngine.Serialization;
 
-namespace MarsTS.Units {
+namespace MarsTS.Units
+{
+    public class SniperGun : ProjectileTurret
+    {
+        //This damage is added to the attack whenever infantry is hit
+        [FormerlySerializedAs("bonusDamage")] [SerializeField]
+        protected int _bonusDamage;
 
-    public class SniperGun : ProjectileTurret {
+        protected override void OnHit(bool success, IAttackable unit)
+        {
+            if (NetworkManager.Singleton.IsServer && success) return;
 
-		//This damage is added to the attack whenever infantry is hit
-		[SerializeField]
-		protected int bonusDamage;
+            int damage = _damage;
 
-		protected override void Fire (Vector3 position) {
-			Vector3 direction = (position - transform.position).normalized;
+            if (unit.GameObject.tag.Equals("Infantry")) damage += _bonusDamage;
 
-			Projectile bullet = Instantiate(projectile, barrel.transform.position, Quaternion.Euler(Vector3.zero)).GetComponent<Projectile>();
+            UnitAttackEvent attackEvent = new UnitAttackEvent(_bus, unit as ISelectable, _parent, damage);
 
-			bullet.transform.LookAt(position);
+            attackEvent.Phase = Phase.Pre;
+            _bus.Global(attackEvent);
 
-			bullet.Init(parent, OnHit);
+            // Captures modified damage
+            damage = attackEvent.Damage;
+            unit.Attack(damage);
 
-			currentCooldown += cooldown;
-		}
-
-		protected virtual void OnHit (bool result, IAttackable hit) {
-			if (hit.GameObject.tag == "Infantry") {
-				hit.Attack(damage + bonusDamage);
-			}
-			else hit.Attack(damage);
-		}
-	}
+            attackEvent.Phase = Phase.Post;
+            _bus.Global(attackEvent);
+        }
+    }
 }

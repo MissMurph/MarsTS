@@ -1,29 +1,30 @@
 using MarsTS.Events;
 using MarsTS.Units;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
-namespace MarsTS.UI {
+namespace MarsTS.UI
+{
+    public class ConstructionBar : UnitBar
+    {
+        private void Start()
+        {
+            IAttackable parent = GetComponentInParent<IAttackable>();
 
-    public class ConstructionBar : UnitBar {
+            if (parent.Health <= 1)
+            {
+                UpdateBarWithFillLevel(0f);
 
-		private void Start () {
-			IAttackable parent = GetComponentInParent<IAttackable>();
+                _barRenderer.enabled = true;
 
-			if (parent.Health <= 1) {
-				FillLevel = 0f;
-
-				barRenderer.enabled = true;
-
-				GetComponentInParent<EventAgent>().AddListener<UnitHurtEvent>((_event) => {
-					FillLevel = (float)_event.Targetable.Health / _event.Targetable.MaxHealth;
-					if (FillLevel >= 1f) gameObject.SetActive(false);
-				});
-			}
-			else {
-				barRenderer.enabled = false;
-			}
-		}
-	}
+                GetComponentInParent<EventAgent>().AddListener<UnitHurtEvent>(_event =>
+                {
+                    UpdateBarWithFillLevel((float)_event.Targetable.Health / _event.Targetable.MaxHealth);
+                    if (_event.Targetable.Health >= _event.Targetable.MaxHealth) gameObject.SetActive(false);
+                });
+            }
+            else
+            {
+                _barRenderer.enabled = false;
+            }
+        }
+    }
 }

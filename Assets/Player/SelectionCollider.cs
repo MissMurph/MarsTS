@@ -45,7 +45,7 @@ namespace MarsTS.Players {
 			Dictionary<Relationship, List<ISelectable>> factionMap = new Dictionary<Relationship, List<ISelectable>>();
 
 			foreach (ISelectable hit in hitUnits.Values) {
-				Relationship relation = hit.GetRelationship(Player.Main);
+				Relationship relation = hit.GetRelationship(Player.Commander);
 				List<ISelectable> rollup = factionMap.GetValueOrDefault(relation, new List<ISelectable>());
 				if (!factionMap.ContainsKey(relation)) factionMap[relation] = rollup;
 				rollup.Add(hit);

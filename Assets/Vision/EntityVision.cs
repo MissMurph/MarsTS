@@ -1,128 +1,139 @@
+using System;
 using MarsTS.Entities;
 using MarsTS.Events;
-using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.Units;
-using MarsTS.World;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.Vision {
+namespace MarsTS.Vision
+{
+    public class EntityVision : MonoBehaviour, ITaggable<EntityVision>
+    {
+        /*	ITaggable Properties	*/
 
-    public class EntityVision : MonoBehaviour, ITaggable<EntityVision> {
+        public string Key => "vision";
 
-		/*	ITaggable Properties	*/
+        public Type Type => typeof(EntityVision);
 
-		public string Key { get { return "vision"; } }
+        /*	Vision Properties	*/
 
-		public Type Type { get { return typeof(EntityVision); } }
+        public int Mask => TeamCache.Faction(owner).VisionMask;
 
-		/*	Vision Properties	*/
+        public int Range => visionRange;
 
-		public int Mask { get { return owner.VisionMask; } }
+        public int VisibleTo
+        {
+            get => visibleTo;
+            set => visibleTo = value;
+        }
 
-		public int Range { get { return visionRange; } }
+        [SerializeField] private int visionRange;
 
-		public int VisibleTo { get { return visibleTo; } set { visibleTo = value; } }
+        protected int visibleTo;
 
-		[SerializeField]
-		private int visionRange;
+        /*	Vision Fields	*/
 
-		protected int visibleTo;
+        [SerializeField] protected int owner;
 
-		/*	Vision Fields	*/
+        protected EventAgent bus;
 
-		protected Faction owner;
+        protected ISelectable parent;
 
-		protected EventAgent bus;
+        private Entity _parentEntity;
 
-		protected ISelectable parent;
+        protected virtual void Awake()
+        {
+            bus = GetComponent<EventAgent>();
 
-		protected virtual void Awake () {
-			bus = GetComponent<EventAgent>();
+            _parentEntity = GetComponent<Entity>();
 
-			bus.AddListener<EntityInitEvent>(OnEntityInit);
-			bus.AddListener<UnitOwnerChangeEvent>(OnOwnerChange);
-		}
+            _parentEntity.OnEntityInit += OnEntityInit;
 
-		protected virtual void Start () {
-			EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
-			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
-		}
+            bus.AddListener<UnitOwnerChangeEvent>(OnOwnerChange);
+        }
 
-		private void OnVisionInit (VisionInitEvent _event) {
-			visibleTo = GameVision.VisibleTo(gameObject);
+        protected virtual void Start()
+        {
+            EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
+            EventBus.AddListener<VisionInitEvent>(OnVisionInit);
+        }
 
-			bus.Global(new EntityVisibleEvent(bus, parent, GameVision.IsVisible(gameObject)));
-		}
+        private void OnVisionInit(VisionInitEvent _event)
+        {
+            visibleTo = GameVision.VisibleTo(gameObject);
 
-		private void OnEntityInit (EntityInitEvent _event) {
-			if (_event.Phase == Phase.Post) {
-				GameVision.Register(gameObject.name, this);
+            bus.Global(new EntityVisibleEvent(bus, parent, GameVision.IsVisible(gameObject)));
+        }
 
-				parent = _event.ParentEntity.Get<ISelectable>("selectable");
-				owner = parent.Owner;
-			}
-		}
+        private void OnEntityInit(Phase phase)
+        {
+            if (phase == Phase.Pre) return;
+            
+            GameVision.Register(gameObject.name, this);
 
-		protected virtual void OnVisionUpdate (VisionUpdateEvent _event) {
-			if (_event.Phase == Phase.Pre) {
-				int visibility = GameVision.VisibleTo(gameObject);
+            parent = _parentEntity.Get<ISelectable>("selectable");
+        }
 
-				EntityVisibleCheckEvent checkEvent = new EntityVisibleCheckEvent(bus, parent, visibility);
-				checkEvent.Phase = Phase.Pre;
+        private void OnOwnerChange(UnitOwnerChangeEvent _event)
+        {
+            owner = _event.NewOwner.Id;
+        }
 
-				//Here local components can intercept the visibility status and change it before it's applied
-				bus.Global(checkEvent);
-				
-				checkEvent.Phase = Phase.Post;
+        protected virtual void OnVisionUpdate(VisionUpdateEvent evnt)
+        {
+            if (owner == 0 || parent == null) return;
+            if (evnt.Phase != Phase.Pre) return;
 
-				//Here global objects can intercept the visibilty status and modify it further
-				bus.Global(checkEvent);
+            int visibility = GameVision.VisibleTo(gameObject);
+            // Add owner bit to the vision mask
+            visibility |= Mask;
 
-				visibleTo = checkEvent.VisibleTo;
+            EntityVisibleCheckEvent checkEvent = new EntityVisibleCheckEvent(bus, parent, visibility);
+            checkEvent.Phase = Phase.Pre;
 
-				UpdateEntityVisibility();
-			}
-		}
+            //Here local components can intercept the visibility status and change it before it's applied
+            bus.Global(checkEvent);
 
-		private void UpdateEntityVisibility () {
-			EntityVisibleEvent entityEvent = new EntityVisibleEvent(bus, parent, GameVision.IsVisible(gameObject));
+            checkEvent.Phase = Phase.Post;
 
-			entityEvent.Phase = Phase.Pre;
+            //Here global objects can intercept the visibilty status and modify it further
+            bus.Global(checkEvent);
 
-			//Posting here allows other components to modify the units visibility
-			bus.Global(entityEvent);
+            visibleTo = checkEvent.VisibleTo;
 
-			entityEvent.Phase = Phase.Post;
+            UpdateEntityVisibility();
+        }
 
-			//Posting here is where the entity updates all its objects
-			bus.Global(entityEvent);
-		}
+        private void UpdateEntityVisibility()
+        {
+            EntityVisibleEvent entityEvent = new EntityVisibleEvent(bus, parent, GameVision.IsVisible(gameObject));
 
-		private void OnOwnerChange (UnitOwnerChangeEvent _event) {
-			owner = _event.NewOwner;
-		}
+            entityEvent.Phase = Phase.Pre;
 
-		public VisionEntry Collect () {
-			return new VisionEntry {
-				gridPos = GameVision.GetGridPosFromWorldPos(transform.position),
-				range = Mathf.RoundToInt(visionRange / GameVision.NodeSize),
-				height = Mathf.RoundToInt(transform.position.y),
-				mask = Mask
-			};
-		}
+            //Posting here allows other components to modify the units visibility
+            bus.Global(entityEvent);
 
-		private void OnDrawGizmos () {
-			if (GameVision.Initialized && GameVision.DrawGizmos) {
-				Gizmos.DrawWireSphere(transform.position, visionRange * GameVision.NodeSize);
-			}
-		}
+            entityEvent.Phase = Phase.Post;
 
-		public EntityVision Get () {
-			return this;
-		}
-	}
+            //Posting here is where the entity updates all its objects
+            bus.Global(entityEvent);
+        }
+
+        public VisionEntry Collect() =>
+            new VisionEntry
+            {
+                gridPos = GameVision.GetGridPosFromWorldPos(transform.position),
+                range = Mathf.RoundToInt(visionRange / GameVision.NodeSize),
+                height = Mathf.RoundToInt(transform.position.y),
+                mask = Mask
+            };
+
+        private void OnDrawGizmos()
+        {
+            if (GameVision.Initialized && GameVision.DrawGizmos)
+                Gizmos.DrawWireSphere(transform.position, visionRange * GameVision.NodeSize);
+        }
+
+        public EntityVision Get() => this;
+    }
 }

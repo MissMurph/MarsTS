@@ -1,355 +1,441 @@
-using MarsTS.Buildings;
-using MarsTS.Commands;
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Teams;
-using MarsTS.UI;
-using MarsTS.Vision;
-using MarsTS.World;
-using MarsTS.World.Pathfinding;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MarsTS.Commands;
+using MarsTS.Entities;
+using MarsTS.Events;
+using MarsTS.Teams;
+using MarsTS.World.Pathfinding;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace MarsTS.Units {
+namespace MarsTS.Units
+{
+    public class InfantryMember : NetworkBehaviour,
+        ISelectable,
+        ITaggable<InfantryMember>,
+        IAttackable,
+        ICommandable
+    {
+        public GameObject GameObject => gameObject;
+        public IUnit Unit => this;
 
-	public class InfantryMember : MonoBehaviour, ISelectable, ITaggable<InfantryMember>, IAttackable, ICommandable {
+        /*	IAttackable Properties	*/
 
-		public GameObject GameObject { get { return gameObject; } }
+        public int Health
+        {
+            get => _currentHealth.Value;
+            private set => _currentHealth.Value = value;
+        }
 
-		/*	IAttackable Properties	*/
+        public int MaxHealth
+        {
+            get => _maxHealth.Value;
+            private set => _maxHealth.Value = value;
+        }
 
-		public int Health { get { return currentHealth; } }
+        [FormerlySerializedAs("maxHealth")]
+        [SerializeField]
+        protected NetworkVariable<int> _maxHealth =
+            new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
 
-		public int MaxHealth { get { return maxHealth; } }
+        [FormerlySerializedAs("currentHealth")]
+        [SerializeField]
+        protected NetworkVariable<int> _currentHealth =
+            new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
 
-		[SerializeField]
-		protected int maxHealth;
+        /*	ISelectable Properties	*/
 
-		[SerializeField]
-		protected int currentHealth;
+        public int Id => _entityComponent.Id;
 
-		/*	ISelectable Properties	*/
+        public string UnitType => _type;
 
-		public int ID { get { return entityComponent.ID; } }
+        public string RegistryKey => $"unit:{UnitType}";
 
-		public string UnitType { get { return type; } }
+        public Sprite Icon => _icon;
 
-		public string RegistryKey { get { return "unit:" + UnitType; } }
+        public Faction Owner => _squad?.Owner ?? _owner;
 
-		public Sprite Icon { get { return icon; } }
+        [FormerlySerializedAs("icon")]
+        [SerializeField]
+        private Sprite _icon;
 
-		public Faction Owner { get { return squad.Owner; } }
+        [FormerlySerializedAs("type")]
+        [SerializeField]
+        private string _type;
 
-		[SerializeField]
-		private Sprite icon;
+        [FormerlySerializedAs("owner")]
+        [SerializeField]
+        protected Faction _owner;
 
-		[SerializeField]
-		private string type;
+        /*	ITaggable Properties	*/
 
-		[SerializeField]
-		protected Faction owner;
+        public string Key => "selectable";
 
-		/*	ITaggable Properties	*/
+        public Type Type => typeof(AbstractUnit);
 
-		public string Key { get { return "selectable"; } }
+        /*	ICommandable Properties	*/
 
-		public Type Type { get { return typeof(Unit); } }
+        public Commandlet CurrentCommand => _squad?.CurrentCommand ?? _commandQueueComponent.Current;
 
-		/*	ICommandable Properties	*/
+        public Commandlet[] CommandQueue => _squad?.CommandQueue ?? _commandQueueComponent.Queue;
 
-		public Commandlet CurrentCommand { get { return squad.CurrentCommand; } }
+        public List<string> Active => _squad?.Active ?? _commandQueueComponent.Active;
 
-		public Commandlet[] CommandQueue { get { return squad.CommandQueue; } }
+        public List<Timer> Cooldowns => _squad?.Cooldowns ?? _commandQueueComponent.Cooldowns;
 
-		public List<string> Active => throw new NotImplementedException();
+        public int Count => _squad?.Count ?? _commandQueueComponent.Count;
 
-		public List<Timer> Cooldowns => throw new NotImplementedException();
+        /*	Infantry Fields	*/
 
-		public int Count => throw new NotImplementedException();
+        protected Entity _entityComponent;
 
-		/*	Infantry Fields	*/
+        protected CommandQueue _commandQueueComponent;
 
-		protected Entity entityComponent;
+        [SerializeField]
+        protected InfantrySquad _squad;
 
-		public InfantrySquad squad;
+        [FormerlySerializedAs("moveSpeed")]
+        [SerializeField]
+        protected float _moveSpeed;
 
-		[SerializeField]
-		protected float moveSpeed;
+        protected float _currentSpeed;
 
-		protected float currentSpeed;
+        private GroundDetection _ground;
 
-		private GroundDetection ground;
+        private bool _isSelected;
 
-		protected bool isSelected;
-
-		protected Transform TrackedTarget {
-			get {
-				return target;
-			}
-			set {
-				if (target != null) {
-					EntityCache.TryGet(target.gameObject.name + ":eventAgent", out EventAgent oldAgent);
-					oldAgent.RemoveListener<UnitDeathEvent>((_event) => TrackedTarget = null);
-				}
-
-				target = value;
-
-				if (value != null) {
-					EntityCache.TryGet(value.gameObject.name + ":eventAgent", out EventAgent agent);
-
-					agent.AddListener<UnitDeathEvent>((_event) => TrackedTarget = null);
-
-					SetTarget(value);
-				}
-			}
-		}
-
-		private Transform target;
-
-		private Vector3 targetOldPos;
-
-		protected Path currentPath {
-			get;
-			set;
-		} = Path.Empty;
-
-		private float angle;
-		protected int pathIndex;
-
-		protected Rigidbody body;
-
-		private const float minPathUpdateTime = .5f;
-		private const float pathUpdateMoveThreshold = .5f;
-
-		[SerializeField]
-		protected float waypointCompletionDistance;
-
-		protected EventAgent bus;
-
-		[SerializeField]
-		private GameObject[] hideables;
-
-		protected virtual void Awake () {
-			body = GetComponent<Rigidbody>();
-			entityComponent = GetComponent<Entity>();
-			bus = GetComponent<EventAgent>();
-
-			bus.AddListener<EntityInitEvent>(OnEntityInit);
-
-			currentHealth = maxHealth;
-
-			ground = GetComponent<GroundDetection>();
-
-			currentSpeed = moveSpeed;
-			isSelected = false;
-		}
-
-		protected virtual void Start () {
-			StartCoroutine(UpdatePath());
-
-			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
-		}
-
-		protected virtual void OnEntityInit (EntityInitEvent _event) {
-			if (_event.Phase == Phase.Post) return;
-
-			transform.parent = null;
-		}
-
-		protected virtual void Update () {
-			if (!currentPath.IsEmpty) {
-				Vector3 targetWaypoint = currentPath[pathIndex];
-				float distance = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).magnitude;
-
-				if (distance <= waypointCompletionDistance) {
-					pathIndex++;
-				}
-
-				if (pathIndex >= currentPath.Length) {
-					bus.Local(new PathCompleteEvent(bus, true));
-					currentPath = Path.Empty;
-				}
-			}
-		}
-
-		protected virtual void FixedUpdate () {
-			if (ground.Grounded) {
-				//Dunno why we need this check on the infantry member when we don't need it on any other unit type...
-				if (!currentPath.IsEmpty && !(pathIndex >= currentPath.Length)) {
-					Vector3 targetWaypoint = currentPath[pathIndex];
-
-					Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
-					float targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
-					body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, targetAngle, transform.eulerAngles.z));
-
-					Vector3 moveDirection = Vector3.ProjectOnPlane(transform.forward, ground.Slope.normal);
-
-					Vector3 newVelocity = moveDirection * currentSpeed;
-
-					body.velocity = newVelocity;
-				}
-				else {
-					body.velocity = Vector3.zero;
-				}
-			}
-		}
-
-		protected IEnumerator UpdatePath () {
-			if (Time.timeSinceLevelLoad < .5f) {
-				yield return new WaitForSeconds(.5f);
-			}
-
-			float sqrMoveThreshold = pathUpdateMoveThreshold * pathUpdateMoveThreshold;
-
-			while (true) {
-				yield return new WaitForSeconds(minPathUpdateTime);
-
-				if (target != null && (target.position - targetOldPos).sqrMagnitude > sqrMoveThreshold) {
-					PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
-					targetOldPos = target.position;
-				}
-			}
-		}
-
-		public void OnDrawGizmos () {
-			if (!currentPath.IsEmpty) {
-				for (int i = pathIndex; i < currentPath.Length; i++) {
-					Gizmos.color = Color.black;
-					Gizmos.DrawCube(currentPath[i], Vector3.one / 2);
-
-					if (i == pathIndex) {
-						Gizmos.DrawLine(transform.position, currentPath[i]);
-					}
-					else {
-						Gizmos.DrawLine(currentPath[i - 1], currentPath[i]);
-					}
-				}
-			}
-		}
-
-		private void OnPathFound (Path newPath, bool pathSuccessful) {
-			if (pathSuccessful) {
-				currentPath = newPath;
-				pathIndex = 0;
-			}
-		}
-
-		protected void SetTarget (Vector3 _target) {
-			PathRequestManager.RequestPath(transform.position, _target, OnPathFound);
-		}
-
-		protected void SetTarget (Transform _target) {
-			SetTarget(_target.position);
-			target = _target;
-		}
-
-		protected virtual void Stop () {
-			currentPath = Path.Empty;
-			target = null;
-
-			//CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, false, this);
-			//bus.Global(_event);
-
-			//CurrentCommand = null;
-		}
-
-		public virtual void Order (Commandlet order, bool inclusive) {
-			switch (order.Name) {
-				case "move":
-					Move(order);
-					break;
-				case "stop":
-					Stop();
-					break;
-				default:
-					
-					break;
-			}
-		}
-
-		/*	Commands	*/
-
-		protected virtual void Move (Commandlet order) {
-			if (order is Commandlet<Vector3> deserialized) {
-				SetTarget(deserialized.Target);
-
-				bus.AddListener<PathCompleteEvent>(OnPathComplete);
-				order.Callback.AddListener((_event) => bus.RemoveListener<PathCompleteEvent>(OnPathComplete));
-			}
-		}
-
-		private void OnPathComplete (PathCompleteEvent _event) {
-			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
-
-			CurrentCommand.Callback.Invoke(newEvent);
-		}
-		
-		public virtual void Select (bool status) {
-			//selectionCircle.SetActive(status);
-			bus.Local(new UnitSelectEvent(bus, status));
-			isSelected = status;
-		}
-
-		public virtual void Hover (bool status) {
-			//These are seperated due to the Player Selection Check
-			if (status) {
-				//selectionCircle.SetActive(true);
-				bus.Local(new UnitHoverEvent(bus, status));
-			}
-			else if (!isSelected) {
-				//selectionCircle.SetActive(false);
-				bus.Local(new UnitHoverEvent(bus, status));
-			}
-		}
-
-		public virtual Commandlet Auto (ISelectable target) {
-			throw new System.NotImplementedException();
-		}
-
-		public virtual Command Evaluate (ISelectable target) {
-			throw new System.NotImplementedException();
-		}
-
-		public Relationship GetRelationship (Faction other) {
-			return Owner.GetRelationship(other);
-		}
-
-		public bool SetOwner (Faction player) {
-			owner = player;
-			return true;
-		}
-
-		public void Attack (int damage) {
-			if (Health <= 0) return;
-			if (damage < 0 && currentHealth >= maxHealth) return;
-			currentHealth -= damage;
-
-			if (currentHealth <= 0) {
-				bus.Global(new UnitDeathEvent(bus, this));
-				Destroy(gameObject);
-			}
-			else bus.Global(new UnitHurtEvent(bus, this));
-		}
-
-		public InfantryMember Get () {
-			return this;
-		}
-
-		public string[] Commands () {
-			return new string[0];
-		}
-
-		protected virtual void OnVisionUpdate (EntityVisibleEvent _event) {
-			foreach (GameObject hideable in hideables) {
-				hideable.SetActive(_event.Visible);
-			}
-		}
-
-		public bool CanCommand (string key) {
-			throw new NotImplementedException();
-		}
-	}
+        protected Transform TrackedTarget
+        {
+            get => _target;
+            set
+            {
+                if (_target != null)
+                {
+                    EntityCache.TryGet(_target.gameObject.name + ":eventAgent", out EventAgent oldAgent);
+                    oldAgent.RemoveListener<UnitDeathEvent>(_ => TrackedTarget = null);
+                }
+
+                _target = value;
+
+                if (value != null)
+                {
+                    EntityCache.TryGet(value.gameObject.name + ":eventAgent", out EventAgent agent);
+
+                    agent.AddListener<UnitDeathEvent>(_ => TrackedTarget = null);
+
+                    SetTarget(value);
+                }
+            }
+        }
+
+        private Transform _target;
+
+        private Vector3 _targetOldPos;
+
+        protected Path _currentPath { get; set; } = Path.Empty;
+
+        private float _angle;
+        private int _pathIndex;
+
+        private Rigidbody _rigidBody;
+
+        private const float MinPathUpdateTime = .5f;
+        private const float PathUpdateMoveThreshold = .5f;
+
+        [FormerlySerializedAs("waypointCompletionDistance")]
+        [SerializeField]
+        protected float _waypointCompletionDistance;
+
+        protected EventAgent _bus;
+
+        [FormerlySerializedAs("hideables")]
+        [SerializeField]
+        private GameObject[] _hideables;
+
+        protected virtual void Awake()
+        {
+            _rigidBody = GetComponent<Rigidbody>();
+            _entityComponent = GetComponent<Entity>();
+            _bus = GetComponent<EventAgent>();
+            _ground = GetComponent<GroundDetection>();
+            _commandQueueComponent = GetComponent<CommandQueue>();
+
+            _isSelected = false;
+        }
+
+        public override void OnNetworkSpawn()
+        {
+            if (NetworkManager.Singleton.IsServer)
+            {
+                _currentHealth = _maxHealth;
+                _currentSpeed = _moveSpeed;
+            }
+
+            if (NetworkManager.Singleton.IsClient) _bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
+
+            StartCoroutine(UpdatePath());
+
+            // TODO: Find a better spot for this, realistically this should be called in the Attach funcs
+            _currentHealth.OnValueChanged += OnHurt;
+        }
+
+        protected virtual void Update()
+        {
+            if (!_currentPath.IsEmpty)
+            {
+                Vector3 targetWaypoint = _currentPath[_pathIndex];
+                float distance = new Vector3(targetWaypoint.x - transform.position.x, 0,
+                    targetWaypoint.z - transform.position.z).magnitude;
+
+                if (distance <= _waypointCompletionDistance) _pathIndex++;
+
+                if (_pathIndex >= _currentPath.Length)
+                {
+                    _bus.Local(new PathCompleteEvent(_bus, true));
+                    _currentPath = Path.Empty;
+                }
+            }
+        }
+
+        protected virtual void FixedUpdate()
+        {
+            if (!NetworkManager.Singleton.IsServer) return;
+
+            if (_ground.Grounded)
+            {
+                //Dunno why we need this check on the infantry member when we don't need it on any other unit type...
+                if (!_currentPath.IsEmpty && !(_pathIndex >= _currentPath.Length))
+                {
+                    Vector3 targetWaypoint = _currentPath[_pathIndex];
+
+                    Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0,
+                        targetWaypoint.z - transform.position.z).normalized;
+                    float targetAngle = Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg + 90f;
+                    _rigidBody.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, targetAngle,
+                        transform.eulerAngles.z));
+
+                    Vector3 moveDirection = Vector3.ProjectOnPlane(transform.forward, _ground.Slope.normal);
+
+                    Vector3 newVelocity = moveDirection * _currentSpeed;
+
+                    _rigidBody.velocity = newVelocity;
+                }
+                else
+                {
+                    _rigidBody.velocity = Vector3.zero;
+                }
+            }
+        }
+
+        protected IEnumerator UpdatePath()
+        {
+            if (Time.timeSinceLevelLoad < .5f) yield return new WaitForSeconds(.5f);
+
+            float sqrMoveThreshold = PathUpdateMoveThreshold * PathUpdateMoveThreshold;
+
+            while (true)
+            {
+                yield return new WaitForSeconds(MinPathUpdateTime);
+
+                if (_target != null && (_target.position - _targetOldPos).sqrMagnitude > sqrMoveThreshold)
+                {
+                    PathRequestManager.RequestPath(transform.position, _target.position, OnPathFound);
+                    _targetOldPos = _target.position;
+                }
+            }
+        }
+
+        public void SetSquad(InfantrySquad squad)
+        {
+            _squad = squad;
+            SetSquadClientRpc(squad.name);
+        }
+
+        [Rpc(SendTo.NotServer)]
+        private void SetSquadClientRpc(string squadEntityName)
+        {
+            if (!EntityCache.TryGet(squadEntityName, out InfantrySquad squad))
+            {
+                Debug.LogError($"Couldn't find {typeof(InfantrySquad)} with name {squadEntityName}!");
+                return;
+            }
+
+            _squad = squad;
+        }
+
+        public void OnDrawGizmos()
+        {
+            if (!_currentPath.IsEmpty)
+                for (int i = _pathIndex; i < _currentPath.Length; i++)
+                {
+                    Gizmos.color = Color.black;
+                    Gizmos.DrawCube(_currentPath[i], Vector3.one / 2);
+
+                    if (i == _pathIndex)
+                        Gizmos.DrawLine(transform.position, _currentPath[i]);
+                    else
+                        Gizmos.DrawLine(_currentPath[i - 1], _currentPath[i]);
+                }
+        }
+
+        private void OnPathFound(Path newPath, bool pathSuccessful)
+        {
+            if (pathSuccessful)
+            {
+                _currentPath = newPath;
+                _pathIndex = 0;
+            }
+        }
+
+        protected void SetTarget(Vector3 _target)
+        {
+            PathRequestManager.RequestPath(transform.position, _target, OnPathFound);
+        }
+
+        protected void SetTarget(Transform _target)
+        {
+            SetTarget(_target.position);
+            this._target = _target;
+        }
+
+        protected virtual void Stop()
+        {
+            _currentPath = Path.Empty;
+            _target = null;
+            CurrentCommand.CompleteCommand(_bus, this);
+        }
+
+        public virtual void Order(Commandlet order, bool inclusive)
+        {
+            switch (order.Name)
+            {
+                case "move":
+                    Move(order);
+                    break;
+                case "stop":
+                    Stop();
+                    break;
+            }
+        }
+
+        /*	Commands	*/
+
+        protected virtual void Move(Commandlet order)
+        {
+            if (order is Commandlet<Vector3> deserialized)
+            {
+                SetTarget(deserialized.Target);
+
+                _bus.AddListener<PathCompleteEvent>(OnPathComplete);
+                order.Callback.AddListener(_event => _bus.RemoveListener<PathCompleteEvent>(OnPathComplete));
+            }
+        }
+
+        private void OnPathComplete(PathCompleteEvent _event)
+        {
+            CommandCompleteEvent newEvent = new CommandCompleteEvent(_bus, CurrentCommand, false, this);
+
+            CurrentCommand.CompleteCommand(_bus, this);
+        }
+
+        public virtual void Select(bool status)
+        {
+            _bus.Local(new UnitSelectEvent(_bus, status));
+            _isSelected = status;
+        }
+
+        public virtual void Hover(bool status)
+        {
+            //These are seperated due to the Player Selection Check
+            if (status)
+                _bus.Local(new UnitHoverEvent(_bus, status));
+            else if (!_isSelected)
+                _bus.Local(new UnitHoverEvent(_bus, status));
+        }
+
+        public virtual void AutoCommand(ISelectable target)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual CommandFactory Evaluate(ISelectable target) => throw new NotImplementedException();
+
+        public Relationship GetRelationship(Faction other) => Owner.GetRelationship(other);
+
+        public bool SetOwner(Faction player)
+        {
+            if (!NetworkManager.Singleton.IsServer) return false;
+            if (Owner == player) return true;
+
+            _owner = player;
+            SetOwnerClientRpc(_owner.Id);
+            _bus.Global(new UnitOwnerChangeEvent(_bus, this, Owner));
+            return true;
+        }
+
+        [Rpc(SendTo.NotServer)]
+        private void SetOwnerClientRpc(int newId)
+        {
+            _owner = TeamCache.Faction(newId);
+            _bus.Global(new UnitOwnerChangeEvent(_bus, this, Owner));
+        }
+
+        public void Attack(int damage)
+        {
+            if (Health <= 0)
+                return;
+
+            if (damage < 0 && Health >= MaxHealth)
+                return;
+
+            UnitHurtEvent hurtEvent = new UnitHurtEvent(_bus, this, damage);
+            hurtEvent.Phase = Phase.Pre;
+            _bus.Global(hurtEvent);
+
+            damage = hurtEvent.Damage;
+            Health -= damage;
+
+            hurtEvent.Phase = Phase.Post;
+            _bus.Global(hurtEvent);
+        }
+
+        private void OnHurt(int oldHealth, int newHealth)
+        {
+            if (Health <= 0) {
+                if (!NetworkManager.Singleton.IsServer) return;
+                
+                _bus.Global(new UnitDeathEvent(_bus, this));
+
+                SendClientDeathEventClientRpc();
+                Destroy(gameObject, 0.1f);
+            }
+            else
+            {
+                UnitHurtEvent hurtEvent = new UnitHurtEvent(_bus, this, oldHealth - newHealth);
+                hurtEvent.Phase = Phase.Post;
+                _bus.Global(hurtEvent);
+            }
+        }
+
+        [Rpc(SendTo.NotServer)]
+        private void SendClientDeathEventClientRpc() {
+            _bus.Global(new UnitDeathEvent(_bus, this));
+        }
+
+        public InfantryMember Get() => this;
+
+        public string[] Commands() => new string[0];
+
+        protected virtual void OnVisionUpdate(EntityVisibleEvent _event)
+        {
+            foreach (GameObject hideable in _hideables)
+            {
+                hideable.SetActive(_event.Visible);
+            }
+        }
+
+        public bool CanCommand(string key) => throw new NotImplementedException();
+    }
 }

@@ -107,7 +107,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1070311698677326680}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 6}
+  m_LocalPosition: {x: 0, y: 0.05, z: 6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -432,6 +432,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4205034278533087312}
+  - component: {fileID: 7285778423313697006}
   - component: {fileID: 5945270104182914224}
   - component: {fileID: 4205034278533087314}
   - component: {fileID: 4205034278533087405}
@@ -454,7 +455,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4205034278533087404}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 29.07, y: -1, z: -37.74}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -468,6 +469,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7285778423313697006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4205034278533087404}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2358690209
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &5945270104182914224
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -480,10 +502,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 604f8fd98aec5da4285be20acdbf20d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 350
+  maxHealth:
+    m_InternalValue: 350
+  currentHealth:
+    m_InternalValue: 0
   icon: {fileID: 21300000, guid: 86c3ac29593c4684c852f4a8425c7f2c, type: 3}
   type: barracks
-  owner: {fileID: 0}
+  _owner: 0
   boundCommands:
   - produce/marinesquad
   - produce/sniper
@@ -493,12 +518,10 @@ MonoBehaviour:
   - 
   - research/adrenaline
   - research/thermalvision
-  constructionWork: 75
-  currentWork: 0
-  ghost: {fileID: 854828746875280093, guid: 3634a78673ca8ab43b8f9c22cb34d79b, type: 3}
-  constructionCost:
-  - key: resource_unit
-    amount: 650
+  selectionGhost: {fileID: 4420150489061905949, guid: e9e91f6348f80c8458b0d98921bcb0b2,
+    type: 3}
+  constructionGhost: {fileID: 2819411760947315549, guid: a483aaaa4712a8549b0d4f5c6087346e,
+    type: 3}
   visionObjects:
   - {fileID: 4205034278657575528}
   - {fileID: 4205034279205641941}
@@ -531,7 +554,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  registryKey: barracks
+  _registryKey: barracks
+  _toTag: []
 --- !u!54 &5945270104182914225
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -561,6 +585,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visionRange: 20
+  owner: 0
 --- !u!114 &4458102392713695671
 MonoBehaviour:
   m_ObjectHideFlags: 0

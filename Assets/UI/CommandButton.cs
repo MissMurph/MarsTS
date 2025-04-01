@@ -3,6 +3,7 @@ using MarsTS.Events;
 using MarsTS.Players;
 using System.Collections;
 using System.Collections.Generic;
+using MarsTS.Units;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,7 +12,7 @@ namespace MarsTS.UI {
 
     public class CommandButton : MonoBehaviour {
 
-        private Command current;
+        private CommandFactory current;
 
         private Image icon;
         private Image cooldown;
@@ -42,7 +43,10 @@ namespace MarsTS.UI {
                 return;
             }
 
-            current = CommandRegistry.Get(key);
+            if (!CommandPrimer.TryGet(key, out CommandFactory factory)) 
+	            return;
+
+            current = factory;
 
             icon.sprite = current.Icon;
             icon.gameObject.SetActive(true);
@@ -76,8 +80,8 @@ namespace MarsTS.UI {
 			if (current is null) return;
             if (_event.Command.Command.Name == current.Name) {
 
-                if (!Player.Main.HasSelected(_event.Unit)) return;
-                if (Player.UI.PrimarySelected != _event.Unit.RegistryKey) return;
+                if (!Player.HasSelected(_event.Unit as ISelectable)) return;
+                if (Player.UI.PrimarySelected != (_event.Unit as ISelectable)?.RegistryKey) return;
 
 				EvaluateUsability();
                 EvaluateActivity();
@@ -87,8 +91,8 @@ namespace MarsTS.UI {
         private void OnCommandActivate (CommandActiveEvent _event) {
             if (current is null) return;
             if (_event.Command.Name == current.Name
-                && Player.Main.HasSelected(_event.Unit)
-                && Player.UI.PrimarySelected == _event.Unit.RegistryKey) {
+                && Player.HasSelected(_event.Unit as ISelectable)
+                && Player.UI.PrimarySelected == (_event.Unit as ISelectable)?.RegistryKey) {
 				activity.SetActive(_event.Activity);
             }
         }
@@ -96,7 +100,7 @@ namespace MarsTS.UI {
         private void OnCooldownUpdate (CooldownEvent _event) {
 			if (current is null) return;
 			if (_event.CommandKey == current.Name
-                && Player.Main.HasSelected(_event.Unit)
+                && Player.HasSelected(_event.Unit)
                 && Player.UI.PrimarySelected == _event.Unit.RegistryKey) {
 
                 EvaluateCooldown();

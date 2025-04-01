@@ -1,17 +1,25 @@
+using System;
 using MarsTS.Events;
+using MarsTS.Networking;
 using MarsTS.Units;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using MarsTS.Entities;
+using MarsTS.Logging;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Commands {
 
-    public class CommandQueue : MonoBehaviour {
+    public class CommandQueue : NetworkBehaviour, ITaggable<CommandQueue>
+    {
+	    public virtual string Key => "commandQueue";
+	    public Type Type => typeof(CommandQueue);
         
         public Commandlet Current { get; protected set; }
 
-        public Commandlet[] Queue { get { return commandQueue.ToArray(); } }
+        public Commandlet[] Queue => commandQueue.ToArray();
         protected Queue<Commandlet> commandQueue;
 
         public List<string> Active { get { return activeCommands.Keys.ToList();  } }
@@ -21,11 +29,17 @@ namespace MarsTS.Commands {
 		protected Dictionary<string, Timer> activeCooldowns;
 		protected List<Timer> completedCooldowns;
 
-		public int Count { get { return Current is not null ? 1 + commandQueue.Count : 0; } }
+		public int Count { get { return Current != null ? 1 + commandQueue.Count : 0; } }
 
 		protected ISelectable parent;
 		protected ICommandable orderSource;
 		protected EventAgent bus;
+
+		protected bool isServer;
+
+		private int workSpeed;
+		private float workStepTime;
+		private float workTimeToStep;
 
 		protected virtual void Awake () {
 			parent = GetComponent<ISelectable>();
@@ -38,26 +52,40 @@ namespace MarsTS.Commands {
 
 			activeCooldowns = new Dictionary<string, Timer>();
 			completedCooldowns = new List<Timer>();
+
+			workStepTime = 1f / workSpeed;
+			workTimeToStep = 0f;
 		}
 
-		protected virtual void Update () {
-			if (Current is null && commandQueue.TryDequeue(out Commandlet order)) {
-				Current = order;
-				order.Callback.AddListener(OrderComplete);
-				CommandStartEvent _event = new CommandStartEvent(bus, order, parent);
-				order.OnStart(this, _event);
-				bus.Local(_event);
+		public override void OnNetworkSpawn () 
+		{
+			base.OnNetworkSpawn();
+
+			isServer = NetworkManager.IsServer;
+		}
+
+		protected virtual void Update () 
+		{
+			if (isServer && Current == null && commandQueue.Count > 0) {
+				Dequeue();
+				DequeueClientRpc(Current.gameObject);
 
 				return;
 			}
 
-			if (Current is IWorkable workOrder) {
-				workOrder.CurrentWork += Time.deltaTime;
-				bus.Global(new CommandWorkEvent(bus, Current.Name, parent, workOrder));
+			if (isServer && Current is IWorkable workOrder) {
+				workTimeToStep -= Time.deltaTime;
 
-				if (workOrder.CurrentWork >= workOrder.WorkRequired) {
-					Current.OnComplete(this, new CommandCompleteEvent(bus, Current, false, parent));
+				if (workTimeToStep <= 0) {
+					workOrder.CurrentWork++;
+					workTimeToStep += workStepTime;
+
+					bus.Global(new CommandWorkEvent(bus, Current, orderSource, workOrder));
+					SendWorkEventToClientRpc();
 				}
+
+				if (workOrder.CurrentWork >= workOrder.WorkRequired) 
+					CompleteCurrentCommand(false);
 			}
 
 			foreach (Timer cooldown in activeCooldowns.Values) {
@@ -76,85 +104,211 @@ namespace MarsTS.Commands {
 				bus.Global(new CooldownEvent(bus, expiredCooldown.commandName, parent, expiredCooldown));
 			}
 
-			foreach (Commandlet active in activeCommands.Values.ToArray()) {
-				active.OnUpdate(this);
-			}
-
 			completedCooldowns = new();
 		}
 
-		protected virtual void OrderComplete (CommandCompleteEvent _event) {
-			if (_event.Unit != parent) return;
+		[Rpc(SendTo.NotServer)]
+		private void SendWorkEventToClientRpc() {
+			if (Current is IWorkable workOrder) {
+				bus.Global(new CommandWorkEvent(bus, Current, orderSource, workOrder));
+			}
+			else
+				RatLogger.Error?.Log($"Current command {Current.Name} is not {typeof(IWorkable)}! Cannot post work event");
+		}
+
+		/*	Dequeueing Commands	*/
+
+		[Rpc(SendTo.NotServer)]
+		protected virtual void DequeueClientRpc (NetworkObjectReference orderReference) {
+			if (NetworkManager.IsHost) return;
+
+			if (!ReferenceEquals(orderReference.GameObject(), commandQueue.Peek().gameObject)) {
+				Debug.LogWarning("Potential Desync with client Command Queue! Check " + commandQueue.Peek().Name + "!");
+			}
+
+			Dequeue();
+		}
+
+		protected virtual void Dequeue () {
+			Commandlet order = commandQueue.Dequeue();
+
+			Current = order;
+			order.Callback.AddListener(OnOrderComplete);
+
+			if (order is IWorkable workable) 
+				workable.OnWork += OnOrderWork;
+
+			order.StartCommand(bus, orderSource);
+		}
+
+		/*	Completing Commands	*/
+
+		[Rpc(SendTo.NotServer)]
+		protected virtual void CompleteCommandClientRpc (bool _cancelled) {
+			CompleteCurrentCommand(_cancelled);
+		}
+
+		protected virtual void CompleteCurrentCommand (bool _cancelled) 
+		{
+			Current.CompleteCommand(bus, orderSource, _cancelled);
+
+			if (NetworkManager.Singleton.IsServer) 
+				CompleteCommandClientRpc(_cancelled);
+		}
+
+		protected virtual void OnOrderComplete (CommandCompleteEvent _event) 
+		{
+			if (!ReferenceEquals(_event.Unit, orderSource)) return;
 			Current = null;
 			bus.Global(_event);
 		}
 
-		public virtual void Execute (Commandlet order) {
+		/*	Executing Commands	*/
+
+		public virtual void Execute (Commandlet order) 
+		{
 			if (!orderSource.CanCommand(order.Command.Name)) return;
 			commandQueue.Clear();
 
-			if (Current != null) {
+			if (Current != null) 
+			{
 				if (!Current.CanInterrupt()) return;
 
-				CommandCompleteEvent _event = new CommandCompleteEvent(bus, Current, true, parent);
-				Current.OnComplete(this, _event);
+				Current.CompleteCommand(bus, orderSource, true);
 			}
 
 			Current = null;
 			commandQueue.Enqueue(order);
+
+			if (NetworkManager.Singleton.IsServer) ExecuteClientRpc(order.gameObject);
 		}
+
+		[Rpc(SendTo.NotServer)]
+		protected virtual void ExecuteClientRpc (NetworkObjectReference orderReference) 
+		{
+			if (NetworkManager.Singleton.IsHost) return;
+
+			Execute(orderReference.GameObject().GetComponent<Commandlet>());
+		}
+
+		/*	Enqueueing Commands	*/
 
 		public virtual void Enqueue (Commandlet order) {
 			if (!orderSource.CanCommand(order.Command.Name)) return;
 			commandQueue.Enqueue(order);
+
+			if (NetworkManager.Singleton.IsServer) EnqueueClientRpc(order.gameObject);
 		}
 
-		public virtual void Activate (Commandlet order, bool status) {
+		[Rpc(SendTo.NotServer)]
+		protected virtual void EnqueueClientRpc (NetworkObjectReference orderReference) {
+			if (NetworkManager.Singleton.IsHost) return;
+
+			Enqueue(orderReference.GameObject().GetComponent<Commandlet>());
+		}
+
+		/*	Activating Commands	*/
+
+		public void Activate (Commandlet order, bool status) {
 			if (status) {
 				activeCommands[order.Name] = order;
-				order.OnActivate(this, new CommandActiveEvent(bus, parent, order, status));
+				order.ActivateCommand(this, new CommandActiveEvent(bus, orderSource, order, status));
 			}
 			else if (activeCommands.TryGetValue(order.Name, out Commandlet toDeactivate)) {
-				CommandActiveEvent _event = new CommandActiveEvent(bus, parent, toDeactivate, status);
-				toDeactivate.OnActivate(this, _event);
+				CommandActiveEvent _event = new CommandActiveEvent(bus, orderSource, toDeactivate, status);
+				toDeactivate.ActivateCommand(this, _event);
 				activeCommands.Remove(toDeactivate.Name);
 			}
 
-			bus.Global(new CommandActiveEvent(bus, parent, order, status));
+			bus.Global(new CommandActiveEvent(bus, orderSource, order, status));
+
+			if (NetworkManager.Singleton.IsServer)
+				ActivateClientRpc(order.Id, status);
 		}
 
-		public virtual void Deactivate (string key) {
-			if (activeCommands.TryGetValue(key, out Commandlet toDeactivate)) {
-				CommandActiveEvent _event = new CommandActiveEvent(bus, parent, toDeactivate, false);
-				toDeactivate.OnActivate(this, _event);
-				activeCommands.Remove(toDeactivate.Name);
-				bus.Global(_event);
+		[Rpc(SendTo.NotServer)]
+		private void ActivateClientRpc(int id, bool status) {
+			if (!CommandletsCache.TryGet(id, out Commandlet order)) {
+				RatLogger.Error?.Log($"Couldn't find commandlet {id}! Cannot activate");
+				return;
 			}
+			
+			Activate(order, status);
 		}
 
-		public virtual void Cooldown (Commandlet order, float time) {
+		public void Deactivate (string key) {
+			if (!activeCommands.TryGetValue(key, out Commandlet toDeactivate)) return;
+			
+			CommandActiveEvent _event = new CommandActiveEvent(bus, orderSource, toDeactivate, false);
+			toDeactivate.ActivateCommand(this, _event);
+			activeCommands.Remove(toDeactivate.Name);
+			bus.Global(_event);
+
+			if (NetworkManager.Singleton.IsServer) 
+				DeactivateClientRpc(key);
+		}
+
+		[Rpc(SendTo.NotServer)]
+		private void DeactivateClientRpc(string key) {
+			Deactivate(key);
+		}
+
+		/*	Cooldowns	*/
+
+		public void Cooldown (Commandlet order, float time) {
 			activeCooldowns[order.Name] = new Timer { commandName = order.Name, duration = time, timeRemaining = time };
+
+			if (NetworkManager.Singleton.IsServer) CooldownClientRpc(order.Id, time);
 		}
 
-		public virtual void Clear () {
-			foreach (Commandlet order in commandQueue) {
-				order.OnComplete(this, new CommandCompleteEvent(bus, order, false, parent));
+		[Rpc(SendTo.NotServer)]
+		private void CooldownClientRpc(int id, float time) {
+			if (!CommandletsCache.TryGet(id, out Commandlet order)) {
+				RatLogger.Error?.Log($"Couldn't find Commandlet {id}, cannot start Cooldown");
+				return;
 			}
+			
+			Cooldown(order, time);
+		}
+
+		/*	Misc.	*/
+
+		public void Clear () {
+			foreach (Commandlet order in commandQueue) 
+				order.CompleteCommand(bus, orderSource, true);
 
 			commandQueue.Clear();
 
-			if (Current != null) {
-				CommandCompleteEvent _event = new CommandCompleteEvent(bus, Current, false, parent);
-				Current.OnComplete(this, _event);
-			}
+			if (Current != null) 
+				Current.CompleteCommand(bus, orderSource, true);
 
 			Current = null;
+
+			if (NetworkManager.Singleton.IsServer) ClearClientRpc();
+		}
+
+		[Rpc(SendTo.NotServer)]
+		private void ClearClientRpc() {
+			Clear();
 		}
 
 		public virtual bool CanCommand (string key) {
 			return !activeCooldowns.ContainsKey(key);
 		}
-	}
+
+		protected virtual void OnOrderWork (int oldValue, int newValue) {
+			if (Current is not IWorkable workOrder) return;
+
+			if (workOrder.CurrentWork >= workOrder.WorkRequired) {
+				workOrder.OnWork -= OnOrderWork;
+				CompleteCurrentCommand(false);
+			}
+			else
+				bus.Global(new WorkEvent(bus, parent, workOrder.WorkRequired, workOrder.CurrentWork));
+		}
+
+		public CommandQueue Get() => this;
+    }
 
 	public class Timer {
 		public string commandName;

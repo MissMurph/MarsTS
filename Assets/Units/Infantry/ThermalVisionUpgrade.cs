@@ -1,40 +1,25 @@
-using MarsTS.Events;
-using MarsTS.Vision;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace MarsTS.Units {
+namespace MarsTS.Units
+{
+    public class ThermalVisionUpgrade : MonoBehaviour
+    {
+        private ISelectable _parent;
+        private StealthSensor _vision;
 
-    public class ThermalVisionUpgrade : MonoBehaviour {
+        [FormerlySerializedAs("researchKey")] [SerializeField]
+        private string _researchKey = "thermalVision";
 
-		private ISelectable parent;
-		private StealthSensor vision;
+        private void Awake()
+        {
+            _parent = GetComponentInParent<ISelectable>();
+            _vision = GetComponent<StealthSensor>();
+        }
 
-		[SerializeField]
-		private string researchKey = "thermalVision";
-
-		private void Awake () {
-			vision = GetComponent<StealthSensor>();
-			parent = GetComponentInParent<ISelectable>();
-		}
-
-		private void Start () {
-			if (parent.Owner.IsResearched(researchKey)) {
-				vision.Detecting = true;
-			}
-			else {
-				vision.Detecting = false;
-				EventBus.AddListener<ResearchCompleteEvent>(OnResearch);
-			}
-		}
-
-		private void OnResearch (ResearchCompleteEvent _event) {
-			if (_event.Producer.Owner == parent.Owner && _event.Tech.key == researchKey) {
-				EventBus.RemoveListener<ResearchCompleteEvent>(OnResearch);
-
-				vision.Detecting = true;
-			}
-		}
-	}
+        private void Start()
+        {
+            if (_vision != null) _vision.Detecting = true;
+        }
+    }
 }

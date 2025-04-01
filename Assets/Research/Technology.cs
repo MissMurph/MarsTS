@@ -1,11 +1,22 @@
-using System.Collections;
-using System.Collections.Generic;
+using MarsTS.Teams;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace MarsTS.Research {
+namespace MarsTS.Research
+{
+    public class Technology : NetworkBehaviour
+    {
+        public string Key => _key;
 
-    public class Technology : MonoBehaviour {
+        [FormerlySerializedAs("key")] [SerializeField]
+        private string _key;
 
-        public string key;
+        protected Faction _owner;
+
+        protected virtual void Start()
+        {
+            _owner = GetComponentInParent<Faction>();
+        }
     }
 }

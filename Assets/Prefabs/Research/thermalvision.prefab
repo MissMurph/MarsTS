@@ -9,7 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8112960325128300125}
-  - component: {fileID: 1265629780512683350}
+  - component: {fileID: -6160731755347565519}
+  - component: {fileID: 2921598293463549582}
   m_Layer: 0
   m_Name: thermalvision
   m_TagString: Untagged
@@ -32,7 +33,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1265629780512683350
+--- !u!114 &-6160731755347565519
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,7 +42,33 @@ MonoBehaviour:
   m_GameObject: {fileID: 1170798382936629016}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7132f8ff272332344bf91c503cbc71c3, type: 3}
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: thermalVision
+  GlobalObjectIdHash: 3755664472
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+--- !u!114 &2921598293463549582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1170798382936629016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbf8d289d203494593e577855684212b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _key: thermalVision
+  _upgradePrefab: {fileID: 2372232947963872712, guid: b9377447398bbe442b8078dfa12a5747,
+    type: 3}
+  _applicableEntities:
+  - {fileID: 4002054096274699913, guid: 9fe1e05b90714ce49a1c10552559d96f, type: 3}
+  - {fileID: 7609404958641463916, guid: 9ed8a39dd59e16841b99f7e5a1314342, type: 3}

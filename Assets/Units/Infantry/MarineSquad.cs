@@ -1,93 +1,102 @@
+using System;
 using MarsTS.Commands;
 using MarsTS.Events;
-using MarsTS.Players;
 using MarsTS.Teams;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
-namespace MarsTS.Units {
+namespace MarsTS.Units
+{
+    public class MarineSquad : InfantrySquad
+    {
+        public override void Order(Commandlet order, bool inclusive)
+        {
+            if (!GetRelationship(order.Commander).Equals(Relationship.Owned)) return;
 
-    public class MarineSquad : InfantrySquad {
+            switch (order.Name)
+            {
+                case "attack":
 
-		public override void Order (Commandlet order, bool inclusive) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
+                    break;
+                case "adrenaline":
+                    SquadBoost(order);
+                    return;
+                default:
+                    base.Order(order, inclusive);
+                    return;
+            }
 
-			switch (order.Name) {
-				case "attack":
+            if (inclusive) _commands.Enqueue(order);
+            else _commands.Execute(order);
+        }
 
-					break;
-				case "adrenaline":
-					SquadBoost(order);
-					return;
-				default:
-					base.Order(order, inclusive);
-					return;
-			}
+        /*	Adrenaline	*/
 
-			if (inclusive) commands.Enqueue(order);
-			else commands.Execute(order);
-		}
+        private void SquadBoost(Commandlet order)
+        {
+            if (!CanCommand(order.Name)) return;
+            var deserialized = order as Commandlet<bool>;
 
-		/*	Adrenaline	*/
+            _commands.Activate(order, deserialized.Target);
 
-		private void SquadBoost (Commandlet order) {
-			if (!CanCommand(order.Name)) return;
-			Commandlet<bool> deserialized = order as Commandlet<bool>;
+            _bus.AddListener<CooldownEvent>(AdrenalineCooldown);
 
-			commands.Activate(order, deserialized.Target);
+            foreach (MemberEntry entry in _members.Values)
+            {
+                entry.Member.Order(order, false);
+            }
+        }
 
-			bus.AddListener<CooldownEvent>(AdrenalineCooldown);
+        private void AdrenalineComplete(CommandActiveEvent _event)
+        {
+            _bus.RemoveListener<CommandActiveEvent>(AdrenalineComplete);
 
-			foreach (MemberEntry entry in members.Values) {
-				entry.member.Order(order, false);
-			}
-		}
+            if (!_event.Activity)
+                foreach (MemberEntry entry in _members.Values)
+                {
+                    entry.Bus.Local(_event);
+                }
+        }
 
-		private void AdrenalineComplete (CommandActiveEvent _event) {
-			bus.RemoveListener<CommandActiveEvent>(AdrenalineComplete);
+        private void AdrenalineCooldown(CooldownEvent _event)
+        {
+            if (_commands.Active.Contains(_event.CommandKey) && _event.Complete)
+            {
+                _bus.RemoveListener<CooldownEvent>(AdrenalineCooldown);
 
-			if (!_event.Activity) {
-				foreach (MemberEntry entry in members.Values) {
-					entry.bus.Local(_event);
-				}
-			}
-		}
+                foreach (MemberEntry entry in _members.Values)
+                {
+                    entry.Bus.Local(_event);
+                }
 
-		private void AdrenalineCooldown (CooldownEvent _event) {
-			if (commands.Active.Contains(_event.CommandKey) && _event.Complete) {
-				bus.RemoveListener<CooldownEvent>(AdrenalineCooldown);
+                _commands.Deactivate(_event.CommandKey);
+            }
+        }
 
-				foreach (MemberEntry entry in members.Values) {
-					entry.bus.Local(_event);
-				}
+        public override CommandFactory Evaluate(ISelectable target)
+        {
+            if (target is IAttackable && target.GetRelationship(Owner) == Relationship.Hostile)
+                return CommandPrimer.Get("attack");
 
-				commands.Deactivate(_event.CommandKey);
-			}
-		}
+            return CommandPrimer.Get("move");
+        }
 
-		public override Command Evaluate (ISelectable target) {
-			if (target is IAttackable && target.GetRelationship(owner) == Relationship.Hostile) {
-				return CommandRegistry.Get("attack");
-			}
+        public override void AutoCommand(ISelectable target)
+        {
+            if (target is IAttackable attackable && target.GetRelationship(Owner) == Relationship.Hostile)
+            {
+                //return CommandRegistry.Get<Attack>("attack").Construct(attackable);
+            }
 
-			return CommandRegistry.Get("move");
-		}
+            //return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
 
-		public override Commandlet Auto (ISelectable target) {
-			if (target is IAttackable attackable && target.GetRelationship(owner) == Relationship.Hostile) {
-				return CommandRegistry.Get<Attack>("attack").Construct(attackable);
-			}
+            throw new NotImplementedException();
+        }
 
-			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
-		}
+        public override bool CanCommand(string key)
+        {
+            if (key == "adrenaline") 
+                return Owner.IsResearched("adrenaline");
 
-		public override bool CanCommand (string key) {
-			if (key == "adrenaline") {
-				return owner.IsResearched("adrenaline");
-			}
-
-			return base.CanCommand(key);
-		}
-	}
+            return base.CanCommand(key);
+        }
+    }
 }

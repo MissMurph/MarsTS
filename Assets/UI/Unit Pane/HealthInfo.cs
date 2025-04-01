@@ -1,106 +1,115 @@
 using MarsTS.Events;
-using MarsTS.Players;
 using MarsTS.Units;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-namespace MarsTS.UI {
+namespace MarsTS.UI
+{
+    public class HealthInfo : MonoBehaviour, IInfoModule
+    {
+        public int CurrentHealth
+        {
+            get => _currentHealth;
+            set
+            {
+                _currentHealth = value;
 
-    public class HealthInfo : MonoBehaviour, IInfoModule {
+                FillLevel = (float)_currentHealth / MaxHealth;
 
-		public int CurrentHealth {
-			get {
-				return currentHealth;
-			}
-			set {
-				currentHealth = value;
+                _text.text = _currentHealth + " / " + MaxHealth;
+            }
+        }
 
-				FillLevel = (float)currentHealth / MaxHealth;
+        private int _currentHealth = 1;
 
-				text.text = currentHealth + " / " + MaxHealth;
-			}
-		}
+        public int MaxHealth
+        {
+            get => _maxHealth;
+            set
+            {
+                _maxHealth = value;
 
-		private int currentHealth = 1;
+                FillLevel = (float)_currentHealth / MaxHealth;
 
-		public int MaxHealth {
-			get {
-				return maxHealth;
-			}
-			set {
-				maxHealth = value;
+                _text.text = CurrentHealth + " / " + _maxHealth;
+            }
+        }
 
-				FillLevel = (float)currentHealth / MaxHealth;
+        private int _maxHealth = 1;
 
-				text.text = CurrentHealth + " / " + maxHealth;
-			}
-		}
+        private float FillLevel
+        {
+            set
+            {
+                float rightEdge = _literalSize - _literalSize * value;
+                _barTransform.offsetMax = new Vector2(-rightEdge, 0f);
+            }
+        }
 
-		private int maxHealth = 1;
+        public IAttackable CurrentUnit
+        {
+            get => _currentUnit;
+            set
+            {
+                _currentUnit = value;
 
-		private float FillLevel {
-			set {
-				float rightEdge = literalSize - (literalSize * value);
-				barTransform.offsetMax = new Vector2(-rightEdge, 0f);
-			}
-		}
+                if (_currentUnit != null)
+                {
+                    CurrentHealth = value.Health;
+                    MaxHealth = value.MaxHealth;
+                }
+            }
+        }
 
-		public IAttackable CurrentUnit {
-			get {
-				return currentUnit;
-			}
-			set {
-				currentUnit = value;
+        private IAttackable _currentUnit;
 
-				if (currentUnit != null) {
-					CurrentHealth = value.Health;
-					MaxHealth = value.MaxHealth;
-				}
-			}
-		}
+        public GameObject GameObject => gameObject;
 
-		private IAttackable currentUnit;
+        public string Name => "health";
 
-		public GameObject GameObject { get { return gameObject; } }
+        private TextMeshProUGUI _text;
+        private RectTransform _barTransform;
 
-		public string Name { get { return "health"; } }
+        private float _literalSize;
 
-		private TextMeshProUGUI text;
-		private RectTransform barTransform;
+        private void Awake()
+        {
+            _text = transform.Find("HealthNumber").GetComponent<TextMeshProUGUI>();
+            _barTransform = transform.Find("HealthBar") as RectTransform;
 
-		private float literalSize;
+            //xMax is the max literal x co-ords from the center, so if we multiply by 2 that gets us the literal size
+            _literalSize = _barTransform.rect.xMax * 2;
+        }
 
-		private void Awake () {
-			text = transform.Find("HealthNumber").GetComponent<TextMeshProUGUI>();
-			barTransform = transform.Find("HealthBar") as RectTransform;
+        private void Start()
+        {
+            EventBus.AddListener<UnitHurtEvent>(OnEntityHurt);
+            EventBus.AddListener<UnitDeathEvent>(OnEntityDeath);
+        }
 
-			//xMax is the max literal x co-ords from the center, so if we multiply by 2 that gets us the literal size
-			literalSize = barTransform.rect.xMax * 2;
-		}
+        private void OnEntityHurt(UnitHurtEvent _event)
+        {
+            if (ReferenceEquals(_event.Targetable, CurrentUnit))
+            {
+                CurrentHealth = _event.Targetable.Health;
+                MaxHealth = _event.Targetable.MaxHealth;
+            }
+        }
 
-		private void Start () {
-			EventBus.AddListener<UnitHurtEvent>(OnEntityHurt);
-			EventBus.AddListener<UnitDeathEvent>(OnEntityDeath);
-		}
+        private void OnEntityDeath(UnitDeathEvent _event)
+        {
+            if (ReferenceEquals(_event.Unit, CurrentUnit)) CurrentUnit = null;
+        }
 
-		private void OnEntityHurt (UnitHurtEvent _event) {
-			if (ReferenceEquals(_event.Targetable, CurrentUnit)) {
-				CurrentHealth = _event.Targetable.Health;
-				MaxHealth = _event.Targetable.MaxHealth;
-			}
-		}
+        public T Get<T>()
+        {
+            if (this is T output) return output;
+            return default;
+        }
 
-		private void OnEntityDeath (UnitDeathEvent _event) {
-			if (ReferenceEquals(_event.Unit, CurrentUnit)) {
-				CurrentUnit = null;
-			}
-		}
-
-		public T Get<T> () {
-			if (this is T output) return output;
-			return default;
-		}
-	}
+        public void Deactivate()
+        {
+            gameObject.SetActive(false);
+        }
+    }
 }

@@ -4,13 +4,15 @@ using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.World;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Units {
 
-    public class Constructor : Unit {
+    public class Constructor : AbstractUnit {
 
 		[Header("Movement")]
 
@@ -33,100 +35,102 @@ namespace MarsTS.Units {
 		[SerializeField]
 		private float angleTolerance;
 
-		private float velocity;
+		private float _velocity;
 
-		private GroundDetection ground;
+		private GroundDetection _ground;
 
-		protected Dictionary<string, BuilderTurret> registeredTurrets = new Dictionary<string, BuilderTurret>();
+		private Dictionary<string, BuilderTurret> _registeredTurrets = new Dictionary<string, BuilderTurret>();
 
-		protected IAttackable RepairTarget {
-			get {
-				return repairTarget;
-			}
+		private IAttackable RepairTarget {
+			get => _repairTarget;
 			set {
-				if (repairTarget != null) {
-					EntityCache.TryGet(repairTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
-					oldAgent.RemoveListener<UnitDeathEvent>((_event) => repairTarget = null);
+				if (_repairTarget != null) {
+					EntityCache.TryGet(_repairTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
+					oldAgent.RemoveListener<UnitDeathEvent>((_event) => _repairTarget = null);
 				}
 
-				repairTarget = value;
+				_repairTarget = value;
 
 				if (value != null) {
 					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
 
-					agent.AddListener<UnitDeathEvent>((_event) => repairTarget = null);
+					agent.AddListener<UnitDeathEvent>((_event) => _repairTarget = null);
 				}
 			}
 		}
 
-		protected IAttackable repairTarget;
+		private IAttackable _repairTarget;
 
 		protected override void Awake () {
 			base.Awake();
 
-			ground = GetComponent<GroundDetection>();
+			_ground = GetComponent<GroundDetection>();
 
 			foreach (BuilderTurret turret in GetComponentsInChildren<BuilderTurret>()) {
-				registeredTurrets.TryAdd(turret.name, turret);
+				_registeredTurrets.TryAdd(turret.name, turret);
 			}
 		}
 
 		protected override void Update () {
 			base.Update();
+			
+			if (!NetworkManager.Singleton.IsServer) return;
 
-			if (repairTarget == null) return;
+			if (_repairTarget == null) return;
 
-			if (Vector3.Distance(repairTarget.GameObject.transform.position, transform.position) <= registeredTurrets["turret_main"].Range) {
+			if (Vector3.Distance(_repairTarget.GameObject.transform.position, transform.position) <= _registeredTurrets["turret_main"].Range) {
 				TrackedTarget = null;
-				currentPath = Path.Empty;
+				CurrentPath = Path.Empty;
 			}
-			else if (!ReferenceEquals(TrackedTarget, repairTarget.GameObject.transform)) {
-				SetTarget(repairTarget.GameObject.transform);
+			else if (!ReferenceEquals(TrackedTarget, _repairTarget.GameObject.transform)) {
+				SetTarget(_repairTarget.GameObject.transform);
 			}
 		}
 
 		protected virtual void FixedUpdate () {
-			velocity = body.velocity.sqrMagnitude;
+			if (!NetworkManager.Singleton.IsServer) return;
 
-			if (ground.Grounded) {
-				if (!currentPath.IsEmpty) {
-					Vector3 targetWaypoint = currentPath[pathIndex];
+			_velocity = Body.velocity.sqrMagnitude;
+
+			if (_ground.Grounded) {
+				if (!CurrentPath.IsEmpty) {
+					Vector3 targetWaypoint = CurrentPath[PathIndex];
 
 					Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
 					float targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
 
 					float newAngle = Mathf.MoveTowardsAngle(CurrentAngle, targetAngle, turnSpeed * Time.fixedDeltaTime);
-					body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, newAngle, transform.eulerAngles.z));
+					Body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, newAngle, transform.eulerAngles.z));
 
-					Vector3 currentVelocity = body.velocity;
-					Vector3 adjustedVelocity = Vector3.ProjectOnPlane(transform.forward, ground.Slope.normal);
+					Vector3 currentVelocity = Body.velocity;
+					Vector3 adjustedVelocity = Vector3.ProjectOnPlane(transform.forward, _ground.Slope.normal);
 
 					adjustedVelocity *= currentVelocity.magnitude;
 
 					if (Vector3.Angle(targetDirection, transform.forward) <= angleTolerance) {
-						float accelCap = 1f - (velocity / (topSpeed * topSpeed));
+						float accelCap = 1f - (_velocity / (topSpeed * topSpeed));
 
 						//This moves the velocity according to the rotation of the unit
-						body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
+						Body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
 
 						//Relative so it can take into account the forward vector of the car
-						body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
+						Body.AddRelativeForce(Vector3.forward * (acceleration * accelCap * Time.fixedDeltaTime), ForceMode.Acceleration);
 					}
 
-					if (velocity > topSpeed * topSpeed) {
-						Vector3 direction = body.velocity.normalized;
+					if (_velocity > topSpeed * topSpeed) {
+						Vector3 direction = Body.velocity.normalized;
 						direction *= topSpeed;
-						body.velocity = direction;
+						Body.velocity = direction;
 					}
 				}
-				else if (velocity >= 0.5f) {
-					body.AddRelativeForce(-body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
+				else if (_velocity >= 0.5f) {
+					Body.AddRelativeForce(-Body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
 				}
 			}
 		}
 
 		public override void Order (Commandlet order, bool inclusive) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
+			if (!GetRelationship(order.Commander).Equals(Relationship.Owned)) return;
 
 			switch (order.Name) {
 				case "repair":
@@ -156,7 +160,7 @@ namespace MarsTS.Units {
 			if (order is Commandlet<IAttackable> deserialized) {
 				IAttackable unit = deserialized.Target;
 
-				if (unit.GetRelationship(owner) == Relationship.Owned || unit.GetRelationship(owner) == Relationship.Friendly) {
+				if (unit.GetRelationship(Owner) == Relationship.Owned || unit.GetRelationship(Owner) == Relationship.Friendly) {
 					RepairTarget = unit;
 
 					EntityCache.TryGet(RepairTarget.GameObject.transform.root.name, out EventAgent targetBus);
@@ -175,8 +179,9 @@ namespace MarsTS.Units {
 				EntityCache.TryGet(_event.Targetable.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.RemoveListener<UnitHurtEvent>(OnTargetHealed);
+				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
-				CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+				CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, false, this);
 
 				CurrentCommand.Callback.Invoke(newEvent);
 			}
@@ -186,8 +191,9 @@ namespace MarsTS.Units {
 			EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
 
 			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
+			targetBus.RemoveListener<UnitHurtEvent>(OnTargetHealed);
 
-			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, true, this);
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, true, this);
 
 			CurrentCommand.Callback.Invoke(newEvent);
 
@@ -195,7 +201,7 @@ namespace MarsTS.Units {
 		}
 
 		private void RepairCancelled (CommandCompleteEvent _event) {
-			if (_event.Command is Commandlet<IAttackable> deserialized && _event.CommandCancelled) {
+			if (_event.Command is Commandlet<IAttackable> deserialized && _event.IsCancelled) {
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.RemoveListener<UnitHurtEvent>(OnTargetHealed);
@@ -205,24 +211,26 @@ namespace MarsTS.Units {
 			}
 		}
 
-		public override Command Evaluate (ISelectable target) {
+		public override CommandFactory Evaluate (ISelectable target) {
 			if (target is IAttackable attackable
-				&& (target.GetRelationship(owner) == Relationship.Owned || target.GetRelationship(owner) == Relationship.Friendly)
+				&& (target.GetRelationship(Owner) == Relationship.Owned || target.GetRelationship(Owner) == Relationship.Friendly)
+				//&& (target.GameObject.CompareTag("vehicle") || target.GameObject.CompareTag("building"))
 				&& attackable.Health < attackable.MaxHealth) {
-				return CommandRegistry.Get("repair");
+				return CommandPrimer.Get("repair");
 			}
 
-			return CommandRegistry.Get("move");
+			return CommandPrimer.Get("move");
 		}
 
-		public override Commandlet Auto (ISelectable target) {
+		public override void AutoCommand (ISelectable target) {
 			if (target is IAttackable attackable
-				&& (target.GetRelationship(owner) == Relationship.Owned || target.GetRelationship(owner) == Relationship.Friendly)
+				&& (target.GetRelationship(Owner) == Relationship.Owned || target.GetRelationship(Owner) == Relationship.Friendly)
+				//&& (target.GameObject.CompareTag("vehicle") || target.GameObject.CompareTag("building"))
 				&& attackable.Health < attackable.MaxHealth) {
-				return CommandRegistry.Get<Repair>("repair").Construct(attackable);
+				//CommandRegistry.Get<Repair>("repair").Construct(attackable, Player.SerializedSelected);
 			}
 
-			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
+			CommandPrimer.Get<Move>("move").Construct(target.GameObject.transform.position);
 		}
 
 		public override bool CanCommand (string key) {

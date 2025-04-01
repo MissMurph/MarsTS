@@ -6,7 +6,7 @@ using UnityEngine.Events;
 
 namespace MarsTS.Events {
 
-	public class EventBus : MonoBehaviour {
+	public class EventBus {
 
 		private static EventBus instance;
 
@@ -16,25 +16,28 @@ namespace MarsTS.Events {
 
 		private Dictionary<string, int> nameAtlas;
 
-		private EventAgent controllerAgent;
-
 		private int currentId;
 
-		private void Awake () {
-			instance = this;
+		private static bool isInitialized => instance != null;
+
+		private EventBus() {
 			currentId = 0;
 			globalListeners = new Dictionary<Type, UnityEventBase>();
 			registeredAgents = new Dictionary<int, EventAgent>();
 			nameAtlas = new Dictionary<string, int>();
-			controllerAgent = GetComponent<EventAgent>();
+		}
 
+		private static void Init () {
+			instance = new EventBus();
+			
 			AddListener<EntityDestroyEvent>(OnEntityDeath);
 		}
 
 		//Fires events to all listeners registered for this event type
 		public static T Global<T> (T postedEvent) where T : AbstractEvent {
-			if (instance == null) return null;
-			if (!instance.registeredAgents.ContainsKey(postedEvent.Source.ID)) throw new ArgumentException("Event " + postedEvent.Name + " fired from unregistered agent " + postedEvent.Source.ID + " on object " + postedEvent.Source.name);
+			if (!isInitialized) Init();
+			
+			if (!instance.registeredAgents.ContainsKey(postedEvent.Source.Id)) throw new ArgumentException("Event " + postedEvent.Name + " fired from unregistered agent " + postedEvent.Source.Id + " on object " + postedEvent.Source.name);
 			if (instance.globalListeners.TryGetValue(typeof(T), out UnityEventBase value)) {
 				UnityEvent<T> superType = (UnityEvent<T>)value;
 				superType.Invoke(postedEvent);
@@ -59,6 +62,8 @@ namespace MarsTS.Events {
 
 		//Global Subscription
 		public static void AddListener<T> (UnityAction<T> func) where T : AbstractEvent {
+			if (!isInitialized) Init();
+			
 			UnityEvent<T> _event = (instance.globalListeners.GetValueOrDefault(typeof(T), new UnityEvent<T>())) as UnityEvent<T>;
 			if (!instance.globalListeners.ContainsKey(typeof(T))) instance.globalListeners.Add(typeof(T), _event);
 			_event.AddListener(func);
@@ -66,6 +71,8 @@ namespace MarsTS.Events {
 
 		//Local Subscription
 		public static void AddListener<T> (UnityAction<T> func, int agentID) where T : AbstractEvent {
+			if (!isInitialized) Init();
+			
 			if (instance.registeredAgents.TryGetValue(agentID, out EventAgent agent)) {
 				agent.AddListener(func);
 				return;
@@ -74,6 +81,8 @@ namespace MarsTS.Events {
 		}
 
 		public static void RemoveListener<T> (UnityAction<T> func) where T : AbstractEvent {
+			if (!isInitialized) Init();
+			
 			if (instance.globalListeners.TryGetValue(typeof(T), out UnityEventBase _event)) {
 				UnityEvent<T> deserialized = _event as UnityEvent<T>;
 
@@ -82,9 +91,11 @@ namespace MarsTS.Events {
 			}
 		}
 
-		public static int RegisterAgent (EventAgent source) {
-			if (source.ID != 0) throw new ArgumentException("Agent " + source.ID + " already registered with Event Bus " + instance.name);
+		public static int RegisterAgent(EventAgent source) {
+			if (!isInitialized) Init();
 
+			if (source.Id != 0)
+				throw new ArgumentException("Agent " + source.Id + " already registered with Event Bus");
 			int id = instance.currentId++;
 
 			instance.registeredAgents[id] = source;
@@ -102,7 +113,7 @@ namespace MarsTS.Events {
 		}
 
 		private static void OnEntityDeath (EntityDestroyEvent _event) {
-			instance.registeredAgents.Remove(_event.Source.ID);
+			instance.registeredAgents.Remove(_event.Source.Id);
 		}
 
 		private void OnDestroy () {

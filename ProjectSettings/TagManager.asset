@@ -9,6 +9,8 @@ TagManager:
   - MinimapCam
   - Infantry
   - Vehicle
+  - ViewportRenderer
+  - Canvas
   layers:
   - Default
   - TransparentFX

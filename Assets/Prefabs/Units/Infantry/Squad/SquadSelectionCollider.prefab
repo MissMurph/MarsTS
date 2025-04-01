@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9214751274111025719}
   - component: {fileID: 9214751274111025716}
+  - component: {fileID: 4360234808541072751}
   m_Layer: 6
   m_Name: SquadSelectionCollider
   m_TagString: Untagged
@@ -46,3 +47,16 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4360234808541072751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9214751274111025718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8a682e34e8e98c4cb9826d056f48c17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _trackedMember: {fileID: 0}

@@ -46,7 +46,9 @@ namespace MarsTS.UI {
 		public void UpdateUnit (string name, int count) {
 			//nameText.text = name;
 
-			icon.sprite = Registry.Get<ISelectable>(name).Icon;
+			Registry.TryGetObject(name, out ISelectable unit);
+
+			icon.sprite = unit.Icon;
 
 			if (count > 1) {
 				counterPane.SetActive(true);

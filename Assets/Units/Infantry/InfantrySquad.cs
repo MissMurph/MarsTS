@@ -1,321 +1,454 @@
-using MarsTS.Buildings;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using MarsTS.Commands;
+using MarsTS.Editor;
 using MarsTS.Entities;
 using MarsTS.Events;
-using MarsTS.Players;
+using MarsTS.Prefabs;
 using MarsTS.Teams;
 using MarsTS.UI;
-using MarsTS.World;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using static UnityEditor.Experimental.GraphView.Port;
-using UnityEngine.SocialPlatforms.Impl;
-using static UnityEngine.GraphicsBuffer;
-using UnityEditor.PackageManager;
-using UnityEngine.ProBuilder;
-using static UnityEngine.UI.CanvasScaler;
 using MarsTS.Vision;
+using Unity.Netcode;
+using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace MarsTS.Units {
+namespace MarsTS.Units
+{
+    public class InfantrySquad : NetworkBehaviour,
+        ISelectable,
+        ITaggable<InfantrySquad>,
+        ICommandable,
+        IAttackable
+    {
+        public GameObject GameObject => gameObject;
+        public IUnit Unit => this;
 
-	public class InfantrySquad : MonoBehaviour, ISelectable, ITaggable<InfantrySquad>, ICommandable, IAttackable {
-		public GameObject GameObject { get { return gameObject; } }
+        /*	ISelectable Properties	*/
 
-		/*	ISelectable Properties	*/
+        public int Id => _entityComponent.Id;
 
-		public int ID { get { return entityComponent.ID; } }
+        public string UnitType => _type;
 
-		public string UnitType { get { return type; } }
+        public string RegistryKey => "unit:" + UnitType;
 
-		public string RegistryKey { get { return "unit:" + UnitType; } }
+        public Faction Owner => TeamCache.Faction(_owner);
+        
+        public Sprite Icon => _icon;
 
-		public Faction Owner { get { return owner; } }
+        [FormerlySerializedAs("icon")] [SerializeField]
+        private Sprite _icon;
 
-		public Sprite Icon { get { return icon; } }
+        [FormerlySerializedAs("type")] [SerializeField]
+        private string _type;
 
-		[SerializeField]
-		private Sprite icon;
+        [SerializeField] protected int _owner;
 
-		[SerializeField]
-		private string type;
+        /*	ITaggable Properties	*/
 
-		[SerializeField]
-		protected Faction owner;
+        public string Key => "selectable";
 
-		/*	ITaggable Properties	*/
+        public Type Type => typeof(InfantrySquad);
 
-		public string Key { get { return "selectable"; } }
+        /*	ICommandable Properties	*/
 
-		public Type Type { get { return typeof(InfantrySquad); } }
+        public Commandlet CurrentCommand => _commands.Current;
 
-		/*	ICommandable Properties	*/
+        public Commandlet[] CommandQueue => _commands.Queue;
 
-		public Commandlet CurrentCommand { get { return commands.Current; } }
+        public List<string> Active => _commands.Active;
 
-		public Commandlet[] CommandQueue { get { return commands.Queue; } }
+        public List<Timer> Cooldowns => _commands.Cooldowns;
 
-		public List<string> Active { get { return commands.Active; } }
+        public int Count => _commands.Count;
 
-		public List<Timer> Cooldowns { get { return commands.Cooldowns; } }
+        [FormerlySerializedAs("boundCommands")] [SerializeField]
+        protected string[] _boundCommands;
 
-		public int Count { get { return commands.Count; } }
+        protected CommandQueue _commands;
 
-		[SerializeField]
-		protected string[] boundCommands;
+        /*	InfantrySquad Fields	*/
 
-		protected CommandQueue commands;
+        public List<ISelectable> Members
+        {
+            get
+            {
+                var output = new List<ISelectable>();
 
-		/*	InfantrySquad Fields	*/
+                foreach (MemberEntry unitEntry in _members.Values)
+                {
+                    output.Add(unitEntry.Member);
+                }
 
-		public List<ISelectable> Members {
-			get {
-				List<ISelectable> output = new();
+                return output;
+            }
+        }
 
-				foreach (MemberEntry unitEntry in members.Values) {
-					output.Add(unitEntry.member);
-				}
+        protected readonly Dictionary<string, MemberEntry> _members = new Dictionary<string, MemberEntry>();
 
-				return output;
-			}
-		}
+        protected Entity _entityComponent;
 
-		protected Dictionary<string, MemberEntry> members = new Dictionary<string, MemberEntry>();
+        [FormerlySerializedAs("maxMembers")] [SerializeField]
+        protected int _maxMembers;
 
-		protected Entity entityComponent;
+        [FormerlySerializedAs("startingMembers")] [SerializeField]
+        protected InfantryMember[] _startingMembers;
 
-		[SerializeField]
-		protected int maxMembers;
+        [FormerlySerializedAs("selectionColliderPrefab")] [SerializeField]
+        protected GameObject _selectionColliderPrefab;
 
-		[SerializeField]
-		protected InfantryMember[] startingMembers;
+        [FormerlySerializedAs("dummyColliderPrefab")] [SerializeField]
+        protected GameObject _dummyColliderPrefab;
 
-		[SerializeField]
-		protected GameObject selectionColliderPrefab;
+        [SerializeField] protected InfantryMember _memberPrefab;
 
-		[SerializeField]
-		protected GameObject dummyColliderPrefab;
+        protected EventAgent _bus;
 
-		protected EventAgent bus;
+        protected Vector3 _squadAvgPos;
 
-		protected Vector3 squadAvgPos;
+        protected SquadVisionParser _squadVisibility;
 
-		protected SquadVisionParser squadVisibility;
+        protected EntitySpawner _spawnerPrefab;
 
-		public int Health {
-			get {
-				int current = 0;
-
-				foreach (MemberEntry unitEntry in members.Values) {
-					current += unitEntry.member.Health;
-				}
-
-				return current;
-			}
-		}
-
-		public int MaxHealth { 
-			get {
-				int max = 0;
-
-				foreach (MemberEntry unitEntry in members.Values) {
-					max += unitEntry.member.MaxHealth;
-				}
-
-				return max;
-			} 
-		}
-
-		//protected List<GameObject> dummysToDestroy = new List<GameObject>();
-
-		protected virtual void Awake () {
-			entityComponent = GetComponent<Entity>();
-			bus = GetComponent<EventAgent>();
-			commands = GetComponent<CommandQueue>();
-			squadVisibility = GetComponent<SquadVisionParser>();
-
-			foreach (InfantryMember unit in startingMembers) {
-				RegisterMember(unit);
-			}
-		}
-
-		protected virtual void Start () {
-			EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
-			bus.AddListener<CommandStartEvent>(ExecuteOrder);
-		}
-
-		protected virtual void Update () {
-			transform.position = squadAvgPos;
-
-			squadAvgPos = Vector3.zero;
-
-			foreach (MemberEntry entry in members.Values) {
-				entry.selectionCollider.transform.position = entry.member.transform.position;
-				entry.detectableCollider.transform.position = entry.member.transform.position;
-				squadAvgPos += entry.member.transform.position;
-			}
-
-			squadAvgPos /= members.Count;
-		}
-
-		protected virtual void RegisterMember (InfantryMember unit) {
-			unit.SetOwner(owner);
-			unit.squad = this;
-
-			EventAgent unitEvents = unit.GetComponent<EventAgent>();
-			unitEvents.AddListener<UnitDeathEvent>(OnMemberDeath);
-			unitEvents.AddListener<UnitHurtEvent>(OnMemberHurt);
-			unitEvents.AddListener<EntityInitEvent>(OnMemberInit);
-			unitEvents.AddListener<EntityVisibleEvent>(OnMemberVisionUpdate);
-
-			bus.Local(new SquadRegisterEvent(bus, this, unit));
-		}
-
-		protected virtual void OnMemberInit (EntityInitEvent _event) {
-			if (_event.Phase == Phase.Post) return;
-			MemberEntry newEntry = new MemberEntry();
-
-			Transform newSelectionCollider = Instantiate(selectionColliderPrefab, transform).transform;
-			newSelectionCollider.position = _event.ParentEntity.transform.position;
-
-			Transform dummyCollider = Instantiate(dummyColliderPrefab, transform).transform;
-			dummyCollider.position = _event.ParentEntity.transform.position;
-
-			newEntry.key = _event.ParentEntity.name;
-			newEntry.member = _event.ParentEntity.Get<InfantryMember>("selectable");
-			newEntry.selectionCollider = newSelectionCollider;
-			newEntry.detectableCollider = dummyCollider;
-			newEntry.bus = _event.Source;
-
-			members[newEntry.key] = newEntry;
-		}
-
-		private void OnMemberHurt (UnitHurtEvent _event) {
-			bus.Global(new UnitHurtEvent(bus, this));
-		}
-
-		private void OnMemberDeath (UnitDeathEvent _event) {
-			MemberEntry deadEntry = members[_event.Unit.GameObject.name];
-
-			members.Remove(deadEntry.key);
-
-			Destroy(deadEntry.selectionCollider.gameObject);
-			deadEntry.detectableCollider.position = Vector3.down * 1000f;
-			//dummysToDestroy.Add(deadEntry.detectableCollider.gameObject);
-
-
-
-			if (members.Count <= 0) {
-				bus.Global(new UnitDeathEvent(bus, this));
-				Destroy(gameObject);
-			}
-			else {
-				foreach (MemberEntry entry in members.Values) {
-					entry.detectableCollider.transform.position = Vector3.down * 1000f;
-				}
-			}
-		}
-
-		private void OnMemberVisionUpdate (EntityVisibleEvent _event) {
-			if (members.TryGetValue(_event.UnitName, out MemberEntry entry)) {
-				entry.selectionCollider.gameObject.SetActive(_event.Visible);
-				//entry.detectableCollider.gameObject.SetActive(_event.Visible);
-			}
-		}
-
-		protected virtual void ExecuteOrder (CommandStartEvent _event) {
-			foreach (MemberEntry entry in members.Values) {
-				entry.member.Order(_event.Command, false);
-			}
-		}
-
-		public virtual string[] Commands () {
-			return boundCommands;
-		}
-
-		public  virtual void Order (Commandlet order, bool inclusive) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
-
-			switch (order.Name) {
-				case "move":
-
-					break;
-				case "stop":
-					
-					break;
-				default:
-					return;
-			}
-			if (inclusive) commands.Enqueue(order);
-			else commands.Execute(order);
-		}
-
-		public virtual Command Evaluate (ISelectable target) {
-			return CommandRegistry.Get("move");
-		}
-
-		public virtual Commandlet Auto (ISelectable target) {
-			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
-		}
-
-		public InfantrySquad Get () {
-			return this;
-		}
-
-		public Relationship GetRelationship (Faction player) {
-			return Owner.GetRelationship(player);
-		}
-
-		public void Hover (bool status) {
-			foreach (MemberEntry entry in members.Values) {
-				entry.member.Hover(status);
-			}
-		}
-
-		public void Select (bool status) {
-			foreach (MemberEntry entry in members.Values) {
-				entry.member.Select(status);
-			}
-		}
-
-		public bool SetOwner (Faction player) {
-			owner = player;
-			return true;
-		}
-
-		protected virtual void OnUnitInfoDisplayed (UnitInfoEvent _event) {
-			if (ReferenceEquals(_event.Unit, this)) {
-				HealthInfo info = _event.Info.Module<HealthInfo>("health");
-				info.CurrentUnit = this;
-			}
-		}
-
-		public void Attack (int damage) {
-			throw new NotImplementedException();
-		}
-
-		public virtual bool CanCommand (string key) {
-			bool canUse = false;
-
-			for (int i = 0; i < boundCommands.Length; i++) {
-				if (boundCommands[i] == key) break;
-
-				if (i >= boundCommands.Length - 1) return false;
-			}
-
-			if (commands.CanCommand(key)) canUse = true;
-			//if (production.CanCommand(key)) canUse = true;
-
-			return canUse;
-		}
-	}
-
-	public class MemberEntry {
-		public string key;
-		public InfantryMember member;
-		public Transform selectionCollider;
-		public Transform detectableCollider;
-		public EventAgent bus;
-	}
+        public int Health => _members.Values.Sum(unitEntry => unitEntry.Member.Health);
+
+        public int MaxHealth => _memberPrefab.MaxHealth * _maxMembers;
+
+        private bool _isInitialized = false;
+        private bool _isInitializing = false;
+
+        protected virtual void Awake()
+        {
+            _entityComponent = GetComponent<Entity>();
+            _bus = GetComponent<EventAgent>();
+            _commands = GetComponent<CommandQueue>();
+            _squadVisibility = GetComponent<SquadVisionParser>();
+        }
+
+        public override void OnNetworkSpawn()
+        {
+            if (NetworkManager.Singleton.IsServer) AttachServerListeners();
+            if (NetworkManager.Singleton.IsClient) AttachClientListeners();
+        }
+
+        protected virtual void AttachServerListeners()
+        {
+            _bus.AddListener<CommandStartEvent>(ExecuteOrder);
+        }
+
+        protected virtual void AttachClientListeners()
+        {
+            EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
+        }
+
+        protected virtual void Update() {
+            if (!_isInitialized) {
+                if (!_isInitializing) {
+                    _entityComponent.OnEntityInit += OnSquadEntityInit;
+                    _isInitializing = true;
+                }
+                
+                return;
+            }
+            
+            _squadAvgPos = Vector3.zero;
+
+            if (_members.Count <= 0) return;
+
+            foreach (MemberEntry entry in _members.Values)
+            {
+                if (!entry.Member) continue;
+                
+                _squadAvgPos += entry.Member.transform.position;
+            }
+
+            _squadAvgPos /= _members.Count;
+
+            transform.position = _squadAvgPos;
+        }
+
+        private void OnSquadEntityInit(Phase phase)
+        {
+            if (!NetworkManager.Singleton.IsServer) return;
+            if (phase == Phase.Pre) return;
+
+            SpawnAndInitializeMembers();
+        }
+
+        private void SpawnAndInitializeMembers()
+        {
+            if (!Registry.TryGetPrefab("misc:spawner", out GameObject prefab))
+            {
+                Debug.LogError($"{typeof(InfantrySquad)} {gameObject.name} Couldn't find misc:spawner prefab!");
+                return;
+            }
+
+            _spawnerPrefab = prefab.GetComponent<EntitySpawner>();
+
+            EntitySpawner spawner = Instantiate(_spawnerPrefab, transform.position, transform.rotation);
+            spawner.SetDeferredSpawn(true);
+            spawner.SetEntity(_memberPrefab.gameObject);
+            spawner.SetOwner(Owner.Id);
+
+            //We capture pos here as squad will move around while instantiating
+            Vector3 spawnPos = transform.position;
+            
+            InfantryMember firstMember = spawner.SpawnEntity().GetComponent<InfantryMember>();
+
+            AttachMemberInitListener(firstMember);
+
+            Vector3 memberHalfExtents =
+                firstMember.transform
+                    .Find("GroundCollider")
+                    .GetComponent<BoxCollider>()
+                    .size;
+
+            for (int i = 1; i < _maxMembers - _members.Count - 1; i++)
+            {
+                for (int x = -1; x < 1; x++)
+                {
+                    for (int y = -1; y < 1; y++)
+                    {
+                        if (x == 0 && y == 0) continue;
+
+                        Vector3 pos = new Vector3(
+                            spawnPos.x + (x * memberHalfExtents.x * 4),
+                            spawnPos.y,
+                            spawnPos.z + (y * memberHalfExtents.z * 4)
+                        );
+
+                        if (Physics.CheckBox(pos, memberHalfExtents))
+                        {
+                            continue;
+                        }
+
+                        spawner.transform.position = pos;
+
+                        InfantryMember member = spawner.SpawnEntity().GetComponent<InfantryMember>();
+
+                        AttachMemberInitListener(member);
+                    }
+                }
+            }
+        }
+
+        private void AttachMemberInitListener(InfantryMember unit)
+        {
+            Entity memberEntity = unit.GetComponent<Entity>();
+
+            memberEntity.OnEntityInit += phase =>
+            {
+                if (phase == Phase.Pre) 
+                    return;
+                
+                RegisterMember(unit);
+            };
+        }
+
+        protected virtual void RegisterMember(InfantryMember member)
+        {
+            MemberEntry newEntry = new MemberEntry();
+
+            newEntry.Key = member.name;
+            newEntry.Member = member;
+            newEntry.Bus = member.GetComponent<EventAgent>();
+
+            _members[newEntry.Key] = newEntry;
+            
+            member.SetOwner(Owner);
+            member.SetSquad(this);
+            
+            InstantiateDummyColliders(member);
+
+            if (NetworkManager.Singleton.IsServer)
+            {
+                AttachMemberServerListeners(member);
+                RegisterMemberClientRpc(newEntry.Key);
+            }
+
+            if (NetworkManager.Singleton.IsClient) 
+                AttachMemberClientListeners(member);
+
+            if (!_isInitialized) _isInitialized = true;
+        }
+
+        [Rpc(SendTo.NotServer)]
+        private void RegisterMemberClientRpc(string entityName) {
+            if (NetworkManager.Singleton.IsServer) 
+                return;
+            
+            if (!EntityCache.TryGet(entityName, out InfantryMember member))
+            {
+                Debug.LogError($"[CLIENT] Failed to find Entity {entityName} for registering infantry member!");
+                return;
+            }
+            
+            RegisterMember(member);
+        }
+
+        protected virtual void AttachMemberServerListeners(InfantryMember unit)
+        {
+            EventAgent unitEvents = unit.GetComponent<EventAgent>();
+            
+            unitEvents.AddListener<UnitDeathEvent>(DeregisterMember);
+
+            _bus.Local(new SquadRegisterEvent(_bus, this, unit));
+        }
+
+        private void AttachMemberClientListeners(InfantryMember unit)
+        {
+            EventAgent unitEvents = unit.GetComponent<EventAgent>();
+
+            unitEvents.AddListener<UnitHurtEvent>(ForwardHurtEvent);
+        }
+
+        private void InstantiateDummyColliders(InfantryMember member)
+        {
+            SquadDummyColliderTracker selectCollider = Instantiate(_selectionColliderPrefab, transform)
+                .GetComponent<SquadDummyColliderTracker>();
+            selectCollider.Init(member);
+            
+            SquadDummyColliderTracker detectCollider = Instantiate(_dummyColliderPrefab, transform)
+                .GetComponent<SquadDummyColliderTracker>();
+            detectCollider.Init(member);
+        }
+
+        private void ForwardHurtEvent(UnitHurtEvent _event)
+        {
+            UnitHurtEvent hurtEvent = new UnitHurtEvent(_bus, this, _event.Damage);
+            hurtEvent.Phase = Phase.Post;
+            _bus.Global(hurtEvent);
+        }
+
+        private void DeregisterMember(UnitDeathEvent _event)
+        {
+            MemberEntry deadEntry = _members[_event.Unit.GameObject.name];
+
+            _members.Remove(deadEntry.Key);
+
+            if (_members.Count <= 0)
+            {
+                _bus.Global(new UnitDeathEvent(_bus, this));
+                Destroy(gameObject);
+            }
+        }
+
+        protected virtual void ExecuteOrder(CommandStartEvent _event)
+        {
+            foreach (MemberEntry entry in _members.Values)
+            {
+                entry.Member.Order(_event.Command, false);
+            }
+        }
+
+        public virtual string[] Commands() => _boundCommands;
+
+        public virtual void Order(Commandlet order, bool inclusive)
+        {
+            if (!GetRelationship(order.Commander).Equals(Relationship.Owned)) return;
+
+            switch (order.Name)
+            {
+                case "move":
+
+                    break;
+                case "stop":
+
+                    break;
+                default:
+                    return;
+            }
+
+            if (inclusive) _commands.Enqueue(order);
+            else _commands.Execute(order);
+        }
+
+        public virtual CommandFactory Evaluate(ISelectable target) => CommandPrimer.Get("move");
+
+        public virtual void AutoCommand(ISelectable target)
+        {
+            throw new NotImplementedException();
+        }
+
+        public InfantrySquad Get() => this;
+
+        public Relationship GetRelationship(Faction player) => Owner.GetRelationship(player);
+
+        public void Hover(bool status)
+        {
+            foreach (MemberEntry entry in _members.Values)
+            {
+                entry.Member.Hover(status);
+            }
+        }
+
+        public void Select(bool status)
+        {
+            foreach (MemberEntry entry in _members.Values)
+            {
+                entry.Member.Select(status);
+            }
+        }
+
+        public bool SetOwner(Faction player)
+        {
+            if (!NetworkManager.Singleton.IsServer) return false;
+            
+            _owner = player.Id;
+            SetOwnerClientRpc(_owner);
+            _bus.Global(new UnitOwnerChangeEvent(_bus, this, Owner));
+            
+            return true;
+        }
+
+        [Rpc(SendTo.NotServer)]
+        private void SetOwnerClientRpc(int newId)
+        {
+            _owner = newId;
+            _bus.Global(new UnitOwnerChangeEvent(_bus, this, Owner));
+        }
+
+        protected virtual void OnUnitInfoDisplayed(UnitInfoEvent _event)
+        {
+            if (ReferenceEquals(_event.Unit, this))
+            {
+                HealthInfo info = _event.Info.Module<HealthInfo>("health");
+                info.CurrentUnit = this;
+            }
+        }
+
+        public void Attack(int damage)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual bool CanCommand(string key)
+        {
+            bool canUse = false;
+
+            for (int i = 0; i < _boundCommands.Length; i++)
+            {
+                if (_boundCommands[i] == key) break;
+
+                if (i >= _boundCommands.Length - 1) return false;
+            }
+
+            if (_commands.CanCommand(key)) canUse = true;
+            //if (production.CanCommand(key)) canUse = true;
+
+            return canUse;
+        }
+
+        public override void OnDestroy()
+        {
+            _members.Clear();
+        }
+
+        protected class MemberEntry
+        {
+            public string Key;
+            public InfantryMember Member;
+            public EventAgent Bus;
+        }
+    }
 }

@@ -12,27 +12,15 @@ namespace MarsTS.Events {
 		private Dictionary<Type, UnityEventBase> listeners = new Dictionary<Type, UnityEventBase>();
 
 		//This will return 0 if the agent isn't registered
-		public int ID {
-			get {
-				return id;
-			}
-		}
+		public int Id => id;
 
-		public string Key {
-			get {
-				return "eventAgent";
-			}
-		}
+		public string Key => "eventAgent";
 
-		public Type Type {
-			get {
-				return typeof(EventAgent);
-			}
-		}
+		public Type Type => typeof(EventAgent);
 
 		private int id = 0;
 
-		private void Start () {
+		private void Awake () {
 			id = EventBus.RegisterAgent(this);
 			Local(new EventAgentInitEvent(this));
 		}

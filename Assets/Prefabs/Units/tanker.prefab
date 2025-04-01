@@ -998,6 +998,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7680554594384699939}
+  - component: {fileID: 7088408992913624138}
   - component: {fileID: 7680554594384699999}
   - component: {fileID: 7680554594384699998}
   - component: {fileID: 7680554594384699936}
@@ -1006,6 +1007,8 @@ GameObject:
   - component: {fileID: 2434953027732606424}
   - component: {fileID: 7104396259140940136}
   - component: {fileID: 4352549732471623774}
+  - component: {fileID: 1658589329130445436}
+  - component: {fileID: 5545731459345933907}
   m_Layer: 0
   m_Name: tanker
   m_TagString: Vehicle
@@ -1036,6 +1039,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7088408992913624138
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7680554594384699938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2873871672
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &7680554594384699999
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1048,11 +1072,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee997e94d09922141a96b280cf3d9149, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
-  currentHealth: 0
+  maxHealth:
+    m_InternalValue: 150
+  currentHealth:
+    m_InternalValue: 0
   icon: {fileID: 21300000, guid: 213ab92289ed63f4c89b4c0f25d90343, type: 3}
   type: tanker
-  owner: {fileID: 0}
+  owner: 0
   boundCommands:
   - move
   - stop
@@ -1063,12 +1089,12 @@ MonoBehaviour:
   - {fileID: 7680554594309416084}
   - {fileID: 1730746830768490085}
   - {fileID: 4666152948652239434}
-  topSpeed: 8
-  acceleration: 700
-  turnSpeed: 55
-  angleTolerance: 35
-  depositRate: 100
-  harvestRate: 100
+  _topSpeed: 5
+  _acceleration: 800
+  _turnSpeed: 45
+  _angleTolerance: 25
+  _depositRate: 100
+  _harvestRate: 25
 --- !u!54 &7680554594384699998
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1098,6 +1124,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   registryKey: tanker
+  toTag: []
 --- !u!114 &7680554594384699937
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1122,10 +1149,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db75fe7896a566744b02bc8532aebeab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: 
-  startingValue: 0
-  capacity: 500
-  resourceKey: oil
+  _key: 
+  _startingValue: 0
+  _capacity: 250
+  _resourceKey: oil
 --- !u!114 &2434953027732606424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1139,6 +1166,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visionRange: 5
+  owner: 0
 --- !u!114 &7104396259140940136
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1161,6 +1189,49 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 866af88a2db170c42a48b68ed236afd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1658589329130445436
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7680554594384699938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 0
+  SyncScaleY: 0
+  SyncScaleZ: 0
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  Interpolate: 1
+  SlerpPosition: 0
+--- !u!114 &5545731459345933907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7680554594384699938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6c0be61502bb534f922ebb746851216, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &7680554594623944569
@@ -1306,6 +1377,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffede7701679440479b740e4f6245f82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _storage: {fileID: 1516258249182937622}
 --- !u!33 &16144345823346436
 MeshFilter:
   m_ObjectHideFlags: 0

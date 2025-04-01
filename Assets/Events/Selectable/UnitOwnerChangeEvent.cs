@@ -10,7 +10,7 @@ namespace MarsTS.Events {
 
 		public Faction NewOwner { get; private set; }
 
-		protected UnitOwnerChangeEvent (EventAgent _source, ISelectable _unit, Faction _newOwner) : base("OwnerChange", _source, _unit) {
+		public UnitOwnerChangeEvent (EventAgent _source, ISelectable _unit, Faction _newOwner) : base("OwnerChange", _source, _unit) {
 			NewOwner = _newOwner;
 		}
 	}

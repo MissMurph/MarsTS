@@ -1,112 +1,114 @@
-using MarsTS.Players;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading;
-using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 
-namespace MarsTS.Vision {
+namespace MarsTS.Vision
+{
+    public class VisionRenderer : MonoBehaviour
+    {
+        private static VisionRenderer _instance;
 
-	public class VisionRenderer : MonoBehaviour {
+        private GameVision _vision;
 
-		private static VisionRenderer instance;
+        private Texture2D _render;
 
-		private GameVision vision;
+        [SerializeField] private Material fogMaterial;
 
-		private Texture2D render;
+        private Color[] _texture;
 
-		[SerializeField]
-		private Material fogMaterial;
+        private Thread _currentThread;
 
-		private Color[] texture;
+        private bool _running;
 
-		private Thread currentThread;
+        private bool _dirty;
+        private bool _doRender;
 
-		private bool running;
+        [SerializeField] private float interpolation;
 
-		private bool dirty;
-		private bool doRender;
+        private float _fixedDelta;
 
-		[SerializeField]
-		private float interpolation;
+        private void Awake()
+        {
+            _instance = this;
 
-		private float fixedDelta;
+            _vision = GetComponent<GameVision>();
 
-		private void Awake () {
-			instance = this;
+            _render = new Texture2D(_vision.GridSize.x, _vision.GridSize.y);
+            _render.filterMode = FilterMode.Point;
 
-			vision = GetComponent<GameVision>();
+            _texture = new Color[_vision.GridSize.x * _vision.GridSize.y];
 
-			render = new Texture2D(vision.GridSize.x, vision.GridSize.y);
-			render.filterMode = FilterMode.Point;
+            _running = true;
+            Application.quitting += Quitting;
 
-			texture = new Color[vision.GridSize.x * vision.GridSize.y];
+            _dirty = false;
+            _doRender = false;
+        }
 
-			running = true;
-			Application.quitting += Quitting;
+        private void Start()
+        {
+            fogMaterial.mainTexture = _render;
 
-			dirty = false;
-			doRender = false;
-		}
+            ThreadStart workerThread = PrepareRender;
 
-		private void Start () {
-			fogMaterial.mainTexture = render;
+            _currentThread = new Thread(workerThread);
+            _currentThread.Start();
+        }
 
-			ThreadStart workerThread = delegate { PrepareRender(); };
+        private void Update()
+        {
+            if (_dirty)
+            {
+                _render.SetPixels(_texture);
+                _render.Apply();
+                _dirty = false;
+            }
+        }
 
-			currentThread = new Thread(workerThread);
-			currentThread.Start();
-		}
+        private void FixedUpdate()
+        {
+            _fixedDelta = Time.fixedDeltaTime;
+            _doRender = true;
+        }
 
-		private void Update () {
-			if (dirty) {
-				render.SetPixels(texture);
-				render.Apply();
-				dirty = false;
-			}
-		}
+        private void Quitting()
+        {
+            _running = false;
+            _currentThread.Abort();
+        }
 
-		private void FixedUpdate () {
-			fixedDelta = Time.fixedDeltaTime;
-			doRender = true;
-		}
+        private void PrepareRender()
+        {
+            while (_running)
+                if (_doRender)
+                {
+                    Render();
+                    _doRender = false;
+                }
+        }
 
-		private void Quitting () {
-			running = false;
-		}
+        private void Render()
+        {
+            for (int x = 0; x < _vision.GridSize.x; x++)
+            for (int y = 0; y < _vision.GridSize.y; y++)
+            {
+                float redValue = 0f;
 
-		private void PrepareRender () {
-			while (running) {
-				if (doRender) {
-					Render();
-					doRender = false;
-				}
-			}
-		}
+                if ((_vision.Nodes[x, y] & _vision.CurrentMask) == _vision.CurrentMask)
+                    redValue = 1f;
+                else if ((_vision.Visited[x, y] & _vision.CurrentMask) == _vision.CurrentMask) redValue = 0.5f;
 
-		private void Render () {
-			for (int x = 0; x < vision.GridSize.x; x++) {
-				for (int y = 0; y < vision.GridSize.y; y++) {
-					float redValue = 0f;
+                redValue = Mathf.LerpUnclamped(_texture[x + y * _vision.GridSize.x].r, redValue,
+                    interpolation * _fixedDelta);
 
-					if ((vision.Nodes[x, y] & vision.CurrentMask) == vision.CurrentMask) {
-						redValue = 1f;
-					}
-					else if ((vision.Visited[x, y] & vision.CurrentMask) == vision.CurrentMask) {
-						redValue = 0.5f;
-					}
+                _texture[x + y * _vision.GridSize.x] = new Color(redValue, 0, 0, 1f);
+            }
 
-					redValue = Mathf.LerpUnclamped(texture[x + y * vision.GridSize.x].r, redValue, interpolation * fixedDelta);
+            _dirty = true;
+        }
 
-					texture[x + y * vision.GridSize.x] = new Color(redValue, 0, 0, 1f);
-				}
-			}
-
-			dirty = true;
-		}
-
-		private void OnDestroy () {
-			instance = null;
-		}
-	}
+        private void OnDestroy()
+        {
+            _instance = null;
+        }
+    }
 }

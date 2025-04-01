@@ -13,11 +13,11 @@ namespace MarsTS.Commands {
 		protected override void Awake () {
 			base.Awake();
 
-			parentSquad = parent as InfantrySquad;
+			parentSquad = orderSource as InfantrySquad;
 		}
 
-		protected override void OrderComplete (CommandCompleteEvent _event) {
-			if (!parentSquad.Members.Contains(_event.Unit)) return;
+		protected override void OnOrderComplete (CommandCompleteEvent _event) {
+			if (!parentSquad.Members.Contains(_event.Unit as ISelectable)) return;
 			Current = null;
 			bus.Global(_event);
 		}

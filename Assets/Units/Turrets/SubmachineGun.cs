@@ -1,71 +1,80 @@
 using MarsTS.Commands;
-using MarsTS.Teams;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using MarsTS.Events;
+using MarsTS.Teams;
+using UnityEngine;
+using Unity.Netcode;
 
-namespace MarsTS.Units {
+namespace MarsTS.Units
+{
+    public class SubmachineGun : ProjectileTurret
+    {
+        //Amount of bullets fired per burst
+        [SerializeField] private int burstCount;
+        private int firedCount;
 
-    public class SubmachineGun : ProjectileTurret {
+        [SerializeField] private float burstCooldown;
+        private float currentBurstCooldown;
 
-		//Amount of bullets fired per burst
-		[SerializeField]
-		private int burstCount;
-		private int firedCount;
+        private bool isSneaking;
 
-		[SerializeField]
-		private float burstCooldown;
-		private float currentBurstCooldown;
+        private void Start()
+        {
+            _bus.AddListener<SneakEvent>(OnSneak);
+            isSneaking = false;
+        }
 
-		private bool isSneaking;
+        protected override void Update()
+        {
+            if (!NetworkManager.Singleton.IsServer) return;
 
-		private void Start () {
-			bus.AddListener<SneakEvent>(OnSneak);
-			isSneaking = false;
-		}
+            if (CurrentCooldown >= 0f) CurrentCooldown -= Time.deltaTime;
+            if (currentBurstCooldown >= 0f) currentBurstCooldown -= Time.deltaTime;
 
-		protected override void Update () {
-			if (currentCooldown >= 0f) currentCooldown -= Time.deltaTime;
-			if (currentBurstCooldown >= 0f) currentBurstCooldown -= Time.deltaTime;
+            if (_parent is ICommandable commandableUnit && commandableUnit.CurrentCommand != null &&
+                commandableUnit.CurrentCommand.Name == "attack")
+            {
+                var attackCommand = commandableUnit.CurrentCommand as Commandlet<IAttackable>;
 
-			if (parent is ICommandable commandableUnit && commandableUnit.CurrentCommand != null && commandableUnit.CurrentCommand.Name == "attack") {
-				Commandlet<IAttackable> attackCommand = commandableUnit.CurrentCommand as Commandlet<IAttackable>;
+                if (_sensor.IsDetected(attackCommand.Target)) _target = attackCommand.Target;
+            }
 
-				if (sensor.IsDetected(attackCommand.Target)) {
-					target = attackCommand.Target;
-				}
-			}
+            if (_target == null)
+            {
+                float distance = _sensor.Range * _sensor.Range;
+                IAttackable currentClosest = null;
 
-			if (target == null) {
-				float distance = sensor.Range * sensor.Range;
-				IAttackable currentClosest = null;
+                foreach (IAttackable unit in _sensor.Detected)
+                {
+                    if (unit.GetRelationship(_parent.Owner) == Relationship.Hostile)
+                    {
+                        float newDistance =
+                            Vector3.Distance(_sensor.GetDetectedCollider(unit.GameObject.name).transform.position,
+                                transform.position);
 
-				foreach (IAttackable unit in sensor.Detected) {
-					if (unit.GetRelationship(parent.Owner) == Relationship.Hostile) {
-						float newDistance = Vector3.Distance(sensor.GetDetectedCollider(unit.GameObject.name).transform.position, transform.position);
+                        if (newDistance < distance) currentClosest = unit;
+                    }
+                }
 
-						if (newDistance < distance) {
-							currentClosest = unit;
-						}
-					}
-				}
-				if (currentClosest != null) target = currentClosest;
-			}
+                if (currentClosest != null) _target = currentClosest;
+            }
 
-			if (!isSneaking && target != null && sensor.IsDetected(target) && currentBurstCooldown <= 0 && currentCooldown <= 0) {
-				Fire(sensor.GetDetectedCollider(target.GameObject.name).transform.position);
-				firedCount++;
+            if (!isSneaking && _target != null && _sensor.IsDetected(_target) && currentBurstCooldown <= 0 &&
+                CurrentCooldown <= 0)
+            {
+                FireProjectile(_sensor.GetDetectedCollider(_target.GameObject.name).transform.position);
+                firedCount++;
 
-				if (firedCount >= burstCount) {
-					currentBurstCooldown += burstCooldown;
-					firedCount = 0;
-				}
-			}
-		}
+                if (firedCount >= burstCount)
+                {
+                    currentBurstCooldown += burstCooldown;
+                    firedCount = 0;
+                }
+            }
+        }
 
-		private void OnSneak (SneakEvent _event) {
-			isSneaking = _event.IsSneaking;
-		}
-	}
+        private void OnSneak(SneakEvent _event)
+        {
+            isSneaking = _event.IsSneaking;
+        }
+    }
 }

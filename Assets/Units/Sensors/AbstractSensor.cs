@@ -1,180 +1,203 @@
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Teams;
-using MarsTS.Vision;
-using MarsTS.World;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using MarsTS.Entities;
+using MarsTS.Events;
+using MarsTS.Vision;
 using UnityEngine;
 
-namespace MarsTS.Units {
+namespace MarsTS.Units
+{
+    public abstract class AbstractSensor<T> : MonoBehaviour where T : IUnit
+    {
+        public float Range => SensorCollider.radius;
 
-    public abstract class AbstractSensor<T> : MonoBehaviour {
+        public List<T> Detected => detected.Values.ToList();
 
-        public float Range { get { return range.radius; } }
+        public List<T> InRange => inRange.Values.ToList();
 
-		public List<T> Detected {
-			get {
-				List<T> output = new List<T>();
+        public List<GameObject> InRangeColliders
+        {
+            get
+            {
+                var output = new List<GameObject>();
 
-				foreach (T t in detected.Values) {
-					output.Add(t);
-				}
+                foreach (HashSet<GameObject> table in DetectedColliders.Values)
+                {
+                    output.AddRange(table);
+                }
 
-				return output;
-			}
-		}
+                return output;
+            }
+        }
 
-		public List<T> InRange {
-			get {
-				List<T> output = new List<T>();
+        protected SphereCollider SensorCollider;
 
-				foreach (T t in inRange.Values) {
-					output.Add(t);
-				}
+        protected Dictionary<string, T> inRange = new Dictionary<string, T>();
 
-				return output;
-			}
-		}
+        protected Dictionary<string, T> detected = new Dictionary<string, T>();
 
-		public List<GameObject> InRangeColliders {
-			get {
-				List<GameObject> output = new List<GameObject>();
+        protected Dictionary<string, HashSet<GameObject>> DetectedColliders = new Dictionary<string, HashSet<GameObject>>();
 
-				foreach (HashSet<GameObject> table in colliders.Values) {
-					output.AddRange(table);
-				}
+        protected List<Collider> QueuedColliders = new List<Collider>();
 
-				return output;
-			}
-		}
+        protected ISelectable Parent;
 
-		protected SphereCollider range;
+        protected EventAgent Bus;
 
-		protected Dictionary<string, T> inRange = new Dictionary<string, T>();
+        protected Entity _parentEntity;
 
-		protected Dictionary<string, T> detected = new Dictionary<string, T>();
+        protected bool IsInitialized;
 
-		protected Dictionary<string, HashSet<GameObject>> colliders = new Dictionary<string, HashSet<GameObject>>();
+        protected virtual void Awake()
+        {
+            SensorCollider = GetComponent<SphereCollider>();
+            SensorCollider.enabled = false;
+            Bus = GetComponentInParent<EventAgent>();
+            Parent = GetComponentInParent<ISelectable>();
+            _parentEntity = GetComponentInParent<Entity>();
 
-		protected ISelectable parent;
+            foreach (Collider colliderToIgnore in transform.root.GetComponentsInChildren<Collider>())
+            {
+                Physics.IgnoreCollision(SensorCollider, colliderToIgnore, true);
+            }
 
-		protected EventAgent bus;
+            //Bus.AddListener<EntityInitEvent>(OnEntityInit);
+            _parentEntity.OnEntityInit += OnEntityInit;
+        }
 
-		protected bool initialized;
+        protected virtual void Start()
+        {
+            EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
+        }
 
-		protected virtual void Awake () {
-			range = GetComponent<SphereCollider>();
-			range.enabled = false;
-			bus = GetComponentInParent<EventAgent>();
-			parent = GetComponentInParent<ISelectable>();
+        protected void Update()
+        {
+            if (!IsInitialized 
+                || Parent == null 
+                || Parent.Owner == null 
+                || QueuedColliders.Count <= 0
+            ) return;
 
-			foreach (Collider collider in transform.root.GetComponentsInChildren<Collider>()) {
-				Physics.IgnoreCollision(range, collider);
-			}
+            foreach (var collision in QueuedColliders)
+            {
+                OnTriggerEnter(collision);
+            }
+        }
 
-			bus.AddListener<EntityInitEvent>(OnEntityInit);
-		}
+        protected void OnEntityInit(Phase phase)
+        {
+            if (phase == Phase.Pre) 
+                return;
+            
+            IsInitialized = true;
+            SensorCollider.enabled = true;
+        }
 
-		protected virtual void Start () {
-			EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
-		}
+        protected virtual void OnTriggerEnter(Collider other)
+        {
+            if (!IsInitialized || Parent == null || Parent.Owner == null)
+            {
+                QueuedColliders.Add(other);
+                return;
+            }
 
-		protected void OnEntityInit (EntityInitEvent _event) {
-			if (_event.Phase == Phase.Pre) return;
-			initialized = true;
-			range.enabled = true;
-		}
+            if (other.transform.root.name == transform.root.name) return;
+            
+            if (EntityCache.TryGet(other.transform.root.name, out Entity entityComp)
+                && entityComp.TryGet(out T target))
+            {
+                EventAgent targetBus = entityComp.Get<EventAgent>("eventAgent");
 
-		protected virtual void OnTriggerEnter (Collider other) {
-			if (!initialized) return;
-			
-			if (EntityCache.TryGet(other.transform.root.name, out Entity entityComp) 
-				&& entityComp.TryGet(out T target)) {
-				EventAgent targetBus = entityComp.Get<EventAgent>("eventAgent");
+                targetBus.AddListener<UnitDeathEvent>(OnUnitDeath);
 
-				targetBus.AddListener<EntityDestroyEvent>(OnEntityDestroy);
+                inRange[other.transform.root.name] = target;
+                //colliders[other.transform.root.name] = other.gameObject;
+                GetHashedColliders(other.transform.root.name).Add(other.gameObject);
 
-				inRange[other.transform.root.name] = target;
-				//colliders[other.transform.root.name] = other.gameObject;
-				GetHashedColliders(other.transform.root.name).Add(other.gameObject);
+                if (GameVision.IsVisible(other.transform.root.gameObject, Parent.Owner.VisionMask))
+                {
+                    detected[other.transform.root.name] = target;
+                    Bus.Local(new SensorUpdateEvent<T>(Bus, target, true));
+                }
+            }
 
-				if (GameVision.IsVisible(other.transform.root.gameObject, parent.Owner.VisionMask)) {
-					detected[other.transform.root.name] = target;
-					bus.Local(new SensorUpdateEvent<T>(bus, target, true));
-				}
-			}
-		}
+            QueuedColliders.Remove(other);
+        }
 
-		protected virtual void OnTriggerExit (Collider other) {
-			if (!initialized) return;
+        protected virtual void OnTriggerExit(Collider other)
+        {
+            if (!IsInitialized) return;
 
-			if (colliders.TryGetValue(other.transform.root.name, out HashSet<GameObject> colliderTable)) {
-				colliderTable.Remove(other.gameObject);
+            if (DetectedColliders.TryGetValue(other.transform.root.name, out HashSet<GameObject> colliderTable))
+            {
+                colliderTable.Remove(other.gameObject);
 
-				if (colliderTable.Count <= 0) OutOfRange(other.transform.root.name);
-			}
-		}
+                if (colliderTable.Count <= 0) OutOfRange(other.transform.root.name);
+            }
+        }
 
-		protected virtual void OnVisionUpdate (VisionUpdateEvent _event) {
-			foreach (KeyValuePair<string, T> inRangeUnit in inRange) {
-				if (GameVision.IsVisible(inRangeUnit.Key, parent.Owner.VisionMask)) {
-					detected[inRangeUnit.Key] = inRange[inRangeUnit.Key];
-					bus.Local(new SensorUpdateEvent<T>(bus, detected[inRangeUnit.Key], true));
-				}
-				else if (detected.ContainsKey(inRangeUnit.Key)) {
-					T toRemove = detected[inRangeUnit.Key];
-					detected.Remove(inRangeUnit.Key);
-					bus.Local(new SensorUpdateEvent<T>(bus, toRemove, false));
-				}
-			}
-		}
+        protected virtual void OnVisionUpdate(VisionUpdateEvent _event)
+        {
+            foreach (KeyValuePair<string, T> inRangeUnit in inRange)
+            {
+                if (GameVision.IsVisible(inRangeUnit.Key, Parent.Owner.VisionMask))
+                {
+                    detected[inRangeUnit.Key] = inRange[inRangeUnit.Key];
+                    Bus.Local(new SensorUpdateEvent<T>(Bus, detected[inRangeUnit.Key], true));
+                }
+                else if (detected.ContainsKey(inRangeUnit.Key))
+                {
+                    T toRemove = detected[inRangeUnit.Key];
+                    detected.Remove(inRangeUnit.Key);
+                    Bus.Local(new SensorUpdateEvent<T>(Bus, toRemove, false));
+                }
+            }
+        }
 
-		protected virtual void OnEntityDestroy (EntityDestroyEvent _event) {
-			OutOfRange(_event.Entity.gameObject.name);
-		}
+        protected virtual void OnUnitDeath(UnitDeathEvent _event)
+        {
+            OutOfRange(_event.Unit.GameObject.name);
+        }
 
-		public virtual bool IsDetected (string name) {
-			return detected.ContainsKey(name);
-		}
+        public virtual bool IsDetected(string name) => detected.ContainsKey(name);
 
-		public abstract bool IsDetected (T unit);
+        public abstract bool IsDetected(T unit);
 
-		protected virtual void OutOfRange (string key) {
-			if (!inRange.ContainsKey(key)) return;
+        protected virtual void OutOfRange(string key)
+        {
+            if (!inRange.ContainsKey(key)) return;
 
-			if (!EntityCache.TryGet(key, out EventAgent targetBus)) return;
+            if (!EntityCache.TryGet(key, out EventAgent targetBus)) return;
 
-			targetBus.RemoveListener<EntityDestroyEvent>(OnEntityDestroy);
+            targetBus.RemoveListener<UnitDeathEvent>(OnUnitDeath);
 
-			T toRemove = inRange[key];
+            T toRemove = inRange[key];
 
-			if (detected.ContainsKey(key)) {
-				detected.Remove(key);
-				bus.Local(new SensorUpdateEvent<T>(bus, toRemove, false));
-			}
-			
-			inRange.Remove(key);
-			colliders.Remove(key);
-		}
+            if (detected.ContainsKey(key))
+            {
+                detected.Remove(key);
+                Bus.Local(new SensorUpdateEvent<T>(Bus, toRemove, false));
+            }
 
-		protected virtual HashSet<GameObject> GetHashedColliders (string key) {
-			HashSet<GameObject> output = colliders.GetValueOrDefault(key, new HashSet<GameObject>());
-			if (!colliders.ContainsKey(key)) colliders[key] = output;
-			return output;
-		}
+            inRange.Remove(key);
+            DetectedColliders.Remove(key);
+        }
 
-		public GameObject GetDetectedCollider (string key) {
-			return GetDetectedColliders(key)[0];
-		}
+        protected virtual HashSet<GameObject> GetHashedColliders(string key)
+        {
+            HashSet<GameObject> output = DetectedColliders.GetValueOrDefault(key, new HashSet<GameObject>());
+            if (!DetectedColliders.ContainsKey(key)) DetectedColliders[key] = output;
+            return output;
+        }
 
-		public GameObject[] GetDetectedColliders (string key) {
-			if (colliders.TryGetValue(key, out HashSet<GameObject> collider)) {
-				return collider.ToArray();
-			}
+        public GameObject GetDetectedCollider(string key) => GetDetectedColliders(key)[0];
 
-			return null;
-		}
-	}
+        public GameObject[] GetDetectedColliders(string key)
+        {
+            if (DetectedColliders.TryGetValue(key, out HashSet<GameObject> collider)) return collider.ToArray();
+
+            return null;
+        }
+    }
 }

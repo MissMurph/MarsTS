@@ -27,10 +27,9 @@ namespace MarsTS.Units {
 			}
 		}
 
-		protected override void Start () {
-			base.Start();
+		protected void Start () {
 
-			if (deployed) bus.Local(new DeployEvent(bus, this, deployed));
+			if (deployed) Bus.Local(new DeployEvent(Bus, this, deployed));
 		}
 
 		protected override void FixedUpdate () {
@@ -40,31 +39,31 @@ namespace MarsTS.Units {
 		private void Deploy (Commandlet order) {
 			if ((order as Commandlet<bool>).Target) {
 				currentTopSpeed = 0f;
-				body.velocity = Vector3.zero;
+				Body.velocity = Vector3.zero;
 				deployed = true;
 			}
 			else {
-				bus.Local(new DeployEvent(bus, this, false));
+				Bus.Local(new DeployEvent(Bus, this, false));
 			}
 
-			bus.AddListener<CommandCompleteEvent>(DeployComplete);
+			Bus.AddListener<CommandCompleteEvent>(DeployComplete);
 		}
 
 		private void DeployComplete (CommandCompleteEvent _event) {
-			bus.RemoveListener<CommandCompleteEvent>(DeployComplete);
+			Bus.RemoveListener<CommandCompleteEvent>(DeployComplete);
 
 			deployed = (_event.Command as Commandlet<bool>).Target;
 
 			if (deployed) {
 				boundCommands[deployCommandIndex] = "undeploy";
-				bus.Local(new DeployEvent(bus, this, deployed));
+				Bus.Local(new DeployEvent(Bus, this, deployed));
 			}
 			else {
 				currentTopSpeed = topSpeed;
 				boundCommands[deployCommandIndex] = "deploy";
 			}
 			
-			bus.Global(new CommandsUpdatedEvent(bus, this, boundCommands));
+			Bus.Global(new CommandsUpdatedEvent(Bus, this, boundCommands));
 		}
 
 		protected override void ExecuteOrder (CommandStartEvent _event) {
@@ -85,7 +84,7 @@ namespace MarsTS.Units {
 		}
 
 		public override void Order (Commandlet order, bool inclusive) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
+			if (!GetRelationship(order.Commander).Equals(Relationship.Owned)) return;
 
 			switch (order.Name) {
 				case "deploy":

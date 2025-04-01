@@ -5,8 +5,7 @@ using UnityEngine;
 
 namespace MarsTS.Units {
 
-    public interface IAttackable {
-		GameObject GameObject { get; }
+    public interface IAttackable : IUnit {
 		int Health { get; }
 		int MaxHealth { get; }
 		void Attack (int damage);

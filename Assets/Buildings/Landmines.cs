@@ -1,218 +1,205 @@
+using System.Collections.Generic;
 using MarsTS.Commands;
 using MarsTS.Entities;
 using MarsTS.Events;
-using MarsTS.Players;
 using MarsTS.UI;
-using MarsTS.Units;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.InputSystem.HID;
-using static UnityEngine.UI.CanvasScaler;
 
-namespace MarsTS.Buildings {
+namespace MarsTS.Buildings
+{
+    public class Landmines : Building
+    {
+        private Dictionary<string, Landmine> _childMines;
+        private Dictionary<string, Collider> _entityColliders;
+        private Dictionary<string, Transform> _selectionColliders;
+        private Dictionary<string, Transform> _detectableColliders;
 
-    public class Landmines : Building {
+        private int _collectiveMaxHealth;
 
-        private Dictionary<string, Landmine> childMines;
-		private Dictionary<string, Collider> entityColliders;
-		private Dictionary<string, Transform> selectionColliders;
-		private Dictionary<string, Transform> detectableColliders;
+        [SerializeField] private GameObject entityColliderPrefab;
 
-		private int collectiveMaxHealth;
+        [SerializeField] private GameObject selectionColliderPrefab;
 
-		[SerializeField]
-		private GameObject entityColliderPrefab;
+        [SerializeField] private GameObject dummyColliderPrefab;
 
-		[SerializeField]
-		private GameObject selectionColliderPrefab;
+        public override int MaxHealth => _collectiveMaxHealth;
 
-		[SerializeField]
-		private GameObject dummyColliderPrefab;
+        public override int Health
+        {
+            get
+            {
+                int output = 0;
 
-		public override int MaxHealth { get { return collectiveMaxHealth; } }
+                foreach (Landmine child in _childMines.Values)
+                {
+                    output += child.Health;
+                }
 
-		public override int Health {
-			get {
-				if (Constructed) {
-					int output = 0;
+                return output;
+            }
+        }
 
-					foreach (Landmine child in childMines.Values) {
-						output += child.Health;
-					}
+        //private List<GameObject> dummysToDestroy = new List<GameObject>();
 
-					return output;
-				}
-				else {
-					return base.Health;
-				}
-			}
-		}
+        protected override void Awake()
+        {
+            Health = 0;
+            commands = GetComponent<CommandQueue>();
 
-		//private List<GameObject> dummysToDestroy = new List<GameObject>();
+            Bus = GetComponent<EventAgent>();
+            EntityComponent = GetComponent<Entity>();
 
-		protected override void Awake () {
-			Health = 0;
-			commands = GetComponent<CommandQueue>();
+            _childMines = new Dictionary<string, Landmine>();
+            _entityColliders = new Dictionary<string, Collider>();
+            _selectionColliders = new Dictionary<string, Transform>();
+            _detectableColliders = new Dictionary<string, Transform>();
 
-			bus = GetComponent<EventAgent>();
-			entityComponent = GetComponent<Entity>();
+            Landmine[] foundChildren = GetComponentsInChildren<Landmine>();
 
-			childMines = new Dictionary<string, Landmine>();
-			entityColliders = new Dictionary<string, Collider>();
-			selectionColliders = new Dictionary<string, Transform>();
-			detectableColliders = new Dictionary<string, Transform>();
+            _collectiveMaxHealth = 0;
 
-			Landmine[] foundChildren = GetComponentsInChildren<Landmine>();
+            foreach (Landmine child in foundChildren)
+            {
+                _collectiveMaxHealth += child.MaxHealth;
+                RegisterMine(child);
+            }
+        }
 
-			collectiveMaxHealth = 0;
+        private void LateUpdate()
+        {
+            foreach (KeyValuePair<string, Transform> dummy in _detectableColliders)
+            {
+                dummy.Value.position = _childMines[dummy.Key].transform.position;
+            }
+        }
 
-			foreach (Landmine child in foundChildren) {
-				healthPerConstructionPoint = child.MaxHealth / constructionWork;
-				collectiveMaxHealth += child.MaxHealth;
-				RegisterMine(child);
-			}
-		}
+        private void RegisterMine(Landmine child)
+        {
+            EventAgent unitEvents = child.GetComponent<EventAgent>();
+            unitEvents.AddListener<EntityInitEvent>(OnChildInit);
+            unitEvents.AddListener<UnitDeathEvent>(OnMineDestroyed);
+            unitEvents.AddListener<UnitHurtEvent>(OnChildHurt);
+            unitEvents.AddListener<EntityVisibleEvent>(OnChildVisionUpdate);
 
-		private void LateUpdate () {
-			foreach (KeyValuePair<string, Transform> dummy in detectableColliders) {
-				dummy.Value.position = childMines[dummy.Key].transform.position;
-			}
-		}
+            Model = child.transform.Find("Model");
 
-		private void RegisterMine (Landmine child) {
-			EventAgent unitEvents = child.GetComponent<EventAgent>();
-			unitEvents.AddListener<EntityInitEvent>(OnChildInit);
-			unitEvents.AddListener<UnitDeathEvent>(OnMineDestroyed);
-			unitEvents.AddListener<UnitHurtEvent>(OnChildHurt);
-			unitEvents.AddListener<EntityVisibleEvent>(OnChildVisionUpdate);
+            Bus.Local(new SquadRegisterEvent(Bus, this, child));
+        }
 
-			child.SetConstructionProgress(currentWork);
+        private void OnChildInit(EntityInitEvent _event)
+        {
+            if (_event.Phase == Phase.Post) return;
 
-			model = child.transform.Find("Model");
+            _childMines[_event.ParentEntity.gameObject.name] = _event.ParentEntity.Get<Landmine>("selectable");
 
-			if (currentWork > 0) {
-				model.localScale = Vector3.one * (currentWork / constructionWork);
-				Health = maxHealth * (int)(currentWork / constructionWork);
-			}
-			else model.localScale = Vector3.zero;
+            _childMines[_event.ParentEntity.gameObject.name].SetOwner(Owner);
 
-			bus.Local(new SquadRegisterEvent(bus, this, child));
-		}
+            Collider newEntityCollider = Instantiate(entityColliderPrefab,
+                _event.ParentEntity.gameObject.transform.position, _event.ParentEntity.gameObject.transform.rotation,
+                transform).GetComponent<Collider>();
+            
+            Transform newSelectionCollider = Instantiate(selectionColliderPrefab,
+                _event.ParentEntity.gameObject.transform.position, _event.ParentEntity.gameObject.transform.rotation,
+                transform).transform;
+            
+            Transform newDummyCollider = Instantiate(dummyColliderPrefab,
+                _event.ParentEntity.gameObject.transform.position, _event.ParentEntity.gameObject.transform.rotation,
+                transform).transform;
 
-		private void OnChildInit (EntityInitEvent _event) {
-			if (_event.Phase == Phase.Post) return;
+            _entityColliders[_event.ParentEntity.gameObject.name] = newEntityCollider;
+            _selectionColliders[_event.ParentEntity.gameObject.name] = newSelectionCollider;
+            _detectableColliders[_event.ParentEntity.gameObject.name] = newDummyCollider;
 
-			childMines[_event.ParentEntity.gameObject.name] = _event.ParentEntity.Get<Landmine>("selectable");
+            _childMines[_event.ParentEntity.gameObject.name].transform.SetParent(null, true);
+        }
 
-			childMines[_event.ParentEntity.gameObject.name].SetOwner(owner);
+        private void OnMineDestroyed(UnitDeathEvent _event)
+        {
+            string key = _event.Unit.GameObject.name;
 
-			Collider newEntityCollider = Instantiate(entityColliderPrefab, _event.ParentEntity.gameObject.transform.position, _event.ParentEntity.gameObject.transform.rotation, transform).GetComponent<Collider>();
-			Transform newSelectionCollider = Instantiate(selectionColliderPrefab, _event.ParentEntity.gameObject.transform.position, _event.ParentEntity.gameObject.transform.rotation, transform).transform;
-			Transform newDummyCollider = Instantiate(dummyColliderPrefab, _event.ParentEntity.gameObject.transform.position, _event.ParentEntity.gameObject.transform.rotation, transform).transform;
+            _childMines.Remove(key);
 
-			entityColliders[_event.ParentEntity.gameObject.name] = newEntityCollider;
-			selectionColliders[_event.ParentEntity.gameObject.name] = newSelectionCollider;
-			detectableColliders[_event.ParentEntity.gameObject.name] = newDummyCollider;
+            Destroy(_selectionColliders[key].gameObject);
+            _detectableColliders[key].position = Vector3.down * 1000f;
 
-			if (currentWork >= constructionWork) {
-				newEntityCollider.isTrigger = true;
-				newEntityCollider.transform.SetParent(childMines[_event.ParentEntity.gameObject.name].transform);
-			}
+            _selectionColliders.Remove(key);
+            _detectableColliders.Remove(key);
 
-			childMines[_event.ParentEntity.gameObject.name].transform.SetParent(null, true);
-		}
+            if (_childMines.Count <= 0)
+            {
+                Bus.Global(new UnitDeathEvent(Bus, this));
+                Destroy(gameObject);
+            }
+            else
+            {
+                foreach (Transform dummy in _detectableColliders.Values)
+                {
+                    dummy.position = Vector3.down * 1000f;
+                }
+            }
+        }
 
-		private void OnMineDestroyed (UnitDeathEvent _event) {
-			string key = _event.Unit.GameObject.name;
+        private void OnChildHurt(UnitHurtEvent _event)
+        {
+            UnitHurtEvent hurtEvent = new UnitHurtEvent(Bus, this, _event.Damage);
+            hurtEvent.Phase = Phase.Post;
+            Bus.Global(hurtEvent);
+        }
 
-			childMines.Remove(key);
+        private void OnChildVisionUpdate(EntityVisibleEvent _event)
+        {
+            if (_selectionColliders.TryGetValue(_event.UnitName, out Transform collider))
+                collider.gameObject.SetActive(_event.Visible);
+        }
 
-			Destroy(selectionColliders[key].gameObject);
-			detectableColliders[key].position = Vector3.down * 1000f;
+        public override void Hover(bool status)
+        {
+            foreach (Landmine child in _childMines.Values)
+            {
+                child.Hover(status);
+            }
+        }
 
-			selectionColliders.Remove(key);
-			detectableColliders.Remove(key);
+        public override void Select(bool status)
+        {
+            foreach (Landmine child in _childMines.Values)
+            {
+                child.Select(status);
+            }
+        }
 
-			if (childMines.Count <= 0) {
-				bus.Global(new UnitDeathEvent(bus, this));
-				Destroy(gameObject);
-			}
-			else {
-				foreach (Transform dummy in detectableColliders.Values) {
-					dummy.position = Vector3.down * 1000f;
-				}
-			}
-		}
+        public override void Attack(int damage)
+        {
+            if (base.Health <= 0)
+                return;
 
-		private void OnChildHurt (UnitHurtEvent _event) {
-			if (!Constructed) return;
-			bus.Global(new UnitHurtEvent(bus, this));
-		}
+            if (damage < 0 && base.Health >= MaxHealth)
+                return;
 
-		private void OnChildVisionUpdate (EntityVisibleEvent _event) {
-			if (selectionColliders.TryGetValue(_event.UnitName, out Transform collider)) {
-				collider.gameObject.SetActive(_event.Visible);
-			}
-		}
+            UnitHurtEvent hurtEvent = new UnitHurtEvent(Bus, this, damage);
+            hurtEvent.Phase = Phase.Pre;
+            Bus.Global(hurtEvent);
 
-		public override void Hover (bool status) {
-			foreach (Landmine child in childMines.Values) {
-				child.Hover(status);
-			}
-		}
+            damage = hurtEvent.Damage;
+            base.Health -= damage;
 
-		public override void Select (bool status) {
-			foreach (Landmine child in childMines.Values) {
-				child.Select(status);
-			}
-		}
+            hurtEvent.Phase = Phase.Post;
+            Bus.Global(hurtEvent);
 
-		public override void Attack (int damage) {
-			if (currentWork < constructionWork && damage < 0) {
-				currentWork -= damage;
+            if (base.Health <= 0)
+            {
+                Bus.Global(new UnitDeathEvent(Bus, this));
+                Destroy(gameObject, 0.1f);
+            }
+        }
 
-				float progress = (float)currentWork / constructionWork;
-
-				base.Health += healthPerConstructionPoint;
-
-				model.localScale = Vector3.one * progress;
-
-				bus.Global(new UnitHurtEvent(bus, this));
-
-				foreach (Landmine child in childMines.Values) {
-					child.Attack(damage);
-				}
-
-				if (progress >= 1f) {
-					bus.Global(new CommandsUpdatedEvent(bus, this, boundCommands));
-
-					foreach (KeyValuePair<string, Collider> colliderEntry in entityColliders) {
-						colliderEntry.Value.isTrigger = true;
-						colliderEntry.Value.transform.SetParent(childMines[colliderEntry.Key].transform);
-					}
-
-					return;
-				}
-			}
-
-			if (base.Health <= 0) return;
-			if (damage < 0 && base.Health >= maxHealth) return;
-			base.Health -= damage;
-			bus.Global(new UnitHurtEvent(bus, this));
-
-			if (base.Health <= 0) {
-				bus.Global(new UnitDeathEvent(bus, this));
-				Destroy(gameObject, 0.1f);
-			}
-		}
-
-		protected override void OnUnitInfoDisplayed (UnitInfoEvent _event) {
-			if (ReferenceEquals(_event.Unit, this)) {
-				HealthInfo info = _event.Info.Module<HealthInfo>("health");
-				info.CurrentUnit = this;
-			}
-		}
-	}
+        protected override void OnUnitInfoDisplayed(UnitInfoEvent @event)
+        {
+            if (ReferenceEquals(@event.Unit, this))
+            {
+                HealthInfo info = @event.Info.Module<HealthInfo>("health");
+                info.CurrentUnit = this;
+            }
+        }
+    }
 }

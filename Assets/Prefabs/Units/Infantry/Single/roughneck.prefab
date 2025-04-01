@@ -201,7 +201,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.5, y: 1, z: 0.5}
+  m_Size: {x: 0.4, y: 1, z: 0.4}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &974687869533868368
 GameObject:
@@ -212,6 +212,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 974687869533868369}
+  - component: {fileID: -1809977087990070319}
   - component: {fileID: 6170492456115223497}
   - component: {fileID: 441177838}
   - component: {fileID: 2568549571465963630}
@@ -219,6 +220,9 @@ GameObject:
   - component: {fileID: 8093505882862900791}
   - component: {fileID: 3622172076741745541}
   - component: {fileID: 6036981692444914964}
+  - component: {fileID: 3375774258430948608}
+  - component: {fileID: 9111904041274489141}
+  - component: {fileID: 4375999074353984278}
   m_Layer: 0
   m_Name: roughneck
   m_TagString: Infantry
@@ -251,6 +255,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-1809977087990070319
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 974687869533868368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2423178708
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &6170492456115223497
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -263,15 +288,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f898798f90ea9984ab67b93e79f23bcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
-  currentHealth: 0
-  icon: {fileID: 0}
-  type: roughneck
-  owner: {fileID: 0}
-  squad: {fileID: 0}
-  moveSpeed: 3
-  waypointCompletionDistance: 1.5
-  hideables:
+  _maxHealth:
+    m_InternalValue: 100
+  _currentHealth:
+    m_InternalValue: 100
+  _icon: {fileID: 0}
+  _type: roughneck
+  _owner: {fileID: 0}
+  _squad: {fileID: 0}
+  _moveSpeed: 3
+  _waypointCompletionDistance: 1.5
+  _hideables:
   - {fileID: 5392394301502405319}
   - {fileID: 4753947575575797565}
   - {fileID: 7942216869367903200}
@@ -320,7 +347,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  registryKey: roughneck
+  _registryKey: roughneck
+  _toTag: []
 --- !u!114 &8093505882862900791
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -359,6 +387,62 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visionRange: 20
+  owner: 0
+--- !u!114 &3375774258430948608
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 974687869533868368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 866af88a2db170c42a48b68ed236afd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &9111904041274489141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 974687869533868368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 1
+  SyncScaleY: 1
+  SyncScaleZ: 1
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  Interpolate: 1
+  SlerpPosition: 0
+--- !u!114 &4375999074353984278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 974687869533868368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6c0be61502bb534f922ebb746851216, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1417443490299235445
 GameObject:
   m_ObjectHideFlags: 0
@@ -513,11 +597,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d70f04a9813e61846a27e246328e39fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectile: {fileID: 5732885903752370511, guid: c53d0750fc9147c4f82636c698100a22,
+  _projectile: {fileID: 5732885903752370511, guid: c53d0750fc9147c4f82636c698100a22,
     type: 3}
-  damage: 2
-  cooldown: 0.1
-  barrel: {fileID: 1417443490299235445}
+  _damage: 2
+  _cooldown: 0.1
+  _barrel: {fileID: 1417443490299235445}
   burstCount: 3
   burstCooldown: 4
 --- !u!114 &3326555973673318992

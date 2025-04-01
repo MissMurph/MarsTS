@@ -3,13 +3,15 @@ using MarsTS.Entities;
 using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace MarsTS.Units {
 
-    public class InfantrySniper : Unit {
+    public class InfantrySniper : AbstractUnit {
 
 		[SerializeField]
 		protected float baseSpeed;
@@ -46,15 +48,13 @@ namespace MarsTS.Units {
 			equippedWeapon = GetComponentInChildren<ProjectileTurret>();
 		}
 
-		protected override void Update () {
-			base.Update();
-
+		protected override void ServerUpdate () {
 			//I'd like to move these all to commands, for now they'll remain here
 			//Will start devising a method to do so
 			if (AttackTarget.Get != null) {
 				if (equippedWeapon.IsInRange(AttackTarget.Get)) {
 					TrackedTarget = null;
-					currentPath = Path.Empty;
+					CurrentPath = Path.Empty;
 				}
 				else if (!ReferenceEquals(TrackedTarget, AttackTarget.GameObject.transform)) {
 					SetTarget(AttackTarget.GameObject.transform);
@@ -64,40 +64,42 @@ namespace MarsTS.Units {
 			if (CurrentCommand != null && CurrentCommand.Name == "flare") {
 				if ((flareTarget - transform.position).sqrMagnitude < (flareRange * flareRange)) {
 					TrackedTarget = null;
-					currentPath = Path.Empty;
+					CurrentPath = Path.Empty;
 
 					FireFlare(flareTarget);
 				}
-				/*else {
+				else {
 					SetTarget(flareTarget);
-				}*/
+				}
 			}
 		}
 
 		protected virtual void FixedUpdate () {
+			if (!NetworkManager.Singleton.IsServer) return;
+			
 			if (ground.Grounded) {
 				//Dunno why we need this check on the infantry member when we don't need it on any other unit type...
-				if (!currentPath.IsEmpty && !(pathIndex >= currentPath.Length)) {
-					Vector3 targetWaypoint = currentPath[pathIndex];
+				if (!CurrentPath.IsEmpty && !(PathIndex >= CurrentPath.Length)) {
+					Vector3 targetWaypoint = CurrentPath[PathIndex];
 
 					Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
 					float targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
-					body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, targetAngle, transform.eulerAngles.z));
+					Body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, targetAngle, transform.eulerAngles.z));
 
 					Vector3 moveDirection = Vector3.ProjectOnPlane(transform.forward, ground.Slope.normal);
 
 					Vector3 newVelocity = moveDirection * currentSpeed;
 
-					body.velocity = newVelocity;
+					Body.velocity = newVelocity;
 				}
 				else {
-					body.velocity = Vector3.zero;
+					Body.velocity = Vector3.zero;
 				}
 			}
 		}
 
 		public override void Order (Commandlet order, bool inclusive) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
+			if (!GetRelationship(order.Commander).Equals(Relationship.Owned)) return;
 
 			switch (order.Name) {
 				case "attack":
@@ -162,7 +164,7 @@ namespace MarsTS.Units {
 
 			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
-			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, true, this);
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, true, this);
 
 			CurrentCommand.Callback.Invoke(newEvent);
 
@@ -184,8 +186,13 @@ namespace MarsTS.Units {
 
 			commands.Activate(order, deserialized.Target);
 
-			bus.Local(new SneakEvent(bus, this, isSneaking));
+			Bus.Local(new SneakEvent(Bus, this, isSneaking));
+			
+			PostSneakEventClientRpc(isSneaking);
 		}
+		
+		[Rpc(SendTo.NotServer)]
+		private void PostSneakEventClientRpc(bool status) => Bus.Local(new SneakEvent(Bus, this, status));
 
 		/*	Flare	*/
 		private void Flare (Commandlet order) {
@@ -198,29 +205,31 @@ namespace MarsTS.Units {
 
 		private void FireFlare (Vector3 position) {
 			Flare firedFlare = Instantiate(flarePrefab, position, Quaternion.Euler(Vector3.zero)).GetComponent<Flare>();
-			firedFlare.Init(this);
-
-			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
-
-			CurrentCommand.OnComplete(commands, newEvent);
+			NetworkObject networkObject = firedFlare.GetComponent<NetworkObject>();
+			
+			networkObject.Spawn();
+			firedFlare.SetOwner(Owner);
+			
+			CurrentCommand.CompleteCommand(Bus, this);
 
 			Stop();
 		}
 
-		public override Command Evaluate (ISelectable target) {
-			if (target is IAttackable && target.GetRelationship(owner) == Relationship.Hostile) {
-				return CommandRegistry.Get("attack");
+		public override CommandFactory Evaluate (ISelectable target) {
+			if (target is IAttackable && target.GetRelationship(Owner) == Relationship.Hostile) {
+				return CommandPrimer.Get("attack");
 			}
 
-			return CommandRegistry.Get("move");
+			return CommandPrimer.Get("move");
 		}
 
-		public override Commandlet Auto (ISelectable target) {
-			if (target is IAttackable attackable && target.GetRelationship(owner) == Relationship.Hostile) {
-				return CommandRegistry.Get<Attack>("attack").Construct(attackable);
+		public override void AutoCommand (ISelectable target) {
+			if (target is IAttackable attackable && target.GetRelationship(Owner) == Relationship.Hostile) {
+				CommandPrimer.Get<Attack>("attack").Construct(attackable);
+				return;
 			}
 
-			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
+			CommandPrimer.Get<Move>("move").Construct(target.GameObject.transform.position);
 		}
 	}
 }

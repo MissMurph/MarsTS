@@ -1,61 +1,56 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Entities {
+namespace MarsTS.Entities
+{
+    public class EntityAttribute : NetworkBehaviour, ITaggable<EntityAttribute>
+    {
+        public event Action<int, int> OnAttributeChange;
+        
+        public virtual int Amount
+        {
+            get => _stored.Value;
+            protected set => _stored.Value = value < 0 ? 0 : value;
+        }
 
-    public class EntityAttribute : MonoBehaviour, ITaggable<EntityAttribute> {
+        [SerializeField] protected string _key;
 
-		public virtual int Amount {
-			get {
-				return stored;
-			}
-			set {
-				stored = value;
-				if (stored < 0) stored = 0;
-			}
-		}
+        [SerializeField] protected int _startingValue;
 
-        [SerializeField]
-        protected string key;
+        protected NetworkVariable<int> _stored =
+            new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
 
-        [SerializeField]
-        protected int startingValue;
+        public string Key => "attribute:" + _key;
 
-		protected int stored;
+        public Type Type => typeof(EntityAttribute);
 
-		public string Key {
-			get {
-				return "attribute:" + key;
-			}
-		}
+        public EntityAttribute Get() => this;
 
-		public Type Type {
-			get {
-				return typeof(EntityAttribute);
-			}
-		}
+        public override void OnNetworkSpawn()
+        {
+            if (NetworkManager.Singleton.IsServer) 
+                Amount = _startingValue;
+            
+            if (NetworkManager.Singleton.IsClient) 
+                _stored.OnValueChanged += OnStoredValueChange;
+        }
 
-		public EntityAttribute Get () {
-			return this;
-		}
+        private void OnStoredValueChange(int oldValue, int newValue) => OnAttributeChange?.Invoke(oldValue, newValue);
 
-		protected virtual void Awake () {
-			stored = startingValue;
-		}
+        public virtual int Submit(int amount)
+        {
+            Amount += amount;
+            return amount;
+        }
 
-		public virtual int Submit (int amount) {
-			stored += amount;
-			return amount;
-		}
-
-		public virtual bool Consume (int amount) {
-			if (Amount >= amount) {
-				stored -= amount;
-				return true;
-			}
-			else return false;
-		}
-	}
+        public virtual bool Consume(int amount)
+        {
+            if (Amount < amount) 
+                return false;
+            
+            Amount -= amount;
+            return true;
+        }
+    }
 }

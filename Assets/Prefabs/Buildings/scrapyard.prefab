@@ -24,7 +24,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2613501593908582363}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 6}
+  m_LocalPosition: {x: 0, y: 0.05, z: 8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -184,6 +184,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4367344837201828851}
   - component: {fileID: 4367344837201828849}
+  - component: {fileID: 6932056313230598578}
   - component: {fileID: 4367344837201828622}
   - component: {fileID: 4367344837201828850}
   - component: {fileID: 6071260427580417810}
@@ -205,7 +206,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4367344837201828623}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -22.3, y: -1, z: -7.4}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -233,6 +234,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80e809a2901f3c24a914b37a7eb11e9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6932056313230598578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4367344837201828623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 3122972224
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &4367344837201828622
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -245,7 +267,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  registryKey: scrapyard
+  _registryKey: scrapyard
+  _toTag: []
 --- !u!114 &4367344837201828850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258,21 +281,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0345fd9d70add34699e7a3f1b42fa35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 1000
+  maxHealth:
+    m_InternalValue: 1000
+  currentHealth:
+    m_InternalValue: 0
   icon: {fileID: 21300000, guid: 4e0dc8ebe193b5241ab53cb683e802fa, type: 3}
   type: scrapyard
-  owner: {fileID: 0}
+  _owner: 0
   boundCommands:
   - produce/constructor
   - produce/roughnecksquad
   - produce/harvester
   - produce/tanker
-  constructionWork: 100
-  currentWork: 0
-  ghost: {fileID: 5300347722092395766, guid: 4191f665be7da1d478f0619eb973c086, type: 3}
-  constructionCost:
-  - key: resource_unit
-    amount: 2000
+  selectionGhost: {fileID: 4420150489061905949, guid: e9e91f6348f80c8458b0d98921bcb0b2,
+    type: 3}
+  constructionGhost: {fileID: 2819411760947315549, guid: a483aaaa4712a8549b0d4f5c6087346e,
+    type: 3}
   visionObjects:
   - {fileID: 8926580804881163808}
   - {fileID: 4367344839216842102}
@@ -309,6 +333,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visionRange: 20
+  owner: 0
 --- !u!114 &4260115086938966548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -333,7 +358,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ec1573b00b570e41bd9eb6c4e1bb97d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  productionSpeed: 0
+  productionSpeed: 1
 --- !u!1 &4367344837301277131
 GameObject:
   m_ObjectHideFlags: 0
@@ -985,11 +1010,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f81996ae128c4f47884189027df8738, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectile: {fileID: 5732885903752370511, guid: c53d0750fc9147c4f82636c698100a22,
+  _projectile: {fileID: 5732885903752370511, guid: c53d0750fc9147c4f82636c698100a22,
     type: 3}
-  damage: 5
-  cooldown: 0.2
-  barrel: {fileID: 8304520755021019944}
+  _damage: 5
+  _cooldown: 0.2
+  _barrel: {fileID: 8304520755021019944}
 --- !u!135 &1174983057512258518
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1444,11 +1469,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f81996ae128c4f47884189027df8738, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectile: {fileID: 5732885903752370511, guid: c53d0750fc9147c4f82636c698100a22,
+  _projectile: {fileID: 5732885903752370511, guid: c53d0750fc9147c4f82636c698100a22,
     type: 3}
-  damage: 5
-  cooldown: 0.2
-  barrel: {fileID: 8304520755132020772}
+  _damage: 5
+  _cooldown: 0.2
+  _barrel: {fileID: 8304520755132020772}
 --- !u!135 &4343298021392825140
 SphereCollider:
   m_ObjectHideFlags: 0

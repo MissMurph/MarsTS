@@ -1,95 +1,172 @@
-using MarsTS.Events;
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using UnityEditor.SceneManagement;
+using MarsTS.Events;
+using Unity.Netcode;
 using UnityEngine;
-using static UnityEditor.Rendering.CameraUI;
+using UnityEngine.Serialization;
 
-namespace MarsTS.Entities {
+namespace MarsTS.Entities
+{
+    [RequireComponent(typeof(EventAgent))]
+    public class Entity : NetworkBehaviour
+    {
+        public int Id { get; private set; }
 
-	[RequireComponent(typeof(EventAgent))]
-	public class Entity : MonoBehaviour {
+        public string Key => _registryKey;
 
-		public int ID {
-			get {
-				return id;
-			}
-		}
+        /// <summary>This safer init event will post immediately if the entity is already initialized</summary>
+        public event Action<Phase> OnEntityInit
+        {
+            add
+            {
+                if (Id > 0)
+                    value.Invoke(Phase.Post);
+                else
+                    _onEntityInitEvents += value;
+            }
+            remove => _onEntityInitEvents -= value;
+        }
 
-		public string Key {
-			get {
-				return registryKey;
-			}
-		}
+        private Action<Phase> _onEntityInitEvents;
+        
+        [FormerlySerializedAs("registryKey")] [SerializeField] private string _registryKey;
 
-		private int id = 0;
+        private Dictionary<string, ITaggable> _registeredTaggables;
+        private Dictionary<string, Component> _taggedComponents;
 
-		[SerializeField]
-		private string registryKey;
+        private EventAgent _eventAgent;
 
-		private Dictionary<string, ITaggable> taggedComponents;
+        [FormerlySerializedAs("toTag")] [SerializeField] private TagReference[] _toTag;
 
-		private EventAgent eventAgent;
+        private void Awake()
+        {
+            _eventAgent = GetComponent<EventAgent>();
 
-		private void Awake () {
-			eventAgent = GetComponent<EventAgent>();
+            _registeredTaggables = new Dictionary<string, ITaggable>();
+            _taggedComponents = new Dictionary<string, Component>();
 
-			//eventAgent.AddListener<EventAgentInitEvent>(Init);
+            foreach (ITaggable component in GetComponents<ITaggable>())
+            {
+                _registeredTaggables[component.Key] = component;
+            }
 
-			taggedComponents = new Dictionary<string, ITaggable> ();
+            if (TryGetComponent(out NetworkObject found)) _taggedComponents["networking"] = found;
 
-			foreach (ITaggable component in GetComponents<ITaggable>()) {
-				taggedComponents[component.Key] = component;
-			}
-		}
+            foreach (TagReference entry in _toTag)
+            {
+                _taggedComponents[entry.Tag] = entry.Component;
+            }
+        }
 
-		private void Update () {
-			if (id == 0) {
-				id = EntityCache.Register(this);
-				name = registryKey + ":" + id.ToString();
+        public override void OnNetworkSpawn()
+        {
+            if (!NetworkManager.Singleton.IsServer) return;
 
-				EntityInitEvent initCall = new EntityInitEvent(this, eventAgent);
+            GameInit.OnSpawnEntities += Initialize;
+        }
 
-				initCall.Phase = Phase.Pre;
-				eventAgent.Global(initCall);
+        private void Initialize()
+        {
+            Id = EntityCache.Register(this);
+            name = $"{_registryKey}:{Id}";
 
-				initCall.Phase = Phase.Post;
-				eventAgent.Global(initCall);
-			}
-		}
+            //GetComponent<NetworkObject>().Spawn();
+            SynchronizeClientRpc(Id);
+            PostInitEvents();
+        }
 
-		public bool TryGet<T> (string key, out T output) {
-			if (taggedComponents.TryGetValue(key, out ITaggable component) && component is T superType) {
-				output = superType;
-				return true;
-			}
+        [Rpc(SendTo.NotServer)]
+        private void SynchronizeClientRpc(int id)
+        {
+            Id = id;
+            name = $"{_registryKey}:{Id}";
+            EntityCache.Register(this);
+            PostInitEvents();
+        }
 
-			output = default(T);
-			return false;
-		}
+        private void PostInitEvents()
+        {
+            EntityInitEvent initCall = new EntityInitEvent(this, _eventAgent);
 
-		public bool TryGet<T> (out T output) {
-			foreach (ITaggable component in taggedComponents.Values) {
-				if (component is T superType) {
-					output = superType;
-					return true;
-				}
-			}
+            // Broken up into two steps for silly business, I think, I don't quite remember lmao
+            initCall.Phase = Phase.Pre;
+            _onEntityInitEvents?.Invoke(Phase.Pre);
+            _eventAgent.Global(initCall);
 
-			output = default;
-			return false;
-		}
+            initCall.Phase = Phase.Post;
+            _onEntityInitEvents?.Invoke(Phase.Post);
+            _eventAgent.Global(initCall);
+        }
 
-		public T Get<T> (string key) {
-			if (taggedComponents.TryGetValue(key, out ITaggable component) && component is T superType) {
-				return superType;
-			}
+        public bool TryGet<T>(string key, out T output)
+        {
+            if (_registeredTaggables.TryGetValue(key, out ITaggable component) && component is T superType)
+            {
+                output = superType;
+                return true;
+            }
 
-			return default;
-		}
+            //Debug.Log("Tagged Components: " + taggedComponents.Count);
 
-		private void OnDestroy () {
-			eventAgent.Global(new EntityDestroyEvent(eventAgent, this));
-		}
-	}
+            if (typeof(T) == typeof(Component) && _taggedComponents.TryGetValue(key, out Component found) &&
+                found is T superTypedComponent)
+            {
+                output = superTypedComponent;
+                return true;
+            }
+
+            output = default;
+            return false;
+        }
+
+        public bool TryGet<T>(out T output)
+        {
+            foreach (ITaggable taggableComponent in _registeredTaggables.Values)
+            {
+                if (taggableComponent is T superType)
+                {
+                    output = superType;
+                    return true;
+                }
+            }
+
+            if (typeof(Component).IsAssignableFrom(typeof(T)))
+                foreach (Component nonTaggableComponent in _taggedComponents.Values)
+                {
+                    if (nonTaggableComponent is T superTypedComponent)
+                    {
+                        output = superTypedComponent;
+                        return true;
+                    }
+                }
+
+            output = default;
+            return false;
+        }
+
+        public T Get<T>(string key)
+        {
+            if (_registeredTaggables.TryGetValue(key, out ITaggable taggable) && taggable is T superType)
+                return superType;
+
+            if (typeof(T).IsSubclassOf(typeof(Component))
+                && _taggedComponents.TryGetValue(key, out Component component)
+                && component is T superTypedComponent)
+                return superTypedComponent;
+
+            return default;
+        }
+
+        public override void OnDestroy()
+        {
+            _eventAgent.Global(new EntityDestroyEvent(_eventAgent, this));
+        }
+    }
+
+    [Serializable]
+    public class TagReference
+    {
+        public string Tag;
+        public Component Component;
+    }
 }

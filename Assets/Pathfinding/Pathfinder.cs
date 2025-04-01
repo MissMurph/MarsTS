@@ -10,6 +10,10 @@ namespace MarsTS.World.Pathfinding {
 		[SerializeField]
 		private GameWorld world;
 
+		private void Awake () {
+			world = GetComponent<GameWorld>();
+		}
+
 		public void FindPath (PathRequest request, Action<PathResult> callback) {
 			Vector3[] waypoints = new Vector3[0];
 			bool pathSuccess = false;

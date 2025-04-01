@@ -34,7 +34,7 @@ namespace MarsTS.Units {
 			if (AttackTarget.Get != null) {
 				if (equippedWeapon.IsInRange(AttackTarget.Get)) {
 					TrackedTarget = null;
-					currentPath = Path.Empty;
+					_currentPath = Path.Empty;
 				}
 				else if (!ReferenceEquals(TrackedTarget, AttackTarget.GameObject.transform)) {
 					SetTarget(AttackTarget.GameObject.transform);
@@ -90,7 +90,7 @@ namespace MarsTS.Units {
 
 			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
-			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, true, this);
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(_bus, CurrentCommand, true, this);
 
 			CurrentCommand.Callback.Invoke(newEvent);
 
@@ -105,24 +105,24 @@ namespace MarsTS.Units {
 			Commandlet<bool> deserialized = order as Commandlet<bool>;
 
 			if (deserialized.Target) {
-				currentSpeed = adrenoSpeed;
+				_currentSpeed = adrenoSpeed;
 
-				bus.AddListener<CooldownEvent>(AdrenalineCooldown);
+				_bus.AddListener<CooldownEvent>(AdrenalineCooldown);
 			}
 		}
 
 		private void AdrenalineComplete (CommandActiveEvent _event) {
-			bus.RemoveListener<CommandActiveEvent>(AdrenalineComplete);
+			_bus.RemoveListener<CommandActiveEvent>(AdrenalineComplete);
 
 			if (!_event.Activity) {
-				currentSpeed = moveSpeed;
+				_currentSpeed = _moveSpeed;
 			}
 		}
 
 		private void AdrenalineCooldown (CooldownEvent _event) {
-			bus.RemoveListener<CooldownEvent>(AdrenalineCooldown);
+			_bus.RemoveListener<CooldownEvent>(AdrenalineCooldown);
 
-			currentSpeed = moveSpeed;
+			_currentSpeed = _moveSpeed;
 		}
 	}
 }

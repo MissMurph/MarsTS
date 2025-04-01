@@ -1,19 +1,23 @@
 using MarsTS.Events;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.ProBuilder;
 
 namespace MarsTS.Commands {
 
-    public class ProductionQueue : CommandQueue {
+    public class ProductionQueue : CommandQueue
+    {
+	    public override string Key => "productionQueue";
 
 		public IProducable[] QueuedProduction {
 			get {
 				IProducable[] output = new IProducable[commandQueue.Count];
 				Commandlet[] originalQueue = commandQueue.ToArray();
 
-				for (int i = 0; i < commandQueue.Count; i++) {
+				for (var i = 0; i < commandQueue.Count; i++)
+				{
 					output[i] = originalQueue[i] as IProducable;
 				}
 
@@ -35,33 +39,30 @@ namespace MarsTS.Commands {
 		}
 
 		protected override void Update () {
-			if (Current is null && commandQueue.TryDequeue(out Commandlet order)) {
-				Current = order;
-
-				order.Callback.AddListener(OrderComplete);
-				CommandStartEvent _event = new CommandStartEvent(bus, order, parent);
-				order.OnStart(this, _event);
-
-				bus.Global(_event);
-				bus.Global(ProductionEvent.Started(bus, parent, this, Current as IProducable));
+			if (isServer && Current == null && commandQueue.Count > 0) {
+				Dequeue();
+				DequeueClientRpc(Current.gameObject);
 
 				return;
 			}
 
-			if (Current != null && Current is IProducable production) {
+			if (isServer && Current != null && Current is IProducable production) {
 				timeToStep -= Time.deltaTime;
 
-				if (timeToStep <= 0) {
-					production.ProductionProgress++;
-
-					if (production.ProductionProgress >= production.ProductionRequired) {
-						Current.OnComplete(this, new CommandCompleteEvent(bus, Current, false, parent));
-					}
-					else bus.Global(ProductionEvent.Step(bus, parent, this, production));
-
-					timeToStep += stepTime;
-				}
+				if (!(timeToStep <= 0)) return;
+				production.ProductionProgress++;
+				timeToStep += stepTime;
 			}
+		}
+
+		protected override void Dequeue () {
+			base.Dequeue();
+			
+			IProducable productionOrder = Current as IProducable;
+
+			productionOrder.OnWork += OnOrderWork;
+
+			bus.Global(ProductionEvent.Started(bus, parent, this, Current as IProducable));
 		}
 
 		public override void Execute (Commandlet order) {
@@ -96,6 +97,19 @@ namespace MarsTS.Commands {
 			}
 
 			return base.CanCommand(key);
+		}
+
+		protected override void OnOrderWork (int oldValue, int newValue) 
+		{
+			IProducable productionOrder = Current as IProducable;
+
+			if (productionOrder.ProductionProgress >= productionOrder.ProductionRequired) 
+			{
+				productionOrder.OnWork -= OnOrderWork;
+				bus.Global(new ProductionCompleteEvent(bus, productionOrder.Product, parent, this, productionOrder));
+				Current.CompleteCommand(bus, orderSource);
+			} 
+			else bus.Global(ProductionEvent.Step(bus, parent, this, productionOrder));
 		}
 	}
 }

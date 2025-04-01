@@ -137,6 +137,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3668977583793415183}
+  - component: {fileID: -9174771434108965419}
   - component: {fileID: 3668977583793415408}
   - component: {fileID: 3668977583793415181}
   - component: {fileID: 3668977583793415410}
@@ -144,6 +145,7 @@ GameObject:
   - component: {fileID: 3454774584343477042}
   - component: {fileID: 3094678107637244672}
   - component: {fileID: 5132257282321271846}
+  - component: {fileID: -1105662473589906674}
   m_Layer: 0
   m_Name: pumpjack
   m_TagString: Untagged
@@ -173,6 +175,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-9174771434108965419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3668977583793415411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2231663777
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &3668977583793415408
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -185,24 +208,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c77448c1fc10234499eafae4997c1a75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 350
+  maxHealth:
+    m_InternalValue: 250
+  currentHealth:
+    m_InternalValue: 0
   icon: {fileID: 21300000, guid: ed9d53a4864a9224da4de1c614109b4c, type: 3}
   type: pumpjack
-  owner: {fileID: 0}
+  _owner: 0
   boundCommands: []
-  constructionWork: 30
-  currentWork: 0
-  ghost: {fileID: 6633247702655670159, guid: 38121fc0d5ac7f745977aff782b851b7, type: 3}
-  constructionCost:
-  - key: resource_unit
-    amount: 350
+  selectionGhost: {fileID: 6633247702655670159, guid: 38121fc0d5ac7f745977aff782b851b7,
+    type: 3}
+  constructionGhost: {fileID: 2819411760947315549, guid: a483aaaa4712a8549b0d4f5c6087346e,
+    type: 3}
   visionObjects:
   - {fileID: 3784520690582371395}
   - {fileID: 3668977582584003210}
   - {fileID: 3668977583830543927}
   - {fileID: 4305377559586832187}
-  capacity: 2000
-  harvestRate: 5
+  - {fileID: 8725958431779697784}
+  _harvestRate: 5
 --- !u!114 &3668977583793415181
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -227,7 +251,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  registryKey: pumpjack
+  _registryKey: pumpjack
+  _toTag: []
 --- !u!54 &1114132544270880998
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -257,6 +282,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visionRange: 3
+  owner: 0
 --- !u!114 &3094678107637244672
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -282,6 +308,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   productionSpeed: 1
+--- !u!114 &-1105662473589906674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3668977583793415411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db75fe7896a566744b02bc8532aebeab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _key: 
+  _startingValue: 0
+  _capacity: 2000
+  _resourceKey: oil
 --- !u!1 &3668977583830543927
 GameObject:
   m_ObjectHideFlags: 0
@@ -470,7 +512,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7066145069961772964}
-  - component: {fileID: 2055887779487163739}
+  - component: {fileID: 6740566618811649316}
   - component: {fileID: 6852110456137419960}
   - component: {fileID: 6459182225533642230}
   m_Layer: 0
@@ -495,7 +537,7 @@ Transform:
   m_Father: {fileID: 4305377559586832186}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2055887779487163739
+--- !u!114 &6740566618811649316
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -504,9 +546,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 4819029633232838517}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 32dc3ebd8d388df4da8604ad563add4c, type: 3}
+  m_Script: {fileID: 11500000, guid: ffede7701679440479b740e4f6245f82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _storage: {fileID: -1105662473589906674}
 --- !u!33 &6852110456137419960
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -1120,12 +1163,12 @@ PrefabInstance:
     - target: {fileID: 1441075677451281135, guid: d85bb61c56b6e1c40b2f9c82c2b9b261,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 7
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1441075677451281135, guid: d85bb61c56b6e1c40b2f9c82c2b9b261,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 7
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1441075677451281135, guid: d85bb61c56b6e1c40b2f9c82c2b9b261,
         type: 3}
@@ -1187,6 +1230,12 @@ PrefabInstance:
 --- !u!4 &5295483952412795931 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1441075677451281135, guid: d85bb61c56b6e1c40b2f9c82c2b9b261,
+    type: 3}
+  m_PrefabInstance: {fileID: 6522034869372503796}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8725958431779697784 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2565425467006218892, guid: d85bb61c56b6e1c40b2f9c82c2b9b261,
     type: 3}
   m_PrefabInstance: {fileID: 6522034869372503796}
   m_PrefabAsset: {fileID: 0}

@@ -4,13 +4,14 @@ using MarsTS.Events;
 using MarsTS.Players;
 using MarsTS.Teams;
 using MarsTS.World;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace MarsTS.Units {
 
-    public class Tank : Unit {
+    public class Tank : AbstractUnit {
 
 		[Header("Movement")]
 
@@ -63,7 +64,7 @@ namespace MarsTS.Units {
 
 			if (registeredTurrets["turret_main"].IsInRange(AttackTarget.Get)) {
 				TrackedTarget = null;
-				currentPath = Path.Empty;
+				CurrentPath = Path.Empty;
 			}
 			else if (!ReferenceEquals(TrackedTarget, AttackTarget.GameObject.transform)) {
 				SetTarget(AttackTarget.GameObject.transform);
@@ -71,19 +72,19 @@ namespace MarsTS.Units {
 		}
 
 		protected virtual void FixedUpdate () {
-			velocity = body.velocity.sqrMagnitude;
+			velocity = Body.velocity.sqrMagnitude;
 
 			if (ground.Grounded) {
-				if (!currentPath.IsEmpty) {
-					Vector3 targetWaypoint = currentPath[pathIndex];
+				if (!CurrentPath.IsEmpty) {
+					Vector3 targetWaypoint = CurrentPath[PathIndex];
 
 					Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
 					float targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
 
 					float newAngle = Mathf.MoveTowardsAngle(CurrentAngle, targetAngle, turnSpeed * Time.fixedDeltaTime);
-					body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, newAngle, transform.eulerAngles.z));
+					Body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, newAngle, transform.eulerAngles.z));
 
-					Vector3 currentVelocity = body.velocity;
+					Vector3 currentVelocity = Body.velocity;
 					Vector3 adjustedVelocity = Vector3.ProjectOnPlane(transform.forward, ground.Slope.normal);
 
 					adjustedVelocity *= currentVelocity.magnitude;
@@ -92,26 +93,26 @@ namespace MarsTS.Units {
 						float accelCap = 1f - (velocity / (currentTopSpeed * currentTopSpeed));
 
 						//This moves the velocity according to the rotation of the unit
-						body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
+						Body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
 
 						//Relative so it can take into account the forward vector of the car
-						body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
+						Body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
 					}
 
 					if (velocity > currentTopSpeed * currentTopSpeed) {
-						Vector3 direction = body.velocity.normalized;
+						Vector3 direction = Body.velocity.normalized;
 						direction *= currentTopSpeed;
-						body.velocity = direction;
+						Body.velocity = direction;
 					}
 				}
 				else if (velocity >= 0.5f) {
-					body.AddRelativeForce(-body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
+					Body.AddRelativeForce(-Body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
 				}
 			}
 		}
 
 		public override void Order (Commandlet order, bool inclusive) {
-			if (!GetRelationship(Player.Main).Equals(Relationship.Owned)) return;
+			if (!GetRelationship(order.Commander).Equals(Relationship.Owned)) return;
 
 			switch (order.Name) {
 				case "attack":
@@ -158,7 +159,7 @@ namespace MarsTS.Units {
 		private void AttackCancelled (CommandCompleteEvent _event) {
 			//bus.RemoveListener<CommandCompleteEvent>(AttackCancelled);
 
-			if (_event.Command is Commandlet<IAttackable> deserialized && _event.CommandCancelled) {
+			if (_event.Command is Commandlet<IAttackable> deserialized && _event.IsCancelled) {
 				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
@@ -172,7 +173,7 @@ namespace MarsTS.Units {
 
 			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
-			CommandCompleteEvent newEvent = new CommandCompleteEvent(bus, CurrentCommand, false, this);
+			CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, false, this);
 
 			CurrentCommand.Callback.Invoke(newEvent);
 
@@ -181,20 +182,22 @@ namespace MarsTS.Units {
 			//CurrentCommand = null;
 		}
 
-		public override Command Evaluate (ISelectable target) {
-			if (target is IAttackable && target.GetRelationship(owner) == Relationship.Hostile) {
-				return CommandRegistry.Get("attack");
+		public override CommandFactory Evaluate (ISelectable target) {
+			if (target is IAttackable && target.GetRelationship(Owner) == Relationship.Hostile) {
+				return CommandPrimer.Get("attack");
 			}
 
-			return CommandRegistry.Get("move");
+			return CommandPrimer.Get("move");
 		}
 
-		public override Commandlet Auto (ISelectable target) {
-			if (target is IAttackable deserialized && target.GetRelationship(owner) == Relationship.Hostile) {
-				return CommandRegistry.Get<Attack>("attack").Construct(deserialized);
+		public override void AutoCommand (ISelectable target) {
+			if (target is IAttackable deserialized && target.GetRelationship(Owner) == Relationship.Hostile) {
+				//return CommandRegistry.Get<Attack>("attack").Construct(deserialized);
 			}
 
-			return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
+			//return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
+
+			throw new NotImplementedException();
 		}
 	}
 }

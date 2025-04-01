@@ -51,17 +51,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41ef783a699337746bf1dfb92c7715a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 0
+  maxHealth:
+    m_InternalValue: 0
+  currentHealth:
+    m_InternalValue: 0
   icon: {fileID: 21300000, guid: e0eda61ee150d8a43adf2e8eed4be06f, type: 3}
   type: landmines
-  owner: {fileID: 0}
+  owner:
+    m_InternalValue: 0
   boundCommands: []
-  constructionWork: 10
-  currentWork: 0
-  ghost: {fileID: 4816164022266727982, guid: 82cf4802f5679c949a7db27a0d57392d, type: 3}
-  constructionCost:
-  - key: resource_unit
-    amount: 500
+  selectionGhost: {fileID: 4816164022266727982, guid: 82cf4802f5679c949a7db27a0d57392d,
+    type: 3}
+  constructionGhost: {fileID: 4981507410179212750, guid: 3c2139ffe57e6194db71b591ec8f98e0,
+    type: 3}
   visionObjects: []
   entityColliderPrefab: {fileID: 3966768181093691466, guid: 315f653d8520bd348ade109ce3821e6b,
     type: 3}
@@ -110,6 +112,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   registryKey: landmines
+  toTag: []
 --- !u!114 &4929239786645045559
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -123,6 +126,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visionRange: 0
+  owner: 0
 --- !u!1001 &3134445195700678717
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -130,6 +134,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3134445194697897593}
     m_Modifications:
+    - target: {fileID: -245349316753227706, guid: 34cba66b0f62ed642af08277601e715c,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3161644085
+      objectReference: {fileID: 0}
     - target: {fileID: 5083158052249461046, guid: 34cba66b0f62ed642af08277601e715c,
         type: 3}
       propertyPath: m_Name
@@ -205,6 +214,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3134445194697897593}
     m_Modifications:
+    - target: {fileID: -245349316753227706, guid: 34cba66b0f62ed642af08277601e715c,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1598497943
+      objectReference: {fileID: 0}
     - target: {fileID: 5083158052249461046, guid: 34cba66b0f62ed642af08277601e715c,
         type: 3}
       propertyPath: m_Name
@@ -280,6 +294,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3134445194697897593}
     m_Modifications:
+    - target: {fileID: -245349316753227706, guid: 34cba66b0f62ed642af08277601e715c,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 361118985
+      objectReference: {fileID: 0}
     - target: {fileID: 5083158052249461046, guid: 34cba66b0f62ed642af08277601e715c,
         type: 3}
       propertyPath: m_Name

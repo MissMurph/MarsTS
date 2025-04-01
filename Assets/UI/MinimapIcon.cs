@@ -24,12 +24,12 @@ namespace MarsTS.UI {
 			parent = GetComponentInParent<ISelectable>();
 			matBlock = new MaterialPropertyBlock();
 
-			bus.AddListener<EntityInitEvent>(OnEntityInit);
+			//bus.AddListener<EntityInitEvent>(OnEntityInit);
+			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
+			bus.AddListener<UnitOwnerChangeEvent>(OnTeamChange);
 		}
 
 		private void Start () {
-			bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
-			bus.AddListener<UnitOwnerChangeEvent>(OnTeamChange);
 			EventBus.AddListener<VisionInitEvent>(OnVisionInit);
 		}
 
@@ -37,13 +37,13 @@ namespace MarsTS.UI {
 			if (_event.Phase == Phase.Pre) return;
 
 			iconRenderer.GetPropertyBlock(matBlock);
-			matBlock.SetColor("_Color", parent.GetRelationship(Player.Main).Colour());
+			matBlock.SetColor("_Color", parent.GetRelationship(Player.Commander).Colour());
 			iconRenderer.SetPropertyBlock(matBlock);
 		}
 
 		private void OnTeamChange (UnitOwnerChangeEvent _event) {
 			iconRenderer.GetPropertyBlock(matBlock);
-			matBlock.SetColor("_Color", parent.GetRelationship(Player.Main).Colour());
+			matBlock.SetColor("_Color", parent.GetRelationship(Player.Commander).Colour());
 			iconRenderer.SetPropertyBlock(matBlock);
 		}
 

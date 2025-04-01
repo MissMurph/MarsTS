@@ -1,90 +1,104 @@
 using MarsTS.Events;
-using MarsTS.World;
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace MarsTS.Units {
-
-    public class Tanker : Harvester {
-
-        private HarvestSensor harvestableDetector;
+namespace MarsTS.Units
+{
+    public class Tanker : Harvester
+    {
+        private HarvestSensor _harvestableDetector;
 
         //This is how many units per second are harvested
-        [SerializeField]
-        private float harvestRate;
+        [FormerlySerializedAs("harvestRate")] [SerializeField]
+        private float _harvestRate;
 
-		private int harvestAmount;
-		private float harvestCooldown;
-		private float currentHarvestCooldown;
+        private int _harvestAmount;
+        private float _harvestCooldown;
+        private float _currentHarvestCooldown;
 
-		protected override void Awake () {
-			base.Awake();
+        protected override void Awake()
+        {
+            base.Awake();
 
-			harvestableDetector = GetComponentInChildren<HarvestSensor>();
+            _harvestableDetector = GetComponentInChildren<HarvestSensor>();
 
-			harvestCooldown = 1f / harvestRate;
-			harvestAmount = Mathf.RoundToInt(harvestRate * harvestCooldown);
-			currentHarvestCooldown = harvestCooldown;
-		}
+            _harvestCooldown = 1f / _harvestRate;
+            _harvestAmount = Mathf.RoundToInt(_harvestRate * _harvestCooldown);
+            _currentHarvestCooldown = _harvestCooldown;
+        }
 
-		protected override void Update () {
-			if (!currentPath.IsEmpty) {
-				Vector3 targetWaypoint = currentPath[pathIndex];
-				float distance = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).magnitude;
+        protected override void Update()
+        {
+            if (!NetworkManager.Singleton.IsServer) return;
 
-				if (distance <= waypointCompletionDistance) {
-					pathIndex++;
-				}
+            if (!CurrentPath.IsEmpty)
+            {
+                Vector3 targetWaypoint = CurrentPath[PathIndex];
+                float distance = new Vector3(targetWaypoint.x - transform.position.x, 0,
+                    targetWaypoint.z - transform.position.z).magnitude;
 
-				if (pathIndex >= currentPath.Length) {
-					bus.Local(new PathCompleteEvent(bus, true));
-					currentPath = Path.Empty;
-				}
-			}
+                if (distance <= waypointCompletionDistance) PathIndex++;
 
-			if (DepositTarget != null) {
-				if (depositableDetector.IsDetected(DepositTarget)) {
-					TrackedTarget = null;
-					currentPath = Path.Empty;
+                if (PathIndex >= CurrentPath.Length)
+                {
+                    Bus.Local(new PathCompleteEvent(Bus, true));
+                    CurrentPath = Path.Empty;
+                }
+            }
 
-					if (currentCooldown <= 0f) DepositResources();
+            if (DepositTarget != null)
+            {
+                if (_depositableDetector.IsDetected(DepositTarget))
+                {
+                    TrackedTarget = null;
+                    CurrentPath = Path.Empty;
 
-					currentCooldown -= Time.deltaTime;
-				}
-				else if (!ReferenceEquals(TrackedTarget, DepositTarget.GameObject.transform)) {
-					SetTarget(DepositTarget.GameObject.transform);
-				}
+                    if (_currentCooldown <= 0f) DepositResources();
 
-				return;
-			}
+                    _currentCooldown -= Time.deltaTime;
+                }
+                else if (!ReferenceEquals(TrackedTarget, DepositTarget.GameObject.transform))
+                {
+                    SetTarget(DepositTarget.GameObject.transform);
+                }
 
-			if (HarvestTarget != null) {
-				if (harvestableDetector.IsDetected(HarvestTarget)) {
-					TrackedTarget = null;
-					currentPath = Path.Empty;
+                return;
+            }
 
-					if (currentHarvestCooldown <= 0f) SiphonOil();
+            if (HarvestTarget != null)
+            {
+                if (_harvestableDetector.IsDetected(HarvestTarget))
+                {
+                    TrackedTarget = null;
+                    CurrentPath = Path.Empty;
 
-					currentHarvestCooldown -= Time.deltaTime;
-				}
-				else if (!ReferenceEquals(TrackedTarget, HarvestTarget.GameObject.transform)) {
-					SetTarget(HarvestTarget.GameObject.transform);
-				}
-			}
-		}
+                    if (_currentHarvestCooldown <= 0f) SiphonOil();
 
-		private void SiphonOil () {
-			int harvested = HarvestTarget.Harvest("oil", this, harvestAmount, storageComp.Submit);
-			bus.Global(new ResourceHarvestedEvent(bus, HarvestTarget, this, ResourceHarvestedEvent.Side.Harvester, harvested, "oil", Stored, Capacity));
+                    _currentHarvestCooldown -= Time.deltaTime;
+                }
+                else if (!ReferenceEquals(TrackedTarget, HarvestTarget.GameObject.transform))
+                {
+                    SetTarget(HarvestTarget.GameObject.transform);
+                }
+            }
+        }
 
-			currentHarvestCooldown += harvestCooldown;
-		}
+        private void SiphonOil()
+        {
+            int harvested = HarvestTarget.Harvest("oil", this, _harvestAmount, _storageComp.Submit);
+            Bus.Global(new ResourceHarvestedEvent(Bus, this, ResourceHarvestedEvent.Side.Harvester, harvested, "oil",
+                Stored, Capacity));
 
-		protected override void DepositResources () {
-			storageComp.Consume(DepositTarget.Deposit("oil", depositAmount));
-			bus.Global(new HarvesterDepositEvent(bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity, DepositTarget));
-			currentCooldown += cooldown;
-		}
-	}
+            _currentHarvestCooldown += _harvestCooldown;
+        }
+
+        protected override void DepositResources()
+        {
+            _storageComp.Consume(DepositTarget.Deposit("oil", _depositAmount));
+            Bus.Global(new HarvesterDepositEvent(Bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity,
+                DepositTarget));
+            _currentCooldown += _cooldown;
+        }
+    }
 }

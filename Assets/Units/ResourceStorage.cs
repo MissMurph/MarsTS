@@ -1,36 +1,29 @@
 using MarsTS.Entities;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.Units {
+namespace MarsTS.Units
+{
+    public class ResourceStorage : EntityAttribute
+    {
+        public int Capacity => _capacity;
+        public string Resource => _resourceKey;
+        [SerializeField] private int _capacity;
+        [SerializeField] private string _resourceKey;
 
-    public class ResourceStorage : EntityAttribute {
+        private void Awake()
+        {
+            _key = "storage:" + _resourceKey;
+        }
 
-		public int Capacity { get { return capacity; } }
+        public override int Submit(int amount)
+        {
+            int newAmount = Mathf.Min(_capacity, Amount + amount);
 
-		public string Resource { get { return resourceKey; } }
+            int difference = newAmount - Amount;
 
-        [SerializeField]
-        private int capacity;
+            Amount = newAmount;
 
-		[SerializeField]
-		private string resourceKey;
-
-		protected override void Awake () {
-			base.Awake();
-
-			key = "storage:" + resourceKey;
-		}
-
-		public override int Submit (int amount) {
-			int newAmount = Mathf.Min(capacity, stored + amount);
-
-			int difference = newAmount - stored;
-
-			stored = newAmount;
-
-			return difference;
-		}
-	}
+            return difference;
+        }
+    }
 }

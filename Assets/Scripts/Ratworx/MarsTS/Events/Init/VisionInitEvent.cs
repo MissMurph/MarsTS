@@ -1,9 +1,6 @@
-using MarsTS.Vision;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Ratworx.MarsTS.Vision;
 
-namespace MarsTS.Events {
+namespace Ratworx.MarsTS.Events.Init {
 
 	public class VisionInitEvent : AbstractEvent {
 

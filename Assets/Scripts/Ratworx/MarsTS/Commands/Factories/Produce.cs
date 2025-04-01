@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MarsTS.Entities;
-using MarsTS.Logging;
-using MarsTS.Players;
-using MarsTS.Teams;
-using MarsTS.Units;
+using Ratworx.MarsTS.Commands.Commandlets;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Logging;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.Units;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace MarsTS.Commands
+namespace Ratworx.MarsTS.Commands.Factories
 {
     public class Produce : CommandFactory<GameObject>
     {
@@ -50,9 +50,9 @@ namespace MarsTS.Commands
 
         public override void StartSelection()
         {
-            if (!CanFactionAfford(Player.Commander)) return;
+            if (!CanFactionAfford(Player.Player.Commander)) return;
 
-            foreach (KeyValuePair<string, Roster> entry in Player.Selected)
+            foreach (KeyValuePair<string, Roster> entry in Player.Player.Selected)
             {
                 int lowestAmount = 9999;
                 ICommandable lowestCommandable = null;
@@ -68,7 +68,7 @@ namespace MarsTS.Commands
                 }
 
                 if (lowestCommandable != null)
-                    ConstructProductionletServerRpc(Player.Commander.Id, lowestCommandable.GameObject.name);
+                    ConstructProductionletServerRpc(Player.Player.Commander.Id, lowestCommandable.GameObject.name);
             }
         }
 

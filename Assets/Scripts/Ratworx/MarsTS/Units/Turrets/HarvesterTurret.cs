@@ -1,10 +1,13 @@
-using MarsTS.Commands;
-using MarsTS.Events;
-using MarsTS.World;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Harvesting;
+using Ratworx.MarsTS.Events.Selectable.Internal;
+using Ratworx.MarsTS.Units.Sensors;
+using Ratworx.MarsTS.WorldObject;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Units
+namespace Ratworx.MarsTS.Units.Turrets
 {
     public class HarvesterTurret : MonoBehaviour
     {

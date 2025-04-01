@@ -1,9 +1,10 @@
-using MarsTS.Entities;
-using MarsTS.Teams;
-using MarsTS.World;
+using Ratworx.MarsTS.Commands.Serializers;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.WorldObject;
 using UnityEngine;
 
-namespace MarsTS.Commands
+namespace Ratworx.MarsTS.Commands.Commandlets
 {
     public class HarvestableCommandlet : Commandlet<IHarvestable>
     {

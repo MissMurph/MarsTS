@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.Buildings
+namespace Ratworx.MarsTS.Buildings.Ghosts
 {
     public class BuildingSelectionGhost : MonoBehaviour
     {

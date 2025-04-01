@@ -1,10 +1,7 @@
-using MarsTS.Commands;
-using MarsTS.Units;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Commands.Factories;
 
-namespace MarsTS.Events 
+namespace Ratworx.MarsTS.Events.Commands 
 {
 	public class CommandWorkEvent : CommandEvent 
 	{

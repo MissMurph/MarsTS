@@ -1,9 +1,6 @@
-using MarsTS.Entities;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Ratworx.MarsTS.Entities;
 
-namespace MarsTS.Events {
+namespace Ratworx.MarsTS.Events {
 
 	public class EntityDestroyEvent : AbstractEvent {
 

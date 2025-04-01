@@ -1,6 +1,6 @@
-using MarsTS.Commands;
+using Ratworx.MarsTS.Commands;
 
-namespace MarsTS.Prefabs.ObjectRegistries
+namespace Ratworx.MarsTS.Registry.ObjectRegistries
 {
     public class CommandFactoryRegistry : BaseObjectRegistry<CommandFactory>
     {

@@ -1,10 +1,11 @@
 using System;
-using MarsTS.Entities;
-using MarsTS.Teams;
-using MarsTS.Units;
+using Ratworx.MarsTS.Commands.Serializers;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.Units;
 using UnityEngine;
 
-namespace MarsTS.Commands
+namespace Ratworx.MarsTS.Commands.Commandlets
 {
     public class AttackableCommandlet : Commandlet<IAttackable>
     {

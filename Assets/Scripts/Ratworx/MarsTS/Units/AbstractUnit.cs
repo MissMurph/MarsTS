@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using MarsTS.Commands;
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Teams;
-using MarsTS.UI;
-using MarsTS.World.Pathfinding;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Commands;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Events.Selectable.Internal;
+using Ratworx.MarsTS.Pathfinding;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.UI.Unit_Pane;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Units
+namespace Ratworx.MarsTS.Units
 {
     public abstract class AbstractUnit : NetworkBehaviour,
         ISelectable,
@@ -336,7 +339,7 @@ namespace MarsTS.Units
             if (status)
                 //selectionCircle.SetActive(true);
                 Bus.Local(new UnitHoverEvent(Bus, status));
-            else if (!Player.HasSelected(this))
+            else if (!Player.Player.HasSelected(this))
                 //selectionCircle.SetActive(false);
                 Bus.Local(new UnitHoverEvent(Bus, status));
         }

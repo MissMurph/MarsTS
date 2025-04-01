@@ -1,15 +1,20 @@
-using MarsTS.Buildings;
-using MarsTS.Commands;
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Teams;
-using MarsTS.World;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Ratworx.MarsTS.Buildings;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Commands;
+using Ratworx.MarsTS.Events.Harvesting;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.Units.SafeReference;
+using Ratworx.MarsTS.Units.Sensors;
+using Ratworx.MarsTS.Units.Turrets;
+using Ratworx.MarsTS.WorldObject;
 using Unity.Netcode;
+using UnityEngine;
 
-namespace MarsTS.Units {
+namespace Ratworx.MarsTS.Units.Infantry {
 
     public class Roughneck : InfantryMember {
 

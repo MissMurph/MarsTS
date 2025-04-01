@@ -1,23 +1,18 @@
-﻿using MarsTS.Buildings;
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Players.Input;
-using MarsTS.Research;
-using MarsTS.Teams;
-using MarsTS.UI;
-using MarsTS.Units;
-using MarsTS.World;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using MarsTS.Commands;
-using Unity.Netcode;
+﻿using System.Collections.Generic;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Commands.Factories;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Player;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Pathfinding;
+using Ratworx.MarsTS.Player.Input;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.Units;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.HID;
 
-namespace MarsTS.Players {
+namespace Ratworx.MarsTS.Player {
 
 	public class Player : MonoBehaviour {
 		public static Player Main { get; private set; }

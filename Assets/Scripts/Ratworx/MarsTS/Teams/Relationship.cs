@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace MarsTS.Teams {
+namespace Ratworx.MarsTS.Teams {
 
 	public enum Relationship {
 		Owned = 0,

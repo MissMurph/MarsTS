@@ -1,10 +1,7 @@
-using MarsTS.Events;
-using MarsTS.Players;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands.Factories {
 
 	public class Upgrade : Produce {
 		public override string Name { get { return "upgrade/" + _unitPrefab.name; } }
@@ -17,7 +14,7 @@ namespace MarsTS.Commands {
 			bool canAfford = true;
 
 			foreach (CostEntry entry in _cost) {
-				if (Player.Commander.GetResource(entry.key).Amount < entry.amount) {
+				if (Player.Player.Commander.GetResource(entry.key).Amount < entry.amount) {
 					canAfford = false;
 					break;
 				}
@@ -27,7 +24,7 @@ namespace MarsTS.Commands {
 				//Player.Main.DeliverCommand(Construct(prefab), Player.Include);
 
 				foreach (CostEntry entry in _cost) {
-					Player.Commander.GetResource(entry.key).Withdraw(entry.amount);
+					Player.Player.Commander.GetResource(entry.key).Withdraw(entry.amount);
 				}
 			}
 		}

@@ -1,10 +1,8 @@
-using MarsTS.Events;
-using MarsTS.Units;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Ratworx.MarsTS.Events.Commands;
+using Ratworx.MarsTS.Units;
+using Ratworx.MarsTS.Units.Infantry;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands {
 
     public class SquadQueue : CommandQueue {
 

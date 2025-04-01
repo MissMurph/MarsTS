@@ -1,11 +1,11 @@
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Units;
-using System.Collections;
-using System.Collections.Generic;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Events.Selectable.Internal;
 using UnityEngine;
 
-namespace MarsTS.Units {
+namespace Ratworx.MarsTS.Units.Sensors {
 
     public class StealthSensor : AbstractSensor<ISelectable> {
 

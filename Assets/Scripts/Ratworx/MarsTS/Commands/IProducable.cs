@@ -1,10 +1,8 @@
-using MarsTS.Commands;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands {
 
 	public interface IProducable {
 		public int ProductionRequired { get; }

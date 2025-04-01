@@ -1,14 +1,10 @@
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Teams;
-using MarsTS.Units;
-using System.Collections;
 using System.Collections.Generic;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.Units;
 using UnityEngine;
-using UnityEngine.UI;
-using static UnityEditor.Rendering.CameraUI;
 
-namespace MarsTS.Players {
+namespace Ratworx.MarsTS.Player {
 
     public class SelectionCollider : MonoBehaviour {
 

@@ -1,13 +1,12 @@
-using MarsTS.Events;
-using MarsTS.Units;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using TMPro;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Units;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MarsTS.UI {
+namespace Ratworx.MarsTS.UI.Unit_Pane {
 
     public class UnitInfoCard : MonoBehaviour {
 

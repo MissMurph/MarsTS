@@ -1,13 +1,9 @@
-using MarsTS.Commands;
-using MarsTS.Players;
-using MarsTS.World;
-using System.Collections;
-using System.Collections.Generic;
+using Ratworx.MarsTS.Pathfinding;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace MarsTS.UI {
+namespace Ratworx.MarsTS.UI {
 
     public class MiniMapInput : MonoBehaviour, IPointerDownHandler, IPointerUpHandler {
 
@@ -27,23 +23,23 @@ namespace MarsTS.UI {
 				imageComp.rectTransform.GetWorldCorners(corners);
 				Rect newRect = new Rect(corners[0], corners[2] - corners[0]);
 
-				if (Player.MousePos.x < corners[0].x 
-					|| Player.MousePos.x > corners[2].x 
-					|| Player.MousePos.y < corners[0].y
-					|| Player.MousePos.y > corners[2].y) {
+				if (Player.Player.MousePos.x < corners[0].x 
+					|| Player.Player.MousePos.x > corners[2].x 
+					|| Player.Player.MousePos.y < corners[0].y
+					|| Player.Player.MousePos.y > corners[2].y) {
 
 					isMoving = false;
 					return;
 				}
 
-				Vector2 newPos = Player.MousePos - new Vector2(corners[0].x, corners[0].y);
+				Vector2 newPos = Player.Player.MousePos - new Vector2(corners[0].x, corners[0].y);
 
 				Vector2 relativePos = newPos / (corners[2] - corners[0]);
 
 				Ray ray = mapCam.ViewportPointToRay(relativePos);
 
 				if (Physics.Raycast(ray, out RaycastHit hit, 1000f,GameWorld.EnvironmentMask)) {
-					Player.PlayerControls.TargetPosition = new Vector3(hit.point.x, Player.Main.transform.position.y, hit.point.z);
+					Player.Player.PlayerControls.TargetPosition = new Vector3(hit.point.x, Player.Player.Main.transform.position.y, hit.point.z);
 				}
 			}
 		}
@@ -60,16 +56,16 @@ namespace MarsTS.UI {
 				imageComp.rectTransform.GetWorldCorners(corners);
 				Rect newRect = new Rect(corners[0], corners[2] - corners[0]);
 
-				if (Player.MousePos.x < corners[0].x
-					|| Player.MousePos.x > corners[2].x
-					|| Player.MousePos.y < corners[0].y
-					|| Player.MousePos.y > corners[2].y) {
+				if (Player.Player.MousePos.x < corners[0].x
+					|| Player.Player.MousePos.x > corners[2].x
+					|| Player.Player.MousePos.y < corners[0].y
+					|| Player.Player.MousePos.y > corners[2].y) {
 
 					isMoving = false;
 					return;
 				}
 
-				Vector2 newPos = Player.MousePos - new Vector2(corners[0].x, corners[0].y);
+				Vector2 newPos = Player.Player.MousePos - new Vector2(corners[0].x, corners[0].y);
 
 				Vector2 relativePos = newPos / (corners[2] - corners[0]);
 

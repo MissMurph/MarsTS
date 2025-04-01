@@ -1,11 +1,10 @@
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.World;
-using System.Collections;
-using System.Collections.Generic;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable.Building;
+using Ratworx.MarsTS.WorldObject;
 using UnityEngine;
 
-namespace MarsTS.Buildings {
+namespace Ratworx.MarsTS.Buildings {
 
     public class PumpjackOilDetector : MonoBehaviour {
 

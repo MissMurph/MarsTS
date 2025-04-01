@@ -1,11 +1,6 @@
-using MarsTS.Buildings;
-using MarsTS.Entities;
-using MarsTS.Events;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Ratworx.MarsTS.Buildings;
 
-namespace MarsTS.Units {
+namespace Ratworx.MarsTS.Units.Sensors {
 
     public class DepositSensor : AbstractSensor<IDepositable> {
 		

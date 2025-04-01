@@ -1,10 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.Events;
 
-namespace MarsTS.Events {
+namespace Ratworx.MarsTS.Events {
 
 	public class EventBus {
 

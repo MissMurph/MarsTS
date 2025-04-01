@@ -1,6 +1,6 @@
-using MarsTS.Units;
+using Ratworx.MarsTS.Units;
 
-namespace MarsTS.Events
+namespace Ratworx.MarsTS.Events.Init
 {
     public class UnitInitEvent : AbstractEvent
     {

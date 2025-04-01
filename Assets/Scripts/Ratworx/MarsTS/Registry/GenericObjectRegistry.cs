@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MarsTS.Logging;
+using Ratworx.MarsTS.Logging;
 using UnityEngine;
 
-namespace MarsTS.Prefabs.ObjectRegistries
+namespace Ratworx.MarsTS.Registry
 {
     public class GenericObjectRegistry<T> : MonoBehaviour,
         IPrefabRegistry,

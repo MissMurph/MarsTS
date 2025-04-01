@@ -2,7 +2,7 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Commands
+namespace Ratworx.MarsTS.Commands.Serializers
 {
     public class MoveSerializer : MonoBehaviour, ICommandSerializer
     {

@@ -1,8 +1,9 @@
-using MarsTS.Events;
-using MarsTS.Units;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Units.Turrets;
 using UnityEngine;
 
-namespace MarsTS.Buildings
+namespace Ratworx.MarsTS.Buildings
 {
     public class Landmine : Building
     {

@@ -1,12 +1,7 @@
-using MarsTS.Commands;
-using MarsTS.Players;
-using MarsTS.Prefabs;
-using MarsTS.Teams;
-using System.Collections;
-using System.Collections.Generic;
+using Ratworx.MarsTS.Teams;
 using UnityEngine;
 
-namespace MarsTS.Units {
+namespace Ratworx.MarsTS.Units {
 	public interface ISelectable : IUnit {
 		int Id { get; }
 		string UnitType { get; }

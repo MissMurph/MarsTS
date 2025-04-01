@@ -1,15 +1,14 @@
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Prefabs;
-using MarsTS.Teams;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using MarsTS.Logging;
+using Ratworx.MarsTS.Commands.Factories;
+using Ratworx.MarsTS.Commands.Serializers;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Logging;
+using Ratworx.MarsTS.Teams;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands.Commandlets {
 
     public class ProduceCommandlet : Commandlet<GameObject>, IProducable {
 
@@ -88,7 +87,7 @@ namespace MarsTS.Commands {
 			var deserialized = (SerializedProduceCommandlet)_data.commandletData;
 
 			ProductionRequired = deserialized.ProductionRequired;
-			if (!Registry.TryGetPrefab(deserialized.PrefabKey, out GameObject prefab))
+			if (!Registry.Registry.TryGetPrefab(deserialized.PrefabKey, out GameObject prefab))
 				RatLogger.Warning?.Log($"Couldn't find registry {deserialized.PrefabKey} for {GetType()}");
 			_target = prefab;
 		}

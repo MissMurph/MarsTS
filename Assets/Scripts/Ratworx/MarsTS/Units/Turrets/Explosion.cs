@@ -1,14 +1,13 @@
-using MarsTS.Entities;
-using MarsTS.Teams;
-using System.Collections;
 using System.Collections.Generic;
-using MarsTS.Events;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Teams;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;
-using static UnityEngine.UI.GridLayoutGroup;
 
-namespace MarsTS.Units {
+namespace Ratworx.MarsTS.Units.Turrets {
 
     public class Explosion : MonoBehaviour {
 

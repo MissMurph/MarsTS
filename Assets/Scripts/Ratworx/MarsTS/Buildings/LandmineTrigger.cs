@@ -1,11 +1,8 @@
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Units;
-using System.Collections;
-using System.Collections.Generic;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Units;
 using UnityEngine;
 
-namespace MarsTS.Buildings {
+namespace Ratworx.MarsTS.Buildings {
 
     public class LandmineTrigger : MonoBehaviour {
 

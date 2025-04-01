@@ -1,9 +1,10 @@
 using System;
-using MarsTS.Events;
-using MarsTS.Teams;
+using Ratworx.MarsTS.Commands.Serializers;
+using Ratworx.MarsTS.Events.Commands;
+using Ratworx.MarsTS.Teams;
 using Unity.Netcode;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands.Commandlets {
     public class SneakCommandlet : Commandlet<bool> {
 
         private NetworkVariable<float> _deactivateCooldown

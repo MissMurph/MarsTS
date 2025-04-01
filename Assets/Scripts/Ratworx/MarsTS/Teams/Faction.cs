@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MarsTS.Buildings;
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Research;
-using MarsTS.Units;
+using Ratworx.MarsTS.Buildings;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Player;
+using Ratworx.MarsTS.Research;
+using Ratworx.MarsTS.Units;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Teams
+namespace Ratworx.MarsTS.Teams
 {
     public class Faction : NetworkBehaviour, IEquatable<Faction>
     {

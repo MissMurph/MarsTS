@@ -1,6 +1,6 @@
-using MarsTS.Commands;
+using Ratworx.MarsTS.Commands;
 
-namespace MarsTS.Events 
+namespace Ratworx.MarsTS.Events.Commands 
 {
 	public class CommandCompleteEvent : CommandEvent 
 	{

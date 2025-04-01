@@ -1,7 +1,7 @@
-using MarsTS.Entities;
+using Ratworx.MarsTS.Entities;
 using UnityEngine;
 
-namespace MarsTS.Units
+namespace Ratworx.MarsTS.Units
 {
     public class ResourceStorage : EntityAttribute
     {

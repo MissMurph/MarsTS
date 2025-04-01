@@ -1,7 +1,7 @@
-using MarsTS.Commands;
+using Ratworx.MarsTS.Commands.Factories;
 using Unity.Netcode;
 
-namespace MarsTS.Buildings
+namespace Ratworx.MarsTS.Buildings.Ghosts
 {
     public class LandmineConstructionGhost : BuildingConstructionGhost
     {

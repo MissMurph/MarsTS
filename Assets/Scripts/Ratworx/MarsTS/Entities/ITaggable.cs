@@ -1,9 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
-namespace MarsTS.Entities {
+namespace Ratworx.MarsTS.Entities {
 
 	public interface ITaggable<T> : ITaggable {
 		T Get ();

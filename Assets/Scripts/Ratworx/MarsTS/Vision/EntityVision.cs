@@ -1,11 +1,14 @@
 using System;
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Teams;
-using MarsTS.Units;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Init;
+using Ratworx.MarsTS.Events.Player;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.Units;
 using UnityEngine;
 
-namespace MarsTS.Vision
+namespace Ratworx.MarsTS.Vision
 {
     public class EntityVision : MonoBehaviour, ITaggable<EntityVision>
     {

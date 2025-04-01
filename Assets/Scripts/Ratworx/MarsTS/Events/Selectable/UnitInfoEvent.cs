@@ -1,10 +1,7 @@
-using MarsTS.UI;
-using MarsTS.Units;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Ratworx.MarsTS.UI.Unit_Pane;
+using Ratworx.MarsTS.Units;
 
-namespace MarsTS.Events {
+namespace Ratworx.MarsTS.Events.Selectable {
 
 	public class UnitInfoEvent : SelectableEvent {
 		public string Key { get { return Unit.RegistryKey; } }

@@ -1,9 +1,10 @@
-using MarsTS.Events;
-using MarsTS.Units;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Units;
 using TMPro;
 using UnityEngine;
 
-namespace MarsTS.UI
+namespace Ratworx.MarsTS.UI.Unit_Pane
 {
     public class HealthInfo : MonoBehaviour, IInfoModule
     {

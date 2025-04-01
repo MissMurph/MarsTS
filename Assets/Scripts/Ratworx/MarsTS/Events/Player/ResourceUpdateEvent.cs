@@ -1,10 +1,7 @@
-using MarsTS.Players;
-using MarsTS.Teams;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Ratworx.MarsTS.Player;
+using Ratworx.MarsTS.Teams;
 
-namespace MarsTS.Events {
+namespace Ratworx.MarsTS.Events.Player {
 
 	public class ResourceUpdateEvent : AbstractEvent {
 

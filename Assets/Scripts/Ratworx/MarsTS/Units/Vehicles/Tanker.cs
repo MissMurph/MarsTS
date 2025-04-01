@@ -1,9 +1,11 @@
-using MarsTS.Events;
+using Ratworx.MarsTS.Events.Harvesting;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Units.Sensors;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace MarsTS.Units
+namespace Ratworx.MarsTS.Units.Vehicles
 {
     public class Tanker : Harvester
     {

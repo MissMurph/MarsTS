@@ -1,7 +1,6 @@
-using MarsTS.Prefabs.ObjectRegistries;
-using MarsTS.World;
+using Ratworx.MarsTS.WorldObject;
 
-namespace MarsTS.Prefabs
+namespace Ratworx.MarsTS.Registry.ObjectRegistries
 {
     public class ResourceNodeObjectRegistry : GenericObjectRegistry<ResourceDeposit>
     {

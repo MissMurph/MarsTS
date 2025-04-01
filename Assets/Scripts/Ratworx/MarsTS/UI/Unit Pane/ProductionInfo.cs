@@ -1,12 +1,11 @@
-using MarsTS.Commands;
-using MarsTS.Events;
-using System.Collections;
-using System.Collections.Generic;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Commands;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MarsTS.UI {
+namespace Ratworx.MarsTS.UI.Unit_Pane {
 
     public class ProductionInfo : MonoBehaviour, IInfoModule {
 

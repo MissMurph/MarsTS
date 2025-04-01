@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MarsTS.Buildings
+namespace Ratworx.MarsTS.Buildings.Ghosts
 {
     public class LandmineSelectionGhost : BuildingSelectionGhost
     {

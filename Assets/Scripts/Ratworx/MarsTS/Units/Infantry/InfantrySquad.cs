@@ -1,19 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MarsTS.Commands;
-using MarsTS.Editor;
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Prefabs;
-using MarsTS.Teams;
-using MarsTS.UI;
-using MarsTS.Vision;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Commands;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.UI.Unit_Pane;
+using Ratworx.MarsTS.Vision;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace MarsTS.Units
+namespace Ratworx.MarsTS.Units.Infantry
 {
     public class InfantrySquad : NetworkBehaviour,
         ISelectable,
@@ -177,7 +178,7 @@ namespace MarsTS.Units
 
         private void SpawnAndInitializeMembers()
         {
-            if (!Registry.TryGetPrefab("misc:spawner", out GameObject prefab))
+            if (!Registry.Registry.TryGetPrefab("misc:spawner", out GameObject prefab))
             {
                 Debug.LogError($"{typeof(InfantrySquad)} {gameObject.name} Couldn't find misc:spawner prefab!");
                 return;

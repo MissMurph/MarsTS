@@ -1,4 +1,4 @@
-namespace MarsTS.Prefabs
+namespace Ratworx.MarsTS.Registry
 {
     public interface IRegistryObject<T> : IRegistryObject
     {

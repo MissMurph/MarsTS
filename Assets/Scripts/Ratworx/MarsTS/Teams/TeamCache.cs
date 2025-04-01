@@ -1,12 +1,13 @@
-using MarsTS.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Init;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace MarsTS.Teams {
+namespace Ratworx.MarsTS.Teams {
 	public class TeamCache : NetworkBehaviour {
 		
 		private static TeamCache _instance;

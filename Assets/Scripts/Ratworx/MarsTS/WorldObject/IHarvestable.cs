@@ -1,10 +1,7 @@
-using MarsTS.Units;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Ratworx.MarsTS.Units;
 
-namespace MarsTS.World {
+namespace Ratworx.MarsTS.WorldObject {
 
     public interface IHarvestable : IUnit {
 		int OriginalAmount { get; }

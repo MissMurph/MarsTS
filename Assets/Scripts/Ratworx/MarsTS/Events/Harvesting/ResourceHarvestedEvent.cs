@@ -1,10 +1,6 @@
-using MarsTS.Units;
-using MarsTS.World;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Ratworx.MarsTS.Units;
 
-namespace MarsTS.Events {
+namespace Ratworx.MarsTS.Events.Harvesting {
 
 	public class ResourceHarvestedEvent : ResourceEvent {
 		

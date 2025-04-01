@@ -1,11 +1,10 @@
-using MarsTS.Units;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using Ratworx.MarsTS.Units;
 using UnityEngine;
 
-namespace MarsTS.World.Pathfinding {
+namespace Ratworx.MarsTS.Pathfinding {
 
 	public class PathRequestManager : MonoBehaviour {
 

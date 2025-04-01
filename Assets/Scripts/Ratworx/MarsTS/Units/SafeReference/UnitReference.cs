@@ -1,8 +1,10 @@
-using MarsTS.Entities;
-using MarsTS.Events;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
 using UnityEngine;
 
-namespace MarsTS.Units
+namespace Ratworx.MarsTS.Units.SafeReference
 {
     // TODO: Make T : IUnit so we can imply gameobject from it
     public class UnitReference<T> where T : class

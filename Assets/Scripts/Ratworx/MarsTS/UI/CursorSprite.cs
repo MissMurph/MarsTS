@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.UI {
+namespace Ratworx.MarsTS.UI {
 
     [Serializable]
     public class CursorSprite {

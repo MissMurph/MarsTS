@@ -1,11 +1,8 @@
-using MarsTS.Commands;
-using MarsTS.Research;
-using MarsTS.Units;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Research;
+using Ratworx.MarsTS.Units;
 
-namespace MarsTS.Events {
+namespace Ratworx.MarsTS.Events.Commands {
 
     public class ResearchCompleteEvent : ProductionEvent {
 

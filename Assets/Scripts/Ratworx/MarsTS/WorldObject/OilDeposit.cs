@@ -1,10 +1,11 @@
 using System;
-using MarsTS.Buildings;
-using MarsTS.Events;
-using MarsTS.Units;
+using Ratworx.MarsTS.Buildings;
+using Ratworx.MarsTS.Events.Harvesting;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Units;
 using UnityEngine;
 
-namespace MarsTS.World
+namespace Ratworx.MarsTS.WorldObject
 {
     public class OilDeposit : ResourceDeposit
     {

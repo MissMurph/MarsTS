@@ -1,21 +1,16 @@
-using MarsTS.Buildings;
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Teams;
-using MarsTS.World;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using MarsTS.Entities;
-using Unity.Collections;
+using Ratworx.MarsTS.Commands.Commandlets;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Pathfinding;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.Units;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using MarsTS.Networking;
-using MarsTS.Units;
 using UnityEngine.Serialization;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands.Factories {
 
     public class Flare : CommandFactory<Vector3> {
 
@@ -43,16 +38,16 @@ namespace MarsTS.Commands {
 		private CostEntry[] _cost;
 
 		public override void StartSelection() {
-			if (!CanFactionAfford(Player.Commander)) return;
+			if (!CanFactionAfford(Player.Player.Commander)) return;
 
 			_markerTransform = Instantiate(_markerPrefab).transform;
-			Player.Input.Hook("Select", OnSelect);
-			Player.Input.Hook("Order", OnOrder);
+			Player.Player.Input.Hook("Select", OnSelect);
+			Player.Player.Input.Hook("Order", OnOrder);
 		}
 
 		protected virtual void Update () {
 			if (_markerTransform != null) {
-				Ray ray = Player.ViewPort.ScreenPointToRay(Player.MousePos);
+				Ray ray = Player.Player.ViewPort.ScreenPointToRay(Player.Player.MousePos);
 
 				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.WalkableMask)) {
 					_markerTransform.position = hit.point;
@@ -62,14 +57,14 @@ namespace MarsTS.Commands {
 
 		protected virtual void OnSelect (InputAction.CallbackContext context) {
 			if (context.canceled) {
-				Ray ray = Player.ViewPort.ScreenPointToRay(Player.MousePos);
+				Ray ray = Player.Player.ViewPort.ScreenPointToRay(Player.Player.MousePos);
 
 				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.WalkableMask)) {
-					if (!CanFactionAfford(Player.Commander)) return;
+					if (!CanFactionAfford(Player.Player.Commander)) return;
 
 					string selection = string.Empty;
 					
-					foreach (Roster roster in Player.Selected.Values) {
+					foreach (Roster roster in Player.Player.Selected.Values) {
 						if (!roster.Commands.Contains(Name)) continue;
 
 						// TODO: Replace this with a check for which instance is closest
@@ -81,8 +76,8 @@ namespace MarsTS.Commands {
 
 					Destroy(_markerTransform.gameObject);
 
-					Player.Input.Release("Select");
-					Player.Input.Release("Order");
+					Player.Player.Input.Release("Select");
+					Player.Player.Input.Release("Order");
 				}
 			}
 		}
@@ -96,9 +91,9 @@ namespace MarsTS.Commands {
 		public void Construct(Vector3 hitPoint, string selection) {
 			ConstructCommandletServerRpc(
 				hitPoint, 
-				Player.Commander.Id, 
+				Player.Player.Commander.Id, 
 				selection, 
-				Player.Include
+				Player.Player.Include
 			);
 		}
 
@@ -135,8 +130,8 @@ namespace MarsTS.Commands {
 			if (_markerTransform != null) {
 				Destroy(_markerTransform.gameObject);
 
-				Player.Input.Release("Select");
-				Player.Input.Release("Order");
+				Player.Player.Input.Release("Select");
+				Player.Player.Input.Release("Order");
 			}
 		}
 

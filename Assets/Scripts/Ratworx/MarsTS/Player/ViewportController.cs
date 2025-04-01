@@ -1,11 +1,8 @@
-using MarsTS.World;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using Ratworx.MarsTS.Pathfinding;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace MarsTS.Players {
+namespace Ratworx.MarsTS.Player {
 
     public class ViewportController : MonoBehaviour {
 

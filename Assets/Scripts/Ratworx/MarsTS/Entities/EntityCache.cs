@@ -1,12 +1,9 @@
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Units;
-using System;
 using System.Collections.Generic;
+using Ratworx.MarsTS.Events;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Entities {
+namespace Ratworx.MarsTS.Entities {
 
 	public class EntityCache : MonoBehaviour {
 

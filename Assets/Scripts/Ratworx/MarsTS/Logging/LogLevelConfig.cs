@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace MarsTS.Logging
+namespace Ratworx.MarsTS.Logging
 {
     [CreateAssetMenu(fileName = "LogConfig", menuName = "ScriptableObjects/LoggerConfig")]
     public class LogLevelConfig : ScriptableObject

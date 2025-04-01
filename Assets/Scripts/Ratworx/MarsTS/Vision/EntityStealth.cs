@@ -1,10 +1,12 @@
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Units;
 using System;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Units;
+using Ratworx.MarsTS.Units.Sensors;
 using UnityEngine;
 
-namespace MarsTS.Vision {
+namespace Ratworx.MarsTS.Vision {
 
 	[RequireComponent(typeof(EntityVision))]
 	public class EntityStealth : MonoBehaviour, ITaggable<EntityStealth> {

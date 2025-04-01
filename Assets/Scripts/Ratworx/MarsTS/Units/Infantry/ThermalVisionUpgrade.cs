@@ -1,7 +1,8 @@
+using Ratworx.MarsTS.Units.Sensors;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace MarsTS.Units
+namespace Ratworx.MarsTS.Units.Infantry
 {
     public class ThermalVisionUpgrade : MonoBehaviour
     {

@@ -1,12 +1,9 @@
-using MarsTS.Entities;
-using MarsTS.World;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Pathfinding;
 using UnityEngine;
 
-namespace MarsTS.Units {
+namespace Ratworx.MarsTS.Units.Turrets {
 
     public class Projectile : MonoBehaviour {
 

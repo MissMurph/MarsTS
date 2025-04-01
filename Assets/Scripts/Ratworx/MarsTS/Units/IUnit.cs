@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MarsTS.Units
+namespace Ratworx.MarsTS.Units
 {
     public interface IUnit
     {

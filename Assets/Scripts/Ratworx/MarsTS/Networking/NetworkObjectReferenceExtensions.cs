@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Networking {
+namespace Ratworx.MarsTS.Networking {
 
     public static class NetworkObjectReferenceExtensions {
 

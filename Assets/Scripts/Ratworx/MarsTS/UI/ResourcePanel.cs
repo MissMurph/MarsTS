@@ -1,11 +1,12 @@
 using System.Collections.Generic;
-using MarsTS.Events;
-using MarsTS.Players;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Player;
+using Ratworx.MarsTS.Player;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MarsTS.UI
+namespace Ratworx.MarsTS.UI
 {
     public class ResourcePanel : MonoBehaviour
     {
@@ -25,7 +26,7 @@ namespace MarsTS.UI
 
         private void OnPlayerInit(PlayerInitEvent _event)
         {
-            foreach (PlayerResource used in Player.Commander.Resources)
+            foreach (PlayerResource used in Player.Player.Commander.Resources)
             {
                 GameObject newCounter = Instantiate(CounterPrefab, transform);
 
@@ -50,7 +51,7 @@ namespace MarsTS.UI
 
         private void OnPlayerResourceUpdate(ResourceUpdateEvent _event)
         {
-            if (!Player.Commander.Equals(_event.Player)) return;
+            if (!Player.Player.Commander.Equals(_event.Player)) return;
 
             if (counters.TryGetValue(_event.Resource.Key, out TextMeshProUGUI counter))
                 counter.text = _event.Amount.ToString();

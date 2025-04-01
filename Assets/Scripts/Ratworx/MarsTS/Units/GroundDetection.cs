@@ -1,10 +1,7 @@
-using MarsTS.World;
-using System.Collections;
-using System.Collections.Generic;
+using Ratworx.MarsTS.Pathfinding;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
-namespace MarsTS.Units {
+namespace Ratworx.MarsTS.Units {
 
     public class GroundDetection : MonoBehaviour {
 

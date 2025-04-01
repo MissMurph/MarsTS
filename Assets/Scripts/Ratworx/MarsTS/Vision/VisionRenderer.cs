@@ -1,7 +1,7 @@
 using System.Threading;
 using UnityEngine;
 
-namespace MarsTS.Vision
+namespace Ratworx.MarsTS.Vision
 {
     public class VisionRenderer : MonoBehaviour
     {

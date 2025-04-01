@@ -1,12 +1,11 @@
-using MarsTS.Commands;
-using MarsTS.Players;
-using System.Collections;
-using System.Collections.Generic;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Commands.Factories;
+using Ratworx.MarsTS.Player;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MarsTS.UI {
+namespace Ratworx.MarsTS.UI {
 
     public class CommandTooltip : MonoBehaviour {
 

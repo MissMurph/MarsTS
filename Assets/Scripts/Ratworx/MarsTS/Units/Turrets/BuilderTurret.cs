@@ -1,12 +1,13 @@
-using MarsTS.Commands;
-using MarsTS.Events;
-using MarsTS.Teams;
-using System.Collections;
-using System.Collections.Generic;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable.Internal;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.Units.SafeReference;
+using Ratworx.MarsTS.Units.Sensors;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Units {
+namespace Ratworx.MarsTS.Units.Turrets {
 
     public class BuilderTurret : MonoBehaviour {
 

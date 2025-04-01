@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
-using MarsTS.Prefabs;
+using Ratworx.MarsTS.Registry;
+using Scenes;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Commands
+namespace Ratworx.MarsTS.Commands
 {
     public class CommandPrimer : NetworkBehaviour
     {
@@ -30,7 +31,7 @@ namespace MarsTS.Commands
         
         private void SpawnCommandFactories()
         {
-            if (!Registry.TryGetPrefabRegistry("command_factories", out IPrefabRegistry registry))
+            if (!Registry.Registry.TryGetPrefabRegistry("command_factories", out IPrefabRegistry registry))
             {
                 Debug.LogError($"Couldn't find Command Factories registry!");
                 return;

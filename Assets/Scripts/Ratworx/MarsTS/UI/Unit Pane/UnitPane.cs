@@ -1,14 +1,8 @@
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Prefabs;
-using MarsTS.Units;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using TMPro;
+using Ratworx.MarsTS.Units;
 using UnityEngine;
 
-namespace MarsTS.UI {
+namespace Ratworx.MarsTS.UI.Unit_Pane {
 
     public class UnitPane : MonoBehaviour {
 

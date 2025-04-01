@@ -1,7 +1,8 @@
 using System;
-using MarsTS.Teams;
+using Ratworx.MarsTS.Commands.Serializers;
+using Ratworx.MarsTS.Teams;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands.Commandlets {
 
 	public class SimpleCommandlet : Commandlet<bool> {
 		public override string SerializerKey => "simple";

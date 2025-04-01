@@ -1,11 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using MarsTS.Commands;
-using MarsTS.Logging;
-using UnityEngine;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Logging;
 
-namespace MarsTS.Units
+namespace Ratworx.MarsTS.Units
 {
     public class Roster : IEnumerable<ISelectable>
     {

@@ -1,9 +1,6 @@
-using MarsTS.Units;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Ratworx.MarsTS.Units;
 
-namespace MarsTS.Events {
+namespace Ratworx.MarsTS.Events.Selectable.Attackable {
 
 	public class UnitDeathEvent : SelectableEvent {
 

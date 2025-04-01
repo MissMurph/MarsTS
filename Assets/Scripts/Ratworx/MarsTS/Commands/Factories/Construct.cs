@@ -1,9 +1,9 @@
 using System;
-using MarsTS.UI;
-using MarsTS.Units;
+using Ratworx.MarsTS.Player;
+using Ratworx.MarsTS.Units;
 using UnityEngine;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands.Factories {
 
 	public class Construct : CommandFactory<ISelectable> {
 

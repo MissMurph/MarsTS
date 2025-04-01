@@ -1,20 +1,19 @@
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Teams;
-using MarsTS.Units;
-using MarsTS.Commands;
-using MarsTS.World;
-using System;
-using System.Collections;
 using System.Collections.Generic;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Commands;
+using Ratworx.MarsTS.Events.Player;
+using Ratworx.MarsTS.Pathfinding;
+using Ratworx.MarsTS.UI;
+using Ratworx.MarsTS.UI.Unit_Pane;
+using Ratworx.MarsTS.Units;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using static UnityEditor.PlayerSettings.SplashScreen;
 
-namespace MarsTS.UI {
+namespace Ratworx.MarsTS.Player {
 
 	public class UIController : MonoBehaviour {
 

@@ -1,11 +1,10 @@
-using MarsTS.Events;
-using MarsTS.Teams;
-using System.Collections;
-using System.Collections.Generic;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Player;
+using Ratworx.MarsTS.Teams;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Players {
+namespace Ratworx.MarsTS.Player {
 
     public class PlayerResource : NetworkBehaviour {
 

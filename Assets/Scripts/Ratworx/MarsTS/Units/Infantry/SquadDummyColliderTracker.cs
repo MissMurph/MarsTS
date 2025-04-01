@@ -1,7 +1,9 @@
-using MarsTS.Events;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
 using UnityEngine;
 
-namespace MarsTS.Units
+namespace Ratworx.MarsTS.Units.Infantry
 {
     public class SquadDummyColliderTracker : MonoBehaviour
     {

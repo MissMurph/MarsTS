@@ -2,7 +2,7 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Entities
+namespace Ratworx.MarsTS.Entities
 {
     public class EntityAttribute : NetworkBehaviour, ITaggable<EntityAttribute>
     {

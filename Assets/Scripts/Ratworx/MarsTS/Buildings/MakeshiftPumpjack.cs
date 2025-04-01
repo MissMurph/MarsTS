@@ -1,10 +1,6 @@
-using MarsTS.Units;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Ratworx.MarsTS.Units;
 
-namespace MarsTS.Buildings {
+namespace Ratworx.MarsTS.Buildings {
 
     public class MakeshiftPumpjack : Pumpjack {
 

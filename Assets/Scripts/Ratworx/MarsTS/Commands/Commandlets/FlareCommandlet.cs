@@ -1,10 +1,12 @@
 using System.Collections.Generic;
-using MarsTS.Events;
-using MarsTS.Teams;
+using Ratworx.MarsTS.Commands.Factories;
+using Ratworx.MarsTS.Commands.Serializers;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Teams;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands.Commandlets {
     public class FlareCommandlet : Commandlet<Vector3> {
 
         private readonly NetworkVariable<float> _cooldown = new(writePerm: NetworkVariableWritePermission.Server);

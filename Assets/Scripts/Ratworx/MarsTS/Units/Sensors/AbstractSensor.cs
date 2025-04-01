@@ -1,12 +1,14 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Vision;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Player;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Events.Selectable.Internal;
+using Ratworx.MarsTS.Vision;
 using UnityEngine;
 
-namespace MarsTS.Units
+namespace Ratworx.MarsTS.Units.Sensors
 {
     public abstract class AbstractSensor<T> : MonoBehaviour where T : IUnit
     {

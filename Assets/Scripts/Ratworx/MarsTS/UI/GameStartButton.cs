@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MarsTS.UI {
+namespace Ratworx.MarsTS.UI {
 
     public class GameStartButton : MonoBehaviour {
 

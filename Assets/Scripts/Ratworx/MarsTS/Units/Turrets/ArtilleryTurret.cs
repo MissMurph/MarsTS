@@ -1,10 +1,11 @@
-using MarsTS.Commands;
-using MarsTS.Events;
-using MarsTS.Teams;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Events.Selectable.Internal;
+using Ratworx.MarsTS.Teams;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Units
+namespace Ratworx.MarsTS.Units.Turrets
 {
     public class ArtilleryTurret : ProjectileTurret
     {

@@ -1,10 +1,10 @@
-using MarsTS.Commands;
-using MarsTS.Events;
-using MarsTS.Teams;
-using UnityEngine;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Teams;
 using Unity.Netcode;
+using UnityEngine;
 
-namespace MarsTS.Units
+namespace Ratworx.MarsTS.Units.Turrets
 {
     public class SubmachineGun : ProjectileTurret
     {

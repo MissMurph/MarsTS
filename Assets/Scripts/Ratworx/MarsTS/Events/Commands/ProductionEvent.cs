@@ -1,10 +1,8 @@
-using MarsTS.Commands;
-using MarsTS.Units;
-using System.Collections;
-using System.Collections.Generic;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Units;
 using UnityEngine;
 
-namespace MarsTS.Events {
+namespace Ratworx.MarsTS.Events.Commands {
 
 	public class ProductionEvent : AbstractEvent {
 

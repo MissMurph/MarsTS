@@ -1,14 +1,12 @@
-using MarsTS.Commands;
-using MarsTS.Events;
-using MarsTS.Players;
-using System.Collections;
-using System.Collections.Generic;
-using MarsTS.Units;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Commands;
+using Ratworx.MarsTS.Units;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MarsTS.UI {
+namespace Ratworx.MarsTS.UI {
 
     public class CommandButton : MonoBehaviour {
 
@@ -80,8 +78,8 @@ namespace MarsTS.UI {
 			if (current is null) return;
             if (_event.Command.Command.Name == current.Name) {
 
-                if (!Player.HasSelected(_event.Unit as ISelectable)) return;
-                if (Player.UI.PrimarySelected != (_event.Unit as ISelectable)?.RegistryKey) return;
+                if (!Player.Player.HasSelected(_event.Unit as ISelectable)) return;
+                if (Player.Player.UI.PrimarySelected != (_event.Unit as ISelectable)?.RegistryKey) return;
 
 				EvaluateUsability();
                 EvaluateActivity();
@@ -91,8 +89,8 @@ namespace MarsTS.UI {
         private void OnCommandActivate (CommandActiveEvent _event) {
             if (current is null) return;
             if (_event.Command.Name == current.Name
-                && Player.HasSelected(_event.Unit as ISelectable)
-                && Player.UI.PrimarySelected == (_event.Unit as ISelectable)?.RegistryKey) {
+                && Player.Player.HasSelected(_event.Unit as ISelectable)
+                && Player.Player.UI.PrimarySelected == (_event.Unit as ISelectable)?.RegistryKey) {
 				activity.SetActive(_event.Activity);
             }
         }
@@ -100,8 +98,8 @@ namespace MarsTS.UI {
         private void OnCooldownUpdate (CooldownEvent _event) {
 			if (current is null) return;
 			if (_event.CommandKey == current.Name
-                && Player.HasSelected(_event.Unit)
-                && Player.UI.PrimarySelected == _event.Unit.RegistryKey) {
+                && Player.Player.HasSelected(_event.Unit)
+                && Player.Player.UI.PrimarySelected == _event.Unit.RegistryKey) {
 
                 EvaluateCooldown();
                 EvaluateUsability();
@@ -109,7 +107,7 @@ namespace MarsTS.UI {
         }
 
         private void EvaluateUsability () {
-			foreach (ICommandable unit in Player.Selected[Player.UI.PrimarySelected].Orderable) {
+			foreach (ICommandable unit in Player.Player.Selected[Player.Player.UI.PrimarySelected].Orderable) {
                 if (unit.CanCommand(current.Name)) {
                     usable.SetActive(false);
                     return;
@@ -120,7 +118,7 @@ namespace MarsTS.UI {
 		}
 
         private void EvaluateActivity () {
-            foreach (ICommandable unit in Player.Selected[Player.UI.PrimarySelected].Orderable) {
+            foreach (ICommandable unit in Player.Player.Selected[Player.Player.UI.PrimarySelected].Orderable) {
                 if (unit.Active.Contains(current.Name)) {
                     activity.SetActive(true);
                     return;
@@ -135,7 +133,7 @@ namespace MarsTS.UI {
 			float lowestCooldown = 999f;
             float cooldownDuration = 0f;
 
-			foreach (ICommandable unit in Player.Selected[Player.UI.PrimarySelected].Orderable) {
+			foreach (ICommandable unit in Player.Player.Selected[Player.Player.UI.PrimarySelected].Orderable) {
                 foreach (Timer activeCooldown in unit.Cooldowns) {
 					if (activeCooldown.commandName == current.Name) {
                         coolingDown = true;

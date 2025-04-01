@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.Prefabs
+namespace Ratworx.MarsTS.Registry
 {
     public interface IPrefabRegistry : IRegistry
     {

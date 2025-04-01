@@ -1,9 +1,10 @@
-using MarsTS.Events;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace MarsTS.Units
+namespace Ratworx.MarsTS.Units.Turrets
 {
     public class SniperGun : ProjectileTurret
     {

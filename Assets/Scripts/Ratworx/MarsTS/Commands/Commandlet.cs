@@ -1,17 +1,16 @@
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Teams;
-using MarsTS.Networking;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using Ratworx.MarsTS.Commands.Cache;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Commands;
+using Ratworx.MarsTS.Teams;
 using Unity.Netcode;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands {
 
     public abstract class Commandlet : NetworkBehaviour {
 

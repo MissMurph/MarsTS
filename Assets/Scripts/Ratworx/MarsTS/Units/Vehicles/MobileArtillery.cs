@@ -1,13 +1,10 @@
-using MarsTS.Commands;
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Teams;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.PackageManager;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Events.Commands;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Teams;
 using UnityEngine;
 
-namespace MarsTS.Units {
+namespace Ratworx.MarsTS.Units.Vehicles {
 
 	public class MobileArtillery : Tank {
 

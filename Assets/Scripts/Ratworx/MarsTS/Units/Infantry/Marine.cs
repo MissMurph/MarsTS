@@ -1,11 +1,13 @@
-using MarsTS.Commands;
-using MarsTS.Entities;
-using MarsTS.Events;
-using System.Collections;
-using System.Collections.Generic;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Commands;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Units.SafeReference;
+using Ratworx.MarsTS.Units.Turrets;
 using UnityEngine;
 
-namespace MarsTS.Units {
+namespace Ratworx.MarsTS.Units.Infantry {
 
     public class Marine : InfantryMember {
 

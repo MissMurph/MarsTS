@@ -1,14 +1,7 @@
-using MarsTS.Players;
-using MarsTS.Commands;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
+using Ratworx.MarsTS.Commands;
 using UnityEngine;
-using UnityEngine.UI;
-using System;
-using MarsTS.Events;
 
-namespace MarsTS.UI {
+namespace Ratworx.MarsTS.UI {
 
 	public class CommandPanel : MonoBehaviour {
 

@@ -1,19 +1,21 @@
 using System;
 using System.Collections.Generic;
-using MarsTS.Commands;
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Prefabs;
-using MarsTS.Research;
-using MarsTS.Teams;
-using MarsTS.UI;
-using MarsTS.Units;
-using MarsTS.Vision;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Commands;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Events.Selectable.Internal;
+using Ratworx.MarsTS.Research;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.UI.Unit_Pane;
+using Ratworx.MarsTS.Units;
+using Ratworx.MarsTS.Vision;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Buildings
+namespace Ratworx.MarsTS.Buildings
 {
     public abstract class Building : NetworkBehaviour, 
         ISelectable,
@@ -235,7 +237,7 @@ namespace MarsTS.Buildings
 
         public virtual void Hover(bool status)
         {
-            if (Player.HasSelected(this)) return;
+            if (Player.Player.HasSelected(this)) return;
 
             Bus.Local(new UnitHoverEvent(Bus, status));
         }

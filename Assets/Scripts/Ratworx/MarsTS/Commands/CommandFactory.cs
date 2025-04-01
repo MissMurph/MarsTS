@@ -1,13 +1,14 @@
-using MarsTS.Entities;
-using MarsTS.Teams;
-using MarsTS.UI;
 using System;
 using System.Collections.Generic;
-using MarsTS.Prefabs;
+using Ratworx.MarsTS.Commands.Factories;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Registry;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.UI;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands {
 
 	public abstract class CommandFactory<T> : CommandFactory
 	{

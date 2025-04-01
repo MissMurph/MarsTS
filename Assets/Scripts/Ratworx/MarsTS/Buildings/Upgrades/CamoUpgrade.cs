@@ -1,10 +1,9 @@
-using MarsTS.Events;
-using MarsTS.Units;
-using System.Collections;
-using System.Collections.Generic;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Units;
 using UnityEngine;
 
-namespace MarsTS.Buildings {
+namespace Ratworx.MarsTS.Buildings.Upgrades {
 
 	public class CamoUpgrade : MonoBehaviour {
 

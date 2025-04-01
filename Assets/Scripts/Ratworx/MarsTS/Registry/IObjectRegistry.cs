@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MarsTS.Prefabs
+namespace Ratworx.MarsTS.Registry
 {
     public interface IObjectRegistry<T> : IRegistry
     {

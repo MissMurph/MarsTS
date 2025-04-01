@@ -1,12 +1,12 @@
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Logging;
-using MarsTS.Teams;
-using MarsTS.Units;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Logging;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.Units;
+using Scenes;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Editor
+namespace Ratworx.MarsTS
 {
     public class EntitySpawner : MonoBehaviour
     {

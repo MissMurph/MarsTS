@@ -1,9 +1,4 @@
-using MarsTS.World;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace MarsTS.Units {
+namespace Ratworx.MarsTS.Units.Sensors {
 
     public class AttackableSensor : AbstractSensor<IAttackable> {
 

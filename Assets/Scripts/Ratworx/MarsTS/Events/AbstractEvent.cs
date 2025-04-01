@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace MarsTS.Events {
+namespace Ratworx.MarsTS.Events {
 
 	public class AbstractEvent {
 		public string Name { get; private set; }

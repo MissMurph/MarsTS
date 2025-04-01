@@ -1,11 +1,14 @@
 using System.Collections.Generic;
-using MarsTS.Commands;
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.UI;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Init;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.UI.Unit_Pane;
 using UnityEngine;
 
-namespace MarsTS.Buildings
+namespace Ratworx.MarsTS.Buildings
 {
     public class Landmines : Building
     {

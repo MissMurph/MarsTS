@@ -1,6 +1,6 @@
-using MarsTS.Buildings;
+using Ratworx.MarsTS.Buildings;
 
-namespace MarsTS.Prefabs.ObjectRegistries
+namespace Ratworx.MarsTS.Registry.ObjectRegistries
 {
     public class BuildingRegistry : GenericObjectRegistry<Building>
     {

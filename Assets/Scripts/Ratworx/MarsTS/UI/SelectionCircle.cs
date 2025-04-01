@@ -1,11 +1,11 @@
-using System;
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Teams;
-using MarsTS.Units;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Events.Selectable.Internal;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.Units;
 using UnityEngine;
 
-namespace MarsTS.UI
+namespace Ratworx.MarsTS.UI
 {
     public class SelectionCircle : MonoBehaviour
     {
@@ -40,7 +40,7 @@ namespace MarsTS.UI
         private void OnTeamChange(UnitOwnerChangeEvent _event)
         {
             _circleRenderer.GetPropertyBlock(_matBlock);
-            _matBlock.SetColor("_Color", _parent.GetRelationship(Player.Commander).Colour());
+            _matBlock.SetColor("_Color", _parent.GetRelationship(Player.Player.Commander).Colour());
             _circleRenderer.SetPropertyBlock(_matBlock);
         }
 
@@ -57,7 +57,7 @@ namespace MarsTS.UI
         }
 
         private void OnEnable() {
-            bool status = Player.HasSelected(_parent);
+            bool status = Player.Player.HasSelected(_parent);
 
             _circleRenderer.enabled = status;
             _mask.enabled = status;

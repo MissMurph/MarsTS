@@ -1,7 +1,11 @@
 using System.Collections.Generic;
-using MarsTS.Events;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Init;
+using Ratworx.MarsTS.Events.Player;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
 
-namespace MarsTS.Vision
+namespace Ratworx.MarsTS.Vision
 {
     public class SquadVisionParser : EntityVision
     {

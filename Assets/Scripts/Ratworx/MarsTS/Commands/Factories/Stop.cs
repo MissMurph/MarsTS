@@ -1,12 +1,11 @@
-using MarsTS.Players;
 using System;
 using System.Collections.Generic;
-using MarsTS.Networking;
+using Ratworx.MarsTS.Networking;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands.Factories {
 
 	public class Stop : CommandFactory<bool> {
 		public override string Name => "stop";
@@ -17,10 +16,10 @@ namespace MarsTS.Commands {
 		private string description;
 
 		public override void StartSelection () 
-			=> Construct(Player.ListSelected);
+			=> Construct(Player.Player.ListSelected);
 
 		private void Construct (List<string> _selection) 
-			=> ConstructCommandletServerRpc(Player.Commander.Id, _selection.ToNativeArray32(), Player.Include);
+			=> ConstructCommandletServerRpc(Player.Player.Commander.Id, _selection.ToNativeArray32(), Player.Player.Include);
 
 		[Rpc(SendTo.Server)]
 		private void ConstructCommandletServerRpc(int _factionId, NativeArray<FixedString32Bytes> _selection, bool _inclusive) 

@@ -1,14 +1,12 @@
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Units;
 using System;
 using System.Collections.Generic;
-using MarsTS.Networking;
+using Ratworx.MarsTS.Networking;
+using Ratworx.MarsTS.Units;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands.Factories {
 
     public class Adrenaline : CommandFactory<bool> {
 
@@ -35,7 +33,7 @@ namespace MarsTS.Commands {
 			int totalUsing = 0;
 
 			//Inspect all selected to make all units using this ability match up with others that are active using
-			foreach (Roster rollup in Player.Selected.Values) {
+			foreach (Roster rollup in Player.Player.Selected.Values) {
 				if (!rollup.Commands.Contains(Name)) continue;
 
 				foreach (ICommandable unit in rollup.Orderable) {
@@ -49,7 +47,7 @@ namespace MarsTS.Commands {
 				}
 			}
 
-			Construct(totalCanUse > totalUsing, Player.ListSelected);
+			Construct(totalCanUse > totalUsing, Player.Player.ListSelected);
 		}
 
 		public override CostEntry[] GetCost () 
@@ -60,7 +58,7 @@ namespace MarsTS.Commands {
 		}
 		
 		public void Construct(bool status, List<string> selection) {
-			ConstructCommandletServerRpc(status, Player.Commander.Id, selection.ToNativeArray32(), Player.Include);
+			ConstructCommandletServerRpc(status, Player.Player.Commander.Id, selection.ToNativeArray32(), Player.Player.Include);
 		}
 
 		[Rpc(SendTo.Server)]

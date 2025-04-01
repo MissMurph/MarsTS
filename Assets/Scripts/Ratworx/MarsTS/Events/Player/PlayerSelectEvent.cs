@@ -1,17 +1,13 @@
-using MarsTS.Units;
-using MarsTS.Players;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using System;
+using Ratworx.MarsTS.Units;
 
-namespace MarsTS.Events {
+namespace Ratworx.MarsTS.Events.Player {
 
 	public class PlayerSelectEvent : AbstractEvent {
 
 		public Dictionary<string, Roster> Selected { get; private set; }
 
-		public PlayerSelectEvent (Dictionary<string, Roster> selection) : base("playerSelect", Player.EventAgent) {
+		public PlayerSelectEvent (Dictionary<string, Roster> selection) : base("playerSelect", MarsTS.Player.Player.EventAgent) {
 			Selected = selection;
 		}
 	}

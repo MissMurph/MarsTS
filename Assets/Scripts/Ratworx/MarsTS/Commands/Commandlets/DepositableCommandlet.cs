@@ -1,9 +1,10 @@
-using MarsTS.Buildings;
-using MarsTS.Entities;
-using MarsTS.Teams;
+using Ratworx.MarsTS.Buildings;
+using Ratworx.MarsTS.Commands.Serializers;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Teams;
 using UnityEngine;
 
-namespace MarsTS.Commands
+namespace Ratworx.MarsTS.Commands.Commandlets
 {
     public class DepositableCommandlet : Commandlet<IDepositable>
     {

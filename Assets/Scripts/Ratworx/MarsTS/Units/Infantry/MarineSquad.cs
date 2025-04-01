@@ -1,9 +1,9 @@
 using System;
-using MarsTS.Commands;
-using MarsTS.Events;
-using MarsTS.Teams;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Events.Commands;
+using Ratworx.MarsTS.Teams;
 
-namespace MarsTS.Units
+namespace Ratworx.MarsTS.Units.Infantry
 {
     public class MarineSquad : InfantrySquad
     {

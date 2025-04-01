@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-namespace MarsTS.UI {
+namespace Ratworx.MarsTS.UI.Unit_Pane {
 
 	public class UnitName : MonoBehaviour, IInfoModule {
 		public GameObject GameObject => gameObject;

@@ -1,8 +1,8 @@
-using MarsTS.Entities;
-using MarsTS.World;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.WorldObject;
 using UnityEngine;
 
-namespace MarsTS.Buildings
+namespace Ratworx.MarsTS.Buildings.Ghosts
 {
     public class PumpjackSelectionGhost : BuildingSelectionGhost
     {

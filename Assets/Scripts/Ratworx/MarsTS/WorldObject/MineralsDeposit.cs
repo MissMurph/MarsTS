@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.World {
+namespace Ratworx.MarsTS.WorldObject {
 
     public class MineralsDeposit : MonoBehaviour {
         // Start is called before the first frame update

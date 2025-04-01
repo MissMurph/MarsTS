@@ -1,11 +1,9 @@
-using MarsTS.Commands;
-using MarsTS.Entities;
-using MarsTS.World;
-using System.Collections;
 using System.Collections.Generic;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.WorldObject;
 using UnityEngine;
 
-namespace MarsTS.UI {
+namespace Ratworx.MarsTS.UI {
 
     public class PumpjackSnapping : MonoBehaviour {
 		

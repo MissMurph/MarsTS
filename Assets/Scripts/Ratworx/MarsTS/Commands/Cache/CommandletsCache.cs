@@ -1,13 +1,12 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using MarsTS.Events;
-using MarsTS.Prefabs;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Commands;
+using Scenes;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace MarsTS.Commands
+namespace Ratworx.MarsTS.Commands.Cache
 {
     public class CommandletsCache : NetworkBehaviour
     {

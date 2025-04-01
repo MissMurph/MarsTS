@@ -1,15 +1,13 @@
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Units;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using MarsTS.Entities;
-using MarsTS.Teams;
+using Ratworx.MarsTS.Commands.Commandlets;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.Units;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands.Factories {
 
 	public class Undeploy : CommandFactory<bool> {
 		public override string Name { get { return commandName; } }
@@ -30,7 +28,7 @@ namespace MarsTS.Commands {
 		public override void StartSelection () {
 			var toCommand = new List<ICommandable>();
 
-			foreach (Roster rollup in Player.Selected.Values) {
+			foreach (Roster rollup in Player.Player.Selected.Values) {
 				if (!rollup.Commands.Contains(Name)) 
 					continue;
 				

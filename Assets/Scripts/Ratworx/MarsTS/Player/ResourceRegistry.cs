@@ -1,10 +1,8 @@
-using MarsTS.Commands;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.Players {
+namespace Ratworx.MarsTS.Player {
 
     public class ResourceRegistry : MonoBehaviour {
 

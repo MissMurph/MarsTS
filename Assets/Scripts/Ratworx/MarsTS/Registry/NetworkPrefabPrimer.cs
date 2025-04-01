@@ -3,7 +3,7 @@ using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Prefabs
+namespace Ratworx.MarsTS.Registry
 {
     public class NetworkPrefabPrimer : MonoBehaviour
     {

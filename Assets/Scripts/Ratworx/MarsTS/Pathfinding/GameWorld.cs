@@ -1,9 +1,7 @@
-﻿using MarsTS.World.Pathfinding;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.World {
+namespace Ratworx.MarsTS.Pathfinding {
 
 	public class GameWorld : MonoBehaviour {
 

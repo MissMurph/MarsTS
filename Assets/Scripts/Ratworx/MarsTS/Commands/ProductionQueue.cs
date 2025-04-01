@@ -1,11 +1,8 @@
-using MarsTS.Events;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Netcode;
+using Ratworx.MarsTS.Commands.Commandlets;
+using Ratworx.MarsTS.Events.Commands;
 using UnityEngine;
-using UnityEngine.ProBuilder;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands {
 
     public class ProductionQueue : CommandQueue
     {

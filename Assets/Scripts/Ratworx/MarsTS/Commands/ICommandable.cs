@@ -1,8 +1,7 @@
-using MarsTS.Units;
 using System.Collections.Generic;
-using UnityEngine;
+using Ratworx.MarsTS.Units;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands {
 
     public interface ICommandable : IUnit {
 		Commandlet CurrentCommand { get; }

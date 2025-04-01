@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.Entities {
+namespace Ratworx.MarsTS.Entities {
 
 	//This is a seperate class due to the significance of Health, it operates differently
 	//To other attributes so making it inherit creates a lot of spaghetti

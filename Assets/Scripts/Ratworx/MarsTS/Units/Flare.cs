@@ -1,15 +1,18 @@
 using System;
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Teams;
-using MarsTS.UI;
-using MarsTS.Vision;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Init;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Events.Selectable.Internal;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.UI.Unit_Pane;
+using Ratworx.MarsTS.Vision;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace MarsTS.Units {
+namespace Ratworx.MarsTS.Units {
     public class Flare : NetworkBehaviour, 
         ISelectable, 
         ITaggable<Flare>, 
@@ -139,7 +142,7 @@ namespace MarsTS.Units {
             //These are seperated due to the Player Selection Check
             if (status)
                 _bus.Local(new UnitHoverEvent(_bus, status));
-            else if (!Player.HasSelected(this)) _bus.Local(new UnitHoverEvent(_bus, status));
+            else if (!Player.Player.HasSelected(this)) _bus.Local(new UnitHoverEvent(_bus, status));
         }
 
         public Relationship GetRelationship(Faction other) => Owner.GetRelationship(other);

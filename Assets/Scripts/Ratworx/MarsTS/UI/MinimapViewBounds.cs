@@ -1,9 +1,6 @@
-using MarsTS.Players;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace MarsTS.UI {
+namespace Ratworx.MarsTS.UI {
 
     public class MinimapViewBounds : MonoBehaviour {
 
@@ -46,7 +43,7 @@ namespace MarsTS.UI {
 		}
 
 		private Vector3 GetCorner (Vector2 position, int index) {
-			Ray ray = Player.ViewPort.ViewportPointToRay(position);
+			Ray ray = Player.Player.ViewPort.ViewportPointToRay(position);
 			Vector3 output = new Vector3();
 
 			if (groundPlane.Raycast(ray, out float distance)) {

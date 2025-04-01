@@ -4,7 +4,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace MarsTS.Commands
+namespace Ratworx.MarsTS.Commands
 {
     public class CommandRegistry : NetworkBehaviour
     {

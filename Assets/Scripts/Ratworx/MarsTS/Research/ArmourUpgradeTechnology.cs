@@ -1,8 +1,9 @@
-using MarsTS.Events;
-using UnityEngine;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
 using Unity.Netcode;
+using UnityEngine;
 
-namespace MarsTS.Research
+namespace Ratworx.MarsTS.Research
 {
     public class ArmourUpgradeTechnology : Technology
     {

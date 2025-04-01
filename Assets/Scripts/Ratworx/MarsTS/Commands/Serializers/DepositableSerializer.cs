@@ -1,7 +1,8 @@
+using Ratworx.MarsTS.Commands.Commandlets;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Commands
+namespace Ratworx.MarsTS.Commands.Serializers
 {
     public class DepositableSerializer : MonoBehaviour, ICommandSerializer
     {

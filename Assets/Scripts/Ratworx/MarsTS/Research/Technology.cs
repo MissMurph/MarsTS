@@ -1,9 +1,9 @@
-using MarsTS.Teams;
+using Ratworx.MarsTS.Teams;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace MarsTS.Research
+namespace Ratworx.MarsTS.Research
 {
     public class Technology : NetworkBehaviour
     {

@@ -1,9 +1,6 @@
-using MarsTS.Teams;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Ratworx.MarsTS.Teams;
 
-namespace MarsTS.Units {
+namespace Ratworx.MarsTS.Units {
 
     public interface IAttackable : IUnit {
 		int Health { get; }

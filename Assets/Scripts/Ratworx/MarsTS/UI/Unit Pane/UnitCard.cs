@@ -1,12 +1,9 @@
-using MarsTS.Prefabs;
-using MarsTS.Units;
-using System.Collections;
-using System.Collections.Generic;
+using Ratworx.MarsTS.Units;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MarsTS.UI {
+namespace Ratworx.MarsTS.UI.Unit_Pane {
 
 	public class UnitCard : MonoBehaviour {
 
@@ -46,7 +43,7 @@ namespace MarsTS.UI {
 		public void UpdateUnit (string name, int count) {
 			//nameText.text = name;
 
-			Registry.TryGetObject(name, out ISelectable unit);
+			Registry.Registry.TryGetObject(name, out ISelectable unit);
 
 			icon.sprite = unit.Icon;
 

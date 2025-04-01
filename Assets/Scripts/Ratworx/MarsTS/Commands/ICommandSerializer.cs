@@ -1,6 +1,4 @@
-using System;
-
-namespace MarsTS.Commands
+namespace Ratworx.MarsTS.Commands
 {
     public interface ICommandSerializer
     {

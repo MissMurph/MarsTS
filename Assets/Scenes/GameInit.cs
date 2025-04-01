@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MarsTS.Editor;
-using MarsTS.Events;
-using MarsTS.Teams;
-using MarsTS.UI;
+using Ratworx.MarsTS;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.UI;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS
+namespace Scenes
 {
     public class GameInit : MonoBehaviour
     {

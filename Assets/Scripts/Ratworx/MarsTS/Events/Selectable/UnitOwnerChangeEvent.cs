@@ -1,10 +1,7 @@
-using MarsTS.Teams;
-using MarsTS.Units;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.Units;
 
-namespace MarsTS.Events {
+namespace Ratworx.MarsTS.Events.Selectable {
 
 	public class UnitOwnerChangeEvent : SelectableEvent {
 

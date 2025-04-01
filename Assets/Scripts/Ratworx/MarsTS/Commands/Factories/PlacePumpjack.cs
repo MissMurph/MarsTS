@@ -1,11 +1,10 @@
-using MarsTS.Networking;
-using MarsTS.Players;
-using MarsTS.UI;
-using MarsTS.World;
+using Ratworx.MarsTS.Networking;
+using Ratworx.MarsTS.Pathfinding;
+using Ratworx.MarsTS.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands.Factories {
 
     public class PlacePumpjack : PlaceBuilding {
 
@@ -15,7 +14,7 @@ namespace MarsTS.Commands {
 		private GameObject snapPrefab;
 
 		public override void StartSelection () {
-			if (!CanFactionAfford(Player.Commander)) 
+			if (!CanFactionAfford(Player.Player.Commander)) 
 				return;
 			
 			base.StartSelection();
@@ -27,7 +26,7 @@ namespace MarsTS.Commands {
 			if (GhostTransform is null || _snapper is null) 
 				return;
 			
-			Ray ray = Player.ViewPort.ScreenPointToRay(Player.MousePos);
+			Ray ray = Player.Player.ViewPort.ScreenPointToRay(Player.Player.MousePos);
 
 			if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.WalkableMask))
 				_snapper.gameObject.transform.position = hit.point;
@@ -39,23 +38,23 @@ namespace MarsTS.Commands {
 			if (!context.canceled) 
 				return;
 			
-			if (!CanFactionAfford(Player.Commander) || !SelectionGhostComp.Legal) 
+			if (!CanFactionAfford(Player.Player.Commander) || !SelectionGhostComp.Legal) 
 				return;
 			
 			PlaceBuildingServerRpc(
 				GhostTransform.position,
 				Quaternion.Euler(Vector3.zero),
-				Player.Commander.Id,
-				Player.ListSelected.ToNativeArray32(),
-				Player.Include
+				Player.Player.Commander.Id,
+				Player.Player.ListSelected.ToNativeArray32(),
+				Player.Player.Include
 			);
 			
 			Destroy(GhostTransform.gameObject);
 			Destroy(_snapper.gameObject);
 			_snapper = null;
 			
-			Player.Input.Release("Select");
-			Player.Input.Release("Order");
+			Player.Player.Input.Release("Select");
+			Player.Player.Input.Release("Order");
 		}
 
 		protected override void OnOrder (InputAction.CallbackContext context) {
@@ -70,8 +69,8 @@ namespace MarsTS.Commands {
 				Destroy(_snapper.gameObject);
 				_snapper = null;
 				
-				Player.Input.Release("Select");
-				Player.Input.Release("Order");
+				Player.Player.Input.Release("Select");
+				Player.Player.Input.Release("Order");
 			}
 		}
 	}

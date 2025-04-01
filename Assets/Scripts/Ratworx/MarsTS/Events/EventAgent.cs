@@ -1,11 +1,11 @@
-using MarsTS.Entities;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events.Init;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace MarsTS.Events {
+namespace Ratworx.MarsTS.Events {
 
 	public class EventAgent : MonoBehaviour, ITaggable<EventAgent> {
 

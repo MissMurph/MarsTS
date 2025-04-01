@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
-using MarsTS.Events;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Init;
+using Scenes;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace MarsTS.Entities
+namespace Ratworx.MarsTS.Entities
 {
     [RequireComponent(typeof(EventAgent))]
     public class Entity : NetworkBehaviour

@@ -1,10 +1,11 @@
 using System.Collections.Generic;
-using MarsTS.Events;
-using MarsTS.Units;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Init;
+using Ratworx.MarsTS.Units;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Research
+namespace Ratworx.MarsTS.Research
 {
     public class ThermalVisionTechnology : Technology
     {

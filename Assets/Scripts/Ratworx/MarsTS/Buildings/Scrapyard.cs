@@ -1,9 +1,4 @@
-using MarsTS.Commands;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace MarsTS.Buildings {
+namespace Ratworx.MarsTS.Buildings {
 
 	public class Scrapyard : Factory, IDepositable {
 		

@@ -1,16 +1,15 @@
 using System;
 using System.Collections.Generic;
-using MarsTS.Entities;
-using MarsTS.Networking;
-using MarsTS.Players;
-using MarsTS.Units;
-using MarsTS.World;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Networking;
+using Ratworx.MarsTS.Pathfinding;
+using Ratworx.MarsTS.Units;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace MarsTS.Commands
+namespace Ratworx.MarsTS.Commands.Factories
 {
     public class Repair : CommandFactory<IAttackable>
     {
@@ -22,9 +21,9 @@ namespace MarsTS.Commands
 
         public override void StartSelection()
         {
-            Player.Input.Hook("Select", OnSelect);
-            Player.Input.Hook("Order", OnOrder);
-            Player.UI.SetCursor(Pointer);
+            Player.Player.Input.Hook("Select", OnSelect);
+            Player.Player.Input.Hook("Order", OnOrder);
+            Player.Player.UI.SetCursor(Pointer);
         }
 
         private void OnSelect(InputAction.CallbackContext context)
@@ -32,17 +31,17 @@ namespace MarsTS.Commands
             //On Mouse Up
             if (!context.canceled) return;
 
-            Vector2 cursorPos = Player.MousePos;
-            Ray ray = Player.ViewPort.ScreenPointToRay(cursorPos);
+            Vector2 cursorPos = Player.Player.MousePos;
+            Ray ray = Player.Player.ViewPort.ScreenPointToRay(cursorPos);
 
             if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)
                 && EntityCache.TryGet(hit.collider.transform.parent.name + ":selectable", out ISelectable target)
                 && target is IAttackable attackable
                )
-                Construct(attackable, Player.Commander.Id, Player.ListSelected, Player.Include);
+                Construct(attackable, Player.Player.Commander.Id, Player.Player.ListSelected, Player.Player.Include);
 
-            Player.Input.Release("Select");
-            Player.UI.ResetCursor();
+            Player.Player.Input.Release("Select");
+            Player.Player.UI.ResetCursor();
         }
 
         private void OnOrder(InputAction.CallbackContext context)
@@ -76,9 +75,9 @@ namespace MarsTS.Commands
 
         public override void CancelSelection()
         {
-            Player.Input.Release("Select");
-            Player.Input.Release("Order");
-            Player.UI.ResetCursor();
+            Player.Player.Input.Release("Select");
+            Player.Player.Input.Release("Order");
+            Player.Player.UI.ResetCursor();
         }
     }
 }

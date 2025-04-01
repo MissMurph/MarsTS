@@ -1,14 +1,16 @@
 using System;
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Teams;
-using MarsTS.UI;
-using MarsTS.Units;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Harvesting;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Events.Selectable.Internal;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.UI.Unit_Pane;
+using Ratworx.MarsTS.Units;
 using UnityEngine;
-using UnityEngine.Serialization;
 
-namespace MarsTS.World
+namespace Ratworx.MarsTS.WorldObject
 {
     public class ResourceDeposit : MonoBehaviour, IHarvestable, ISelectable, ITaggable<ResourceDeposit>
     {
@@ -127,7 +129,7 @@ namespace MarsTS.World
                 _selectionCircle.SetActive(true);
                 _bus.Local(new UnitHoverEvent(_bus, status));
             }
-            else if (!Player.HasSelected(this))
+            else if (!Player.Player.HasSelected(this))
             {
                 _selectionCircle.SetActive(false);
                 _bus.Local(new UnitHoverEvent(_bus, status));

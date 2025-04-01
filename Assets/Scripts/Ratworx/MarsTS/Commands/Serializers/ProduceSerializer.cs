@@ -1,9 +1,9 @@
-using System;
-using MarsTS.Prefabs;
+using Ratworx.MarsTS.Commands.Commandlets;
+using Ratworx.MarsTS.Registry;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Commands
+namespace Ratworx.MarsTS.Commands.Serializers
 {
     //TODO: Refactor this this sucks
     //Like it doesn't actually but is a lot of boilerplate

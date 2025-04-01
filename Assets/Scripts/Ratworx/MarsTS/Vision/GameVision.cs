@@ -1,12 +1,13 @@
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.World;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Init;
+using Ratworx.MarsTS.Events.Player;
+using Ratworx.MarsTS.Pathfinding;
 using UnityEngine;
 
-namespace MarsTS.Vision {
+namespace Ratworx.MarsTS.Vision {
 
     public class GameVision : MonoBehaviour {
 
@@ -113,7 +114,7 @@ namespace MarsTS.Vision {
 		}
 
 		private void OnPlayerInit (PlayerInitEvent _event) {
-			currentMask = Player.Commander.VisionMask;
+			currentMask = Player.Player.Commander.VisionMask;
 			StartCoroutine(EnqueueUpdate());
 		}
 

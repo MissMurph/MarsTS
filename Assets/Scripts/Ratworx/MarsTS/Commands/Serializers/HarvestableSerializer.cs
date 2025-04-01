@@ -1,8 +1,8 @@
+using Ratworx.MarsTS.Commands.Commandlets;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Serialization;
 
-namespace MarsTS.Commands
+namespace Ratworx.MarsTS.Commands.Serializers
 {
     public class HarvestableSerializer : MonoBehaviour, ICommandSerializer
     {

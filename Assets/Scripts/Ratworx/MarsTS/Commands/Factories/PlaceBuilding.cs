@@ -1,18 +1,20 @@
-using MarsTS.Buildings;
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Units;
-using MarsTS.World;
 using System.Collections.Generic;
 using System.Linq;
-using MarsTS.Networking;
-using MarsTS.Teams;
+using Ratworx.MarsTS.Buildings;
+using Ratworx.MarsTS.Buildings.Ghosts;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Init;
+using Ratworx.MarsTS.Events.Player;
+using Ratworx.MarsTS.Networking;
+using Ratworx.MarsTS.Pathfinding;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.Units;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands.Factories {
 
 	public class PlaceBuilding : CommandFactory<IAttackable> {
 
@@ -43,14 +45,14 @@ namespace MarsTS.Commands {
 		}
 
 		public override void StartSelection () {
-			if (!CanFactionAfford(Player.Commander)) return;
+			if (!CanFactionAfford(Player.Player.Commander)) return;
 			
 			GhostTransform = Instantiate(building.SelectionGhost).transform;
 			SelectionGhostComp = GhostTransform.GetComponent<BuildingSelectionGhost>();
 			SelectionGhostComp.InitializeGhost(building);
 			
-			Player.Input.Hook("Select", OnSelect);
-			Player.Input.Hook("Order", OnOrder);
+			Player.Player.Input.Hook("Select", OnSelect);
+			Player.Player.Input.Hook("Order", OnOrder);
 		}
 
 		private void OnPlayerInit(PlayerInitEvent @event) {
@@ -62,7 +64,7 @@ namespace MarsTS.Commands {
 		protected virtual void Update () {
 			if (GhostTransform == null) return;
 			
-			Ray ray = Player.ViewPort.ScreenPointToRay(Player.MousePos);
+			Ray ray = Player.Player.ViewPort.ScreenPointToRay(Player.Player.MousePos);
 
 			if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.WalkableMask)) {
 				GhostTransform.position = hit.point;
@@ -72,24 +74,24 @@ namespace MarsTS.Commands {
 		protected virtual void OnSelect (InputAction.CallbackContext context) {
 			if (!context.canceled) return;
 			
-			if (!CanFactionAfford(Player.Commander) || !SelectionGhostComp.Legal) 
+			if (!CanFactionAfford(Player.Player.Commander) || !SelectionGhostComp.Legal) 
 				return;
 			
-			Ray ray = Player.ViewPort.ScreenPointToRay(Player.MousePos);
+			Ray ray = Player.Player.ViewPort.ScreenPointToRay(Player.Player.MousePos);
 
 			if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.WalkableMask)) {
 				PlaceBuildingServerRpc(
 					hit.point,
 					Quaternion.Euler(Vector3.zero),
-					Player.Commander.Id,
-					Player.ListSelected.ToNativeArray32(),
-					Player.Include
+					Player.Player.Commander.Id,
+					Player.Player.ListSelected.ToNativeArray32(),
+					Player.Player.Include
 				);
 
 				Destroy(GhostTransform.gameObject);
 
-				Player.Input.Release("Select");
-				Player.Input.Release("Order");
+				Player.Player.Input.Release("Select");
+				Player.Player.Input.Release("Order");
 			}
 		}
 
@@ -161,8 +163,8 @@ namespace MarsTS.Commands {
 			if (GhostTransform != null) {
 				Destroy(GhostTransform.gameObject);
 
-				Player.Input.Release("Select");
-				Player.Input.Release("Order");
+				Player.Player.Input.Release("Select");
+				Player.Player.Input.Release("Order");
 			}
 		}
 

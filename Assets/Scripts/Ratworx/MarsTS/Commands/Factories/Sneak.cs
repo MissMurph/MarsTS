@@ -1,18 +1,15 @@
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Teams;
-using MarsTS.Units;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using MarsTS.Entities;
-using MarsTS.Networking;
+using Ratworx.MarsTS.Commands.Commandlets;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Networking;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.Units;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands.Factories {
 
     public class Sneak : CommandFactory<bool> {
 		public override string Name { get { return "sneak"; } }
@@ -35,7 +32,7 @@ namespace MarsTS.Commands {
 			int totalSneakActive = 0;
 
 			//Inspect all selected to make all units using this ability match up with others that are active using
-			foreach (Roster rollup in Player.Selected.Values) {
+			foreach (Roster rollup in Player.Player.Selected.Values) {
 				if (rollup.Commands.Contains(Name)) {
 					totalWithSneak += rollup.Count;
 
@@ -55,9 +52,9 @@ namespace MarsTS.Commands {
 		public void Construct(bool status) {
 			ConstructCommandletServerRpc(
 				status,
-				Player.Commander.Id,
-				Player.ListSelected.ToNativeArray32(),
-				Player.Include
+				Player.Player.Commander.Id,
+				Player.Player.ListSelected.ToNativeArray32(),
+				Player.Player.Include
 			);
 		}
 

@@ -1,21 +1,10 @@
-using MarsTS.Events;
-using MarsTS.Units;
-using MarsTS.Commands;
-using MarsTS.World;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
-using static MarsTS.Players.Input.InputHandler;
-using static UnityEditor.Timeline.TimelinePlaybackControls;
-using MarsTS.UI;
 
-namespace MarsTS.Players.Input {
+namespace Ratworx.MarsTS.Player.Input {
 
     public class InputHandler : MonoBehaviour {
 

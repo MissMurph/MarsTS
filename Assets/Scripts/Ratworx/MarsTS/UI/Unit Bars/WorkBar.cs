@@ -1,9 +1,7 @@
-using MarsTS.Events;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Commands;
 
-namespace MarsTS.UI {
+namespace Ratworx.MarsTS.UI.Unit_Bars {
 
     public class WorkBar : UnitBar {
 

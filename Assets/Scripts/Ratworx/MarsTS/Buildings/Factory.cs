@@ -1,16 +1,12 @@
-using MarsTS.Commands;
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Teams;
-using MarsTS.UI;
-using MarsTS.Units;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Events.Commands;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.Units;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Buildings {
+namespace Ratworx.MarsTS.Buildings {
 
     public class Factory : Building {
 

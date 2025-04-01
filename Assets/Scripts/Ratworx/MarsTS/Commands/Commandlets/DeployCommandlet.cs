@@ -1,11 +1,12 @@
 using System;
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.Teams;
+using Ratworx.MarsTS.Commands.Factories;
+using Ratworx.MarsTS.Commands.Serializers;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Teams;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace MarsTS.Commands {
+namespace Ratworx.MarsTS.Commands.Commandlets {
     public class DeployCommandlet : Commandlet<bool>, IWorkable {
 
         public int WorkRequired

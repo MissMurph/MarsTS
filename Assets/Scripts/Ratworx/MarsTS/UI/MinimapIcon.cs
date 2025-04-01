@@ -1,13 +1,12 @@
-using MarsTS.Events;
-using MarsTS.Players;
-using MarsTS.Teams;
-using MarsTS.Units;
-using MarsTS.Vision;
-using System.Collections;
-using System.Collections.Generic;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Init;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.Units;
+using Ratworx.MarsTS.Vision;
 using UnityEngine;
 
-namespace MarsTS.UI {
+namespace Ratworx.MarsTS.UI {
 
     public class MinimapIcon : MonoBehaviour {
 
@@ -37,13 +36,13 @@ namespace MarsTS.UI {
 			if (_event.Phase == Phase.Pre) return;
 
 			iconRenderer.GetPropertyBlock(matBlock);
-			matBlock.SetColor("_Color", parent.GetRelationship(Player.Commander).Colour());
+			matBlock.SetColor("_Color", parent.GetRelationship(Player.Player.Commander).Colour());
 			iconRenderer.SetPropertyBlock(matBlock);
 		}
 
 		private void OnTeamChange (UnitOwnerChangeEvent _event) {
 			iconRenderer.GetPropertyBlock(matBlock);
-			matBlock.SetColor("_Color", parent.GetRelationship(Player.Commander).Colour());
+			matBlock.SetColor("_Color", parent.GetRelationship(Player.Player.Commander).Colour());
 			iconRenderer.SetPropertyBlock(matBlock);
 		}
 

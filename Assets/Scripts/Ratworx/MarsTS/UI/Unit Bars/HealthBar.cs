@@ -1,7 +1,9 @@
-using MarsTS.Events;
-using MarsTS.Units;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Events.Selectable.Internal;
+using Ratworx.MarsTS.Units;
 
-namespace MarsTS.UI
+namespace Ratworx.MarsTS.UI.Unit_Bars
 {
     public class HealthBar : UnitBar
     {

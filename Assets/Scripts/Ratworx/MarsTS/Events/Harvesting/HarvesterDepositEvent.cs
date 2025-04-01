@@ -1,8 +1,7 @@
-using MarsTS.Buildings;
-using MarsTS.Commands;
-using MarsTS.Units;
+using Ratworx.MarsTS.Buildings;
+using Ratworx.MarsTS.Units;
 
-namespace MarsTS.Events {
+namespace Ratworx.MarsTS.Events.Harvesting {
 
 	public class HarvesterDepositEvent : AbstractEvent {
 

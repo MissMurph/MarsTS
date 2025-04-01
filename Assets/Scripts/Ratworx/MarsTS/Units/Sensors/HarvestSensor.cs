@@ -1,12 +1,6 @@
-using MarsTS.Buildings;
-using MarsTS.Entities;
-using MarsTS.Events;
-using MarsTS.World;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Ratworx.MarsTS.WorldObject;
 
-namespace MarsTS.Units {
+namespace Ratworx.MarsTS.Units.Sensors {
 
     public class HarvestSensor : AbstractSensor<IHarvestable> {
 

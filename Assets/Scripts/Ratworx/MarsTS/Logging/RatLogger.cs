@@ -2,7 +2,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace MarsTS.Logging
+namespace Ratworx.MarsTS.Logging
 {
     public class RatLogger
     {

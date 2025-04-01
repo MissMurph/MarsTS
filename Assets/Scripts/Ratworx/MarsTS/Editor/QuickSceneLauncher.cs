@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 
-namespace MarsTS.Editor
+namespace Ratworx.MarsTS.Editor
 {
     [InitializeOnLoad]
     public class QuickSceneLauncher

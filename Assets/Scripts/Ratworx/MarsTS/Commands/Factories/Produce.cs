@@ -91,7 +91,7 @@ namespace Ratworx.MarsTS.Commands.Factories
 
             order.InitProduce(Name, CommandKey, _productRegistryKey,_unitPrefab, TeamCache.Faction(factionId), _timeRequired, _cost);
 
-            if (EntityCache.TryGet(selection, out ICommandable unit)) 
+            if (EntityCache.TryGetEntityComponent(selection, out ICommandable unit)) 
                 unit.Order(order, true);
             else
                 RatLogger.Error?.Log($"Failed to find selected entity {selection} for command {Name}");

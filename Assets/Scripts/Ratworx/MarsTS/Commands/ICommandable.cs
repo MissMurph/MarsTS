@@ -3,7 +3,7 @@ using Ratworx.MarsTS.Units;
 
 namespace Ratworx.MarsTS.Commands {
 
-    public interface ICommandable : IUnit {
+    public interface ICommandable : IUnitInterface {
 		Commandlet CurrentCommand { get; }
 		int Count { get; }
 		List<string> Active { get; }

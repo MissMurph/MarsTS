@@ -244,8 +244,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  registryKey: flattank
-  toTag: []
+  _registryKey: flattank
+  _registryType: unit
+  _toTag: []
 --- !u!114 &7880851597027462242
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -436,11 +437,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f81996ae128c4f47884189027df8738, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectile: {fileID: 5732885903752370511, guid: c53d0750fc9147c4f82636c698100a22,
+  _projectile: {fileID: 5732885903752370511, guid: c53d0750fc9147c4f82636c698100a22,
     type: 3}
-  damage: 25
-  cooldown: 3
-  barrel: {fileID: 4336445020379293311}
+  _damage: 25
+  _cooldown: 3
+  _barrel: {fileID: 4336445020379293311}
 --- !u!135 &210596973906869368
 SphereCollider:
   m_ObjectHideFlags: 0

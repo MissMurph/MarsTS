@@ -20,9 +20,9 @@ namespace Ratworx.MarsTS.Units.Sensors {
 		protected override void OnTriggerEnter (Collider other) {
 			if (!IsInitialized) return;
 
-			if (EntityCache.TryGet(other.transform.root.name, out Entity entityComp)
-				&& entityComp.TryGet(out ISelectable target)) {
-				EventAgent targetBus = entityComp.Get<EventAgent>("eventAgent");
+			if (EntityCache.TryGetEntity(other.transform.root.name, out Entity entityComp)
+				&& entityComp.TryGetEntityComponent(out ISelectable target)) {
+				EventAgent targetBus = entityComp.GetEntityComponent<EventAgent>("eventAgent");
 
 				targetBus.AddListener<UnitDeathEvent>(OnUnitDeath);
 				targetBus.AddListener<EntityVisibleCheckEvent>(OnOtherEntityVisibleEvent);
@@ -38,7 +38,7 @@ namespace Ratworx.MarsTS.Units.Sensors {
 		protected override void OutOfRange (string key) {
 			if (!inRange.ContainsKey(key)) return;
 
-			EntityCache.TryGet(key, out EventAgent targetBus);
+			EntityCache.TryGetEntityComponent(key, out EventAgent targetBus);
 
 			targetBus.RemoveListener<UnitDeathEvent>(OnUnitDeath);
 			targetBus.RemoveListener<EntityVisibleCheckEvent>(OnOtherEntityVisibleEvent);

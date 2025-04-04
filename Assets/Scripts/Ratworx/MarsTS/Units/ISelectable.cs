@@ -2,7 +2,7 @@ using Ratworx.MarsTS.Teams;
 using UnityEngine;
 
 namespace Ratworx.MarsTS.Units {
-	public interface ISelectable : IUnit {
+	public interface ISelectable : IUnitInterface {
 		int Id { get; }
 		string UnitType { get; }
 		string RegistryKey { get; }

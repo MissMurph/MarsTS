@@ -57,8 +57,7 @@ MonoBehaviour:
     m_InternalValue: 0
   icon: {fileID: 21300000, guid: e0eda61ee150d8a43adf2e8eed4be06f, type: 3}
   type: landmines
-  owner:
-    m_InternalValue: 0
+  _owner: 0
   boundCommands: []
   selectionGhost: {fileID: 4816164022266727982, guid: 82cf4802f5679c949a7db27a0d57392d,
     type: 3}
@@ -111,8 +110,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  registryKey: landmines
-  toTag: []
+  _registryKey: landmines
+  _registryType: building
+  _toTag: []
 --- !u!114 &4929239786645045559
 MonoBehaviour:
   m_ObjectHideFlags: 0

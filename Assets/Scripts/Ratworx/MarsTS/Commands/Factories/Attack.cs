@@ -31,7 +31,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			Ray ray = Player.Player.ViewPort.ScreenPointToRay(cursorPos);
 
 			if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.EntityMask) 
-			    && EntityCache.TryGet(hit.collider.transform.parent.name, out IAttackable unit)) {
+			    && EntityCache.TryGetEntityComponent(hit.collider.transform.parent.name, out IAttackable unit)) {
 				Construct(unit);
 			}
 
@@ -61,7 +61,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			NativeArray<FixedString32Bytes> selection, 
 			bool inclusive
 		) {
-			if (!EntityCache.TryGet(target, out IAttackable unit))
+			if (!EntityCache.TryGetEntityComponent(target, out IAttackable unit))
 			{
 				Debug.LogError($"Invalid target entity {target} for {Name} Command! Command being ignored!");
 				return;

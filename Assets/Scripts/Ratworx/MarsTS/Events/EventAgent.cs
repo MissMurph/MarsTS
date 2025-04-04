@@ -7,7 +7,7 @@ using UnityEngine.Events;
 
 namespace Ratworx.MarsTS.Events {
 
-	public class EventAgent : MonoBehaviour, ITaggable<EventAgent> {
+	public class EventAgent : MonoBehaviour, IEntityComponent<EventAgent> {
 
 		private Dictionary<Type, UnityEventBase> listeners = new Dictionary<Type, UnityEventBase>();
 

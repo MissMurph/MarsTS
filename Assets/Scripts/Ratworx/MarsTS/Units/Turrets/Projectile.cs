@@ -43,7 +43,7 @@ namespace Ratworx.MarsTS.Units.Turrets {
 
 		private void OnTriggerEnter (Collider other) {
 			if (initialized) {
-				if (EntityCache.TryGet(other.transform.root.name, out IAttackable unit)) {
+				if (EntityCache.TryGetEntityComponent(other.transform.root.name, out IAttackable unit)) {
 					if (unit.GetRelationship(parent.Owner) != Teams.Relationship.Owned && unit.GetRelationship(parent.Owner) != Teams.Relationship.Friendly) {
 						hitCallback(true, unit);
 						Destroy(gameObject);

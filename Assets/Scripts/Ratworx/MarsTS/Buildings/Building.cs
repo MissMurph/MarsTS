@@ -19,12 +19,12 @@ namespace Ratworx.MarsTS.Buildings
 {
     public abstract class Building : NetworkBehaviour, 
         ISelectable,
-        ITaggable<Building>,
+        IEntityComponent<Building>,
         IAttackable,
         ICommandable
     {
         public GameObject GameObject => gameObject;
-        public IUnit Unit => this;
+        public IUnitInterface UnitInterface => this;
 
         /*	IAttackable Properties	*/
 

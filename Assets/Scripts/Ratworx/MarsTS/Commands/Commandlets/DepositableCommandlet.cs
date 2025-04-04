@@ -21,7 +21,7 @@ namespace Ratworx.MarsTS.Commands.Commandlets
 
             Name = data.Name;
             Commander = TeamCache.Faction(data.Faction);
-            EntityCache.TryGet(deserialized.TargetUnit, out IDepositable unit);
+            EntityCache.TryGetEntityComponent(deserialized.TargetUnit, out IDepositable unit);
             _target = unit;
 
             _targetGameObj = _target.GameObject;

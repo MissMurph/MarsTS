@@ -2,9 +2,9 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Units
 {
-    public interface IUnit
+    public interface IUnitInterface
     {
         GameObject GameObject { get; }
-        IUnit Unit { get; }
+        IUnitInterface UnitInterface { get; }
     }
 }

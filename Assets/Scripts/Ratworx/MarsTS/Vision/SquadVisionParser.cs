@@ -48,7 +48,7 @@ namespace Ratworx.MarsTS.Vision
         private void OnMemberInit(EntityInitEvent evnt)
         {
             if (evnt.Phase == Phase.Post) return;
-            _squadVision[evnt.ParentEntity.name] = evnt.ParentEntity.Get<EntityVision>("vision");
+            _squadVision[evnt.ParentEntity.name] = evnt.ParentEntity.GetEntityComponent<EntityVision>("vision");
         }
     }
 }

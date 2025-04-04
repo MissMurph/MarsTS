@@ -45,14 +45,14 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 			get => _repairTarget;
 			set {
 				if (_repairTarget != null) {
-					EntityCache.TryGet(_repairTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
+					EntityCache.TryGetEntityComponent(_repairTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
 					oldAgent.RemoveListener<UnitDeathEvent>((_event) => _repairTarget = null);
 				}
 
 				_repairTarget = value;
 
 				if (value != null) {
-					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
+					EntityCache.TryGetEntityComponent(value.GameObject.name + ":eventAgent", out EventAgent agent);
 
 					agent.AddListener<UnitDeathEvent>((_event) => _repairTarget = null);
 				}
@@ -163,7 +163,7 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 				if (unit.GetRelationship(Owner) == Relationship.Owned || unit.GetRelationship(Owner) == Relationship.Friendly) {
 					RepairTarget = unit;
 
-					EntityCache.TryGet(RepairTarget.GameObject.transform.root.name, out EventAgent targetBus);
+					EntityCache.TryGetEntityComponent(RepairTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
 					targetBus.AddListener<UnitHurtEvent>(OnTargetHealed);
 					targetBus.AddListener<UnitDeathEvent>(OnTargetDeath);
@@ -176,7 +176,7 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 		//Could potentially move these to the actual Command Classes
 		private void OnTargetHealed (UnitHurtEvent _event) {
 			if (_event.Targetable.Health >= _event.Targetable.MaxHealth) {
-				EntityCache.TryGet(_event.Targetable.GameObject.transform.root.name, out EventAgent targetBus);
+				EntityCache.TryGetEntityComponent(_event.Targetable.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.RemoveListener<UnitHurtEvent>(OnTargetHealed);
 				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
@@ -188,7 +188,7 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 		}
 
 		private void OnTargetDeath (UnitDeathEvent _event) {
-			EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
+			EntityCache.TryGetEntityComponent(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
 
 			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 			targetBus.RemoveListener<UnitHurtEvent>(OnTargetHealed);
@@ -202,7 +202,7 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 
 		private void RepairCancelled (CommandCompleteEvent _event) {
 			if (_event.Command is Commandlet<IAttackable> deserialized && _event.IsCancelled) {
-				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
+				EntityCache.TryGetEntityComponent(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.RemoveListener<UnitHurtEvent>(OnTargetHealed);
 				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);

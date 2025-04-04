@@ -12,10 +12,10 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.WorldObject
 {
-    public class ResourceDeposit : MonoBehaviour, IHarvestable, ISelectable, ITaggable<ResourceDeposit>
+    public class ResourceDeposit : MonoBehaviour, IHarvestable, ISelectable, IEntityComponent<ResourceDeposit>
     {
         public GameObject GameObject => gameObject;
-        public IUnit Unit => this;
+        public IUnitInterface UnitInterface => this;
 
         /*	ISelectable Properties	*/
 

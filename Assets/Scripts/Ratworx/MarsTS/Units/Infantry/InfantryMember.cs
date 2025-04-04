@@ -18,12 +18,12 @@ namespace Ratworx.MarsTS.Units.Infantry
 {
     public class InfantryMember : NetworkBehaviour,
         ISelectable,
-        ITaggable<InfantryMember>,
+        IEntityComponent<InfantryMember>,
         IAttackable,
         ICommandable
     {
         public GameObject GameObject => gameObject;
-        public IUnit Unit => this;
+        public IUnitInterface UnitInterface => this;
 
         /*	IAttackable Properties	*/
 
@@ -117,7 +117,7 @@ namespace Ratworx.MarsTS.Units.Infantry
             {
                 if (_target != null)
                 {
-                    EntityCache.TryGet(_target.gameObject.name + ":eventAgent", out EventAgent oldAgent);
+                    EntityCache.TryGetEntityComponent(_target.gameObject.name + ":eventAgent", out EventAgent oldAgent);
                     oldAgent.RemoveListener<UnitDeathEvent>(_ => TrackedTarget = null);
                 }
 
@@ -125,7 +125,7 @@ namespace Ratworx.MarsTS.Units.Infantry
 
                 if (value != null)
                 {
-                    EntityCache.TryGet(value.gameObject.name + ":eventAgent", out EventAgent agent);
+                    EntityCache.TryGetEntityComponent(value.gameObject.name + ":eventAgent", out EventAgent agent);
 
                     agent.AddListener<UnitDeathEvent>(_ => TrackedTarget = null);
 
@@ -260,7 +260,7 @@ namespace Ratworx.MarsTS.Units.Infantry
         [Rpc(SendTo.NotServer)]
         private void SetSquadClientRpc(string squadEntityName)
         {
-            if (!EntityCache.TryGet(squadEntityName, out InfantrySquad squad))
+            if (!EntityCache.TryGetEntityComponent(squadEntityName, out InfantrySquad squad))
             {
                 Debug.LogError($"Couldn't find {typeof(InfantrySquad)} with name {squadEntityName}!");
                 return;

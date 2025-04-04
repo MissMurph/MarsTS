@@ -15,7 +15,7 @@ namespace Ratworx.MarsTS.Buildings {
 		}
 
 		private void OnTriggerEnter (Collider other) {
-			if (EntityCache.TryGet(other.transform.root.name, out OilDeposit found)) {
+			if (EntityCache.TryGetEntityComponent(other.transform.root.name, out OilDeposit found)) {
 				bus.Local(new PumpjackExploitInitEvent(bus, found));
 			}
 		}

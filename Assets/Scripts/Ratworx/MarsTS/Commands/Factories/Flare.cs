@@ -117,7 +117,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			order.InitFlare(Name, target, TeamCache.Faction(factionId), _cooldown, _cost);
 
 			foreach (string entity in selection) {
-				if (EntityCache.TryGet(entity, out ICommandable unit))
+				if (EntityCache.TryGetEntityComponent(entity, out ICommandable unit))
 					unit.Order(order, inclusive);
 				else
 					Debug.LogWarning($"ICommandable on Unit {entity} not found! Command {Name} being ignored by unit!");

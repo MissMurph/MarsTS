@@ -18,12 +18,12 @@ namespace Ratworx.MarsTS.Units.Infantry
 {
     public class InfantrySquad : NetworkBehaviour,
         ISelectable,
-        ITaggable<InfantrySquad>,
+        IEntityComponent<InfantrySquad>,
         ICommandable,
         IAttackable
     {
         public GameObject GameObject => gameObject;
-        public IUnit Unit => this;
+        public IUnitInterface UnitInterface => this;
 
         /*	ISelectable Properties	*/
 
@@ -278,7 +278,7 @@ namespace Ratworx.MarsTS.Units.Infantry
             if (NetworkManager.Singleton.IsServer) 
                 return;
             
-            if (!EntityCache.TryGet(entityName, out InfantryMember member))
+            if (!EntityCache.TryGetEntityComponent(entityName, out InfantryMember member))
             {
                 Debug.LogError($"[CLIENT] Failed to find Entity {entityName} for registering infantry member!");
                 return;

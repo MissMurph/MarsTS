@@ -19,12 +19,12 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
 {
     public class BuildingConstructionGhost : NetworkBehaviour,
         ISelectable,
-        ITaggable<BuildingConstructionGhost>,
+        IEntityComponent<BuildingConstructionGhost>,
         IAttackable,
         ICommandable
     {
         public GameObject GameObject => gameObject;
-        public IUnit Unit => this;
+        public IUnitInterface UnitInterface => this;
 
         /*  ISelectable Properties  */
         public int Id => _entityComponent.Id;

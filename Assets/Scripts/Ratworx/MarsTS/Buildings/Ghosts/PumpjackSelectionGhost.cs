@@ -14,7 +14,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
 
                 foreach (Collider other in Collisions)
                 {
-                    if (EntityCache.TryGet(other.transform.root.name, out ResourceDeposit comp) && comp is OilDeposit)
+                    if (EntityCache.TryGetEntityComponent(other.transform.root.name, out ResourceDeposit comp) && comp is OilDeposit)
                         valid = true;
                     else
                         valid = false;

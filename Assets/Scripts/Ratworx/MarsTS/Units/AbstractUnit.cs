@@ -18,12 +18,12 @@ namespace Ratworx.MarsTS.Units
 {
     public abstract class AbstractUnit : NetworkBehaviour,
         ISelectable,
-        ITaggable<AbstractUnit>,
+        IEntityComponent<AbstractUnit>,
         IAttackable,
         ICommandable
     {
         public GameObject GameObject => gameObject;
-        public IUnit Unit => this;
+        public IUnitInterface UnitInterface => this;
 
         /*	IAttackable Properties	*/
 
@@ -99,7 +99,7 @@ namespace Ratworx.MarsTS.Units
             {
                 if (_target != null)
                 {
-                    EntityCache.TryGet(_target.gameObject.name + ":eventAgent", out EventAgent oldAgent);
+                    EntityCache.TryGetEntityComponent(_target.gameObject.name + ":eventAgent", out EventAgent oldAgent);
                     oldAgent.RemoveListener<UnitDeathEvent>(_event => TrackedTarget = null);
                 }
 
@@ -107,7 +107,7 @@ namespace Ratworx.MarsTS.Units
 
                 if (value != null)
                 {
-                    EntityCache.TryGet(value.gameObject.name + ":eventAgent", out EventAgent agent);
+                    EntityCache.TryGetEntityComponent(value.gameObject.name + ":eventAgent", out EventAgent agent);
 
                     agent.AddListener<UnitDeathEvent>(_event => TrackedTarget = null);
 

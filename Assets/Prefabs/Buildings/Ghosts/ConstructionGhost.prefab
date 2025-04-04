@@ -70,11 +70,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a6cfd531b4841f9937e7c74c9666ebd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  owner:
-    m_InternalValue: 0
   maxHealth:
     m_InternalValue: 0
   currentHealth:
+    m_InternalValue: 0
+  constructionRequired:
+    m_InternalValue: 0
+  currentConstruction:
     m_InternalValue: 0
 --- !u!114 &2819411760947315619
 MonoBehaviour:
@@ -100,8 +102,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  registryKey: constructionGhost
-  toTag: []
+  _registryKey: constructionGhost
+  _registryType: misc
+  _toTag: []
 --- !u!54 &5762936006102679360
 Rigidbody:
   m_ObjectHideFlags: 0

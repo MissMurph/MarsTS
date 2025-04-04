@@ -608,7 +608,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1896190280
+  GlobalObjectIdHash: 3491648734
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -629,8 +629,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  registryKey: harvester
-  toTag: []
+  _registryKey: harvester
+  _registryType: unit
+  _toTag: []
 --- !u!114 &3758000306492427158
 MonoBehaviour:
   m_ObjectHideFlags: 0

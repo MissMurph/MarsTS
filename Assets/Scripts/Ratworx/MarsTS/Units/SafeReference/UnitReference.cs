@@ -17,7 +17,7 @@ namespace Ratworx.MarsTS.Units.SafeReference
         {
             if (Get != null)
             {
-                EntityCache.TryGet(GameObject.name + ":eventAgent", out EventAgent oldAgent);
+                EntityCache.TryGetEntityComponent(GameObject.name + ":eventAgent", out EventAgent oldAgent);
                 oldAgent.RemoveListener<UnitDeathEvent>(OnEntityDeath);
                 oldAgent.RemoveListener<EntityVisibleEvent>(OnEntityVisible);
             }
@@ -27,7 +27,7 @@ namespace Ratworx.MarsTS.Units.SafeReference
 
             if (Get != null)
             {
-                EntityCache.TryGet(_unit.name + ":eventAgent", out EventAgent agent);
+                EntityCache.TryGetEntityComponent(_unit.name + ":eventAgent", out EventAgent agent);
                 agent.AddListener<UnitDeathEvent>(OnEntityDeath);
                 agent.AddListener<EntityVisibleEvent>(OnEntityVisible);
             }

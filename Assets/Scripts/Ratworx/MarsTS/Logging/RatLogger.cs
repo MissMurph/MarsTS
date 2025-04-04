@@ -47,6 +47,7 @@ namespace Ratworx.MarsTS.Logging
             _logLevel = level;
         }
 
+        /// <remarks>Pass in an <see cref="Exception"/> by itself and <c>Debug.LogException</c> will be used.</remarks>
         public void Log(object message)
         {
             switch (_logLevel)

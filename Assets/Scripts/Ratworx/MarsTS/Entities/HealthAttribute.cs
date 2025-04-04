@@ -5,7 +5,7 @@ namespace Ratworx.MarsTS.Entities {
 
 	//This is a seperate class due to the significance of Health, it operates differently
 	//To other attributes so making it inherit creates a lot of spaghetti
-    public class HealthAttribute : MonoBehaviour, ITaggable<HealthAttribute> {
+    public class HealthAttribute : MonoBehaviour, IEntityComponent<HealthAttribute> {
 		
 		public int Health {
 			get {

@@ -16,7 +16,7 @@ namespace Ratworx.MarsTS.Buildings {
 		private void OnTriggerEnter (Collider other) {
 			if (detonated) return;
 
-			if (EntityCache.TryGet(other.transform.root.name, out IAttackable unit) && other.transform.root.tag == "Vehicle") {
+			if (EntityCache.TryGetEntityComponent(other.transform.root.name, out IAttackable unit) && other.transform.root.tag == "Vehicle") {
 				if (unit.GetRelationship(parent.Owner) != Teams.Relationship.Owned && unit.GetRelationship(parent.Owner) != Teams.Relationship.Friendly) {
 					parent.Detonate();
 					detonated = true;

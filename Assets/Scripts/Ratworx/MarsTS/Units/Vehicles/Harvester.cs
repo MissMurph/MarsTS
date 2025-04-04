@@ -47,7 +47,7 @@ namespace Ratworx.MarsTS.Units.Vehicles
             {
                 if (harvestTarget != null)
                 {
-                    EntityCache.TryGet(harvestTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
+                    EntityCache.TryGetEntityComponent(harvestTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
                     oldAgent.RemoveListener<UnitDeathEvent>(_event => HarvestTarget = null);
                 }
 
@@ -55,7 +55,7 @@ namespace Ratworx.MarsTS.Units.Vehicles
 
                 if (value != null)
                 {
-                    EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
+                    EntityCache.TryGetEntityComponent(value.GameObject.name + ":eventAgent", out EventAgent agent);
 
                     agent.AddListener<UnitDeathEvent>(_event => HarvestTarget = null);
                 }
@@ -71,7 +71,7 @@ namespace Ratworx.MarsTS.Units.Vehicles
             {
                 if (depositTarget != null)
                 {
-                    EntityCache.TryGet(depositTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
+                    EntityCache.TryGetEntityComponent(depositTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
                     oldAgent.RemoveListener<UnitDeathEvent>(_event => DepositTarget = null);
                 }
 
@@ -79,7 +79,7 @@ namespace Ratworx.MarsTS.Units.Vehicles
 
                 if (value != null)
                 {
-                    EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
+                    EntityCache.TryGetEntityComponent(value.GameObject.name + ":eventAgent", out EventAgent agent);
                     agent.AddListener<UnitDeathEvent>(_event => DepositTarget = null);
                 }
             }
@@ -254,7 +254,7 @@ namespace Ratworx.MarsTS.Units.Vehicles
 
                 Bus.AddListener<ResourceHarvestedEvent>(OnExtraction);
 
-                EntityCache.TryGet(HarvestTarget.GameObject.transform.root.name, out EventAgent targetBus);
+                EntityCache.TryGetEntityComponent(HarvestTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
                 targetBus.AddListener<UnitDeathEvent>(OnDepositDepleted);
 
@@ -348,7 +348,7 @@ namespace Ratworx.MarsTS.Units.Vehicles
             {
                 Bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
-                EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
+                EntityCache.TryGetEntityComponent(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
                 targetBus.RemoveListener<UnitDeathEvent>(OnDepositDepleted);
 

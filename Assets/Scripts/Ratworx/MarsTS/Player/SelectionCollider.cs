@@ -17,7 +17,7 @@ namespace Ratworx.MarsTS.Player {
 		}
 
 		private void OnTriggerStay (Collider other) {
-			if (EntityCache.TryGet(other.transform.root.name, out ISelectable target)) {
+			if (EntityCache.TryGetEntityComponent(other.transform.root.name, out ISelectable target)) {
 				newlyHitUnits[other.transform.root.name] = target;
 				target.Hover(true);
 			}

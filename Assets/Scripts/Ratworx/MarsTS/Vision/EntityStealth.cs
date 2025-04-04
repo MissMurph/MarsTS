@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Ratworx.MarsTS.Vision {
 
 	[RequireComponent(typeof(EntityVision))]
-	public class EntityStealth : MonoBehaviour, ITaggable<EntityStealth> {
+	public class EntityStealth : MonoBehaviour, IEntityComponent<EntityStealth> {
 
 		/*	ITaggable Properties	*/
 

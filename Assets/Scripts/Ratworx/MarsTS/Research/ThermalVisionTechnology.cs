@@ -35,7 +35,7 @@ namespace Ratworx.MarsTS.Research
 
         private void OnEntityInit(EntityInitEvent evnt)
         {
-            if (!evnt.ParentEntity.TryGet(out ISelectable unit)
+            if (!evnt.ParentEntity.TryGetEntityComponent(out ISelectable unit)
                 || !_applicableKeys.Contains(unit.RegistryKey))
                 return;
 

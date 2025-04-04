@@ -88,7 +88,7 @@ namespace Ratworx.MarsTS.Player {
 			Ray ray = ViewPort.ScreenPointToRay(_cursorPos);
 
 			if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)) {
-				if (EntityCache.TryGet(hit.transform.root.name, out ISelectable unit) && _currentHover != unit) {
+				if (EntityCache.TryGetEntityComponent(hit.transform.root.name, out ISelectable unit) && _currentHover != unit) {
 					if (_currentHover != null) _currentHover.Hover(false);
 					_currentHover = unit;
 					unit.Hover(true);
@@ -171,7 +171,7 @@ namespace Ratworx.MarsTS.Player {
 				Physics.Raycast(ray, out RaycastHit walkableHit, 1000f, GameWorld.WalkableMask);
 				Physics.Raycast(ray, out RaycastHit selectableHit, 1000f, GameWorld.SelectableMask);
 
-				if (selectableHit.collider != null && EntityCache.TryGet(selectableHit.collider.transform.root.name, out ISelectable target)) {
+				if (selectableHit.collider != null && EntityCache.TryGetEntityComponent(selectableHit.collider.transform.root.name, out ISelectable target)) {
 					if (Selected[UIController.instance.PrimarySelected].Get() is ICommandable commandable) {
 						commandable.AutoCommand(target);
 						return;

@@ -573,7 +573,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3809005299
+  GlobalObjectIdHash: 2996204114
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -622,8 +622,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  registryKey: landmineConstructionGhost
-  toTag: []
+  _registryKey: landmineConstructionGhost
+  _registryType: misc
+  _toTag: []
 --- !u!114 &3041683111963521695
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -636,11 +637,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 612e7af31eb07894e9ddd78b61ee61fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  owner:
-    m_InternalValue: 0
   maxHealth:
     m_InternalValue: 0
   currentHealth:
+    m_InternalValue: 0
+  constructionRequired:
+    m_InternalValue: 0
+  currentConstruction:
     m_InternalValue: 0
 --- !u!114 &3041683111963521692
 MonoBehaviour:

@@ -142,7 +142,7 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 			if (order is Commandlet<IAttackable> deserialized) {
 				AttackTarget.Set(deserialized.Target, deserialized.Target.GameObject);
 
-				EntityCache.TryGet(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
+				EntityCache.TryGetEntityComponent(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.AddListener<UnitDeathEvent>(OnTargetDeath);
 
@@ -161,7 +161,7 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 			//bus.RemoveListener<CommandCompleteEvent>(AttackCancelled);
 
 			if (_event.Command is Commandlet<IAttackable> deserialized && _event.IsCancelled) {
-				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
+				EntityCache.TryGetEntityComponent(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
@@ -170,7 +170,7 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 		}
 
 		private void OnTargetDeath (UnitDeathEvent _event) {
-			EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
+			EntityCache.TryGetEntityComponent(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
 
 			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 

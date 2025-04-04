@@ -35,7 +35,7 @@ namespace Ratworx.MarsTS.UI {
 		}
 
 		protected virtual void OnTriggerEnter (Collider other) {
-			if (EntityCache.TryGet(other.transform.root.name, out OilDeposit found) && !_detected.Contains(found)) {
+			if (EntityCache.TryGetEntityComponent(other.transform.root.name, out OilDeposit found) && !_detected.Contains(found)) {
 				_detected.Add(found);
 			}
 		}

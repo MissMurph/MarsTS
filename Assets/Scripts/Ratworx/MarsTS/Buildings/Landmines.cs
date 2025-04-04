@@ -93,7 +93,7 @@ namespace Ratworx.MarsTS.Buildings
         {
             if (_event.Phase == Phase.Post) return;
 
-            _childMines[_event.ParentEntity.gameObject.name] = _event.ParentEntity.Get<Landmine>("selectable");
+            _childMines[_event.ParentEntity.gameObject.name] = _event.ParentEntity.GetEntityComponent<Landmine>("selectable");
 
             _childMines[_event.ParentEntity.gameObject.name].SetOwner(Owner);
 

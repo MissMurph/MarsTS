@@ -15,7 +15,7 @@ using UnityEngine.Serialization;
 namespace Ratworx.MarsTS.Units {
     public class Flare : NetworkBehaviour, 
         ISelectable, 
-        ITaggable<Flare>, 
+        IEntityComponent<Flare>, 
         IAttackable 
     {
         [FormerlySerializedAs("lifeTime")]
@@ -31,7 +31,7 @@ namespace Ratworx.MarsTS.Units {
         private GameObject[] _hideables;
 
         public GameObject GameObject => gameObject;
-        public IUnit Unit => this;
+        public IUnitInterface UnitInterface => this;
 
         /*	IAttackable Properties	*/
 

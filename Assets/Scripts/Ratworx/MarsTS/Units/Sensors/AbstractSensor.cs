@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Units.Sensors
 {
-    public abstract class AbstractSensor<T> : MonoBehaviour where T : IUnit
+    public abstract class AbstractSensor<T> : MonoBehaviour where T : IUnitInterface
     {
         public float Range => SensorCollider.radius;
 
@@ -106,10 +106,10 @@ namespace Ratworx.MarsTS.Units.Sensors
 
             if (other.transform.root.name == transform.root.name) return;
             
-            if (EntityCache.TryGet(other.transform.root.name, out Entity entityComp)
-                && entityComp.TryGet(out T target))
+            if (EntityCache.TryGetEntity(other.transform.root.name, out Entity entityComp)
+                && entityComp.TryGetEntityComponent(out T target))
             {
-                EventAgent targetBus = entityComp.Get<EventAgent>("eventAgent");
+                EventAgent targetBus = entityComp.GetEntityComponent<EventAgent>("eventAgent");
 
                 targetBus.AddListener<UnitDeathEvent>(OnUnitDeath);
 
@@ -170,7 +170,7 @@ namespace Ratworx.MarsTS.Units.Sensors
         {
             if (!inRange.ContainsKey(key)) return;
 
-            if (!EntityCache.TryGet(key, out EventAgent targetBus)) return;
+            if (!EntityCache.TryGetEntityComponent(key, out EventAgent targetBus)) return;
 
             targetBus.RemoveListener<UnitDeathEvent>(OnUnitDeath);
 

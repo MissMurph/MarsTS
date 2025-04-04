@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Init;
 using Ratworx.MarsTS;
+using Ratworx.MarsTS.Registry;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -10,11 +11,21 @@ using UnityEngine.Serialization;
 namespace Ratworx.MarsTS.Entities
 {
     [RequireComponent(typeof(EventAgent))]
-    public class Entity : NetworkBehaviour
+    public class Entity : NetworkBehaviour, IRegistryObject<Entity>
     {
         public int Id { get; private set; }
 
-        public string Key => _registryKey;
+        public string RegistryKey => _registryKey;
+        
+        [FormerlySerializedAs("registryKey")] 
+        [SerializeField] 
+        private string _registryKey;
+
+        public string RegistryType => _registryType;
+
+        [SerializeField]
+        private string _registryType;
+
 
         /// <summary>This safer init event will post immediately if the entity is already initialized</summary>
         public event Action<Phase> OnEntityInit
@@ -30,10 +41,9 @@ namespace Ratworx.MarsTS.Entities
         }
 
         private Action<Phase> _onEntityInitEvents;
-        
-        [FormerlySerializedAs("registryKey")] [SerializeField] private string _registryKey;
 
-        private Dictionary<string, ITaggable> _registeredTaggables;
+
+        private Dictionary<string, IEntityComponent> _registeredEntityComponents;
         private Dictionary<string, Component> _taggedComponents;
 
         private EventAgent _eventAgent;
@@ -44,12 +54,12 @@ namespace Ratworx.MarsTS.Entities
         {
             _eventAgent = GetComponent<EventAgent>();
 
-            _registeredTaggables = new Dictionary<string, ITaggable>();
+            _registeredEntityComponents = new Dictionary<string, IEntityComponent>();
             _taggedComponents = new Dictionary<string, Component>();
 
-            foreach (ITaggable component in GetComponents<ITaggable>())
+            foreach (IEntityComponent component in GetComponents<IEntityComponent>())
             {
-                _registeredTaggables[component.Key] = component;
+                _registeredEntityComponents[component.Key] = component;
             }
 
             if (TryGetComponent(out NetworkObject found)) _taggedComponents["networking"] = found;
@@ -65,6 +75,14 @@ namespace Ratworx.MarsTS.Entities
             if (!NetworkManager.Singleton.IsServer) return;
 
             GameInit.OnSpawnEntities += Initialize;
+        }
+
+        internal void ServerUpdate() {
+            
+        }
+
+        internal void ClientUpdate() {
+            
         }
 
         private void Initialize()
@@ -100,16 +118,14 @@ namespace Ratworx.MarsTS.Entities
             _eventAgent.Global(initCall);
         }
 
-        public bool TryGet<T>(string key, out T output)
+        public bool TryGetEntityComponent<T>(string key, out T output)
         {
-            if (_registeredTaggables.TryGetValue(key, out ITaggable component) && component is T superType)
+            if (_registeredEntityComponents.TryGetValue(key, out IEntityComponent component) && component is T superType)
             {
                 output = superType;
                 return true;
             }
-
-            //Debug.Log("Tagged Components: " + taggedComponents.Count);
-
+            
             if (typeof(T) == typeof(Component) && _taggedComponents.TryGetValue(key, out Component found) &&
                 found is T superTypedComponent)
             {
@@ -121,9 +137,9 @@ namespace Ratworx.MarsTS.Entities
             return false;
         }
 
-        public bool TryGet<T>(out T output)
+        public bool TryGetEntityComponent<T>(out T output)
         {
-            foreach (ITaggable taggableComponent in _registeredTaggables.Values)
+            foreach (IEntityComponent taggableComponent in _registeredEntityComponents.Values)
             {
                 if (taggableComponent is T superType)
                 {
@@ -146,9 +162,9 @@ namespace Ratworx.MarsTS.Entities
             return false;
         }
 
-        public T Get<T>(string key)
+        public T GetEntityComponent<T>(string key)
         {
-            if (_registeredTaggables.TryGetValue(key, out ITaggable taggable) && taggable is T superType)
+            if (_registeredEntityComponents.TryGetValue(key, out IEntityComponent taggable) && taggable is T superType)
                 return superType;
 
             if (typeof(T).IsSubclassOf(typeof(Component))
@@ -163,6 +179,8 @@ namespace Ratworx.MarsTS.Entities
         {
             _eventAgent.Global(new EntityDestroyEvent(_eventAgent, this));
         }
+
+        public Entity GetEntityComponent() => this;
     }
 
     [Serializable]

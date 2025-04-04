@@ -82,7 +82,7 @@ namespace Ratworx.MarsTS.Commands {
 		}
 
 		protected bool TryGetQueue(ICommandable unit, out CommandQueue queue) 
-			=> EntityCache.TryGet($"{unit.GameObject.name}:commandQueue", out queue);
+			=> EntityCache.TryGetEntityComponent($"{unit.GameObject.name}:commandQueue", out queue);
     }
 
 	public abstract class Commandlet<T> : Commandlet {

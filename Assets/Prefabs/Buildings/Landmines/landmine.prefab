@@ -79,8 +79,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac31b021bb06c744d96aefa96072ee4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 0
-  lifeTime: 0.125
+  _damage: 0
+  _lifeTime: 0.125
 --- !u!135 &359109098268721054
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -194,13 +194,10 @@ MonoBehaviour:
     m_InternalValue: 0
   icon: {fileID: 0}
   type: landmine
-  owner:
-    m_InternalValue: 0
+  _owner: 0
   boundCommands: []
-  constructionWork: 10
-  currentWork: 0
-  ghost: {fileID: 0}
-  constructionCost: []
+  selectionGhost: {fileID: 0}
+  constructionGhost: {fileID: 0}
   visionObjects:
   - {fileID: 83521322728725068}
   - {fileID: 9032998269347420925}
@@ -247,8 +244,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  registryKey: landmine
-  toTag: []
+  _registryKey: landmine
+  _registryType: building
+  _toTag: []
 --- !u!114 &6930778816595822219
 MonoBehaviour:
   m_ObjectHideFlags: 0

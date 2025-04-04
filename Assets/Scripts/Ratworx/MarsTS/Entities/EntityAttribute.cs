@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Entities
 {
-    public class EntityAttribute : NetworkBehaviour, ITaggable<EntityAttribute>
+    public class EntityAttribute : NetworkBehaviour, IEntityComponent<EntityAttribute>
     {
         public event Action<int, int> OnAttributeChange;
         

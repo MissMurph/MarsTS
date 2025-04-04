@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Vision
 {
-    public class EntityVision : MonoBehaviour, ITaggable<EntityVision>
+    public class EntityVision : MonoBehaviour, IEntityComponent<EntityVision>
     {
         /*	ITaggable Properties	*/
 
@@ -74,7 +74,7 @@ namespace Ratworx.MarsTS.Vision
             
             GameVision.Register(gameObject.name, this);
 
-            parent = _parentEntity.Get<ISelectable>("selectable");
+            parent = _parentEntity.GetEntityComponent<ISelectable>("selectable");
         }
 
         private void OnOwnerChange(UnitOwnerChangeEvent _event)

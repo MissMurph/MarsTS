@@ -2,7 +2,7 @@ namespace Ratworx.MarsTS.Registry
 {
     public interface IRegistryObject<T> : IRegistryObject
     {
-        T Get();
+        T GetEntityComponent();
     }
 
     public interface IRegistryObject

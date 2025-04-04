@@ -35,7 +35,7 @@ namespace Ratworx.MarsTS.Commands.Factories
                 Ray ray = Player.Player.ViewPort.ScreenPointToRay(cursorPos);
 
                 if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)
-                    && EntityCache.TryGet(hit.collider.transform.parent.name + ":selectable", out ISelectable unit)
+                    && EntityCache.TryGetEntityComponent(hit.collider.transform.parent.name + ":selectable", out ISelectable unit)
                     && unit is IHarvestable target)
                 {
                     Construct(target, Player.Player.Commander.Id, Player.Player.ListSelected, Player.Player.Include);
@@ -57,7 +57,7 @@ namespace Ratworx.MarsTS.Commands.Factories
         [Rpc(SendTo.Server)]
         private void ConstructCommandletServerRpc(string target, int factionId, NativeArray<FixedString32Bytes> selection, bool inclusive)
         {
-            if (!EntityCache.TryGet(target, out IHarvestable unit))
+            if (!EntityCache.TryGetEntityComponent(target, out IHarvestable unit))
             {
                 Debug.LogError($"Invalid target entity {target} for {Name} Command! Command being ignored!");
                 return;

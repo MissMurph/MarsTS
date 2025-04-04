@@ -14,7 +14,7 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands {
 
-    public class CommandQueue : NetworkBehaviour, ITaggable<CommandQueue>
+    public class CommandQueue : NetworkBehaviour, IEntityComponent<CommandQueue>
     {
 	    public virtual string Key => "commandQueue";
 	    public Type Type => typeof(CommandQueue);

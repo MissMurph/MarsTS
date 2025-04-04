@@ -55,7 +55,7 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 			}
 			set {
 				if (attackTarget != null) {
-					EntityCache.TryGet(attackTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
+					EntityCache.TryGetEntityComponent(attackTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
 					oldAgent.RemoveListener<UnitDeathEvent>((_event) => AttackTarget = null);
 					oldAgent.RemoveListener<EntityVisibleEvent>((_event) => {
 						if (!_event.Visible) {
@@ -68,7 +68,7 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 				attackTarget = value;
 
 				if (value != null) {
-					EntityCache.TryGet(value.GameObject.name + ":eventAgent", out EventAgent agent);
+					EntityCache.TryGetEntityComponent(value.GameObject.name + ":eventAgent", out EventAgent agent);
 
 					agent.AddListener<UnitDeathEvent>((_event) => AttackTarget = null);
 					agent.AddListener<EntityVisibleEvent>((_event) => {
@@ -185,7 +185,7 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 			if (order is Commandlet<IAttackable> deserialized) {
 				AttackTarget = deserialized.Target;
 
-				EntityCache.TryGet(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
+				EntityCache.TryGetEntityComponent(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.AddListener<UnitDeathEvent>(OnTargetDeath);
 
@@ -195,7 +195,7 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 
 		private void AttackCancelled (CommandCompleteEvent _event) {
 			if (_event.Command is Commandlet<IAttackable> deserialized && _event.IsCancelled) {
-				EntityCache.TryGet(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
+				EntityCache.TryGetEntityComponent(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
 
 				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
@@ -204,7 +204,7 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 		}
 
 		private void OnTargetDeath (UnitDeathEvent _event) {
-			EntityCache.TryGet(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
+			EntityCache.TryGetEntityComponent(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
 
 			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 

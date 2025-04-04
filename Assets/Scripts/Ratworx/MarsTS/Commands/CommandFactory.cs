@@ -19,7 +19,7 @@ namespace Ratworx.MarsTS.Commands {
 			order.Init(Name, target, TeamCache.Faction(factionId));
 
 			foreach (string entity in selection) {
-				if (EntityCache.TryGet(entity, out ICommandable unit))
+				if (EntityCache.TryGetEntityComponent(entity, out ICommandable unit))
 					unit.Order(order, inclusive);
 				else
 					Debug.LogWarning($"ICommandable on Unit {entity} not found! Command {Name} being ignored by unit!");
@@ -56,6 +56,6 @@ namespace Ratworx.MarsTS.Commands {
 
 		public string RegistryType => "command_factory";
 		public string RegistryKey => Name;
-		public CommandFactory Get() => this;
+		public CommandFactory GetEntityComponent() => this;
 	}
 }

@@ -47,7 +47,7 @@ namespace Ratworx.MarsTS.UI.Unit_Pane
 
             storage.OnAttributeChange += OnStorageValueChanged;
 
-            if (!EntityCache.TryGet(storage.transform.root.name, out EventAgent storageEvents))
+            if (!EntityCache.TryGetEntityComponent(storage.transform.root.name, out EventAgent storageEvents))
                 Debug.LogWarning(
                     $"Couldn't get {typeof(EventAgent)} from Unit {storage.transform.root.name} on Info module {typeof(UnitResourceStorageInfo)}!");
             else
@@ -81,7 +81,7 @@ namespace Ratworx.MarsTS.UI.Unit_Pane
         {
             if (_trackedStorage != null)
             {
-                if (!EntityCache.TryGet(_trackedStorage.transform.root.name, out EventAgent storageEvents))
+                if (!EntityCache.TryGetEntityComponent(_trackedStorage.transform.root.name, out EventAgent storageEvents))
                     Debug.LogWarning(
                         $"Couldn't get {typeof(EventAgent)} from Unit {_trackedStorage.transform.root.name} on Info module {typeof(UnitResourceStorageInfo)}!");
                 else

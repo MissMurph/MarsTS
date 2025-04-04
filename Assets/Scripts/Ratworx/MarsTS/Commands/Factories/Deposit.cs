@@ -34,7 +34,7 @@ namespace Ratworx.MarsTS.Commands.Factories
             Ray ray = Player.Player.ViewPort.ScreenPointToRay(cursorPos);
 
             if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask) &&
-                EntityCache.TryGet(hit.collider.transform.parent.name + ":selectable", out ISelectable target) &&
+                EntityCache.TryGetEntityComponent(hit.collider.transform.parent.name + ":selectable", out ISelectable target) &&
                 target is IDepositable depositable)
                 Construct(depositable);
 
@@ -58,7 +58,7 @@ namespace Ratworx.MarsTS.Commands.Factories
             NativeArray<FixedString32Bytes> selection, 
             bool inclusive)
         {
-            if (!EntityCache.TryGet(target, out IDepositable unit))
+            if (!EntityCache.TryGetEntityComponent(target, out IDepositable unit))
             {
                 Debug.LogError($"Invalid target entity {target} for {Name} Command! Command being ignored!");
                 return;

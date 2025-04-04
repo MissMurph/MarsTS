@@ -32,7 +32,7 @@ namespace Ratworx.MarsTS.Units.Turrets {
 			_owner = owner;
 
 			_attacker = attacker;
-			EntityCache.TryGet(_attacker.GameObject.name, out _bus);
+			EntityCache.TryGetEntityComponent(_attacker.GameObject.name, out _bus);
 			
 			_initialized = true;
 		}
@@ -56,7 +56,7 @@ namespace Ratworx.MarsTS.Units.Turrets {
 			foreach (Collider other in _hit) {
 				if (other == null) continue;
 				
-				if (EntityCache.TryGet(other.transform.root.name, out IAttackable unit)) {
+				if (EntityCache.TryGetEntityComponent(other.transform.root.name, out IAttackable unit)) {
 					if (unit.GetRelationship(_owner) != Relationship.Owned && unit.GetRelationship(_owner) != Relationship.Friendly)
 					{
 						AttackUnit(unit);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Init;
 using Ratworx.MarsTS;
@@ -11,6 +12,7 @@ using UnityEngine.Serialization;
 namespace Ratworx.MarsTS.Entities
 {
     [RequireComponent(typeof(EventAgent))]
+    [RequireComponent(typeof(NetworkObject))]
     public class Entity : NetworkBehaviour, IRegistryObject<Entity>
     {
         public int Id { get; private set; }
@@ -45,6 +47,7 @@ namespace Ratworx.MarsTS.Entities
 
         private Dictionary<string, IEntityComponent> _registeredEntityComponents;
         private Dictionary<string, Component> _taggedComponents;
+        private List<IEntityUpdate> _updateComponents;
 
         private EventAgent _eventAgent;
 
@@ -62,6 +65,8 @@ namespace Ratworx.MarsTS.Entities
                 _registeredEntityComponents[component.Key] = component;
             }
 
+            _updateComponents = GetComponentsInChildren<IEntityUpdate>().ToList();
+
             if (TryGetComponent(out NetworkObject found)) _taggedComponents["networking"] = found;
 
             foreach (TagReference entry in _toTag)
@@ -78,11 +83,13 @@ namespace Ratworx.MarsTS.Entities
         }
 
         internal void ServerUpdate() {
-            
+            foreach (IEntityUpdate component in _updateComponents) 
+                component.UpdateServer();
         }
 
         internal void ClientUpdate() {
-            
+            foreach (IEntityUpdate component in _updateComponents) 
+                component.UpdateClient();
         }
 
         private void Initialize()

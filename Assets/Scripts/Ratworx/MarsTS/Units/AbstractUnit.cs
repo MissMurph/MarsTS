@@ -50,46 +50,8 @@ namespace Ratworx.MarsTS.Units
 
         private Entity _entity;
 
-        protected Transform TrackedTarget
-        {
-            get => _target;
-            set
-            {
-                if (_target != null)
-                {
-                    EntityCache.TryGetEntityComponent(_target.gameObject.name + ":eventAgent", out EventAgent oldAgent);
-                    oldAgent.RemoveListener<UnitDeathEvent>(_event => TrackedTarget = null);
-                }
-
-                _target = value;
-
-                if (value != null)
-                {
-                    EntityCache.TryGetEntityComponent(value.gameObject.name + ":eventAgent", out EventAgent agent);
-
-                    agent.AddListener<UnitDeathEvent>(_event => TrackedTarget = null);
-
-                    SetTarget(value);
-                }
-            }
-        }
-
-        private Transform _target;
-
-        private Vector3 _targetOldPos;
-
-        protected Path CurrentPath { get; set; } = Path.Empty;
-
-        private float _angle;
-        protected int PathIndex;
-
         protected Rigidbody Body;
-
-        private const float MinPathUpdateTime = .5f;
-        private const float PathUpdateMoveThreshold = .5f;
-
-        [SerializeField] protected float waypointCompletionDistance;
-
+        
         protected EventAgent Bus;
 
         [Header("Vision")] [SerializeField] private GameObject[] hideables;
@@ -105,16 +67,7 @@ namespace Ratworx.MarsTS.Units
         {
             base.OnNetworkSpawn();
 
-            if (NetworkManager.Singleton.IsServer)
-            {
-                StartCoroutine(UpdatePath());
-
-                AttachServerListeners();
-            }
-
             if (NetworkManager.Singleton.IsClient) AttachClientListeners();
-
-            // TODO: Find a better spot for this, realistically this should be called in the Attach funcs
         }
 
         protected void AttachClientListeners()
@@ -124,64 +77,12 @@ namespace Ratworx.MarsTS.Units
             Bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
             // Bus.AddListener<CommandStartEvent>(ExecuteOrder);
         }
-
-        protected void AttachServerListeners()
-        {
-        }
-
-        protected virtual void Update()
-        {
-            if (NetworkManager.Singleton.IsServer) ServerUpdate();
-            if (NetworkManager.Singleton.IsClient) ClientUpdate();
-        }
-
-        protected virtual void ServerUpdate()
-        {
-        }
-
-        protected virtual void ClientUpdate()
-        {
-            if (!CurrentPath.IsEmpty)
-            {
-                Vector3 targetWaypoint = CurrentPath[PathIndex];
-
-                float distance = new Vector3(targetWaypoint.x - transform.position.x, 0,
-                    targetWaypoint.z - transform.position.z).magnitude;
-
-                if (distance <= waypointCompletionDistance) PathIndex++;
-
-                if (PathIndex >= CurrentPath.Length)
-                {
-                    Bus.Local(new PathCompleteEvent(Bus, true));
-                    CurrentPath = Path.Empty;
-                }
-            }
-        }
-
-        private void OnPathFound(Path newPath, bool pathSuccessful)
-        {
-            if (pathSuccessful)
-            {
-                CurrentPath = newPath;
-                PathIndex = 0;
-            }
-        }
-
-        protected void SetTarget(Vector3 _target)
-        {
-            PathRequestManager.RequestPath(transform.position, _target, OnPathFound);
-        }
-
-        protected void SetTarget(Transform _target)
-        {
-            SetTarget(_target.position);
-            this._target = _target;
-        }
+        
 
         protected virtual void Stop()
         {
-            CurrentPath = Path.Empty;
-            _target = null;
+            // CurrentPath = Path.Empty;
+            // _target = null;
 
             // commands.Clear();
 
@@ -195,7 +96,7 @@ namespace Ratworx.MarsTS.Units
         {
             if (order is Commandlet<Vector3> deserialized)
             {
-                SetTarget(deserialized.Target);
+                // SetTarget(deserialized.Target);
 
                 Bus.AddListener<PathCompleteEvent>(OnPathComplete);
                 order.Callback.AddListener(_event => Bus.RemoveListener<PathCompleteEvent>(OnPathComplete));
@@ -209,38 +110,9 @@ namespace Ratworx.MarsTS.Units
             // CurrentCommand.CompleteCommand(Bus, this);
         }
 
-        protected IEnumerator UpdatePath()
-        {
-            if (Time.timeSinceLevelLoad < .5f) yield return new WaitForSeconds(.5f);
+        
 
-            float sqrMoveThreshold = PathUpdateMoveThreshold * PathUpdateMoveThreshold;
-
-            while (true)
-            {
-                yield return new WaitForSeconds(MinPathUpdateTime);
-
-                if (_target != null && (_target.position - _targetOldPos).sqrMagnitude > sqrMoveThreshold)
-                {
-                    PathRequestManager.RequestPath(transform.position, _target.position, OnPathFound);
-                    _targetOldPos = _target.position;
-                }
-            }
-        }
-
-        public void OnDrawGizmos()
-        {
-            if (!CurrentPath.IsEmpty)
-                for (int i = PathIndex; i < CurrentPath.Length; i++)
-                {
-                    Gizmos.color = Color.black;
-                    Gizmos.DrawCube(CurrentPath[i], Vector3.one / 2);
-
-                    if (i == PathIndex)
-                        Gizmos.DrawLine(transform.position, CurrentPath[i]);
-                    else
-                        Gizmos.DrawLine(CurrentPath[i - 1], CurrentPath[i]);
-                }
-        }
+        
 
         /*public virtual void Order(Commandlet order, bool inclusive)
         {

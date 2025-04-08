@@ -19,7 +19,7 @@ namespace Ratworx.MarsTS.UI.Unit_Bars
 
             _storage.OnAttributeChange += OnStorageValueChanged;
 
-            UpdateValue(_storage.Amount, _storage.Capacity);
+            UpdateValue(_storage.Value, _storage.Capacity);
 
             EventAgent bus = GetComponentInParent<EventAgent>();
 

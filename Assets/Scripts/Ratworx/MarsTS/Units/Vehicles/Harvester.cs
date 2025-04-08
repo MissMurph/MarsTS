@@ -87,7 +87,7 @@ namespace Ratworx.MarsTS.Units.Vehicles
 
         protected IDepositable depositTarget;
 
-        protected int Stored => _storageComp.Amount;
+        protected int Stored => _storageComp.Value;
 
         protected int Capacity => _storageComp.Capacity;
 
@@ -277,7 +277,7 @@ namespace Ratworx.MarsTS.Units.Vehicles
 
         protected virtual void DepositResources()
         {
-            _storageComp.Consume(DepositTarget.Deposit("resource_unit", _depositAmount));
+            _storageComp.Value -= DepositTarget.Deposit("resource_unit", _depositAmount);
             Bus.Global(new HarvesterDepositEvent(Bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity,
                 DepositTarget));
             _currentCooldown += _cooldown;

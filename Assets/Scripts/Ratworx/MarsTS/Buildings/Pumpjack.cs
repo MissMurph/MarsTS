@@ -15,7 +15,7 @@ namespace Ratworx.MarsTS.Buildings
         /*	IHarvestable Properties	*/
 
         public int OriginalAmount => _resourceStorage.Capacity;
-        public int StoredAmount => _resourceStorage.Amount;
+        public int StoredAmount => _resourceStorage.Value;
 
         /*	Pumpjack Fields	*/
 
@@ -99,22 +99,17 @@ namespace Ratworx.MarsTS.Buildings
         public virtual int Harvest(string resourceKey, ISelectable harvester, int harvestAmount,
             Func<int, int> extractor)
         {
-            if (CanHarvest(resourceKey, harvester))
-            {
-                int availableAmount = Mathf.Min(harvestAmount, StoredAmount);
+            if (!CanHarvest(resourceKey, harvester)) 
+                return 0;
+            
+            int availableAmount = Mathf.Min(harvestAmount, StoredAmount);
 
-                int finalAmount = extractor(availableAmount);
+            int finalAmount = extractor(availableAmount);
 
-                if (finalAmount > 0)
-                    /*Bus.Global(new ResourceHarvestedEvent(Bus, this, harvester, ResourceHarvestedEvent.Side.Deposit,
-                        finalAmount, "oil", StoredAmount, capacity));*/
-                    //StoredAmount -= finalAmount;
-                    _resourceStorage.Consume(finalAmount);
-
-                return finalAmount;
-            }
-
-            return 0;
+            if (finalAmount > 0)
+                _resourceStorage.Value -= finalAmount;
+                
+            return finalAmount;
         }
 
         protected override void OnUnitInfoDisplayed(UnitInfoEvent _event)

@@ -1,52 +1,64 @@
 using System;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.Units;
 using UnityEngine;
+using Unity.Netcode;
+using UnityEngine.Serialization;
 
-namespace Ratworx.MarsTS.Entities {
+namespace Ratworx.MarsTS.Entities 
+{
+    public class HealthAttribute : EntityAttribute, IAttackable
+	{
+		public int Health => Value;
+		public int MaxHealth => _maxHealth;
 
-	//This is a seperate class due to the significance of Health, it operates differently
-	//To other attributes so making it inherit creates a lot of spaghetti
-    public class HealthAttribute : MonoBehaviour, IEntityComponent<HealthAttribute> {
+		private EventAgent _eventAgent;
 		
-		public int Health {
-			get {
-				return health;
-			}
+		private void Awake() {
+			_key = "health";
+			_eventAgent = GetComponent<EventAgent>();
 		}
 
-		public int MaxHealth {
-			get {
-				return maxHealth;
-			}
+		public void Attack(int damage) {
+			if (Health <= 0) return;
+			if (damage < 0 && Health >= MaxHealth) return;
+
+			UnitHurtEvent hurtEvent = new UnitHurtEvent(_eventAgent, this, damage);
+			hurtEvent.Phase = Phase.Pre;
+			_eventAgent.Global(hurtEvent);
+
+			damage = hurtEvent.Damage;
+			Value -= damage;
+
+			hurtEvent.Phase = Phase.Post;
+			_eventAgent.Global(hurtEvent);
 		}
 
-		[SerializeField]
-		private int startingValue;
-
-		private int health;
-
-		[SerializeField]
-		private int maxHealth;
-
-		public string Key {
-			get {
-				return "health";
-			}
-		}
-
-		public Type Type {
-			get {
-				return typeof(HealthAttribute);
-			}
-		}
-
-		public HealthAttribute Get () {
-			return this;
-		}
-
-		private void Awake () {
-			health = startingValue;
-		}
-
+		public Relationship GetRelationship(Faction player) => throw new NotImplementedException();
 		
-	}
+		[SerializeField]
+		private int _maxHealth;
+
+		public GameObject GameObject => gameObject;
+		public IUnitInterface UnitInterface { get; }
+		
+		protected void OnHurt(int oldHealth, int newHealth)
+		{
+			if (Health <= 0)
+			{
+				// _eventAgent.Global(new UnitDeathEvent(_eventAgent, this));
+
+				if (NetworkManager.Singleton.IsServer)
+					Destroy(gameObject, 0.1f);
+			}
+			else
+			{
+				UnitHurtEvent hurtEvent = new UnitHurtEvent(_eventAgent, this, oldHealth - newHealth);
+				hurtEvent.Phase = Phase.Post;
+				_eventAgent.Global(hurtEvent);
+			}
+		}
+    }
 }

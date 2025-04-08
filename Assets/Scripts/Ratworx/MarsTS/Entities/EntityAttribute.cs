@@ -2,55 +2,37 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace Ratworx.MarsTS.Entities
-{
-    public class EntityAttribute : NetworkBehaviour, IEntityComponent<EntityAttribute>
-    {
+namespace Ratworx.MarsTS.Entities {
+    public class EntityAttribute : NetworkBehaviour, IEntityComponent<EntityAttribute> {
         public event Action<int, int> OnAttributeChange;
-        
-        public virtual int Amount
+
+        public virtual int Value
         {
-            get => _stored.Value;
-            protected set => _stored.Value = value < 0 ? 0 : value;
+            get => _internalValue.Value;
+            set => _internalValue.Value = value;
         }
 
-        [SerializeField] protected string _key;
+        [SerializeField]
+        protected string _key;
 
-        [SerializeField] protected int _startingValue;
+        [SerializeField]
+        protected int _startingValue;
 
-        protected NetworkVariable<int> _stored =
+        [SerializeField]
+        private NetworkVariable<int> _internalValue =
             new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
 
         public string Key => "attribute:" + _key;
 
-        public Type Type => typeof(EntityAttribute);
-
         public EntityAttribute Get() => this;
 
-        public override void OnNetworkSpawn()
-        {
-            if (NetworkManager.Singleton.IsServer) 
-                Amount = _startingValue;
-            
-            if (NetworkManager.Singleton.IsClient) 
-                _stored.OnValueChanged += OnStoredValueChange;
+        public override void OnNetworkSpawn() {
+            if (NetworkManager.Singleton.IsServer)
+                Value = _startingValue;
+
+            _internalValue.OnValueChanged += OnValueChange;
         }
 
-        private void OnStoredValueChange(int oldValue, int newValue) => OnAttributeChange?.Invoke(oldValue, newValue);
-
-        public virtual int Submit(int amount)
-        {
-            Amount += amount;
-            return amount;
-        }
-
-        public virtual bool Consume(int amount)
-        {
-            if (Amount < amount) 
-                return false;
-            
-            Amount -= amount;
-            return true;
-        }
+        private void OnValueChange(int oldValue, int newValue) => OnAttributeChange?.Invoke(oldValue, newValue);
     }
 }

@@ -416,7 +416,7 @@ namespace Ratworx.MarsTS.Units.Infantry {
 		}
 
 		private void DepositResources () {
-			roughneckSquad.storageComp.Consume(DepositTarget.Get.Deposit("oil", depositAmount));
+			roughneckSquad.storageComp.Value -= DepositTarget.Get.Deposit("oil", depositAmount);
 			_bus.Global(new HarvesterDepositEvent(_bus, this, HarvesterDepositEvent.Side.Harvester, roughneckSquad.Stored, roughneckSquad.Capacity, DepositTarget.Get));
 			currentDepositCooldown += depositCooldown;
 		}

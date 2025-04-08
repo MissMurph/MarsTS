@@ -97,7 +97,7 @@ namespace Ratworx.MarsTS.Units.Vehicles
 
         protected override void DepositResources()
         {
-            _storageComp.Consume(DepositTarget.Deposit("oil", _depositAmount));
+            _storageComp.Value -= DepositTarget.Deposit("oil", _depositAmount);
             Bus.Global(new HarvesterDepositEvent(Bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity,
                 DepositTarget));
             _currentCooldown += _cooldown;

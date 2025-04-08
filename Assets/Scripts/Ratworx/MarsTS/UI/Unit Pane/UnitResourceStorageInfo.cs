@@ -43,7 +43,7 @@ namespace Ratworx.MarsTS.UI.Unit_Pane
         {
             _trackedStorage = storage;
 
-            UpdateStoredAmount(storage.Amount, storage.Capacity);
+            UpdateStoredAmount(storage.Value, storage.Capacity);
 
             storage.OnAttributeChange += OnStorageValueChanged;
 

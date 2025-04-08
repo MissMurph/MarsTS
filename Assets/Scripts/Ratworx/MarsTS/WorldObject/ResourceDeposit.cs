@@ -43,7 +43,7 @@ namespace Ratworx.MarsTS.WorldObject
 
         public int OriginalAmount { get; private set; }
 
-        public int StoredAmount => _resourceStorage.Amount;
+        public int StoredAmount => _resourceStorage.Value;
 
         /*	Deposit Fields	*/
 
@@ -75,7 +75,7 @@ namespace Ratworx.MarsTS.WorldObject
         private void Start()
         {
             //selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
-            OriginalAmount = _resourceStorage.Amount;
+            OriginalAmount = _resourceStorage.Value;
             EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
         }
 
@@ -95,7 +95,7 @@ namespace Ratworx.MarsTS.WorldObject
             int harvestAmount,
             Func<int, int> extractor
         ) {
-            int availableAmount = Mathf.Min(harvestAmount, _resourceStorage.Amount);
+            int availableAmount = Mathf.Min(harvestAmount, _resourceStorage.Value);
 
             int finalAmount = extractor(availableAmount);
 
@@ -103,7 +103,7 @@ namespace Ratworx.MarsTS.WorldObject
             {
                 _bus.Global(new ResourceHarvestedEvent(_bus, this, ResourceHarvestedEvent.Side.Deposit,
                     finalAmount, resourceKey, StoredAmount, OriginalAmount));
-                _resourceStorage.Consume(finalAmount);
+                _resourceStorage.Value -= finalAmount;
             }
 
             if (StoredAmount <= 0)

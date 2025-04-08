@@ -37,7 +37,7 @@ namespace Ratworx.MarsTS.WorldObject
         {
             if (harvester is Pumpjack)
             {
-                int availableAmount = Mathf.Min(harvestAmount, _resourceStorage.Amount);
+                int availableAmount = Mathf.Min(harvestAmount, _resourceStorage.Value);
 
                 int finalAmount = extractor(availableAmount);
 
@@ -45,7 +45,7 @@ namespace Ratworx.MarsTS.WorldObject
                 {
                     _bus.Global(new ResourceHarvestedEvent(_bus, this, ResourceHarvestedEvent.Side.Deposit, finalAmount,
                         resourceKey, StoredAmount, OriginalAmount));
-                    _resourceStorage.Consume(finalAmount);
+                    _resourceStorage.Value -= finalAmount;
                 }
 
                 if (StoredAmount <= 0)

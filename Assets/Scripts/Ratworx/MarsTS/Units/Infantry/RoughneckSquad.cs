@@ -13,7 +13,7 @@ namespace Ratworx.MarsTS.Units.Infantry
 {
     public class RoughneckSquad : InfantrySquad
     {
-        public int Stored => storageComp.Amount;
+        public int Stored => storageComp.Value;
 
         public int Capacity => storageComp.Capacity;
 

@@ -62,16 +62,16 @@ namespace Ratworx.MarsTS.Commands {
 			bus.Global(ProductionEvent.Started(bus, parent, this, Current as IProducable));
 		}
 
-		public override void Execute (Commandlet order) {
+		public override void ExecuteCommand (Commandlet order) {
 			if (order is not IProducable) {
 				Debug.LogWarning("Non Production Command sent to Production Queue! Command ignored");
 				return;
 			}
 
-			Enqueue(order);
+			EnqueueCommand(order);
 		}
 
-		public override void Enqueue (Commandlet order) {
+		public override void EnqueueCommand (Commandlet order) {
 			if (order is not IProducable) {
 				Debug.LogWarning("Non Production Command sent to Production Queue! Command ignored");
 				return;
@@ -79,7 +79,7 @@ namespace Ratworx.MarsTS.Commands {
 
 			if (!orderSource.CanCommand(order.Command.Name)) return;
 
-			base.Enqueue(order);
+			base.EnqueueCommand(order);
 
 			bus.Global(ProductionEvent.Queued(bus, parent, this, Current as IProducable));
 		}

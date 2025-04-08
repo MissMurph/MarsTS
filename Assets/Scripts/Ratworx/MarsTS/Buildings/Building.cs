@@ -201,10 +201,10 @@ namespace Ratworx.MarsTS.Buildings
             switch (order.Name)
             {
                 case "upgrade":
-                    production.Enqueue(order);
+                    production.EnqueueCommand(order);
                     return;
                 case "research":
-                    production.Enqueue(order);
+                    production.EnqueueCommand(order);
                     return;
                 default:
                     return;

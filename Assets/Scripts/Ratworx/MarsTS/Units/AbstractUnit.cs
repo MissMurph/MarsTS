@@ -18,8 +18,7 @@ namespace Ratworx.MarsTS.Units
 {
     public abstract class AbstractUnit : NetworkBehaviour,
         ISelectable,
-        IEntityComponent<AbstractUnit>,
-        ICommandable
+        IEntityComponent<AbstractUnit>
     {
         public GameObject GameObject => gameObject;
         public IUnitInterface UnitInterface => this;
@@ -46,27 +45,7 @@ namespace Ratworx.MarsTS.Units
         /*	ITaggable Properties	*/
 
         public string Key => "selectable";
-
-        public Type Type => typeof(AbstractUnit);
-
-        /*	ICommandable Properties	*/
-
-        public Commandlet CurrentCommand => commands.Current;
-
-        public Commandlet[] CommandQueue => commands.Queue;
-
-        public List<string> Active => commands.Active;
-
-        public List<Timer> Cooldowns => commands.Cooldowns;
-
-        public int Count => commands.Count;
-
-        //protected Queue<Commandlet> commandQueue = new Queue<Commandlet>();
-
-        protected CommandQueue commands;
-
-        [Header("Commands")] [SerializeField] protected string[] boundCommands;
-
+        
         /*	Unit Fields	*/
 
         private Entity _entity;
@@ -120,7 +99,6 @@ namespace Ratworx.MarsTS.Units
             Body = GetComponent<Rigidbody>();
             _entity = GetComponent<Entity>();
             Bus = GetComponent<EventAgent>();
-            commands = GetComponent<CommandQueue>();
         }
 
         public override void OnNetworkSpawn()
@@ -144,7 +122,7 @@ namespace Ratworx.MarsTS.Units
             EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 
             Bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
-            Bus.AddListener<CommandStartEvent>(ExecuteOrder);
+            // Bus.AddListener<CommandStartEvent>(ExecuteOrder);
         }
 
         protected void AttachServerListeners()
@@ -205,7 +183,7 @@ namespace Ratworx.MarsTS.Units
             CurrentPath = Path.Empty;
             _target = null;
 
-            commands.Clear();
+            // commands.Clear();
 
             //CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, false, this);
             //bus.Global(_event);
@@ -226,9 +204,9 @@ namespace Ratworx.MarsTS.Units
 
         private void OnPathComplete(PathCompleteEvent _event)
         {
-            CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, false, this);
-
-            CurrentCommand.CompleteCommand(Bus, this);
+            // CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, false, this);
+            //
+            // CurrentCommand.CompleteCommand(Bus, this);
         }
 
         protected IEnumerator UpdatePath()
@@ -264,7 +242,7 @@ namespace Ratworx.MarsTS.Units
                 }
         }
 
-        public virtual void Order(Commandlet order, bool inclusive)
+        /*public virtual void Order(Commandlet order, bool inclusive)
         {
             if (!GetRelationship(order.Commander).Equals(Relationship.Owned)) return;
 
@@ -278,11 +256,11 @@ namespace Ratworx.MarsTS.Units
                     return;
             }
 
-            if (inclusive) commands.Enqueue(order);
-            else commands.Execute(order);
-        }
+            if (inclusive) commands.EnqueueCommand(order);
+            else commands.ExecuteCommand(order);
+        }*/
 
-        protected virtual void ExecuteOrder(CommandStartEvent _event)
+        /*protected virtual void ExecuteOrder(CommandStartEvent _event)
         {
             switch (_event.Command.Name)
             {
@@ -293,15 +271,9 @@ namespace Ratworx.MarsTS.Units
                     Stop();
                     break;
             }
-        }
+        }*/
 
         public AbstractUnit Get() => this;
-
-        public string[] Commands() => boundCommands;
-
-        public abstract CommandFactory Evaluate(ISelectable target);
-
-        public abstract void AutoCommand(ISelectable target);
 
         public virtual void Select(bool status)
         {
@@ -356,7 +328,7 @@ namespace Ratworx.MarsTS.Units
             }
         }
 
-        public virtual bool CanCommand(string key)
+        /*public virtual bool CanCommand(string key)
         {
             bool canUse = false;
 
@@ -371,6 +343,6 @@ namespace Ratworx.MarsTS.Units
             //if (production.CanCommand(key)) canUse = true;
 
             return canUse;
-        }
+        }*/
     }
 }

@@ -102,7 +102,7 @@ namespace Ratworx.MarsTS.Buildings {
 
 					break;
 				case "produce":
-					production.Enqueue(order);
+					production.EnqueueCommand(order);
 					break;
 				default:
 					base.Order(order, inclusive);

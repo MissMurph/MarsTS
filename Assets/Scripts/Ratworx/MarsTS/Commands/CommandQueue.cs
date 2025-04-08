@@ -14,24 +14,25 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands {
 
-    public class CommandQueue : NetworkBehaviour, IEntityComponent<CommandQueue>
+    public class CommandQueue : NetworkBehaviour, IEntityComponent<CommandQueue>, ICommandable
     {
 	    public virtual string Key => "commandQueue";
-	    public Type Type => typeof(CommandQueue);
-        
-        public Commandlet Current { get; protected set; }
 
+		public Commandlet CurrentCommand => Current;
+        public Commandlet Current { get; protected set; }
+		
         public Commandlet[] Queue => commandQueue.ToArray();
         protected Queue<Commandlet> commandQueue;
 
-        public List<string> Active { get { return activeCommands.Keys.ToList();  } }
+        public List<string> Active => activeCommands.Keys.ToList();
 		protected Dictionary<string, Commandlet> activeCommands;
 
-		public List<Timer> Cooldowns { get { return activeCooldowns.Values.ToList(); } }
+		public List<Timer> Cooldowns => activeCooldowns.Values.ToList();
+
 		protected Dictionary<string, Timer> activeCooldowns;
 		protected List<Timer> completedCooldowns;
 
-		public int Count { get { return Current != null ? 1 + commandQueue.Count : 0; } }
+		public int Count => Current != null ? 1 + commandQueue.Count : 0;
 
 		protected ISelectable parent;
 		protected ICommandable orderSource;
@@ -42,6 +43,9 @@ namespace Ratworx.MarsTS.Commands {
 		private int workSpeed;
 		private float workStepTime;
 		private float workTimeToStep;
+
+		[SerializeField]
+		private string[] _commands;
 
 		protected virtual void Awake () {
 			parent = GetComponent<ISelectable>();
@@ -167,7 +171,7 @@ namespace Ratworx.MarsTS.Commands {
 
 		/*	Executing Commands	*/
 
-		public virtual void Execute (Commandlet order) 
+		public virtual void ExecuteCommand (Commandlet order) 
 		{
 			if (!orderSource.CanCommand(order.Command.Name)) return;
 			commandQueue.Clear();
@@ -190,12 +194,12 @@ namespace Ratworx.MarsTS.Commands {
 		{
 			if (NetworkManager.Singleton.IsHost) return;
 
-			Execute(orderReference.GameObject().GetComponent<Commandlet>());
+			ExecuteCommand(orderReference.GameObject().GetComponent<Commandlet>());
 		}
 
 		/*	Enqueueing Commands	*/
 
-		public virtual void Enqueue (Commandlet order) {
+		public virtual void EnqueueCommand (Commandlet order) {
 			if (!orderSource.CanCommand(order.Command.Name)) return;
 			commandQueue.Enqueue(order);
 
@@ -206,7 +210,7 @@ namespace Ratworx.MarsTS.Commands {
 		protected virtual void EnqueueClientRpc (NetworkObjectReference orderReference) {
 			if (NetworkManager.Singleton.IsHost) return;
 
-			Enqueue(orderReference.GameObject().GetComponent<Commandlet>());
+			EnqueueCommand(orderReference.GameObject().GetComponent<Commandlet>());
 		}
 
 		/*	Activating Commands	*/
@@ -308,9 +312,25 @@ namespace Ratworx.MarsTS.Commands {
 			else
 				bus.Global(new WorkEvent(bus, parent, workOrder.WorkRequired, workOrder.CurrentWork));
 		}
+		
+		public void Order(Commandlet order, bool inclusive) {
+			if (inclusive) 
+				EnqueueCommand(order);
+			else
+				ExecuteCommand(order);
+		}
+
+		public CommandFactory Evaluate(ISelectable target) => throw new NotImplementedException();
+
+		public void AutoCommand(ISelectable target) {
+			throw new NotImplementedException();
+		}
+
+		public string[] Commands() => _commands;
 
 		public CommandQueue Get() => this;
-    }
+		public GameObject GameObject => gameObject;
+	}
 
 	public class Timer {
 		public string commandName;

@@ -116,8 +116,8 @@ namespace Ratworx.MarsTS.Units.Infantry {
 					return;
 			}
 
-			if (inclusive) commands.Enqueue(order);
-			else commands.Execute(order);
+			if (inclusive) commands.EnqueueCommand(order);
+			else commands.ExecuteCommand(order);
 		}
 
 		protected override void ExecuteOrder (CommandStartEvent _event) {

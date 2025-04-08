@@ -24,8 +24,8 @@ namespace Ratworx.MarsTS.Units.Infantry
                     return;
             }
 
-            if (inclusive) _commands.Enqueue(order);
-            else _commands.Execute(order);
+            if (inclusive) _commands.EnqueueCommand(order);
+            else _commands.ExecuteCommand(order);
         }
 
         /*	Adrenaline	*/

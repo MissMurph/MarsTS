@@ -9,7 +9,7 @@ namespace Ratworx.MarsTS.Units
 {
     public class UnitTargetManager : MonoBehaviour, IEntityComponent<UnitTargetManager>
     {
-        public Action OnTargetChanged;
+        public Action<Transform> OnTargetChanged;
         public Vector3 Position => TargetTransform?.position ?? _targetPosition;
         private Vector3 _targetPosition;
         public bool IsTransform => TargetTransform;
@@ -43,7 +43,7 @@ namespace Ratworx.MarsTS.Units
         public void SetTarget(Transform target)
         {
             _targetTransform = target;
-            OnTargetChanged?.Invoke();
+            OnTargetChanged?.Invoke(target);
         }
 
         private void OnTargetDeath(UnitDeathEvent _event) {

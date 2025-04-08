@@ -37,6 +37,8 @@ namespace Ratworx.MarsTS.Commands {
 		protected ISelectable parent;
 		protected ICommandable orderSource;
 		protected EventAgent bus;
+		
+		public Entity Entity { get; private set; }
 
 		protected bool isServer;
 
@@ -50,6 +52,7 @@ namespace Ratworx.MarsTS.Commands {
 		protected virtual void Awake () {
 			parent = GetComponent<ISelectable>();
 			orderSource = parent as ICommandable;
+			Entity = GetComponent<Entity>();
 			bus = GetComponent<EventAgent>();
 
 			commandQueue = new Queue<Commandlet>();

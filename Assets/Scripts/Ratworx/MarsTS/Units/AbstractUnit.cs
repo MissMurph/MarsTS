@@ -23,24 +23,6 @@ namespace Ratworx.MarsTS.Units
         public GameObject GameObject => gameObject;
         public IUnitInterface UnitInterface => this;
 
-        /*	ISelectable Properties	*/
-
-        public int Id => _entity.Id;
-
-        public string UnitType => type;
-
-        public string RegistryKey => "unit:" + UnitType;
-
-        public Sprite Icon => icon;
-
-        public Faction Owner => TeamCache.Faction(owner);
-
-        [Header("Unit Details")] [SerializeField]
-        private Sprite icon;
-
-        [SerializeField] private string type;
-
-        [SerializeField] protected int owner;
 
         /*	ITaggable Properties	*/
 
@@ -110,78 +92,9 @@ namespace Ratworx.MarsTS.Units
             // CurrentCommand.CompleteCommand(Bus, this);
         }
 
-        
-
-        
-
-        /*public virtual void Order(Commandlet order, bool inclusive)
-        {
-            if (!GetRelationship(order.Commander).Equals(Relationship.Owned)) return;
-
-            switch (order.Name)
-            {
-                case "move":
-                    break;
-                case "stop":
-                    break;
-                default:
-                    return;
-            }
-
-            if (inclusive) commands.EnqueueCommand(order);
-            else commands.ExecuteCommand(order);
-        }*/
-
-        /*protected virtual void ExecuteOrder(CommandStartEvent _event)
-        {
-            switch (_event.Command.Name)
-            {
-                case "move":
-                    Move(_event.Command);
-                    break;
-                case "stop":
-                    Stop();
-                    break;
-            }
-        }*/
-
         public AbstractUnit Get() => this;
 
-        public virtual void Select(bool status)
-        {
-            //selectionCircle.SetActive(status);
-            Bus.Local(new UnitSelectEvent(Bus, status));
-        }
-
-        public virtual void Hover(bool status)
-        {
-            //These are seperated due to the Player Selection Check
-            if (status)
-                //selectionCircle.SetActive(true);
-                Bus.Local(new UnitHoverEvent(Bus, status));
-            else if (!Player.Player.HasSelected(this))
-                //selectionCircle.SetActive(false);
-                Bus.Local(new UnitHoverEvent(Bus, status));
-        }
-
-        public Relationship GetRelationship(Faction other) => Owner.GetRelationship(other);
-
-        public bool SetOwner(Faction player)
-        {
-            if (!NetworkManager.Singleton.IsServer) return false;
-
-            owner = player.Id;
-            SetOwnerClientRpc(owner);
-            Bus.Global(new UnitOwnerChangeEvent(Bus, this, Owner));
-            return true;
-        }
-
-        [Rpc(SendTo.NotServer)]
-        private void SetOwnerClientRpc(int newId)
-        {
-            owner = newId;
-            Bus.Global(new UnitOwnerChangeEvent(Bus, this, Owner));
-        }
+        
 
         protected virtual void OnUnitInfoDisplayed(UnitInfoEvent _event)
         {

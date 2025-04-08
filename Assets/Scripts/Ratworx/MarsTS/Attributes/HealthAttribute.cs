@@ -13,11 +13,13 @@ namespace Ratworx.MarsTS.Entities
 	{
 		public int Health => Value;
 		public int MaxHealth => _maxHealth;
+		public Entity Entity { get; private set; }
 
 		private EventAgent _eventAgent;
-		
+
 		private void Awake() {
 			_key = "health";
+			Entity = GetComponent<Entity>();
 			_eventAgent = GetComponent<EventAgent>();
 		}
 

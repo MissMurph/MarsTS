@@ -19,31 +19,10 @@ namespace Ratworx.MarsTS.Units
     public abstract class AbstractUnit : NetworkBehaviour,
         ISelectable,
         IEntityComponent<AbstractUnit>,
-        IAttackable,
         ICommandable
     {
         public GameObject GameObject => gameObject;
         public IUnitInterface UnitInterface => this;
-
-        /*	IAttackable Properties	*/
-
-        public int Health
-        {
-            get => currentHealth.Value;
-            protected set => currentHealth.Value = value;
-        }
-
-        public int MaxHealth
-        {
-            get => maxHealth.Value;
-            protected set => currentHealth.Value = value;
-        }
-
-        [Header("Health")] [SerializeField] protected NetworkVariable<int> maxHealth =
-            new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
-
-        [SerializeField] protected NetworkVariable<int> currentHealth =
-            new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
 
         /*	ISelectable Properties	*/
 
@@ -153,14 +132,11 @@ namespace Ratworx.MarsTS.Units
                 StartCoroutine(UpdatePath());
 
                 AttachServerListeners();
-
-                if (currentHealth.Value <= 0) currentHealth.Value = maxHealth.Value;
             }
 
             if (NetworkManager.Singleton.IsClient) AttachClientListeners();
 
             // TODO: Find a better spot for this, realistically this should be called in the Attach funcs
-            currentHealth.OnValueChanged += OnHurt;
         }
 
         protected void AttachClientListeners()
@@ -363,45 +339,12 @@ namespace Ratworx.MarsTS.Units
             Bus.Global(new UnitOwnerChangeEvent(Bus, this, Owner));
         }
 
-        public void Attack(int damage)
-        {
-            if (Health <= 0) return;
-            if (damage < 0 && Health >= MaxHealth) return;
-            
-            UnitHurtEvent hurtEvent = new UnitHurtEvent(Bus, this, damage);
-            hurtEvent.Phase = Phase.Pre;
-            Bus.Global(hurtEvent);
-
-            damage = hurtEvent.Damage;
-            Health -= damage;
-
-            hurtEvent.Phase = Phase.Post;
-            Bus.Global(hurtEvent);
-        }
-
-        protected virtual void OnHurt(int oldHealth, int newHealth)
-        {
-            if (Health <= 0)
-            {
-                Bus.Global(new UnitDeathEvent(Bus, this));
-
-                if (NetworkManager.Singleton.IsServer)
-                    Destroy(gameObject, 0.1f);
-            }
-            else
-            {
-                UnitHurtEvent hurtEvent = new UnitHurtEvent(Bus, this, oldHealth - newHealth);
-                hurtEvent.Phase = Phase.Post;
-                Bus.Global(hurtEvent);
-            }
-        }
-
         protected virtual void OnUnitInfoDisplayed(UnitInfoEvent _event)
         {
             if (ReferenceEquals(_event.Unit, this))
             {
                 HealthInfo info = _event.Info.Module<HealthInfo>("health");
-                info.CurrentUnit = this;
+                // info.CurrentUnit = this;
             }
         }
 

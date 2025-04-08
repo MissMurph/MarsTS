@@ -21,6 +21,12 @@ namespace Ratworx.MarsTS.Entities
 			_eventAgent = GetComponent<EventAgent>();
 		}
 
+		public override void OnNetworkSpawn() {
+			base.OnNetworkSpawn();
+			
+			OnAttributeChange += OnHurt;
+		}
+
 		public void Attack(int damage) {
 			if (Health <= 0) return;
 			if (damage < 0 && Health >= MaxHealth) return;

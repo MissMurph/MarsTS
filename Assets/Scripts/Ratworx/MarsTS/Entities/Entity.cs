@@ -44,7 +44,6 @@ namespace Ratworx.MarsTS.Entities
 
         private Action<Phase> _onEntityInitEvents;
 
-
         private Dictionary<string, IEntityComponent> _registeredEntityComponents;
         private Dictionary<string, Component> _taggedComponents;
         private List<IEntityUpdate> _updateComponents;
@@ -118,11 +117,11 @@ namespace Ratworx.MarsTS.Entities
             // Broken up into two steps for silly business, I think, I don't quite remember lmao
             initCall.Phase = Phase.Pre;
             _onEntityInitEvents?.Invoke(Phase.Pre);
-            _eventAgent.Global(initCall);
+            _eventAgent.PostGlobal(initCall);
 
             initCall.Phase = Phase.Post;
             _onEntityInitEvents?.Invoke(Phase.Post);
-            _eventAgent.Global(initCall);
+            _eventAgent.PostGlobal(initCall);
         }
 
         public bool TryGetEntityComponent<T>(string key, out T output)
@@ -184,7 +183,7 @@ namespace Ratworx.MarsTS.Entities
 
         public override void OnDestroy()
         {
-            _eventAgent.Global(new EntityDestroyEvent(_eventAgent, this));
+            _eventAgent.PostGlobal(new EntityDestroyEvent(_eventAgent, this));
         }
 
         public Entity GetEntityComponent() => this;

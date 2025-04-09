@@ -88,7 +88,7 @@ namespace Ratworx.MarsTS.Buildings {
 			}
 
 			//CurrentCommand = null;
-			Bus.Global(new ProductionCompleteEvent(Bus, order.Product, this, production, order));
+			Bus.PostGlobal(new ProductionCompleteEvent(Bus, order.Product, this, production, order));
 		}
 
 		public override void Order (Commandlet order, bool inclusive) {

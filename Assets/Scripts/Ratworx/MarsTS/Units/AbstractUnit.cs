@@ -17,12 +17,9 @@ using UnityEngine;
 namespace Ratworx.MarsTS.Units
 {
     public abstract class AbstractUnit : NetworkBehaviour,
-        ISelectable,
         IEntityComponent<AbstractUnit>
     {
         public GameObject GameObject => gameObject;
-        public IUnitInterface UnitInterface => this;
-
 
         /*	ITaggable Properties	*/
 

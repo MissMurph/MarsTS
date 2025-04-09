@@ -35,13 +35,13 @@ namespace Ratworx.MarsTS.Entities
 
 			UnitHurtEvent hurtEvent = new UnitHurtEvent(_eventAgent, this, damage);
 			hurtEvent.Phase = Phase.Pre;
-			_eventAgent.Global(hurtEvent);
+			_eventAgent.PostGlobal(hurtEvent);
 
 			damage = hurtEvent.Damage;
 			Value -= damage;
 
 			hurtEvent.Phase = Phase.Post;
-			_eventAgent.Global(hurtEvent);
+			_eventAgent.PostGlobal(hurtEvent);
 		}
 
 		public Relationship GetRelationship(Faction player) => throw new NotImplementedException();
@@ -65,7 +65,7 @@ namespace Ratworx.MarsTS.Entities
 			{
 				UnitHurtEvent hurtEvent = new UnitHurtEvent(_eventAgent, this, oldHealth - newHealth);
 				hurtEvent.Phase = Phase.Post;
-				_eventAgent.Global(hurtEvent);
+				_eventAgent.PostGlobal(hurtEvent);
 			}
 		}
     }

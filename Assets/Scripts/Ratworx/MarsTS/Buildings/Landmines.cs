@@ -86,7 +86,7 @@ namespace Ratworx.MarsTS.Buildings
 
             Model = child.transform.Find("Model");
 
-            Bus.Local(new SquadRegisterEvent(Bus, this, child));
+            Bus.PostLocal(new SquadRegisterEvent(Bus, this, child));
         }
 
         private void OnChildInit(EntityInitEvent _event)
@@ -130,7 +130,7 @@ namespace Ratworx.MarsTS.Buildings
 
             if (_childMines.Count <= 0)
             {
-                Bus.Global(new UnitDeathEvent(Bus, this));
+                Bus.PostGlobal(new UnitDeathEvent(Bus, this));
                 Destroy(gameObject);
             }
             else
@@ -146,13 +146,13 @@ namespace Ratworx.MarsTS.Buildings
         {
             UnitHurtEvent hurtEvent = new UnitHurtEvent(Bus, this, _event.Damage);
             hurtEvent.Phase = Phase.Post;
-            Bus.Global(hurtEvent);
+            Bus.PostGlobal(hurtEvent);
         }
 
         private void OnChildVisionUpdate(EntityVisibleEvent _event)
         {
-            if (_selectionColliders.TryGetValue(_event.UnitName, out Transform collider))
-                collider.gameObject.SetActive(_event.Visible);
+            // if (_selectionColliders.TryGetValue(_event.UnitName, out Transform collider))
+            //     collider.gameObject.SetActive(_event.Visible);
         }
 
         public override void Hover(bool status)
@@ -181,17 +181,17 @@ namespace Ratworx.MarsTS.Buildings
 
             UnitHurtEvent hurtEvent = new UnitHurtEvent(Bus, this, damage);
             hurtEvent.Phase = Phase.Pre;
-            Bus.Global(hurtEvent);
+            Bus.PostGlobal(hurtEvent);
 
             damage = hurtEvent.Damage;
             base.Health -= damage;
 
             hurtEvent.Phase = Phase.Post;
-            Bus.Global(hurtEvent);
+            Bus.PostGlobal(hurtEvent);
 
             if (base.Health <= 0)
             {
-                Bus.Global(new UnitDeathEvent(Bus, this));
+                Bus.PostGlobal(new UnitDeathEvent(Bus, this));
                 Destroy(gameObject, 0.1f);
             }
         }

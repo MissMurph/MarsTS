@@ -2,7 +2,7 @@ using Ratworx.MarsTS.Units;
 
 namespace Ratworx.MarsTS.Events.Selectable.Attackable {
 
-	public class UnitHurtEvent : SelectableEvent {
+	public class UnitHurtEvent : UnitEvent {
 
 		public IAttackable Targetable { get; private set; }
 		public int Damage { get; private set; }

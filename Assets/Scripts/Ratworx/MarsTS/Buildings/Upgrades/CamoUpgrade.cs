@@ -10,7 +10,7 @@ namespace Ratworx.MarsTS.Buildings.Upgrades {
 		private void Start () {
 			ISelectable parent = GetComponentInParent<ISelectable>();
 			EventAgent bus = GetComponentInParent<EventAgent>();
-			GetComponentInParent<EventAgent>().Local(new SneakEvent(bus, parent, true));
+			GetComponentInParent<EventAgent>().PostLocal(new SneakEvent(bus, parent, true));
 		}
 	}
 }

@@ -2,7 +2,7 @@ using Ratworx.MarsTS.Units;
 
 namespace Ratworx.MarsTS.Events.Selectable {
 
-    public class DeployEvent : SelectableEvent {
+    public class DeployEvent : UnitEvent {
 
         public bool IsDeployed { get; private set; }
 

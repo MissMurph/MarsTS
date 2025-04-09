@@ -293,7 +293,7 @@ namespace Ratworx.MarsTS.Units.Infantry
             
             unitEvents.AddListener<UnitDeathEvent>(DeregisterMember);
 
-            _bus.Local(new SquadRegisterEvent(_bus, this, unit));
+            _bus.PostLocal(new SquadRegisterEvent(_bus, this, unit));
         }
 
         private void AttachMemberClientListeners(InfantryMember unit)
@@ -318,7 +318,7 @@ namespace Ratworx.MarsTS.Units.Infantry
         {
             UnitHurtEvent hurtEvent = new UnitHurtEvent(_bus, this, _event.Damage);
             hurtEvent.Phase = Phase.Post;
-            _bus.Global(hurtEvent);
+            _bus.PostGlobal(hurtEvent);
         }
 
         private void DeregisterMember(UnitDeathEvent _event)
@@ -329,7 +329,7 @@ namespace Ratworx.MarsTS.Units.Infantry
 
             if (_members.Count <= 0)
             {
-                _bus.Global(new UnitDeathEvent(_bus, this));
+                _bus.PostGlobal(new UnitDeathEvent(_bus, this));
                 Destroy(gameObject);
             }
         }
@@ -397,7 +397,7 @@ namespace Ratworx.MarsTS.Units.Infantry
             
             _owner = player.Id;
             SetOwnerClientRpc(_owner);
-            _bus.Global(new UnitOwnerChangeEvent(_bus, this, Owner));
+            _bus.PostGlobal(new UnitOwnerChangeEvent(_bus, this, Owner));
             
             return true;
         }
@@ -406,7 +406,7 @@ namespace Ratworx.MarsTS.Units.Infantry
         private void SetOwnerClientRpc(int newId)
         {
             _owner = newId;
-            _bus.Global(new UnitOwnerChangeEvent(_bus, this, Owner));
+            _bus.PostGlobal(new UnitOwnerChangeEvent(_bus, this, Owner));
         }
 
         protected virtual void OnUnitInfoDisplayed(UnitInfoEvent _event)

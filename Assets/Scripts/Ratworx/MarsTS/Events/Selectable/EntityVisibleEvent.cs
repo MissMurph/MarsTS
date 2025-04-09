@@ -1,14 +1,20 @@
 using Ratworx.MarsTS.Units;
+using Ratworx.MarsTS.Vision;
 
 namespace Ratworx.MarsTS.Events.Selectable {
 
-	public class EntityVisibleEvent : SelectableEvent {
+	public class EntityVisibleEvent : UnitEvent {
 
-		public bool Visible { get; set; }
-		public string UnitName { get { return Unit.GameObject.name; } }
+		public bool Visible { get; private set; }
 
-		public EntityVisibleEvent (EventAgent _source, ISelectable _unit, bool _visible) : base("Visible", _source, _unit) {
-			Visible = _visible;
+		public EntityVisibleEvent (
+			UnitVision unitVision,
+			bool visible
+		) : base(
+			"Visible",
+			unitVision.Entity
+		) {
+			Visible = visible;
 		}
 	}
 }

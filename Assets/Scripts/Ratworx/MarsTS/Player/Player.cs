@@ -81,7 +81,7 @@ namespace Ratworx.MarsTS.Player {
 		public void SetCommander(Faction commander) {
 			_commander = commander;
 			
-			_bus.Global(new PlayerInitEvent(_bus));
+			_bus.PostGlobal(new PlayerInitEvent(_bus));
 		}
 
 		private void Update () {
@@ -142,7 +142,7 @@ namespace Ratworx.MarsTS.Player {
 				}
 			}
 
-			EventBus.Global(new PlayerSelectEvent(Selected));
+			EventBus.Post(new PlayerSelectEvent(Selected));
 		}
 
 		public void ClearSelection () {
@@ -155,7 +155,7 @@ namespace Ratworx.MarsTS.Player {
 			}
 
 			_selected.Clear();
-			EventBus.Global(new PlayerSelectEvent(Selected));
+			EventBus.Post(new PlayerSelectEvent(Selected));
 		}
 
 		private Roster GetRoster (string key) {
@@ -231,7 +231,7 @@ namespace Ratworx.MarsTS.Player {
 				// TODO: Revisit this
 				//This isn't the best method to update selection, as when units die we don't want the 
 				//primary selected to be jumping around a lot, will have to come up with something better
-				EventBus.Global(new PlayerSelectEvent(Selected));
+				EventBus.Post(new PlayerSelectEvent(Selected));
 			}
 		}
 

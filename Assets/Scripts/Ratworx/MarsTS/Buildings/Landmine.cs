@@ -25,7 +25,7 @@ namespace Ratworx.MarsTS.Buildings
             _explosion.gameObject.SetActive(true);
             _explosion.transform.SetParent(null, true);
 
-            Bus.Global(new UnitDeathEvent(Bus, this));
+            Bus.PostGlobal(new UnitDeathEvent(Bus, this));
 
             Destroy(gameObject);
         }

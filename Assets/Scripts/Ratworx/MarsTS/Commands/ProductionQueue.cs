@@ -59,7 +59,7 @@ namespace Ratworx.MarsTS.Commands {
 
 			productionOrder.OnWork += OnOrderWork;
 
-			bus.Global(ProductionEvent.Started(bus, parent, this, Current as IProducable));
+			bus.PostGlobal(ProductionEvent.Started(bus, parent, this, Current as IProducable));
 		}
 
 		public override void ExecuteCommand (Commandlet order) {
@@ -81,7 +81,7 @@ namespace Ratworx.MarsTS.Commands {
 
 			base.EnqueueCommand(order);
 
-			bus.Global(ProductionEvent.Queued(bus, parent, this, Current as IProducable));
+			bus.PostGlobal(ProductionEvent.Queued(bus, parent, this, Current as IProducable));
 		}
 
 		public override bool CanCommand (string key) {
@@ -103,10 +103,10 @@ namespace Ratworx.MarsTS.Commands {
 			if (productionOrder.ProductionProgress >= productionOrder.ProductionRequired) 
 			{
 				productionOrder.OnWork -= OnOrderWork;
-				bus.Global(new ProductionCompleteEvent(bus, productionOrder.Product, parent, this, productionOrder));
+				bus.PostGlobal(new ProductionCompleteEvent(bus, productionOrder.Product, parent, this, productionOrder));
 				Current.CompleteCommand(bus, orderSource);
 			} 
-			else bus.Global(ProductionEvent.Step(bus, parent, this, productionOrder));
+			else bus.PostGlobal(ProductionEvent.Step(bus, parent, this, productionOrder));
 		}
 	}
 }

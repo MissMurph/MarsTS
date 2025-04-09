@@ -32,7 +32,7 @@ namespace Ratworx.MarsTS.Commands {
 
 		public virtual void StartCommand (EventAgent eventAgent, ICommandable unit) {
 			commandedUnits.Add(unit.GameObject.name);
-			eventAgent.Local(new CommandStartEvent(eventAgent, this, unit));
+			eventAgent.PostLocal(new CommandStartEvent(eventAgent, this, unit));
 		}
 
 		public virtual void ActivateCommand (CommandQueue queue, CommandActiveEvent _event) {

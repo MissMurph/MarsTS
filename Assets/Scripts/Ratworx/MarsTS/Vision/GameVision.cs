@@ -37,7 +37,7 @@ namespace Ratworx.MarsTS.Vision {
 
 		public static float NodeSize { get { return instance.nodeSize; } }
 
-		private Dictionary<string, EntityVision> registeredVision;
+		private Dictionary<string, UnitVision> registeredVision;
 
 		public Vector2Int GridSize;
 
@@ -73,7 +73,7 @@ namespace Ratworx.MarsTS.Vision {
 
 			bus = GetComponentInParent<EventAgent>();
 
-			registeredVision = new Dictionary<string, EntityVision>();
+			registeredVision = new Dictionary<string, UnitVision>();
 			results = new Queue<int[,]>();
 			requests = new Queue<VisionEntry[]>();
 
@@ -133,7 +133,7 @@ namespace Ratworx.MarsTS.Vision {
 				Dirty = true;
 
 				if (!initialized) {
-					bus.Global(new VisionInitEvent(bus));
+					bus.PostGlobal(new VisionInitEvent(bus));
 					initialized = true;
 					return;
 				}
@@ -142,11 +142,11 @@ namespace Ratworx.MarsTS.Vision {
 
 				_event.Phase = Phase.Pre;
 
-				bus.Global(_event);
+				bus.PostGlobal(_event);
 
 				_event.Phase = Phase.Post;
 
-				bus.Global(_event);
+				bus.PostGlobal(_event);
 			}
 		}
 
@@ -164,7 +164,7 @@ namespace Ratworx.MarsTS.Vision {
 
 				List<VisionEntry> sources = new List<VisionEntry>();
 
-				foreach (EntityVision vision in registeredVision.Values) {
+				foreach (UnitVision vision in registeredVision.Values) {
 					if (vision.Range <= 0) continue;
 					sources.Add(vision.Collect());
 				}
@@ -280,7 +280,7 @@ namespace Ratworx.MarsTS.Vision {
 			return output;
 		}
 
-		public static void Register (string entityName, EntityVision toRegister) {
+		public static void Register (string entityName, UnitVision toRegister) {
 			if (!instance.registeredVision.TryAdd(entityName, toRegister)) {
 				Debug.LogWarning("Could not register vision component for " + entityName + "! Potentially already registered!");
 			}
@@ -294,7 +294,7 @@ namespace Ratworx.MarsTS.Vision {
 		}
 
 		public static bool IsVisible (GameObject _object, int players) {
-			if (instance.registeredVision.TryGetValue(_object.transform.root.name, out EntityVision visionComp)) {
+			if (instance.registeredVision.TryGetValue(_object.transform.root.name, out UnitVision visionComp)) {
 				return (visionComp.VisibleTo & players) > 0;
 			}
 			
@@ -325,7 +325,7 @@ namespace Ratworx.MarsTS.Vision {
 		}
 
 		public static bool IsVisible (string entityName, int players) {
-			if (instance.registeredVision.TryGetValue(entityName, out EntityVision unitVision)) {
+			if (instance.registeredVision.TryGetValue(entityName, out UnitVision unitVision)) {
 				return IsVisible(unitVision.gameObject, players);
 			}
 
@@ -369,7 +369,7 @@ namespace Ratworx.MarsTS.Vision {
 		}
 
 		private void OnEntityDestroyed (EntityDestroyEvent _event) {
-			if (registeredVision.TryGetValue(_event.Entity.gameObject.name, out EntityVision vision)) {
+			if (registeredVision.TryGetValue(_event.Entity.gameObject.name, out UnitVision vision)) {
 				registeredVision.Remove(_event.Entity.gameObject.name);
 			}
 		}

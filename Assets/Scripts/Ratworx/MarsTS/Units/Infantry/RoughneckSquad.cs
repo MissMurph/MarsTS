@@ -52,13 +52,13 @@ namespace Ratworx.MarsTS.Units.Infantry
 
         public void OnMemberHarvest(ResourceHarvestedEvent _event)
         {
-            _bus.Global(new ResourceHarvestedEvent(_bus, this, ResourceHarvestedEvent.Side.Harvester,
+            _bus.PostGlobal(new ResourceHarvestedEvent(_bus, this, ResourceHarvestedEvent.Side.Harvester,
                 _event.HarvestAmount, _event.Resource, Stored, Capacity));
         }
 
         public void OnMemberDeposit(HarvesterDepositEvent _event)
         {
-            _bus.Global(new HarvesterDepositEvent(_bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity,
+            _bus.PostGlobal(new HarvesterDepositEvent(_bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity,
                 _event.Bank));
         }
 

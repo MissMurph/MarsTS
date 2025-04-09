@@ -2,7 +2,7 @@ using Ratworx.MarsTS.Units;
 
 namespace Ratworx.MarsTS.Events.Selectable {
 
-	public class SneakEvent : SelectableEvent {
+	public class SneakEvent : UnitEvent {
 
 		public bool IsSneaking { get; private set; }
 

@@ -52,7 +52,7 @@ namespace Ratworx.MarsTS.Units.Infantry
             if (!_event.Activity)
                 foreach (MemberEntry entry in _members.Values)
                 {
-                    entry.Bus.Local(_event);
+                    entry.Bus.PostLocal(_event);
                 }
         }
 
@@ -64,7 +64,7 @@ namespace Ratworx.MarsTS.Units.Infantry
 
                 foreach (MemberEntry entry in _members.Values)
                 {
-                    entry.Bus.Local(_event);
+                    entry.Bus.PostLocal(_event);
                 }
 
                 _commands.Deactivate(_event.CommandKey);

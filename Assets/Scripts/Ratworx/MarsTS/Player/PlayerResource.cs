@@ -51,7 +51,7 @@ namespace Ratworx.MarsTS.Player {
         }
 
         private void OnResourceValueChange (int oldAmount, int newAmount) {
-			_bus.Global(new ResourceUpdateEvent(_bus, _player, this));
+			_bus.PostGlobal(new ResourceUpdateEvent(_bus, _player, this));
 		}
 
 		public bool Deposit (int amount) {

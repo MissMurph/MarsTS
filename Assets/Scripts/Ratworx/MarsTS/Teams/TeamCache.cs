@@ -71,7 +71,7 @@ namespace Ratworx.MarsTS.Teams {
 				Phase = Phase.Pre
 			};
 
-			_bus.Global(@event);
+			_bus.PostGlobal(@event);
 
 			Faction none = SpawnNewFaction(_dummyObserverPrefab, 0);
 			//_factions[0] = none;
@@ -87,7 +87,7 @@ namespace Ratworx.MarsTS.Teams {
 			}
 
 			@event.Phase = Phase.Post;
-			_bus.Global(@event);
+			_bus.PostGlobal(@event);
 		}
 
 		private Faction SpawnNewFaction(Faction prefab, int factionId) {

@@ -250,13 +250,13 @@ namespace Ratworx.MarsTS.Units.Infantry {
 				_currentSpeed = _moveSpeed;
 			}
 
-			_bus.Local(new SneakEvent(_bus, this, isSneaking));
+			_bus.PostLocal(new SneakEvent(_bus, this, isSneaking));
 
 			PostSneakEventClientRpc(isSneaking);
 		}
 
 		[Rpc(SendTo.NotServer)]
-		private void PostSneakEventClientRpc(bool status) => _bus.Local(new SneakEvent(_bus, this, status));
+		private void PostSneakEventClientRpc(bool status) => _bus.PostLocal(new SneakEvent(_bus, this, status));
 
 		/*	Repair	*/
 		protected void Repair (Commandlet order) {
@@ -400,7 +400,7 @@ namespace Ratworx.MarsTS.Units.Infantry {
 		private void SiphonOil () {
 			int harvested = HarvestTarget.Get.Harvest("oil", this, harvestAmount, roughneckSquad.storageComp.Submit);
 			
-			_bus.Global(
+			_bus.PostGlobal(
 				new ResourceHarvestedEvent(
 					_bus, 
 					this, 
@@ -417,7 +417,7 @@ namespace Ratworx.MarsTS.Units.Infantry {
 
 		private void DepositResources () {
 			roughneckSquad.storageComp.Value -= DepositTarget.Get.Deposit("oil", depositAmount);
-			_bus.Global(new HarvesterDepositEvent(_bus, this, HarvesterDepositEvent.Side.Harvester, roughneckSquad.Stored, roughneckSquad.Capacity, DepositTarget.Get));
+			_bus.PostGlobal(new HarvesterDepositEvent(_bus, this, HarvesterDepositEvent.Side.Harvester, roughneckSquad.Stored, roughneckSquad.Capacity, DepositTarget.Get));
 			currentDepositCooldown += depositCooldown;
 		}
 	}

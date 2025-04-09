@@ -1,64 +1,53 @@
 using System;
 using System.Collections.Generic;
 using Ratworx.MarsTS.Entities;
-using Ratworx.MarsTS.Events.Init;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Ratworx.MarsTS.Events {
+namespace Ratworx.MarsTS.Events
+{
+    [RequireComponent(typeof(Entity))]
+    public class EventAgent : MonoBehaviour, IEntityComponent<EventAgent>
+    {
+        private readonly Dictionary<Type, UnityEventBase> _listeners = new Dictionary<Type, UnityEventBase>();
 
-	public class EventAgent : MonoBehaviour, IEntityComponent<EventAgent> {
+        public string Key => "eventAgent";
 
-		private Dictionary<Type, UnityEventBase> listeners = new Dictionary<Type, UnityEventBase>();
+        public void AddListener<T>(UnityAction<T> func) where T : AbstractEvent {
+            var _event = (_listeners.GetValueOrDefault(typeof(T), new UnityEvent<T>())) as UnityEvent<T>;
 
-		//This will return 0 if the agent isn't registered
-		public int Id => id;
+            if (!_listeners.ContainsKey(typeof(T)))
+                _listeners.Add(typeof(T), _event);
 
-		public string Key => "eventAgent";
+            _event.AddListener(func);
+        }
 
-		public Type Type => typeof(EventAgent);
+        public void RemoveListener<T>(UnityAction<T> func) where T : AbstractEvent {
+            if (!_listeners.ContainsKey(typeof(T))) return;
 
-		private int id = 0;
+            var _event = (_listeners.GetValueOrDefault(typeof(T), new UnityEvent<T>())) as UnityEvent<T>;
 
-		private void Awake () {
-			id = EventBus.RegisterAgent(this);
-			Local(new EventAgentInitEvent(this));
-		}
+            _event.RemoveListener(func);
+        }
 
-		public void AddListener<T> (UnityAction<T> func) where T : AbstractEvent {
-			UnityEvent<T> _event = (listeners.GetValueOrDefault(typeof(T), new UnityEvent<T>())) as UnityEvent<T>;
-			if (!listeners.ContainsKey(typeof(T))) listeners.Add(typeof(T), _event);
-			_event.AddListener(func);
-		}
+        public T PostLocal<T>(T postedEvent) where T : AbstractEvent {
+            if (_listeners.TryGetValue(typeof(T), out UnityEventBase value) && value is UnityEvent<T> superTypeEvent) {
+                superTypeEvent.Invoke(postedEvent);
+            }
 
-		public void RemoveListener<T> (UnityAction<T> func) where T : AbstractEvent {
-			if (!listeners.ContainsKey(typeof(T))) return;
+            return postedEvent;
+        }
 
-			UnityEvent<T> _event = (listeners.GetValueOrDefault(typeof(T), new UnityEvent<T>())) as UnityEvent<T>;
+        public T PostGlobal<T>(T postedEvent) where T : AbstractEvent {
+            if (_listeners.TryGetValue(typeof(T), out UnityEventBase value) && value is UnityEvent<T> superTypeEvent) {
+                superTypeEvent.Invoke(postedEvent);
+            }
 
-			_event.RemoveListener(func);
-		}
+            EventBus.Post(postedEvent);
 
-		public T Local<T>(T postedEvent) where T : AbstractEvent {
-			if (listeners.TryGetValue(typeof(T), out UnityEventBase value) && value is UnityEvent<T> superTypeEvent) {
-				superTypeEvent.Invoke(postedEvent);
-			}
+            return postedEvent;
+        }
 
-			return postedEvent;
-		}
-
-		public T Global<T> (T postedEvent) where T : AbstractEvent {
-			if (listeners.TryGetValue(typeof(T), out UnityEventBase value) && value is UnityEvent<T> superTypeEvent) {
-				superTypeEvent.Invoke(postedEvent);
-			}
-
-			EventBus.Global(postedEvent);
-
-			return postedEvent;
-		}
-
-		public EventAgent Get () {
-			return this;
-		}
-	}
+        public EventAgent Get() => this;
+    }
 }

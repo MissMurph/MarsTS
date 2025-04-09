@@ -3,7 +3,7 @@ using Ratworx.MarsTS.Units;
 
 namespace Ratworx.MarsTS.Events.Selectable {
 
-	public class UnitInfoEvent : SelectableEvent {
+	public class UnitInfoEvent : UnitEvent {
 		public string Key { get { return Unit.RegistryKey; } }
 		public UnitInfoCard Info { get; private set; }
 

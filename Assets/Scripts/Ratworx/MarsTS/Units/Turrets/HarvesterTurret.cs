@@ -85,7 +85,7 @@ namespace Ratworx.MarsTS.Units.Turrets
 
             int harvested = harvestable.Harvest("resource_unit", _parent, _harvestAmount, _localStorage.Submit);
             
-            _bus.Global(new ResourceHarvestedEvent(_bus, _parent, ResourceHarvestedEvent.Side.Harvester,
+            _bus.PostGlobal(new ResourceHarvestedEvent(_bus, _parent, ResourceHarvestedEvent.Side.Harvester,
                 harvested, "resource_unit", _localStorage.Value, _localStorage.Capacity));
 
             _currentCooldown += _cooldown;
@@ -93,7 +93,7 @@ namespace Ratworx.MarsTS.Units.Turrets
 
         private void OnStorageValueChange(int oldValue, int newValue)
         {
-            _bus.Global(new ResourceHarvestedEvent(_bus, _parent, ResourceHarvestedEvent.Side.Harvester,
+            _bus.PostGlobal(new ResourceHarvestedEvent(_bus, _parent, ResourceHarvestedEvent.Side.Harvester,
                 newValue - oldValue, "resource_unit", _localStorage.Value, _localStorage.Capacity));
         }
 

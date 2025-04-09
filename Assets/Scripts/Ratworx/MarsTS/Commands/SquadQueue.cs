@@ -17,7 +17,7 @@ namespace Ratworx.MarsTS.Commands {
 		protected override void OnOrderComplete (CommandCompleteEvent _event) {
 			if (!parentSquad.Members.Contains(_event.Unit as ISelectable)) return;
 			Current = null;
-			bus.Global(_event);
+			bus.PostGlobal(_event);
 		}
 	}
 }

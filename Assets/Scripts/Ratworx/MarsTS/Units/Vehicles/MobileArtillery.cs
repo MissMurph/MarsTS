@@ -26,7 +26,7 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 
 		protected void Start () {
 
-			if (deployed) Bus.Local(new DeployEvent(Bus, this, deployed));
+			if (deployed) Bus.PostLocal(new DeployEvent(Bus, this, deployed));
 		}
 
 		protected override void FixedUpdate () {
@@ -40,7 +40,7 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 				deployed = true;
 			}
 			else {
-				Bus.Local(new DeployEvent(Bus, this, false));
+				Bus.PostLocal(new DeployEvent(Bus, this, false));
 			}
 
 			Bus.AddListener<CommandCompleteEvent>(DeployComplete);
@@ -53,14 +53,14 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 
 			if (deployed) {
 				boundCommands[deployCommandIndex] = "undeploy";
-				Bus.Local(new DeployEvent(Bus, this, deployed));
+				Bus.PostLocal(new DeployEvent(Bus, this, deployed));
 			}
 			else {
 				currentTopSpeed = topSpeed;
 				boundCommands[deployCommandIndex] = "deploy";
 			}
 			
-			Bus.Global(new CommandsUpdatedEvent(Bus, this, boundCommands));
+			Bus.PostGlobal(new CommandsUpdatedEvent(Bus, this, boundCommands));
 		}
 
 		protected override void ExecuteOrder (CommandStartEvent _event) {

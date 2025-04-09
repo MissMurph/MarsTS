@@ -1,13 +1,20 @@
 using Ratworx.MarsTS.Units;
+using Ratworx.MarsTS.Vision;
 
-namespace Ratworx.MarsTS.Events.Selectable {
+namespace Ratworx.MarsTS.Events.Selectable
+{
+    public class EntityVisibleCheckEvent : UnitEvent
+    {
+        public int VisibleTo { get; set; }
 
-	public class EntityVisibleCheckEvent : SelectableEvent {
-
-		public int VisibleTo { get; set; }
-
-		public EntityVisibleCheckEvent (EventAgent _source, ISelectable _unit, int _visibleTo) : base("visibleCheck", _source, _unit) {
-			VisibleTo = _visibleTo;
-		}
-	}
+        public EntityVisibleCheckEvent(
+            UnitVision unitVision,
+            int visibleTo
+        ) : base(
+            "visibleCheck",
+            unitVision.Entity
+        ) {
+            VisibleTo = visibleTo;
+        }
+    }
 }

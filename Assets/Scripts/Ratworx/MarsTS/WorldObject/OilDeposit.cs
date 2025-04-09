@@ -43,14 +43,14 @@ namespace Ratworx.MarsTS.WorldObject
 
                 if (finalAmount > 0)
                 {
-                    _bus.Global(new ResourceHarvestedEvent(_bus, this, ResourceHarvestedEvent.Side.Deposit, finalAmount,
+                    _bus.PostGlobal(new ResourceHarvestedEvent(_bus, this, ResourceHarvestedEvent.Side.Deposit, finalAmount,
                         resourceKey, StoredAmount, OriginalAmount));
                     _resourceStorage.Value -= finalAmount;
                 }
 
                 if (StoredAmount <= 0)
                 {
-                    _bus.Global(new UnitDeathEvent(_bus, this));
+                    _bus.PostGlobal(new UnitDeathEvent(_bus, this));
                     Destroy(gameObject, 0.01f);
                 }
 

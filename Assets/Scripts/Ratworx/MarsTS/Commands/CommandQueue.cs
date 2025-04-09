@@ -89,7 +89,7 @@ namespace Ratworx.MarsTS.Commands {
 					workOrder.CurrentWork++;
 					workTimeToStep += workStepTime;
 
-					bus.Global(new CommandWorkEvent(bus, Current, orderSource, workOrder));
+					bus.PostGlobal(new CommandWorkEvent(bus, Current, orderSource, workOrder));
 					SendWorkEventToClientRpc();
 				}
 
@@ -105,12 +105,12 @@ namespace Ratworx.MarsTS.Commands {
 					continue;
 				}
 
-				bus.Global(new CooldownEvent(bus, cooldown.commandName, parent, cooldown));
+				bus.PostGlobal(new CooldownEvent(bus, cooldown.commandName, parent, cooldown));
 			}
 
 			foreach (Timer expiredCooldown in completedCooldowns) {
 				activeCooldowns.Remove(expiredCooldown.commandName);
-				bus.Global(new CooldownEvent(bus, expiredCooldown.commandName, parent, expiredCooldown));
+				bus.PostGlobal(new CooldownEvent(bus, expiredCooldown.commandName, parent, expiredCooldown));
 			}
 
 			completedCooldowns = new();
@@ -119,7 +119,7 @@ namespace Ratworx.MarsTS.Commands {
 		[Rpc(SendTo.NotServer)]
 		private void SendWorkEventToClientRpc() {
 			if (Current is IWorkable workOrder) {
-				bus.Global(new CommandWorkEvent(bus, Current, orderSource, workOrder));
+				bus.PostGlobal(new CommandWorkEvent(bus, Current, orderSource, workOrder));
 			}
 			else
 				RatLogger.Error?.Log($"Current command {Current.Name} is not {typeof(IWorkable)}! Cannot post work event");
@@ -169,7 +169,7 @@ namespace Ratworx.MarsTS.Commands {
 		{
 			if (!ReferenceEquals(_event.Unit, orderSource)) return;
 			Current = null;
-			bus.Global(_event);
+			bus.PostGlobal(_event);
 		}
 
 		/*	Executing Commands	*/
@@ -229,7 +229,7 @@ namespace Ratworx.MarsTS.Commands {
 				activeCommands.Remove(toDeactivate.Name);
 			}
 
-			bus.Global(new CommandActiveEvent(bus, orderSource, order, status));
+			bus.PostGlobal(new CommandActiveEvent(bus, orderSource, order, status));
 
 			if (NetworkManager.Singleton.IsServer)
 				ActivateClientRpc(order.Id, status);
@@ -251,7 +251,7 @@ namespace Ratworx.MarsTS.Commands {
 			CommandActiveEvent _event = new CommandActiveEvent(bus, orderSource, toDeactivate, false);
 			toDeactivate.ActivateCommand(this, _event);
 			activeCommands.Remove(toDeactivate.Name);
-			bus.Global(_event);
+			bus.PostGlobal(_event);
 
 			if (NetworkManager.Singleton.IsServer) 
 				DeactivateClientRpc(key);
@@ -313,7 +313,7 @@ namespace Ratworx.MarsTS.Commands {
 				CompleteCurrentCommand(false);
 			}
 			else
-				bus.Global(new WorkEvent(bus, parent, workOrder.WorkRequired, workOrder.CurrentWork));
+				bus.PostGlobal(new WorkEvent(bus, parent, workOrder.WorkRequired, workOrder.CurrentWork));
 		}
 		
 		public void Order(Commandlet order, bool inclusive) {

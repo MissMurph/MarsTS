@@ -119,14 +119,14 @@ namespace Ratworx.MarsTS.Units.Turrets
             UnitAttackEvent attackEvent = new UnitAttackEvent(_bus, unit as ISelectable, _parent, _damage);
 				
             attackEvent.Phase = Phase.Pre;
-            _bus.Global(attackEvent);
+            _bus.PostGlobal(attackEvent);
 
             // Captures modified damage
             int damage = attackEvent.Damage;
             unit.Attack(damage);
 			
             attackEvent.Phase = Phase.Post;
-            _bus.Global(attackEvent);
+            _bus.PostGlobal(attackEvent);
         }
 
         private void OnSensorUpdate(SensorUpdateEvent<IAttackable> evnt)

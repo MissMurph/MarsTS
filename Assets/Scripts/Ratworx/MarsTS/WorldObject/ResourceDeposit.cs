@@ -101,14 +101,14 @@ namespace Ratworx.MarsTS.WorldObject
 
             if (finalAmount > 0)
             {
-                _bus.Global(new ResourceHarvestedEvent(_bus, this, ResourceHarvestedEvent.Side.Deposit,
+                _bus.PostGlobal(new ResourceHarvestedEvent(_bus, this, ResourceHarvestedEvent.Side.Deposit,
                     finalAmount, resourceKey, StoredAmount, OriginalAmount));
                 _resourceStorage.Value -= finalAmount;
             }
 
             if (StoredAmount <= 0)
             {
-                _bus.Global(new UnitDeathEvent(_bus, this));
+                _bus.PostGlobal(new UnitDeathEvent(_bus, this));
                 Destroy(gameObject, 0.01f);
             }
 
@@ -118,7 +118,7 @@ namespace Ratworx.MarsTS.WorldObject
         public void Select(bool status)
         {
             _selectionCircle.SetActive(status);
-            _bus.Local(new UnitSelectEvent(_bus, status));
+            _bus.PostLocal(new UnitSelectEvent(_bus, status));
         }
 
         public void Hover(bool status)
@@ -127,12 +127,12 @@ namespace Ratworx.MarsTS.WorldObject
             if (status)
             {
                 _selectionCircle.SetActive(true);
-                _bus.Local(new UnitHoverEvent(_bus, status));
+                _bus.PostLocal(new UnitHoverEvent(_bus, status));
             }
             else if (!Player.Player.HasSelected(this))
             {
                 _selectionCircle.SetActive(false);
-                _bus.Local(new UnitHoverEvent(_bus, status));
+                _bus.PostLocal(new UnitHoverEvent(_bus, status));
             }
         }
 

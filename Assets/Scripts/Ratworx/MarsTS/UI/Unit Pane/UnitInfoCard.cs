@@ -37,7 +37,7 @@ namespace Ratworx.MarsTS.UI.Unit_Pane {
 
 		public void DisplayInfo (ISelectable unit) {
 			UnitInfoEvent _event = new UnitInfoEvent(bus, unit, this);
-			bus.Global(_event);
+			bus.PostGlobal(_event);
 
             icon.sprite = unit.Icon;
 			icon.gameObject.SetActive(true);

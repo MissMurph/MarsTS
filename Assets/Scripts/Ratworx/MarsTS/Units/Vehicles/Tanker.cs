@@ -44,7 +44,7 @@ namespace Ratworx.MarsTS.Units.Vehicles
 
                 if (PathIndex >= CurrentPath.Length)
                 {
-                    Bus.Local(new PathCompleteEvent(Bus, true));
+                    Bus.PostLocal(new PathCompleteEvent(Bus, true));
                     CurrentPath = Path.Empty;
                 }
             }
@@ -89,7 +89,7 @@ namespace Ratworx.MarsTS.Units.Vehicles
         private void SiphonOil()
         {
             int harvested = HarvestTarget.Harvest("oil", this, _harvestAmount, _storageComp.Submit);
-            Bus.Global(new ResourceHarvestedEvent(Bus, this, ResourceHarvestedEvent.Side.Harvester, harvested, "oil",
+            Bus.PostGlobal(new ResourceHarvestedEvent(Bus, this, ResourceHarvestedEvent.Side.Harvester, harvested, "oil",
                 Stored, Capacity));
 
             _currentHarvestCooldown += _harvestCooldown;
@@ -98,7 +98,7 @@ namespace Ratworx.MarsTS.Units.Vehicles
         protected override void DepositResources()
         {
             _storageComp.Value -= DepositTarget.Deposit("oil", _depositAmount);
-            Bus.Global(new HarvesterDepositEvent(Bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity,
+            Bus.PostGlobal(new HarvesterDepositEvent(Bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity,
                 DepositTarget));
             _currentCooldown += _cooldown;
         }

@@ -127,7 +127,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
             
             InitializeGhostClientRpc(buildingKey);
 
-            _bus.Local(new UnitInitEvent(this, _bus));
+            _bus.PostLocal(new UnitInitEvent(this, _bus));
         }
 
         protected void UpdateProperties(string buildingKey, int constructionWorkRequired, params CostEntry[] constructionCost)
@@ -224,7 +224,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
 
         private void CancelConstruction()
         {
-            _bus.Global(new UnitDeathEvent(_bus, this));
+            _bus.PostGlobal(new UnitDeathEvent(_bus, this));
 
             foreach (CostEntry materialCost in _constructionCost)
             {
@@ -244,14 +244,14 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
             buildingNetworking.Spawn();
             newBuilding.SetOwner(Owner);
             
-            _bus.Global(new UnitDeathEvent(_bus, this));
+            _bus.PostGlobal(new UnitDeathEvent(_bus, this));
             Destroy(gameObject, 0.1f);
         }
 
         [Rpc(SendTo.NotServer)]
         private void SendCompletionClientEventRpc()
         {
-            _bus.Global(new UnitDeathEvent(_bus, this));
+            _bus.PostGlobal(new UnitDeathEvent(_bus, this));
         }
 
         private void OnUnitInfoDisplayed(UnitInfoEvent @event)
@@ -276,7 +276,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
         {
             UnitHurtEvent hurtEvent = new UnitHurtEvent(_bus, this, damage);
             hurtEvent.Phase = Phase.Pre;
-            _bus.Global(hurtEvent);
+            _bus.PostGlobal(hurtEvent);
             
             damage = hurtEvent.Damage;
 
@@ -292,7 +292,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
                 _model.localScale = Vector3.one * progress;
 
                 hurtEvent.Phase = Phase.Post;
-                _bus.Global(hurtEvent);
+                _bus.PostGlobal(hurtEvent);
 
                 if (progress >= 1f) CompleteConstruction();
                 return;
@@ -303,11 +303,11 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
             Health -= damage;
 
             hurtEvent.Phase = Phase.Post;
-            _bus.Global(hurtEvent);
+            _bus.PostGlobal(hurtEvent);
 
             if (Health <= 0)
             {
-                _bus.Global(new UnitDeathEvent(_bus, this));
+                _bus.PostGlobal(new UnitDeathEvent(_bus, this));
                 Destroy(gameObject, 0.1f);
             }
         }
@@ -316,7 +316,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
         {
             if (Health <= 0) 
             {
-                _bus.Global(new UnitDeathEvent(_bus, this));
+                _bus.PostGlobal(new UnitDeathEvent(_bus, this));
 
                 //if (NetworkManager.Singleton.IsServer) 
                     //Destroy(gameObject, 0.1f);
@@ -325,7 +325,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
             {
                 UnitHurtEvent hurtEvent = new UnitHurtEvent(_bus, this, oldHealth - newHealth);
                 hurtEvent.Phase = Phase.Post;
-                _bus.Global(hurtEvent);
+                _bus.PostGlobal(hurtEvent);
             }
         }
 
@@ -342,7 +342,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
             
             _owner = player.Id;
             SetOwnerClientRpc(_owner);
-            _bus.Local(new UnitOwnerChangeEvent(_bus, this, Owner));
+            _bus.PostLocal(new UnitOwnerChangeEvent(_bus, this, Owner));
             return true;
         }
 
@@ -350,7 +350,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
         private void SetOwnerClientRpc(int newId)
         {
             _owner = newId;
-            _bus.Local(new UnitOwnerChangeEvent(_bus, this, Owner));
+            _bus.PostLocal(new UnitOwnerChangeEvent(_bus, this, Owner));
         }
 
         public BuildingConstructionGhost Get() => this;
@@ -370,13 +370,13 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
 
         public bool CanCommand(string key) => key == "cancelConstruction";
 
-        public void Select(bool status) => _bus.Local(new UnitSelectEvent(_bus, status));
+        public void Select(bool status) => _bus.PostLocal(new UnitSelectEvent(_bus, status));
 
         public void Hover(bool status)
         {
             if (Player.Player.HasSelected(this)) return;
 
-            _bus.Local(new UnitHoverEvent(_bus, status));
+            _bus.PostLocal(new UnitHoverEvent(_bus, status));
         }
     }
 }

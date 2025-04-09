@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Vision {
 
-	[RequireComponent(typeof(EntityVision))]
+	[RequireComponent(typeof(UnitVision))]
 	public class EntityStealth : MonoBehaviour, IEntityComponent<EntityStealth> {
 
 		/*	ITaggable Properties	*/
@@ -24,7 +24,7 @@ namespace Ratworx.MarsTS.Vision {
 		[SerializeField]
         private bool isSneaking;
 
-		private EntityVision visionComponent;
+		private UnitVision visionComponent;
 
 		private ISelectable parent;
 
@@ -33,7 +33,7 @@ namespace Ratworx.MarsTS.Vision {
 		private void Awake () {
 			parent = GetComponent<ISelectable>();
 			bus = GetComponent<EventAgent>();
-			visionComponent = GetComponent<EntityVision>();
+			visionComponent = GetComponent<UnitVision>();
 
 			stealthSensor = transform.Find("SneakRange").GetComponent<SelectableSensor>();
 		}

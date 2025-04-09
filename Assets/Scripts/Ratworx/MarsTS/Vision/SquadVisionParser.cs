@@ -7,15 +7,15 @@ using Ratworx.MarsTS.Events.Selectable.Attackable;
 
 namespace Ratworx.MarsTS.Vision
 {
-    public class SquadVisionParser : EntityVision
+    public class SquadVisionParser : UnitVision
     {
-        private readonly Dictionary<string, EntityVision> _squadVision = new Dictionary<string, EntityVision>();
+        private readonly Dictionary<string, UnitVision> _squadVision = new Dictionary<string, UnitVision>();
 
         protected override void Awake()
         {
             base.Awake();
 
-            bus.AddListener<SquadRegisterEvent>(OnMemberRegister);
+            Bus.AddListener<SquadRegisterEvent>(OnMemberRegister);
         }
 
         public void OnMemberRegister(SquadRegisterEvent evnt)
@@ -29,11 +29,11 @@ namespace Ratworx.MarsTS.Vision
         {
             if (evnt.Phase == Phase.Post)
             {
-                visibleTo = 0;
+                VisibilityMask = 0;
 
-                foreach (EntityVision childVision in _squadVision.Values)
+                foreach (UnitVision childVision in _squadVision.Values)
                 {
-                    visibleTo |= childVision.VisibleTo;
+                    VisibilityMask |= childVision.VisibleTo;
                 }
             }
         }
@@ -48,7 +48,7 @@ namespace Ratworx.MarsTS.Vision
         private void OnMemberInit(EntityInitEvent evnt)
         {
             if (evnt.Phase == Phase.Post) return;
-            _squadVision[evnt.ParentEntity.name] = evnt.ParentEntity.GetEntityComponent<EntityVision>("vision");
+            _squadVision[evnt.ParentEntity.name] = evnt.ParentEntity.GetEntityComponent<UnitVision>("vision");
         }
     }
 }

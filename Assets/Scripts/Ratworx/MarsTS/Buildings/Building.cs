@@ -152,11 +152,11 @@ namespace Ratworx.MarsTS.Buildings
                 if (boundCommands[i] == _event.Command.Command.Name)
                 {
                     boundCommands[i] = "";
-                    Bus.Global(new CommandsUpdatedEvent(Bus, this, Commands()));
+                    Bus.PostGlobal(new CommandsUpdatedEvent(Bus, this, Commands()));
                     break;
                 }
 
-            Bus.Global(new ProductionCompleteEvent(Bus, product, this, production, order));
+            Bus.PostGlobal(new ProductionCompleteEvent(Bus, product, this, production, order));
         }
 
         protected virtual void Research(Commandlet order)
@@ -177,12 +177,12 @@ namespace Ratworx.MarsTS.Buildings
                 if (boundCommands[i] == _event.Command.Command.Name)
                 {
                     boundCommands[i] = "";
-                    Bus.Global(new CommandsUpdatedEvent(Bus, this, Commands()));
+                    Bus.PostGlobal(new CommandsUpdatedEvent(Bus, this, Commands()));
                     break;
                 }
 
-            Bus.Global(new ResearchCompleteEvent(Bus, product, this, production, order));
-            Bus.Global(new ProductionCompleteEvent(Bus, product.gameObject, this, production, order));
+            Bus.PostGlobal(new ResearchCompleteEvent(Bus, product, this, production, order));
+            Bus.PostGlobal(new ProductionCompleteEvent(Bus, product.gameObject, this, production, order));
         }
 
         protected virtual void OnGlobalResearchComplete(ResearchCompleteEvent _event)
@@ -233,13 +233,13 @@ namespace Ratworx.MarsTS.Buildings
             return result;
         }
 
-        public virtual void Select(bool status) => Bus.Local(new UnitSelectEvent(Bus, status));
+        public virtual void Select(bool status) => Bus.PostLocal(new UnitSelectEvent(Bus, status));
 
         public virtual void Hover(bool status)
         {
             if (Player.Player.HasSelected(this)) return;
 
-            Bus.Local(new UnitHoverEvent(Bus, status));
+            Bus.PostLocal(new UnitHoverEvent(Bus, status));
         }
 
         public bool SetOwner(Faction player)
@@ -248,7 +248,7 @@ namespace Ratworx.MarsTS.Buildings
 
             _owner = player.Id;
             SetOwnerClientRpc(_owner);
-            Bus.Global(new UnitOwnerChangeEvent(Bus, this, Owner));
+            Bus.PostGlobal(new UnitOwnerChangeEvent(Bus, this, Owner));
             return true;
         }
 
@@ -256,7 +256,7 @@ namespace Ratworx.MarsTS.Buildings
         private void SetOwnerClientRpc(int newId)
         {
             _owner = newId;
-            Bus.Global(new UnitOwnerChangeEvent(Bus, this, Owner));
+            Bus.PostGlobal(new UnitOwnerChangeEvent(Bus, this, Owner));
         }
 
         public virtual void Attack(int damage)
@@ -269,17 +269,17 @@ namespace Ratworx.MarsTS.Buildings
 
             UnitHurtEvent hurtEvent = new UnitHurtEvent(Bus, this, damage);
             hurtEvent.Phase = Phase.Pre;
-            Bus.Global(hurtEvent);
+            Bus.PostGlobal(hurtEvent);
 
             damage = hurtEvent.Damage;
             Health -= damage;
 
             hurtEvent.Phase = Phase.Post;
-            Bus.Global(hurtEvent);
+            Bus.PostGlobal(hurtEvent);
 
             if (Health <= 0)
             {
-                Bus.Global(new UnitDeathEvent(Bus, this));
+                Bus.PostGlobal(new UnitDeathEvent(Bus, this));
                 Destroy(gameObject, 0.1f);
             }
         }

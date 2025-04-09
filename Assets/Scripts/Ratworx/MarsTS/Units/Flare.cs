@@ -120,10 +120,10 @@ namespace Ratworx.MarsTS.Units {
 
             UnitHurtEvent hurtEvent = new UnitHurtEvent(_bus, this, previousHealth - Health);
             hurtEvent.Phase = Phase.Post;
-            _bus.Global(hurtEvent);
+            _bus.PostGlobal(hurtEvent);
 
             if (_currentLifeTime <= 0) {
-                _bus.Global(new UnitDeathEvent(_bus, this));
+                _bus.PostGlobal(new UnitDeathEvent(_bus, this));
                 Destroy(gameObject);
             }
         }
@@ -135,14 +135,14 @@ namespace Ratworx.MarsTS.Units {
         }
 
         public void Select(bool status) {
-            _bus.Local(new UnitSelectEvent(_bus, status));
+            _bus.PostLocal(new UnitSelectEvent(_bus, status));
         }
 
         public void Hover(bool status) {
             //These are seperated due to the Player Selection Check
             if (status)
-                _bus.Local(new UnitHoverEvent(_bus, status));
-            else if (!Player.Player.HasSelected(this)) _bus.Local(new UnitHoverEvent(_bus, status));
+                _bus.PostLocal(new UnitHoverEvent(_bus, status));
+            else if (!Player.Player.HasSelected(this)) _bus.PostLocal(new UnitHoverEvent(_bus, status));
         }
 
         public Relationship GetRelationship(Faction other) => Owner.GetRelationship(other);
@@ -152,7 +152,7 @@ namespace Ratworx.MarsTS.Units {
             
             _owner = player;
             SetOwnerClientRpc(_owner.Id);
-            _bus.Global(new UnitOwnerChangeEvent(_bus, this, Owner));
+            _bus.PostGlobal(new UnitOwnerChangeEvent(_bus, this, Owner));
             
             return true;
         }
@@ -160,7 +160,7 @@ namespace Ratworx.MarsTS.Units {
         [Rpc(SendTo.NotServer)]
         private void SetOwnerClientRpc(int newId) {
             _owner = TeamCache.Faction(newId);
-            _bus.Global(new UnitOwnerChangeEvent(_bus, this, Owner));
+            _bus.PostGlobal(new UnitOwnerChangeEvent(_bus, this, Owner));
         }
 
         public Flare Get() => this;
@@ -181,17 +181,17 @@ namespace Ratworx.MarsTS.Units {
 
             UnitHurtEvent hurtEvent = new UnitHurtEvent(_bus, this, damage);
             hurtEvent.Phase = Phase.Pre;
-            _bus.Global(hurtEvent);
+            _bus.PostGlobal(hurtEvent);
 
             damage = hurtEvent.Damage;
             Health -= damage;
 
             hurtEvent.Phase = Phase.Post;
-            _bus.Global(hurtEvent);
+            _bus.PostGlobal(hurtEvent);
 
             if (Health <= 0)
             {
-                _bus.Global(new UnitDeathEvent(_bus, this));
+                _bus.PostGlobal(new UnitDeathEvent(_bus, this));
                 Destroy(gameObject, 0.1f);
             }
         }
@@ -199,7 +199,7 @@ namespace Ratworx.MarsTS.Units {
         private void OnHurt(int oldHealth, int newHealth) {
             if (Health <= 0)
             {
-                _bus.Global(new UnitDeathEvent(_bus, this));
+                _bus.PostGlobal(new UnitDeathEvent(_bus, this));
 
                 if (NetworkManager.Singleton.IsServer)
                     Destroy(gameObject, 0.1f);
@@ -208,7 +208,7 @@ namespace Ratworx.MarsTS.Units {
             {
                 UnitHurtEvent hurtEvent = new UnitHurtEvent(_bus, this, oldHealth - newHealth);
                 hurtEvent.Phase = Phase.Post;
-                _bus.Global(hurtEvent);
+                _bus.PostGlobal(hurtEvent);
             }
         }
     }

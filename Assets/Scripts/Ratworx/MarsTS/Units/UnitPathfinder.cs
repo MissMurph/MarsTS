@@ -15,8 +15,9 @@ namespace Ratworx.MarsTS.Units
         public UnitPathfinder Get() => this;
         public string Key => "pathing";
         public Path CurrentPath { get; set; } = Path.Empty;
-        public int PathIndex;
-        
+        public Vector3 CurrentWaypoint => CurrentPath.IsEmpty ? transform.position : CurrentPath[_pathIndex];
+        private int _pathIndex;
+
         private const float PathUpdateMoveThreshold = .5f;
         private const float SqrMoveThreshold = PathUpdateMoveThreshold * PathUpdateMoveThreshold;
 
@@ -25,6 +26,8 @@ namespace Ratworx.MarsTS.Units
         private EventAgent _eventAgent;
         private UnitTargetManager _targetManager;
         private Vector3 _targetOldPos;
+
+        public void ClearPath() => CurrentPath = Path.Empty;
         
         private void Awake() {
             _eventAgent = GetComponent<EventAgent>();
@@ -46,14 +49,14 @@ namespace Ratworx.MarsTS.Units
         {
             if (CurrentPath.IsEmpty) return;
             
-            Vector3 targetWaypoint = CurrentPath[PathIndex];
+            Vector3 targetWaypoint = CurrentPath[_pathIndex];
 
             float distance = new Vector3(targetWaypoint.x - transform.position.x, 0,
                 targetWaypoint.z - transform.position.z).magnitude;
 
-            if (distance <= _waypointCompletionDistance) PathIndex++;
+            if (distance <= _waypointCompletionDistance) _pathIndex++;
 
-            if (PathIndex < CurrentPath.Length) return;
+            if (_pathIndex < CurrentPath.Length) return;
             
             _eventAgent.PostLocal(new PathCompleteEvent(_eventAgent, true));
             CurrentPath = Path.Empty;
@@ -75,7 +78,7 @@ namespace Ratworx.MarsTS.Units
             if (!pathSuccessful) return;
             
             CurrentPath = newPath;
-            PathIndex = 0;
+            _pathIndex = 0;
         }
 
         // Uncomment below for debugging

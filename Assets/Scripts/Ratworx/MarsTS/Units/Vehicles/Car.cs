@@ -15,38 +15,7 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 
 	public class Car : AbstractUnit {
 
-		[SerializeField]
-		private float topSpeed;
-		[SerializeField]
-		private float reverseSpeed;
-		[SerializeField]
-		private float acceleration;
-		[SerializeField]
-		private float currentSpeed;
-
-		[SerializeField]
-		private float velocity;
-		
-		[SerializeField]
-		private float turnSpeed;
-
-		private float CurrentAngle {
-			get {
-				float angle = transform.rotation.eulerAngles.y;
-				return angle;
-			}
-		}
-
-		[Header("Braking")]
-
-		[SerializeField]
-		private float brakeWindowTime;
-
-		[SerializeField]
-		private float brakeForce;
-
 		[Header("Turret")]
-
 		protected Dictionary<string, ProjectileTurret> registeredTurrets = new Dictionary<string, ProjectileTurret>();
 
 		protected IAttackable AttackTarget {
@@ -83,12 +52,10 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 
 		protected IAttackable attackTarget;
 
-		private GroundDetection ground;
 
 		protected override void Awake () {
 			base.Awake();
 
-			ground = GetComponent<GroundDetection>();
 
 			foreach (ProjectileTurret turret in GetComponentsInChildren<ProjectileTurret>()) {
 				registeredTurrets.TryAdd(turret.name, turret);
@@ -111,51 +78,7 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 			}
 		}
 
-		protected virtual void FixedUpdate () {
-			if (!NetworkManager.Singleton.IsServer) return;
-
-			velocity = Body.velocity.sqrMagnitude;
-
-			if (ground.Grounded) {
-				if (!CurrentPath.IsEmpty) {
-					Vector3 targetWaypoint = CurrentPath[PathIndex];
-
-					Vector3 targetDirection = new Vector3(targetWaypoint.x - transform.position.x, 0, targetWaypoint.z - transform.position.z).normalized;
-
-					float targetAngle = (Mathf.Atan2(-targetDirection.z, targetDirection.x) * Mathf.Rad2Deg) + 90f;
-
-					float newAngle = Mathf.MoveTowardsAngle(CurrentAngle, targetAngle, turnSpeed * Time.fixedDeltaTime);
-
-					Vector3 currentVelocity = Body.velocity;
-
-					//float brakeThreshold = currentVelocity.magnitude * brakeWindowTime;
-
-					Body.MoveRotation(Quaternion.Euler(transform.eulerAngles.x, newAngle, transform.eulerAngles.z));
-
-					Vector3 adjustedVelocity = Vector3.ProjectOnPlane(transform.forward, ground.Slope.normal);
-
-					adjustedVelocity *= currentVelocity.magnitude;
-
-					float accelCap = 1f - (velocity / (topSpeed * topSpeed));
-
-					Body.velocity = Vector3.Lerp(currentVelocity, adjustedVelocity, (turnSpeed * accelCap) * Time.fixedDeltaTime);
-
-					//Relative so it can take into account the forward vector of the car
-					Body.AddRelativeForce(Vector3.forward * (acceleration * accelCap) * Time.fixedDeltaTime, ForceMode.Acceleration);
-
-					if (velocity > topSpeed * topSpeed) {
-						Vector3 direction = Body.velocity.normalized;
-						direction *= topSpeed;
-						Body.velocity = direction;
-					}
-				}
-				else if (Body.velocity.magnitude >= 0.5f) {
-					Body.AddRelativeForce(-Body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
-				}
-			}
-		}
-
-		public override void Order (Commandlet order, bool inclusive) {
+		/*public override void Order (Commandlet order, bool inclusive) {
 			if (!GetRelationship(order.Commander).Equals(Relationship.Owned)) return;
 
 			switch (order.Name) {
@@ -179,7 +102,7 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 					base.ExecuteOrder(_event);
 					break;
 			}
-		}
+		}*/
 
 		protected void Attack (Commandlet order) {
 			if (order is Commandlet<IAttackable> deserialized) {
@@ -204,16 +127,16 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 		}
 
 		private void OnTargetDeath (UnitDeathEvent _event) {
-			EntityCache.TryGetEntityComponent(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
+			/*EntityCache.TryGetEntityComponent(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
 
 			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
 			CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, false, this);
 
-			CurrentCommand.Callback.Invoke(newEvent);
+			CurrentCommand.Callback.Invoke(newEvent);*/
 		}
 
-		public override CommandFactory Evaluate (ISelectable target) {
+		/*public override CommandFactory Evaluate (ISelectable target) {
 			if (target is IAttackable && target.GetRelationship(Owner) == Relationship.Hostile) {
 				return CommandPrimer.Get("attack");
 			}
@@ -227,6 +150,6 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 			}
 
 			CommandPrimer.Get<Move>("move").Construct(target.GameObject.transform.position);
-		}
+		}*/
 	}
 }

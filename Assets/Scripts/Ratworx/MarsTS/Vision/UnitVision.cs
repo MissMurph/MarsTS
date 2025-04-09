@@ -15,11 +15,7 @@ namespace Ratworx.MarsTS.Vision
                               IEntityComponent<UnitVision>,
                               IUnitInterface
     {
-        /*	IEntityComponent Properties	*/
-        public string Key => "vision";
-
-        /*	Vision Properties	*/
-
+        public Action<bool> OnUnitVisionChange;
         public int Mask => _ownership.Owner.VisionMask;
         public int Range => _visionRange;
 
@@ -27,6 +23,8 @@ namespace Ratworx.MarsTS.Vision
             get => VisibilityMask;
             set => VisibilityMask = value;
         }
+
+        public string Key => "vision";
 
         [FormerlySerializedAs("visionRange")]
         [SerializeField]
@@ -40,6 +38,9 @@ namespace Ratworx.MarsTS.Vision
 
         private Entity _entity;
         private UnitOwnership _ownership;
+        
+        [SerializeField]
+        private GameObject[] _hideables;
 
         protected virtual void Awake() {
             Bus = GetComponent<EventAgent>();
@@ -96,9 +97,13 @@ namespace Ratworx.MarsTS.Vision
 
             //Posting here allows other components to modify the units visibility
             Bus.PostGlobal(entityEvent);
+            
+            foreach (GameObject hideable in _hideables)
+            {
+                hideable.SetActive(entityEvent.Visible);
+            }
 
             entityEvent.Phase = Phase.Post;
-
             //Posting here is where the entity updates all its objects
             Bus.PostGlobal(entityEvent);
         }

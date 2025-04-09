@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Ratworx.MarsTS.Commands;
+﻿using Ratworx.MarsTS.Commands;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
-using Ratworx.MarsTS.Events.Commands;
 using Ratworx.MarsTS.Events.Selectable;
-using Ratworx.MarsTS.Events.Selectable.Attackable;
-using Ratworx.MarsTS.Events.Selectable.Internal;
-using Ratworx.MarsTS.Pathfinding;
-using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.UI.Unit_Pane;
 using Unity.Netcode;
 using UnityEngine;
@@ -32,8 +24,6 @@ namespace Ratworx.MarsTS.Units
         protected Rigidbody Body;
         
         protected EventAgent Bus;
-
-        [Header("Vision")] [SerializeField] private GameObject[] hideables;
 
         protected virtual void Awake()
         {
@@ -99,14 +89,6 @@ namespace Ratworx.MarsTS.Units
             {
                 HealthInfo info = _event.Info.Module<HealthInfo>("health");
                 // info.CurrentUnit = this;
-            }
-        }
-
-        protected virtual void OnVisionUpdate(EntityVisibleEvent _event)
-        {
-            foreach (GameObject hideable in hideables)
-            {
-                hideable.SetActive(_event.Visible);
             }
         }
 

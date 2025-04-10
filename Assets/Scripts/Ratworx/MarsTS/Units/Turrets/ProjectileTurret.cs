@@ -1,4 +1,5 @@
 using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Selectable.Attackable;
 using Ratworx.MarsTS.Events.Selectable.Internal;
@@ -10,7 +11,7 @@ using UnityEngine.Serialization;
 
 namespace Ratworx.MarsTS.Units.Turrets
 {
-    public class ProjectileTurret : NetworkBehaviour
+    public class ProjectileTurret : NetworkBehaviour, IEntityUpdate
     {
         [FormerlySerializedAs("projectile")] [SerializeField]
         protected GameObject _projectile;
@@ -28,18 +29,21 @@ namespace Ratworx.MarsTS.Units.Turrets
 
         public float Range => _sensor.Range;
 
-        protected IAttackable _target;
+        // protected IAttackable _target;
 
-        protected ISelectable _parent;
+        // protected ISelectable _parent;
         protected EventAgent _bus;
 
         protected AttackableSensor _sensor;
 
+        protected UnitTargetManager UnitTarget;
+
         protected virtual void Awake()
         {
-            _parent = GetComponentInParent<ISelectable>();
+            // _parent = GetComponentInParent<ISelectable>();
             _bus = GetComponentInParent<EventAgent>();
             _sensor = GetComponent<AttackableSensor>();
+            UnitTarget = GetComponent<UnitTargetManager>();
 
             _bus.AddListener<SensorUpdateEvent<IAttackable>>(OnSensorUpdate);
         }
@@ -80,6 +84,14 @@ namespace Ratworx.MarsTS.Units.Turrets
 
             if (_target != null && _sensor.IsDetected(_target) && CurrentCooldown <= 0)
                 FireProjectile(_sensor.GetDetectedCollider(_target.GameObject.name).transform.position);
+        }
+
+        public void UpdateServer() {
+            
+        }
+
+        public void UpdateClient() {
+            
         }
 
         private void FixedUpdate() {

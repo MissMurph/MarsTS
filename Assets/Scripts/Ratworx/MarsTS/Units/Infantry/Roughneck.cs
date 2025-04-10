@@ -200,7 +200,7 @@ namespace Ratworx.MarsTS.Units.Infantry {
 		/*	Attack	*/
 		protected void Attack (Commandlet order) {
 			if (order is Commandlet<IAttackable> deserialized) {
-				AttackTarget.Set(deserialized.Target, deserialized.Target.GameObject);
+				AttackTarget.Set(deserialized.Target);
 
 				EntityCache.TryGetEntityComponent(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
@@ -219,7 +219,7 @@ namespace Ratworx.MarsTS.Units.Infantry {
 
 				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
-				AttackTarget.Set(null, null);
+				AttackTarget.Set(null);
 				TrackedTarget = null;
 			}
 		}
@@ -264,7 +264,7 @@ namespace Ratworx.MarsTS.Units.Infantry {
 				IAttackable unit = deserialized.Target;
 
 				if (unit.GetRelationship(_owner) == Relationship.Owned || unit.GetRelationship(_owner) == Relationship.Friendly) {
-					RepairTarget.Set(unit, unit.GameObject);
+					RepairTarget.Set(unit);
 
 					EntityCache.TryGetEntityComponent(RepairTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
@@ -283,7 +283,7 @@ namespace Ratworx.MarsTS.Units.Infantry {
 				targetBus.RemoveListener<UnitHurtEvent>(OnTargetHealed);
 				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
-				RepairTarget.Set(null, null);
+				RepairTarget.Set(null);
 				TrackedTarget = null;
 			}
 		}
@@ -305,7 +305,7 @@ namespace Ratworx.MarsTS.Units.Infantry {
 		/*	Harvest	*/
 		private void Harvest (Commandlet order) {
 			if (order is Commandlet<IHarvestable> deserialized) {
-				HarvestTarget.Set(deserialized.Target, deserialized.Target.GameObject);
+				HarvestTarget.Set(deserialized.Target);
 
 				_bus.AddListener<ResourceHarvestedEvent>(OnExtraction);
 
@@ -349,15 +349,15 @@ namespace Ratworx.MarsTS.Units.Infantry {
 
 				targetBus.RemoveListener<UnitDeathEvent>(OnDepositDepleted);
 
-				HarvestTarget.Set(null, null);
-				DepositTarget.Set(null, null);
+				HarvestTarget.Set(null);
+				DepositTarget.Set(null);
 			}
 		}
 
 		/*	Deposit	*/
 		private void Deposit (Commandlet order) {
 			if (order is Commandlet<IDepositable> deserialized) {
-				DepositTarget.Set(deserialized.Target, deserialized.Target.GameObject);
+				DepositTarget.Set(deserialized.Target);
 				TrackedTarget = deserialized.Target.GameObject.transform;
 
 				_bus.AddListener<HarvesterDepositEvent>(OnDeposit);
@@ -370,8 +370,8 @@ namespace Ratworx.MarsTS.Units.Infantry {
 			if (_event.Command is Commandlet<IDepositable> deserialized && _event.IsCancelled) {
 				_bus.RemoveListener<HarvesterDepositEvent>(OnDeposit);
 
-				DepositTarget.Set(null, null);
-				HarvestTarget.Set(null, null);
+				DepositTarget.Set(null);
+				HarvestTarget.Set(null);
 			}
 		}
 
@@ -385,7 +385,7 @@ namespace Ratworx.MarsTS.Units.Infantry {
 
 				CurrentCommand.Callback.Invoke(newEvent);
 
-				DepositTarget.Set(null, null);
+				DepositTarget.Set(null);
 				TrackedTarget = null;
 			}
 		}

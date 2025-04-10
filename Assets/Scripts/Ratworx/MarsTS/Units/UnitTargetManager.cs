@@ -1,53 +1,45 @@
 using System;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable;
 using Ratworx.MarsTS.Events.Selectable.Attackable;
-using Ratworx.MarsTS.Pathfinding;
 using UnityEngine;
 
 namespace Ratworx.MarsTS.Units
 {
     public class UnitTargetManager : MonoBehaviour, IEntityComponent<UnitTargetManager>
     {
-        public Action<Transform> OnTargetChanged;
-        public Vector3 Position => TargetTransform?.position ?? _targetPosition;
-        private Vector3 _targetPosition;
-        public bool IsTransform => TargetTransform;
-
-        public Transform TargetTransform
-        {
-            get => _targetTransform;
-            set
-            {
-                if (_targetTransform != null)
-                {
-                    EntityCache.TryGetEntityComponent(_targetTransform.gameObject.name + ":eventAgent", out EventAgent oldAgent);
-                    oldAgent.RemoveListener<UnitDeathEvent>(OnTargetDeath);
-                }
-
-                _targetTransform = value;
-
-                if (value != null)
-                {
-                    EntityCache.TryGetEntityComponent(value.gameObject.name + ":eventAgent", out EventAgent agent);
-                    agent.AddListener<UnitDeathEvent>(OnTargetDeath);
-                }
-            }
-        }
-
+        public Action<IUnitInterface> OnTargetChanged;
+        public IUnitInterface TargetUnit => _unit;
+        public Transform TargetTransform => _unit.GameObject.transform;
         public string Key => "target";
         public UnitTargetManager Get() => this;
         
-        private Transform _targetTransform;
-
-        public void SetTarget(Transform target)
+        private IUnitInterface _unit;
+        
+        public void SetTarget(IUnitInterface unit)
         {
-            _targetTransform = target;
-            OnTargetChanged?.Invoke(target);
-        }
+            if (_unit != null) {
+                _unit.Entity.TryGetEntityComponent("eventAgent", out EventAgent oldAgent);
+                oldAgent.RemoveListener<UnitDeathEvent>(OnEntityDeath);
+                oldAgent.RemoveListener<EntityVisibleEvent>(OnEntityVisible);
+            }
 
-        private void OnTargetDeath(UnitDeathEvent _event) {
-            TargetTransform = null;
+            _unit = unit;
+
+            if (_unit != null) {
+                _unit.Entity.TryGetEntityComponent("eventAgent", out EventAgent agent);
+                agent.AddListener<UnitDeathEvent>(OnEntityDeath);
+                agent.AddListener<EntityVisibleEvent>(OnEntityVisible);
+            }
+            
+            OnTargetChanged?.Invoke(_unit);
+        }
+        
+        private void OnEntityDeath(UnitDeathEvent _event) => SetTarget(null);
+
+        private void OnEntityVisible(EntityVisibleEvent _event) {
+            if (!_event.Visible) SetTarget(null);
         }
     }
 }

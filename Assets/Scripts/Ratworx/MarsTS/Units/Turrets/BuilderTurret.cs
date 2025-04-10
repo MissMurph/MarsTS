@@ -53,7 +53,7 @@ namespace Ratworx.MarsTS.Units.Turrets {
 				var repairCommand = commandableUnit.CurrentCommand as Commandlet<IAttackable>;
 
 				if (_sensor.IsDetected(repairCommand.Target)) {
-					_target.Set(repairCommand.Target, repairCommand.Target.GameObject);
+					_target.Set(repairCommand.Target);
 				}
 			}
 
@@ -73,7 +73,7 @@ namespace Ratworx.MarsTS.Units.Turrets {
 					}
 				}
 
-				if (currentClosest != null) _target.Set(currentClosest, currentClosest.GameObject);
+				if (currentClosest != null) _target.Set(currentClosest);
 			}
 
 			if (_target.Get != null && _sensor.IsDetected(_target.Get) && _currentCooldown <= 0) {
@@ -96,11 +96,11 @@ namespace Ratworx.MarsTS.Units.Turrets {
 			if (@event.Detected) {
 				if (_target.Get == null)
 				{
-					_target.Set(@event.Target, @event.Target.GameObject);
+					_target.Set(@event.Target);
 				}
 			}
 			else if (ReferenceEquals(@event.Target, _target.Get)) {
-				_target.Set(null, null);
+				_target.Set(null);
 			}
 		}
 

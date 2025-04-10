@@ -18,41 +18,6 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 		[Header("Turret")]
 		protected Dictionary<string, ProjectileTurret> registeredTurrets = new Dictionary<string, ProjectileTurret>();
 
-		protected IAttackable AttackTarget {
-			get {
-				return attackTarget;
-			}
-			set {
-				if (attackTarget != null) {
-					EntityCache.TryGetEntityComponent(attackTarget.GameObject.name + ":eventAgent", out EventAgent oldAgent);
-					oldAgent.RemoveListener<UnitDeathEvent>((_event) => AttackTarget = null);
-					oldAgent.RemoveListener<EntityVisibleEvent>((_event) => {
-						if (!_event.Visible) {
-							SetTarget(AttackTarget.GameObject.transform.position);
-							AttackTarget = null;
-						}
-					});
-				}
-
-				attackTarget = value;
-
-				if (value != null) {
-					EntityCache.TryGetEntityComponent(value.GameObject.name + ":eventAgent", out EventAgent agent);
-
-					agent.AddListener<UnitDeathEvent>((_event) => AttackTarget = null);
-					agent.AddListener<EntityVisibleEvent>((_event) => {
-						if (!_event.Visible) {
-							SetTarget(AttackTarget.GameObject.transform.position);
-							AttackTarget = null;
-						}
-					});
-				}
-			}
-		}
-
-		protected IAttackable attackTarget;
-
-
 		protected override void Awake () {
 			base.Awake();
 
@@ -69,6 +34,7 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 
 			if (attackTarget == null) return;
 
+			// move this to the attack receiver
 			if (registeredTurrets["turret_main"].IsInRange(AttackTarget)) {
 				TrackedTarget = null;
 				CurrentPath = Path.Empty;

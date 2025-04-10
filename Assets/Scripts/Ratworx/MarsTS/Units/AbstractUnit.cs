@@ -42,8 +42,6 @@ namespace Ratworx.MarsTS.Units
         protected void AttachClientListeners()
         {
             EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
-
-            Bus.AddListener<EntityVisibleEvent>(OnVisionUpdate);
             // Bus.AddListener<CommandStartEvent>(ExecuteOrder);
         }
         

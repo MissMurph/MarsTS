@@ -63,7 +63,7 @@ namespace Ratworx.MarsTS.Units.Infantry {
 		/*	Attack	*/
 		protected void Attack (Commandlet order) {
 			if (order is Commandlet<IAttackable> deserialized) {
-				AttackTarget.Set(deserialized.Target, deserialized.Target.GameObject);
+				AttackTarget.Set(deserialized.Target);
 
 				EntityCache.TryGetEntityComponent(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
 
@@ -80,7 +80,7 @@ namespace Ratworx.MarsTS.Units.Infantry {
 
 				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
 
-				AttackTarget.Set(null, null);
+				AttackTarget.Set(null);
 				TrackedTarget = null;
 			}
 		}

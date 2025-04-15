@@ -14,7 +14,6 @@ namespace Ratworx.MarsTS.Commands {
 
     public abstract class Commandlet : NetworkBehaviour {
 
-		public abstract Type TargetType { get; }
 		public string Name { get; protected set; }
 		public Faction Commander { get; protected set; }
 		public UnityEvent<CommandCompleteEvent> Callback = new UnityEvent<CommandCompleteEvent>();
@@ -22,7 +21,6 @@ namespace Ratworx.MarsTS.Commands {
 		public abstract string SerializerKey { get; }
 		public List<string> commandedUnits = new List<string>();
 		public int Id { get; protected set; } = 0;
-		public bool IsStale => CommandletsCache.IsStale(Id);
 
 		protected void InternalInit(string name, Faction commander)
 		{
@@ -32,31 +30,19 @@ namespace Ratworx.MarsTS.Commands {
 
 		public virtual void StartCommand (EventAgent eventAgent, ICommandable unit) {
 			commandedUnits.Add(unit.GameObject.name);
-			eventAgent.PostLocal(new CommandStartEvent(eventAgent, this, unit));
+			eventAgent.PostLocal(new CommandStartEvent(this, unit));
 		}
 
 		public virtual void ActivateCommand (CommandQueue queue, CommandActiveEvent _event) {
 
 		}
 
-		public virtual void CompleteCommand (EventAgent eventAgent, ICommandable unit, bool isCancelled = false) 
+		public virtual void CompleteCommand (ICommandable unit, bool isCancelled = false) 
 		{
 			commandedUnits.Remove(unit.GameObject.name);
-			Callback.Invoke(new CommandCompleteEvent(eventAgent, this, isCancelled, unit));
+			Callback.Invoke(new CommandCompleteEvent(this, isCancelled, unit));
 		}
-
-		public virtual bool CanInterrupt () {
-			return true;
-		}
-
-		public Commandlet<T> Get<T> ()
-		{
-			if (typeof(T).Equals(TargetType)) return this as Commandlet<T>;
-			throw new ArgumentException("Commandlet target type " + TargetType + " does not match given type " + typeof(T) + ", cannot return Commandlet!");
-		}
-
-		public abstract Commandlet Clone ();
-
+		
 		//Making virtual while testing
 		protected virtual ISerializedCommand Serialize () => CommandSerializers.Write(this);
 
@@ -88,7 +74,6 @@ namespace Ratworx.MarsTS.Commands {
 	public abstract class Commandlet<T> : Commandlet {
 
 		public T Target => _target;
-		public override Type TargetType => typeof(T);
 
 		[FormerlySerializedAs("target")]
 		[SerializeField]
@@ -110,7 +95,5 @@ namespace Ratworx.MarsTS.Commands {
 
 			SpawnAndSync();
 		}
-
-		public abstract override Commandlet Clone();
 	}
 }

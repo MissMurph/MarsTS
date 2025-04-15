@@ -58,20 +58,6 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 			}
 		}
 
-		protected override void Update () {
-			base.Update();
-
-			if (AttackTarget.Get == null) return;
-
-			if (registeredTurrets["turret_main"].IsInRange(AttackTarget.Get)) {
-				TrackedTarget = null;
-				CurrentPath = Path.Empty;
-			}
-			else if (!ReferenceEquals(TrackedTarget, AttackTarget.GameObject.transform)) {
-				SetTarget(AttackTarget.GameObject.transform);
-			}
-		}
-
 		protected virtual void FixedUpdate () {
 			velocity = Body.velocity.sqrMagnitude;
 
@@ -110,95 +96,6 @@ namespace Ratworx.MarsTS.Units.Vehicles {
 					Body.AddRelativeForce(-Body.velocity * Time.fixedDeltaTime, ForceMode.Acceleration);
 				}
 			}
-		}
-
-		public override void Order (Commandlet order, bool inclusive) {
-			if (!GetRelationship(order.Commander).Equals(Relationship.Owned)) return;
-
-			switch (order.Name) {
-				case "attack":
-					break;
-				default:
-					base.Order(order, inclusive);
-					return;
-			}
-
-			if (inclusive) commands.EnqueueCommand(order);
-			else commands.ExecuteCommand(order);
-		}
-
-		protected override void ExecuteOrder (CommandStartEvent _event) {
-			switch (_event.Command.Name) {
-				case "attack":
-					Attack(_event.Command);
-					break;
-				default:
-					base.ExecuteOrder(_event);
-					break;
-			}
-		}
-
-		protected void Attack (Commandlet order) {
-			if (order is Commandlet<IAttackable> deserialized) {
-				AttackTarget.Set(deserialized.Target);
-
-				EntityCache.TryGetEntityComponent(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
-
-				targetBus.AddListener<UnitDeathEvent>(OnTargetDeath);
-
-				order.Callback.AddListener(AttackCancelled);
-			}
-		}
-
-		protected override void Stop () {
-			base.Stop();
-
-
-		}
-
-		//Could potentially move these to the actual Command Classes
-		private void AttackCancelled (CommandCompleteEvent _event) {
-			//bus.RemoveListener<CommandCompleteEvent>(AttackCancelled);
-
-			if (_event.Command is Commandlet<IAttackable> deserialized && _event.IsCancelled) {
-				EntityCache.TryGetEntityComponent(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
-
-				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
-
-				AttackTarget.Set(null);
-			}
-		}
-
-		private void OnTargetDeath (UnitDeathEvent _event) {
-			EntityCache.TryGetEntityComponent(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
-
-			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
-
-			CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, false, this);
-
-			CurrentCommand.Callback.Invoke(newEvent);
-
-			
-
-			//CurrentCommand = null;
-		}
-
-		public override CommandFactory Evaluate (ISelectable target) {
-			if (target is IAttackable && target.GetRelationship(Owner) == Relationship.Hostile) {
-				return CommandPrimer.Get("attack");
-			}
-
-			return CommandPrimer.Get("move");
-		}
-
-		public override void AutoCommand (ISelectable target) {
-			if (target is IAttackable deserialized && target.GetRelationship(Owner) == Relationship.Hostile) {
-				//return CommandRegistry.Get<Attack>("attack").Construct(deserialized);
-			}
-
-			//return CommandRegistry.Get<Move>("move").Construct(target.GameObject.transform.position);
-
-			throw new NotImplementedException();
 		}
 	}
 }

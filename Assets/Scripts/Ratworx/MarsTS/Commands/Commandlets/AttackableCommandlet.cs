@@ -11,8 +11,6 @@ namespace Ratworx.MarsTS.Commands.Commandlets
     {
         [SerializeField] private GameObject _targetGameObj;
 
-        public override Commandlet Clone() => throw new NotImplementedException();
-
         public override string SerializerKey => "attack";
 
         protected override void Deserialize(SerializedCommandWrapper data)

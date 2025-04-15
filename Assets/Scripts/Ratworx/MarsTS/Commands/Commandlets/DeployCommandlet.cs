@@ -54,9 +54,10 @@ namespace Ratworx.MarsTS.Commands.Commandlets {
             base.CompleteCommand(eventAgent, unit, isCancelled);
         }
 
-        public override bool CanInterrupt () {
+        // TODO: Implement below on the Deploy receiver
+        /*public override bool CanInterrupt () {
             return false;
-        }
+        }*/
 
         public override Commandlet Clone() => throw new NotImplementedException();
         

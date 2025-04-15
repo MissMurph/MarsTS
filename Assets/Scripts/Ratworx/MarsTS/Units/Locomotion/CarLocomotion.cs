@@ -49,7 +49,6 @@ namespace Ratworx.MarsTS.Units
             
             _velocity = _rigidBody.velocity.sqrMagnitude;
 
-
             if (!_pathing.CurrentPath.IsEmpty) {
                 Vector3 targetWaypoint = _pathing.CurrentWaypoint;
 

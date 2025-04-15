@@ -56,7 +56,7 @@ namespace Ratworx.MarsTS.Entities
 		{
 			if (Health <= 0)
 			{
-				// _eventAgent.Global(new UnitDeathEvent(_eventAgent, this));
+				_eventAgent.PostGlobal(new UnitDeathEvent(Entity));
 
 				if (NetworkManager.Singleton.IsServer)
 					Destroy(gameObject, 0.1f);

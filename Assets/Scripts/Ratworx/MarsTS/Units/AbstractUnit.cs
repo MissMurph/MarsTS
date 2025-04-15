@@ -46,36 +46,9 @@ namespace Ratworx.MarsTS.Units
         }
         
 
-        protected virtual void Stop()
-        {
-            // CurrentPath = Path.Empty;
-            // _target = null;
+        
 
-            // commands.Clear();
-
-            //CommandCompleteEvent _event = new CommandCompleteEvent(bus, CurrentCommand, false, this);
-            //bus.Global(_event);
-
-            //CurrentCommand = null;
-        }
-
-        protected virtual void Move(Commandlet order)
-        {
-            if (order is Commandlet<Vector3> deserialized)
-            {
-                // SetTarget(deserialized.Target);
-
-                Bus.AddListener<PathCompleteEvent>(OnPathComplete);
-                order.Callback.AddListener(_event => Bus.RemoveListener<PathCompleteEvent>(OnPathComplete));
-            }
-        }
-
-        private void OnPathComplete(PathCompleteEvent _event)
-        {
-            // CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, false, this);
-            //
-            // CurrentCommand.CompleteCommand(Bus, this);
-        }
+        
 
         public AbstractUnit Get() => this;
 
@@ -83,11 +56,11 @@ namespace Ratworx.MarsTS.Units
 
         protected virtual void OnUnitInfoDisplayed(UnitInfoEvent _event)
         {
-            if (ReferenceEquals(_event.Unit, this))
+            /*if (ReferenceEquals(_event.Unit, this))
             {
                 HealthInfo info = _event.Info.Module<HealthInfo>("health");
                 // info.CurrentUnit = this;
-            }
+            }*/
         }
 
         /*public virtual bool CanCommand(string key)

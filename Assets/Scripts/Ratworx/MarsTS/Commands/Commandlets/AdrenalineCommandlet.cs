@@ -17,11 +17,6 @@ namespace Ratworx.MarsTS.Commands.Commandlets {
         public override void ActivateCommand (CommandQueue queue, CommandActiveEvent _event) 
             => queue.Cooldown(this, _event.Activity ? duration : cooldown);
 
-        public override Commandlet Clone()
-        {
-            throw new NotImplementedException();
-        }
-
         protected override void Deserialize(SerializedCommandWrapper _data) {
             SerializedBoolCommandlet deserialized = (SerializedBoolCommandlet)_data.commandletData;
 

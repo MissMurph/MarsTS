@@ -12,7 +12,6 @@ namespace Ratworx.MarsTS.Commands.Commandlets
 
         public override string SerializerKey => "harvest";
 
-        public override Commandlet Clone() => throw new System.NotImplementedException();
 
         protected override void Deserialize(SerializedCommandWrapper data)
         {

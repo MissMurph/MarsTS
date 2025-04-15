@@ -76,11 +76,6 @@ namespace Ratworx.MarsTS.Commands.Commandlets {
 			base.CompleteCommand(eventAgent, unit, isCancelled);
 		}
 
-		public override Commandlet Clone()
-		{
-			throw new NotImplementedException();
-		}
-
 		protected override void Deserialize (SerializedCommandWrapper _data) {
 			base.Deserialize(_data);
 			

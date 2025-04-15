@@ -36,11 +36,6 @@ namespace Ratworx.MarsTS.Commands.Commandlets {
             else 
                 queue.Cooldown(this, _reactivateCooldown.Value);
         }
-
-        public override Commandlet Clone()
-        {
-            throw new NotImplementedException();
-        }
         
         protected override void Deserialize (SerializedCommandWrapper data) {
             base.Deserialize(data);

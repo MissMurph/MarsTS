@@ -40,11 +40,6 @@ namespace Ratworx.MarsTS.Commands.Commandlets {
             base.CompleteCommand(agent, unit, isCancelled);
         }
 
-        public override Commandlet Clone()
-        {
-            throw new System.NotImplementedException();
-        }
-
         protected override void Deserialize(SerializedCommandWrapper data) {
             SerializedMoveCommandlet deserialized = (SerializedMoveCommandlet)data.commandletData;
 

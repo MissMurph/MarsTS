@@ -12,9 +12,7 @@ namespace Ratworx.MarsTS.Commands.Commandlets
         private GameObject _targetGameObj;
 
         public override string SerializerKey => "deposit";
-
-        public override Commandlet Clone() => throw new System.NotImplementedException();
-
+        
         protected override void Deserialize(SerializedCommandWrapper data)
         {
             SerializedDepositableCommandlet deserialized = (SerializedDepositableCommandlet)data.commandletData;

@@ -12,19 +12,21 @@ using Ratworx.MarsTS.Units;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace Ratworx.MarsTS.Commands {
-
-    public class CommandQueue : NetworkBehaviour, IEntityComponent<CommandQueue>, ICommandable
-    {
-	    public virtual string Key => "commandQueue";
+namespace Ratworx.MarsTS.Commands
+{
+	public class CommandQueue : NetworkBehaviour, 
+								IEntityComponent<CommandQueue>, 
+								ICommandable
+	{
+		public virtual string Key => "commandQueue";
 
 		public Commandlet CurrentCommand => Current;
-        public Commandlet Current { get; protected set; }
-		
-        public Commandlet[] Queue => commandQueue.ToArray();
-        protected Queue<Commandlet> commandQueue;
+		public Commandlet Current { get; protected set; }
 
-        public List<string> Active => activeCommands.Keys.ToList();
+		public Commandlet[] Queue => commandQueue.ToArray();
+		protected Queue<Commandlet> commandQueue;
+
+		public List<string> Active => activeCommands.Keys.ToList();
 		protected Dictionary<string, Commandlet> activeCommands;
 
 		public List<Timer> Cooldowns => activeCooldowns.Values.ToList();
@@ -37,7 +39,7 @@ namespace Ratworx.MarsTS.Commands {
 		protected ISelectable parent;
 		protected ICommandable orderSource;
 		protected EventAgent bus;
-		
+
 		public Entity Entity { get; private set; }
 
 		protected bool isServer;
@@ -46,10 +48,9 @@ namespace Ratworx.MarsTS.Commands {
 		private float workStepTime;
 		private float workTimeToStep;
 
-		[SerializeField]
-		private string[] _commands;
+		[SerializeField] private string[] _commands;
 
-		protected virtual void Awake () {
+		protected virtual void Awake() {
 			parent = GetComponent<ISelectable>();
 			orderSource = parent as ICommandable;
 			Entity = GetComponent<Entity>();
@@ -66,15 +67,13 @@ namespace Ratworx.MarsTS.Commands {
 			workTimeToStep = 0f;
 		}
 
-		public override void OnNetworkSpawn () 
-		{
+		public override void OnNetworkSpawn() {
 			base.OnNetworkSpawn();
 
 			isServer = NetworkManager.IsServer;
 		}
 
-		protected virtual void Update () 
-		{
+		protected virtual void Update() {
 			if (isServer && Current == null && commandQueue.Count > 0) {
 				Dequeue();
 				DequeueClientRpc(Current.gameObject);
@@ -93,7 +92,7 @@ namespace Ratworx.MarsTS.Commands {
 					SendWorkEventToClientRpc();
 				}
 
-				if (workOrder.CurrentWork >= workOrder.WorkRequired) 
+				if (workOrder.CurrentWork >= workOrder.WorkRequired)
 					CompleteCurrentCommand(false);
 			}
 
@@ -122,13 +121,14 @@ namespace Ratworx.MarsTS.Commands {
 				bus.PostGlobal(new CommandWorkEvent(bus, Current, orderSource, workOrder));
 			}
 			else
-				RatLogger.Error?.Log($"Current command {Current.Name} is not {typeof(IWorkable)}! Cannot post work event");
+				RatLogger.Error?.Log(
+					$"Current command {Current.Name} is not {typeof(IWorkable)}! Cannot post work event");
 		}
 
 		/*	Dequeueing Commands	*/
 
 		[Rpc(SendTo.NotServer)]
-		protected virtual void DequeueClientRpc (NetworkObjectReference orderReference) {
+		protected virtual void DequeueClientRpc(NetworkObjectReference orderReference) {
 			if (NetworkManager.IsHost) return;
 
 			if (!ReferenceEquals(orderReference.GameObject(), commandQueue.Peek().gameObject)) {
@@ -138,13 +138,13 @@ namespace Ratworx.MarsTS.Commands {
 			Dequeue();
 		}
 
-		protected virtual void Dequeue () {
+		protected virtual void Dequeue() {
 			Commandlet order = commandQueue.Dequeue();
 
 			Current = order;
 			order.Callback.AddListener(OnOrderComplete);
 
-			if (order is IWorkable workable) 
+			if (order is IWorkable workable)
 				workable.OnWork += OnOrderWork;
 
 			order.StartCommand(bus, orderSource);
@@ -153,20 +153,18 @@ namespace Ratworx.MarsTS.Commands {
 		/*	Completing Commands	*/
 
 		[Rpc(SendTo.NotServer)]
-		protected virtual void CompleteCommandClientRpc (bool _cancelled) {
+		protected virtual void CompleteCommandClientRpc(bool _cancelled) {
 			CompleteCurrentCommand(_cancelled);
 		}
 
-		protected virtual void CompleteCurrentCommand (bool _cancelled) 
-		{
+		protected virtual void CompleteCurrentCommand(bool _cancelled) {
 			Current.CompleteCommand(bus, orderSource, _cancelled);
 
-			if (NetworkManager.Singleton.IsServer) 
+			if (NetworkManager.Singleton.IsServer)
 				CompleteCommandClientRpc(_cancelled);
 		}
 
-		protected virtual void OnOrderComplete (CommandCompleteEvent _event) 
-		{
+		protected virtual void OnOrderComplete(CommandCompleteEvent _event) {
 			if (!ReferenceEquals(_event.Unit, orderSource)) return;
 			Current = null;
 			bus.PostGlobal(_event);
@@ -174,16 +172,14 @@ namespace Ratworx.MarsTS.Commands {
 
 		/*	Executing Commands	*/
 
-		public virtual void ExecuteCommand (Commandlet order) 
-		{
+		public virtual void ExecuteCommand(Commandlet order) {
 			if (!orderSource.CanCommand(order.Command.Name)) return;
 			commandQueue.Clear();
 
-			if (Current != null) 
-			{
-				if (!Current.CanInterrupt()) return;
+			if (Current != null) {
+				// if (!Current.CanInterrupt()) return;
 
-				Current.CompleteCommand(bus, orderSource, true);
+				Current.CompleteCommand(orderSource, true);
 			}
 
 			Current = null;
@@ -193,8 +189,7 @@ namespace Ratworx.MarsTS.Commands {
 		}
 
 		[Rpc(SendTo.NotServer)]
-		protected virtual void ExecuteClientRpc (NetworkObjectReference orderReference) 
-		{
+		protected virtual void ExecuteClientRpc(NetworkObjectReference orderReference) {
 			if (NetworkManager.Singleton.IsHost) return;
 
 			ExecuteCommand(orderReference.GameObject().GetComponent<Commandlet>());
@@ -202,7 +197,7 @@ namespace Ratworx.MarsTS.Commands {
 
 		/*	Enqueueing Commands	*/
 
-		public virtual void EnqueueCommand (Commandlet order) {
+		public virtual void EnqueueCommand(Commandlet order) {
 			if (!orderSource.CanCommand(order.Command.Name)) return;
 			commandQueue.Enqueue(order);
 
@@ -210,7 +205,7 @@ namespace Ratworx.MarsTS.Commands {
 		}
 
 		[Rpc(SendTo.NotServer)]
-		protected virtual void EnqueueClientRpc (NetworkObjectReference orderReference) {
+		protected virtual void EnqueueClientRpc(NetworkObjectReference orderReference) {
 			if (NetworkManager.Singleton.IsHost) return;
 
 			EnqueueCommand(orderReference.GameObject().GetComponent<Commandlet>());
@@ -218,7 +213,7 @@ namespace Ratworx.MarsTS.Commands {
 
 		/*	Activating Commands	*/
 
-		public void Activate (Commandlet order, bool status) {
+		public void Activate(Commandlet order, bool status) {
 			if (status) {
 				activeCommands[order.Name] = order;
 				order.ActivateCommand(this, new CommandActiveEvent(bus, orderSource, order, status));
@@ -241,19 +236,19 @@ namespace Ratworx.MarsTS.Commands {
 				RatLogger.Error?.Log($"Couldn't find commandlet {id}! Cannot activate");
 				return;
 			}
-			
+
 			Activate(order, status);
 		}
 
-		public void Deactivate (string key) {
+		public void Deactivate(string key) {
 			if (!activeCommands.TryGetValue(key, out Commandlet toDeactivate)) return;
-			
+
 			CommandActiveEvent _event = new CommandActiveEvent(bus, orderSource, toDeactivate, false);
 			toDeactivate.ActivateCommand(this, _event);
 			activeCommands.Remove(toDeactivate.Name);
 			bus.PostGlobal(_event);
 
-			if (NetworkManager.Singleton.IsServer) 
+			if (NetworkManager.Singleton.IsServer)
 				DeactivateClientRpc(key);
 		}
 
@@ -264,7 +259,7 @@ namespace Ratworx.MarsTS.Commands {
 
 		/*	Cooldowns	*/
 
-		public void Cooldown (Commandlet order, float time) {
+		public void Cooldown(Commandlet order, float time) {
 			activeCooldowns[order.Name] = new Timer { commandName = order.Name, duration = time, timeRemaining = time };
 
 			if (NetworkManager.Singleton.IsServer) CooldownClientRpc(order.Id, time);
@@ -276,20 +271,20 @@ namespace Ratworx.MarsTS.Commands {
 				RatLogger.Error?.Log($"Couldn't find Commandlet {id}, cannot start Cooldown");
 				return;
 			}
-			
+
 			Cooldown(order, time);
 		}
 
 		/*	Misc.	*/
 
-		public void Clear () {
-			foreach (Commandlet order in commandQueue) 
-				order.CompleteCommand(bus, orderSource, true);
+		public void Clear() {
+			foreach (Commandlet order in commandQueue)
+				order.CompleteCommand(orderSource, true);
 
 			commandQueue.Clear();
 
-			if (Current != null) 
-				Current.CompleteCommand(bus, orderSource, true);
+			if (Current != null)
+				Current.CompleteCommand(orderSource, true);
 
 			Current = null;
 
@@ -301,11 +296,11 @@ namespace Ratworx.MarsTS.Commands {
 			Clear();
 		}
 
-		public virtual bool CanCommand (string key) {
+		public virtual bool CanCommand(string key) {
 			return !activeCooldowns.ContainsKey(key);
 		}
 
-		protected virtual void OnOrderWork (int oldValue, int newValue) {
+		protected virtual void OnOrderWork(int oldValue, int newValue) {
 			if (Current is not IWorkable workOrder) return;
 
 			if (workOrder.CurrentWork >= workOrder.WorkRequired) {
@@ -315,9 +310,9 @@ namespace Ratworx.MarsTS.Commands {
 			else
 				bus.PostGlobal(new WorkEvent(bus, parent, workOrder.WorkRequired, workOrder.CurrentWork));
 		}
-		
+
 		public void Order(Commandlet order, bool inclusive) {
-			if (inclusive) 
+			if (inclusive)
 				EnqueueCommand(order);
 			else
 				ExecuteCommand(order);
@@ -335,7 +330,8 @@ namespace Ratworx.MarsTS.Commands {
 		public GameObject GameObject => gameObject;
 	}
 
-	public class Timer {
+	public class Timer
+	{
 		public string commandName;
 		public float duration;
 		public float timeRemaining;

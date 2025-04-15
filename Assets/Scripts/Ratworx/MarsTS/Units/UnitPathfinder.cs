@@ -27,6 +27,9 @@ namespace Ratworx.MarsTS.Units
         private UnitTargetManager _targetManager;
         private Vector3 _targetOldPos;
 
+        public void FindPathTo(Vector3 position) 
+            => PathRequestManager.RequestPath(transform.position, position, OnPathFound);
+
         public void ClearPath() => CurrentPath = Path.Empty;
         
         private void Awake() {

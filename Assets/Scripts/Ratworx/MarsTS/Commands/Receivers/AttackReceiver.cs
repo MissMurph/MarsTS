@@ -33,7 +33,6 @@ namespace Ratworx.MarsTS.Commands.Receivers
         }
 
         private void ReceiveCommand(CommandStartEvent evnt) {
-            // TODO: Replace below with CommandKey match
             if (evnt.Command is not AttackableCommandlet deserialized
                 || evnt.Command.Name != "attack") 
                 return;
@@ -61,13 +60,18 @@ namespace Ratworx.MarsTS.Commands.Receivers
         // stimky...
         public void UpdateClient() { }
 
-        private void OnTargetDeath (UnitDeathEvent _event) => _attackCommand.CompleteCommand(_commandQueue);
+        private void OnTargetDeath (UnitDeathEvent evnt) => _attackCommand.CompleteCommand(_commandQueue);
 
         private void OnCommandComplete(CommandCompleteEvent evnt) {
             _attackCommand.Target.Entity.TryGetEntityComponent(out EventAgent targetBus);
+            
             targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
             evnt.Command.Callback.RemoveListener(OnCommandComplete);
+            
             _attackCommand = null;
+            
+            _unitTargeting.ClearTarget();
+            _unitPathing.ClearPath();
         }
         
         /*public override CommandFactory Evaluate (ISelectable target) {

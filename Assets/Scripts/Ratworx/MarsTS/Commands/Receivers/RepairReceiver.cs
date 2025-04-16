@@ -19,8 +19,9 @@ namespace Ratworx.MarsTS.Commands.Receivers
 		private UnitTargetManager _unitTargeting;
 		private CommandQueue _commandQueue;
 		private EventAgent _eventAgent;
-		private AttackableCommandlet _repairCommand;
 		private UnitOwnership _ownership;
+		
+		private AttackableCommandlet _repairCommand;
 
 		private void Awake() {
 			_eventAgent = GetComponent<EventAgent>();

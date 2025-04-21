@@ -1,5 +1,6 @@
 using Ratworx.MarsTS.Buildings;
 using Ratworx.MarsTS.Commands.Commandlets;
+using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Commands;
 using Ratworx.MarsTS.Events.Selectable.Attackable;
@@ -10,8 +11,12 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands.Receivers
 {
-    public class HarvestReceiver : MonoBehaviour
+    public class HarvestReceiver : AbstractCommandReceiver<HarvestableCommandlet>
     {
+        public override bool CanCommand => true;
+        public override bool IsActive => false;
+        public override float Cooldown => 0f;
+        
         [SerializeField] private HarvestSensor _harvestRange;
         [SerializeField] private DepositSensor _depositRange;
         [SerializeField] private ResourceStorage _storage;
@@ -19,30 +24,10 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
         private HarvestableCommandlet _harvestCommand;
         private IDepositable _depositable;
-        
-        private UnitPathfinder _unitPathing;
-        private UnitTargetManager _unitTargeting;
-        private UnitOwnership _ownership;
-        private CommandQueue _commandQueue;
-        private EventAgent _eventAgent;
 
-        private void Awake() {
-            _eventAgent = GetComponent<EventAgent>();
-            _commandQueue = GetComponent<CommandQueue>();
-            _unitPathing = GetComponent<UnitPathfinder>();
-            _unitTargeting = GetComponent<UnitTargetManager>();
-        }
-        
-        private void Start() {
-            _eventAgent.AddListener<CommandStartEvent>(ReceiveCommand);
-        }
-
-        private void ReceiveCommand(CommandStartEvent evnt) {
-            if (evnt.Command is not HarvestableCommandlet deserialized
-                || evnt.Command.Name != "harvest") return;
-            
-            _harvestCommand = deserialized;
-            _unitTargeting.SetTarget(_harvestCommand.Target);
+        public override void ReceiveCommand(HarvestableCommandlet command) {
+            _harvestCommand = command;
+            UnitTargeting.SetTarget(_harvestCommand.Target);
             
             _storage.OnAttributeChange += OnResourceHarvested;
             _storage.OnAttributeChange += OnResourceDeposited;
@@ -54,13 +39,21 @@ namespace Ratworx.MarsTS.Commands.Receivers
             _harvestCommand.Callback.AddListener(OnCommandComplete);
         }
 
+        public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) {
+            if (!entity.TryGetEntityComponent(out IHarvestable _)
+                || _storage.Value >= _storage.Capacity) 
+                return (false, null);
+
+            return (true, CommandPrimer.Get(CommandKey));
+        }
+
         private void OnHarvestableDetected(IHarvestable unit, bool detected) {
             if (!detected
                 || unit.Entity != _harvestCommand.Target.Entity) 
                 return;
             
-            _unitPathing.ClearPath();
-            _unitTargeting.ClearTarget();
+            UnitPathing.ClearPath();
+            UnitTargeting.ClearTarget();
         }
 
         private void OnDepositableDetected(IDepositable unit, bool detected) {
@@ -69,8 +62,8 @@ namespace Ratworx.MarsTS.Commands.Receivers
                 || unit.Entity != _depositable.Entity) 
                 return;
             
-            _unitPathing.ClearPath();
-            _unitTargeting.ClearTarget();
+            UnitPathing.ClearPath();
+            UnitTargeting.ClearTarget();
         }
 
         private void OnResourceHarvested(int oldValue, int newValue) {
@@ -86,7 +79,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
                 || newValue > 0)
                 return;
             
-            _unitTargeting.SetTarget(_harvestCommand.Target);
+            UnitTargeting.SetTarget(_harvestCommand.Target);
             _depositable = null;
         }
         
@@ -94,7 +87,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
             IDepositable closestBank = null;
             const float currentDist = 1000f;
 
-            foreach (IDepositable bank in _ownership.Owner.GetOwnedDepositables()) {
+            foreach (IDepositable bank in Ownership.Owner.GetOwnedDepositables()) {
                 float newDistance = Vector3.Distance(bank.GameObject.transform.position, transform.position);
                 if (newDistance < currentDist) closestBank = bank;
             }
@@ -102,10 +95,10 @@ namespace Ratworx.MarsTS.Commands.Receivers
             if (closestBank != null) 
                 _depositable = closestBank;
             else
-                _harvestCommand?.CompleteCommand(_commandQueue, true);
+                _harvestCommand?.CompleteCommand(CommandQueue, true);
         }
 
-        private void OnDepositDepleted(UnitDeathEvent evnt) => _harvestCommand.CompleteCommand(_commandQueue);
+        private void OnDepositDepleted(UnitDeathEvent evnt) => _harvestCommand.CompleteCommand(CommandQueue);
 
         private void OnCommandComplete(CommandCompleteEvent evnt) {
             _storage.OnAttributeChange -= OnResourceHarvested;

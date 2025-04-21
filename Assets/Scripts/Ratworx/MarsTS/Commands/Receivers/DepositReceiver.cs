@@ -3,43 +3,28 @@ using Ratworx.MarsTS.Commands.Commandlets;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Commands;
-using Ratworx.MarsTS.Events.Harvesting;
 using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units;
 using Ratworx.MarsTS.Units.Sensors;
 using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands.Receivers
 {
-    public class DepositReceiver : MonoBehaviour
+    public class DepositReceiver : AbstractCommandReceiver<DepositableCommandlet>
     {
+        public override bool CanCommand => true;
+        public override bool IsActive => false;
+        public override float Cooldown => 0f;
+        
         [SerializeField] private DepositSensor _depositRange;
         [SerializeField] private ResourceStorage _storage;
         
         private DepositableCommandlet _depositCommand;
-
-        private UnitPathfinder _unitPathing;
-        private UnitTargetManager _unitTargeting;
-        private CommandQueue _commandQueue;
-        private EventAgent _eventAgent;
-
-        private void Awake() {
-            _eventAgent = GetComponent<EventAgent>();
-            _commandQueue = GetComponent<CommandQueue>();
-            _unitPathing = GetComponent<UnitPathfinder>();
-            _unitTargeting = GetComponent<UnitTargetManager>();
-        }
         
-        private void Start() {
-            _eventAgent.AddListener<CommandStartEvent>(ReceiveCommand);
-        }
-        
-        private void ReceiveCommand(CommandStartEvent evnt) {
-            if (evnt.Command is not DepositableCommandlet deserialized
-                || evnt.Command.Name != "harvest") return;
-            
-            _depositCommand = deserialized;
-            _unitTargeting.SetTarget(_depositCommand.Target);
+        public override void ReceiveCommand(DepositableCommandlet command) {
+            _depositCommand = command;
+            UnitTargeting.SetTarget(_depositCommand.Target);
 
             _depositRange.OnUnitDetected += OnDepositableDetected;
             _storage.OnAttributeChange += OnResourceDeposited;
@@ -49,15 +34,25 @@ namespace Ratworx.MarsTS.Commands.Receivers
             _depositCommand.Callback.AddListener(OnCommandComplete);
         }
 
+        public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) {
+            if (!entity.TryGetEntityComponent(out IDepositable _)
+                || !entity.TryGetEntityComponent(out UnitOwnership targetOwnership)
+                || targetOwnership.GetRelationship(Ownership.Owner) != Relationship.Owned
+                || _storage.Value <= 0)
+                return (false, null);
+
+            return (true, CommandPrimer.Get(CommandKey));
+        }
+
         private void OnDepositableDetected(IDepositable unit, bool detected) {
             if (unit.Entity != _depositCommand.Target.Entity) return;
 
             if (detected) {
-                _unitPathing.ClearPath();
-                _unitTargeting.ClearTarget();
+                UnitPathing.ClearPath();
+                UnitTargeting.ClearTarget();
             }
             else
-                _unitTargeting.SetTarget(unit);
+                UnitTargeting.SetTarget(unit);
         }
 
         private void OnResourceDeposited(int oldValue, int newValue) {
@@ -65,11 +60,11 @@ namespace Ratworx.MarsTS.Commands.Receivers
                 || newValue > 0) 
                 return;
             
-            _depositCommand.CompleteCommand(_commandQueue);
+            _depositCommand.CompleteCommand(CommandQueue);
         }
 
         private void OnTargetDeath(UnitDeathEvent evnt) 
-            => _depositCommand.CompleteCommand(_commandQueue, true);
+            => _depositCommand.CompleteCommand(CommandQueue, true);
 
         private void OnCommandComplete(CommandCompleteEvent evnt) {
             _depositRange.OnUnitDetected -= OnDepositableDetected;

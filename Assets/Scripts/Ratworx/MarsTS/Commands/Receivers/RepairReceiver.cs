@@ -10,47 +10,45 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands.Receivers
 {
-	public class RepairReceiver : MonoBehaviour
+	public class RepairReceiver : AbstractCommandReceiver<AttackableCommandlet>
 	{
 		[SerializeField] private AttackableSensor _targetTrackRange;
-
-		private UnitPathfinder _unitPathing;
-		private UnitTargetManager _unitTargeting;
-		private CommandQueue _commandQueue;
-		private EventAgent _eventAgent;
-		private UnitOwnership _ownership;
 		
 		private AttackableCommandlet _repairCommand;
 
-		private void Awake() {
-			_eventAgent = GetComponent<EventAgent>();
-			_commandQueue = GetComponent<CommandQueue>();
-			_unitPathing = GetComponent<UnitPathfinder>();
-			_unitTargeting = GetComponent<UnitTargetManager>();
-			_ownership = GetComponent<UnitOwnership>();
-		}
-
 		private void Start() {
-			_eventAgent.AddListener<CommandStartEvent>(ReceiveCommand);
 			_targetTrackRange.OnUnitDetected += OnUnitDetected;
 		}
 
-		private void ReceiveCommand(CommandStartEvent evnt) {
-			if (evnt.Command is not AttackableCommandlet deserialized
-				|| evnt.Command.Name != "repair") 
-				return;
+		public override bool CanCommand => true;
+		public override bool IsActive => false;
+		public override float Cooldown => 0f;
+
+		public override void ReceiveCommand(AttackableCommandlet command) {
+			IAttackable unit = command.Target;
 			
-			IAttackable unit = deserialized.Target;
-			if (unit.GetRelationship(_ownership.Owner) != Relationship.Owned
-				&& unit.GetRelationship(_ownership.Owner) != Relationship.Friendly) return;
+			if (unit.GetRelationship(Ownership.Owner) != Relationship.Owned
+				&& unit.GetRelationship(Ownership.Owner) != Relationship.Friendly) return;
 			
-			_repairCommand = deserialized;
-			_unitTargeting.SetTarget(_repairCommand.Target);
+			_repairCommand = command;
+			UnitTargeting.SetTarget(_repairCommand.Target);
 			
 			_repairCommand.Target.Entity.TryGetEntityComponent(out EventAgent targetBus);
 			targetBus.AddListener<UnitHurtEvent>(OnTargetHealed);
 			targetBus.AddListener<UnitDeathEvent>(OnTargetDeath);
 			_repairCommand.Callback.AddListener(OnCommandComplete);
+		}
+
+		public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) {
+			if (!entity.TryGetEntityComponent(out IAttackable attackable)
+				|| attackable.GetRelationship(Ownership.Owner) == Relationship.Hostile
+				|| attackable.GetRelationship(Ownership.Owner) == Relationship.Neutral
+				|| !attackable.GameObject.CompareTag("Vehicle")
+				|| !attackable.GameObject.CompareTag("Building")
+				|| attackable.Health >= attackable.MaxHealth)
+				return (false, null);
+
+			return (true, CommandPrimer.Get(CommandKey));
 		}
 
 		private void OnUnitDetected(IAttackable unit, bool detected) {
@@ -59,20 +57,20 @@ namespace Ratworx.MarsTS.Commands.Receivers
 				return;
 
 			if (detected) {
-				_unitPathing.ClearPath();
-				_unitTargeting.ClearTarget();
+				UnitPathing.ClearPath();
+				UnitTargeting.ClearTarget();
 			}
 			else
-				_unitTargeting.SetTarget(unit);
+				UnitTargeting.SetTarget(unit);
 		}
 
 		private void OnTargetHealed(UnitHurtEvent evnt) {
 			if (evnt.Targetable.Health < evnt.Targetable.MaxHealth) return;
 			
-			_repairCommand.CompleteCommand(_commandQueue);
+			_repairCommand.CompleteCommand(CommandQueue);
 		}
 
-		private void OnTargetDeath(UnitDeathEvent evnt) => _repairCommand.CompleteCommand(_commandQueue, true);
+		private void OnTargetDeath(UnitDeathEvent evnt) => _repairCommand.CompleteCommand(CommandQueue, true);
 
 		private void OnCommandComplete(CommandCompleteEvent evnt) {
 			_repairCommand.Target.Entity.TryGetEntityComponent(out EventAgent targetBus);
@@ -82,33 +80,12 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
 			_repairCommand = null;
 
-			_unitTargeting.ClearTarget();
-			_unitPathing.ClearPath();
+			UnitTargeting.ClearTarget();
+			UnitPathing.ClearPath();
 		}
 
-		/*public override CommandFactory Evaluate (ISelectable target) {
-			if (target is IAttackable attackable
-				&& (target.GetRelationship(Owner) == Relationship.Owned || target.GetRelationship(Owner) == Relationship.Friendly)
-				//&& (target.GameObject.CompareTag("vehicle") || target.GameObject.CompareTag("building"))
-				&& attackable.Health < attackable.MaxHealth) {
-				return CommandPrimer.Get("repair");
-			}
-
-			return CommandPrimer.Get("move");
-		}
-
-		public override void AutoCommand (ISelectable target) {
-			if (target is IAttackable attackable
-				&& (target.GetRelationship(Owner) == Relationship.Owned || target.GetRelationship(Owner) == Relationship.Friendly)
-				//&& (target.GameObject.CompareTag("vehicle") || target.GameObject.CompareTag("building"))
-				&& attackable.Health < attackable.MaxHealth) {
-				//CommandRegistry.Get<Repair>("repair").Construct(attackable, Player.SerializedSelected);
-			}
-
-			CommandPrimer.Get<Move>("move").Construct(target.GameObject.transform.position);
-		}
-
-		public override bool CanCommand (string key) {
+		// TODO: Move to Construct Receiver
+		/*public override bool CanCommand (string key) {
 			string[] splitKey = key.Split("/");
 			if (splitKey[0] == "construct") return true;
 

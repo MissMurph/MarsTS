@@ -1,0 +1,26 @@
+using System;
+using Ratworx.MarsTS.Entities;
+
+namespace Ratworx.MarsTS.Commands.Receivers
+{
+    public interface ICommandReceiver<T> : ICommandReceiver where T : Commandlet
+    {
+        void ReceiveCommand(T command);
+    }
+    
+    public interface ICommandReceiver
+    {
+        event Action OnCommandStateUpdated;
+        string CommandKey { get; }
+        bool CanCommand { get; }
+        int EvaluationPriority { get; }
+        bool IsActive { get; }
+        /// <remarks>Will return <c>0</c> if no cooldown.</remarks>
+        float Cooldown { get; }
+        /// <summary>Evaluates if a command can automatically be determined and constructed with the given
+        /// <see cref="Entity"/> as a target.</summary>
+        /// <returns>Valid determines if the target is a valid candidate for this command. Factory will be null if valid
+        /// is false.</returns>
+        (bool valid, CommandFactory factory) EvaluateCommand(Entity entity);
+    }
+}

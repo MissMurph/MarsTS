@@ -1,49 +1,37 @@
-using System;
 using Ratworx.MarsTS.Commands.Commandlets;
-using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events.Commands;
 using Ratworx.MarsTS.Events.Selectable;
-using Ratworx.MarsTS.Units;
-using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands.Receivers
 {
-    public class MoveReceiver : MonoBehaviour
+    public class MoveReceiver : AbstractCommandReceiver<MoveCommandlet>
     {
-        private UnitPathfinder _unitPathing;
-        private CommandQueue _commandQueue;
-        private EventAgent _eventAgent;
-        private MoveCommandlet _moveCommand;
+        // TODO: Investigate checking move_speed attribute to determine if we can command (for mobile artillery)
+        public override bool CanCommand => true;
+        public override bool IsActive => true;
+        public override float Cooldown => 0f;
         
-        private void Awake() {
-            _eventAgent = GetComponent<EventAgent>();
-            _commandQueue = GetComponent<CommandQueue>();
-            _unitPathing = GetComponent<UnitPathfinder>();
-        }
+        private MoveCommandlet _moveCommand;
 
-        private void Start() {
-            _eventAgent.AddListener<CommandStartEvent>(ReceiveCommand);
-        }
-
-        private void ReceiveCommand(CommandStartEvent evnt) {
-            // TODO: Replace below with CommandKey match
-            if (evnt.Command is not MoveCommandlet deserialized) 
-                return;
-
-            _moveCommand = deserialized;
+        public override void ReceiveCommand(MoveCommandlet command) {
+            _moveCommand = command;
             
-            _unitPathing.FindPathTo(deserialized.Target);
-            _eventAgent.AddListener<PathCompleteEvent>(OnPathComplete);
+            UnitPathing.FindPathTo(command.Target);
+            EventAgent.AddListener<PathCompleteEvent>(OnPathComplete);
             _moveCommand.Callback.AddListener(OnCommandComplete);
         }
 
+        public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity)
+            => (true, CommandPrimer.Get(CommandKey));
+
         private void OnCommandComplete(CommandCompleteEvent evnt) {
-            _eventAgent.RemoveListener<PathCompleteEvent>(OnPathComplete);
+            EventAgent.RemoveListener<PathCompleteEvent>(OnPathComplete);
             evnt.Command.Callback.RemoveListener(OnCommandComplete);
             _moveCommand = null;
-            _unitPathing.ClearPath();
+            UnitPathing.ClearPath();
         }
 
-        private void OnPathComplete(PathCompleteEvent evnt) => _moveCommand.CompleteCommand(_commandQueue);
+        private void OnPathComplete(PathCompleteEvent evnt) => _moveCommand.CompleteCommand(CommandQueue);
     }
 }

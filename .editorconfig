@@ -30,7 +30,9 @@ resharper_csharp_alignment_tab_fill_style = optimal_fill
 resharper_csharp_empty_block_style = together
 resharper_csharp_other_braces = end_of_line
 resharper_for_other_types = use_var_when_evident
+resharper_keep_existing_expr_member_arrangement = false
 resharper_method_or_operator_body = expression_body
 resharper_object_creation_when_type_evident = explicitly_typed
 resharper_place_field_attribute_on_same_line = if_owner_is_single_line
+resharper_wrap_before_arrow_with_expressions = true
 </wpf:ResourceDictionary>

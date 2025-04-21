@@ -40,6 +40,8 @@ namespace Ratworx.MarsTS.Commands.Receivers
         private void OnCommandComplete(CommandCompleteEvent evnt) {
             _eventAgent.RemoveListener<PathCompleteEvent>(OnPathComplete);
             evnt.Command.Callback.RemoveListener(OnCommandComplete);
+            _moveCommand = null;
+            _unitPathing.ClearPath();
         }
 
         private void OnPathComplete(PathCompleteEvent evnt) => _moveCommand.CompleteCommand(_commandQueue);

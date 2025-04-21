@@ -7,7 +7,8 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Units
 {
-    public class UnitTargetManager : MonoBehaviour, IEntityComponent<UnitTargetManager>
+    public class UnitTargetManager : MonoBehaviour, 
+                                     IEntityComponent<UnitTargetManager>
     {
         /// <remarks>The unit will be null on a clear</remarks>
         public Action<IUnitInterface> OnTargetChanged;

@@ -10,8 +10,7 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands.Receivers
 {
-	public class RepairReceiver : MonoBehaviour,
-								  IEntityUpdate
+	public class RepairReceiver : MonoBehaviour
 	{
 		[SerializeField] private AttackableSensor _targetTrackRange;
 
@@ -33,6 +32,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
 		private void Start() {
 			_eventAgent.AddListener<CommandStartEvent>(ReceiveCommand);
+			_targetTrackRange.OnUnitDetected += OnUnitDetected;
 		}
 
 		private void ReceiveCommand(CommandStartEvent evnt) {
@@ -53,19 +53,18 @@ namespace Ratworx.MarsTS.Commands.Receivers
 			_repairCommand.Callback.AddListener(OnCommandComplete);
 		}
 
-		public void UpdateServer() {
-			if (_repairCommand is null) 
+		private void OnUnitDetected(IAttackable unit, bool detected) {
+			if (_repairCommand is null
+				|| unit.Entity != _repairCommand.Target.Entity) 
 				return;
-			
-			if (_targetTrackRange.IsDetected(_repairCommand.Target)) {
-				_unitTargeting.ClearTarget();
+
+			if (detected) {
 				_unitPathing.ClearPath();
+				_unitTargeting.ClearTarget();
 			}
 			else
-				_unitTargeting.SetTarget(_repairCommand.Target);
+				_unitTargeting.SetTarget(unit);
 		}
-
-		public void UpdateClient() { }
 
 		private void OnTargetHealed(UnitHurtEvent evnt) {
 			if (evnt.Targetable.Health < evnt.Targetable.MaxHealth) return;

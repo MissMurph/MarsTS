@@ -13,7 +13,9 @@ namespace Ratworx.MarsTS.Entities
 {
     [RequireComponent(typeof(EventAgent))]
     [RequireComponent(typeof(NetworkObject))]
-    public class Entity : NetworkBehaviour, IRegistryObject<Entity>
+    public class Entity : NetworkBehaviour, 
+                          IRegistryObject<Entity>,
+                          IEquatable<Entity>
     {
         public int Id { get; private set; }
 
@@ -187,6 +189,23 @@ namespace Ratworx.MarsTS.Entities
         }
 
         public Entity GetEntityComponent() => this;
+
+        public bool Equals(Entity other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return base.Equals(other) && Id == other.Id;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Entity)obj);
+        }
+
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Id);
     }
 
     [Serializable]

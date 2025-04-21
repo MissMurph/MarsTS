@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ratworx.MarsTS.Entities;
@@ -12,6 +13,11 @@ namespace Ratworx.MarsTS.Units.Sensors
 {
     public abstract class AbstractSensor<T> : MonoBehaviour where T : IUnitInterface
     {
+        /// <remarks><c>bool</c> value is set to true if the unit was detected, false if it's no longer detected.</remarks>
+        public event Action<T, bool> OnUnitDetected;
+        /// <remarks><c>bool</c> value is set to true if the unit is in range, false if it's no longer in range.</remarks>
+        public event Action<T, bool> OnUnitInRange;
+        
         public float Range => SensorCollider.radius;
 
         public List<T> Detected => detected.Values.ToList();
@@ -116,11 +122,13 @@ namespace Ratworx.MarsTS.Units.Sensors
                 inRange[other.transform.root.name] = target;
                 //colliders[other.transform.root.name] = other.gameObject;
                 GetHashedColliders(other.transform.root.name).Add(other.gameObject);
+                OnUnitInRange?.Invoke(target, true);
 
                 if (GameVision.IsVisible(other.transform.root.gameObject, Parent.Owner.VisionMask))
                 {
                     detected[other.transform.root.name] = target;
                     Bus.PostLocal(new SensorUpdateEvent<T>(Bus, target, true));
+                    OnUnitDetected?.Invoke(target, true);
                 }
             }
 
@@ -153,13 +161,14 @@ namespace Ratworx.MarsTS.Units.Sensors
                     T toRemove = detected[inRangeUnit.Key];
                     detected.Remove(inRangeUnit.Key);
                     Bus.PostLocal(new SensorUpdateEvent<T>(Bus, toRemove, false));
+                    OnUnitDetected?.Invoke(toRemove, false);
                 }
             }
         }
 
         protected virtual void OnUnitDeath(UnitDeathEvent _event)
         {
-            OutOfRange(_event.Unit.GameObject.name);
+            OutOfRange(_event.Entity.gameObject.name);
         }
 
         public virtual bool IsDetected(string name) => detected.ContainsKey(name);
@@ -180,10 +189,12 @@ namespace Ratworx.MarsTS.Units.Sensors
             {
                 detected.Remove(key);
                 Bus.PostLocal(new SensorUpdateEvent<T>(Bus, toRemove, false));
+                OnUnitDetected?.Invoke(toRemove, false);
             }
 
             inRange.Remove(key);
             DetectedColliders.Remove(key);
+            OnUnitInRange?.Invoke(toRemove, false);
         }
 
         protected virtual HashSet<GameObject> GetHashedColliders(string key)

@@ -10,8 +10,7 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands.Receivers
 {
-    public class AttackReceiver : MonoBehaviour,
-                                  IEntityUpdate
+    public class AttackReceiver : MonoBehaviour
     {
         [SerializeField] private AttackableSensor _targetTrackRange;
         
@@ -39,26 +38,24 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
             _attackCommand = deserialized;
             _unitTargeting.SetTarget(_attackCommand.Target);
-
+            
+            _targetTrackRange.OnUnitDetected += OnTargetDetected;
+            
             _attackCommand.Target.Entity.TryGetEntityComponent(out EventAgent targetBus);
             targetBus.AddListener<UnitDeathEvent>(OnTargetDeath);
             _attackCommand.Callback.AddListener(OnCommandComplete);
         }
 
-        public void UpdateServer() {
-            if (_attackCommand is null) 
-                return;
+        private void OnTargetDetected(IAttackable unit, bool detected) {
+            if (unit.Entity != _attackCommand.Target.Entity) return;
 
-            if (_targetTrackRange.IsDetected(_attackCommand.Target)) {
-                _unitTargeting.ClearTarget();
+            if (detected) {
                 _unitPathing.ClearPath();
+                _unitTargeting.ClearTarget();
             }
             else
-                _unitTargeting.SetTarget(_attackCommand.Target);
+                _unitTargeting.SetTarget(unit);
         }
-
-        // stimky...
-        public void UpdateClient() { }
 
         private void OnTargetDeath (UnitDeathEvent evnt) => _attackCommand.CompleteCommand(_commandQueue);
 
@@ -68,6 +65,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
             targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
             evnt.Command.Callback.RemoveListener(OnCommandComplete);
             
+            _targetTrackRange.OnUnitDetected -= OnTargetDetected;
             _attackCommand = null;
             
             _unitTargeting.ClearTarget();

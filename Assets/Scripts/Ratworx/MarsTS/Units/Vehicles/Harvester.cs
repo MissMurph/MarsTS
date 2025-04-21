@@ -185,26 +185,7 @@ namespace Ratworx.MarsTS.Units.Vehicles
             }
         }
 
-        private void FindDepositable()
-        {
-            IDepositable closestBank = null;
-            float currentDist = 1000f;
-
-            foreach (IDepositable bank in Owner.GetOwnedDepositables())
-            {
-                float newDistance = Vector3.Distance(bank.GameObject.transform.position, transform.position);
-
-                if (newDistance < currentDist) closestBank = bank;
-            }
-
-            if (closestBank != null)
-            {
-                DepositTarget = closestBank;
-                TrackedTarget = DepositTarget.GameObject.transform;
-
-                Bus.AddListener<HarvesterDepositEvent>(OnDeposit);
-            }
-        }
+        
 
         
 

@@ -1,4 +1,5 @@
 using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Harvesting;
 using Ratworx.MarsTS.Events.Selectable.Internal;
@@ -9,7 +10,8 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Units.Turrets
 {
-    public class HarvesterTurret : MonoBehaviour
+    public class HarvesterTurret : MonoBehaviour,
+                                   IEntityUpdate
     {
         //This is how many units per second
         [SerializeField] private int _harvestRate;
@@ -47,7 +49,7 @@ namespace Ratworx.MarsTS.Units.Turrets
             _harvestAmount = (int)(_harvestRate * _cooldown);
         }
 
-        private void Update()
+        public void UpdateServer()
         {
             if (!NetworkManager.Singleton.IsServer) return;
 
@@ -70,23 +72,25 @@ namespace Ratworx.MarsTS.Units.Turrets
 
             if (_target != null && _sensor.IsDetected(_target) && _currentCooldown <= 0) Harvest();
         }
+        
+        public void UpdateClient() { }
 
-        private void FixedUpdate()
+        /*private void FixedUpdate()
         {
             if (!NetworkManager.Singleton.IsServer) return;
 
             if (_target != null && _sensor.IsDetected(_target))
                 _barrel.transform.LookAt(_target.GameObject.transform, Vector3.up);
-        }
+        }*/
 
         private void Harvest()
         {
             IHarvestable harvestable = _target;
 
-            int harvested = harvestable.Harvest("resource_unit", _parent, _harvestAmount, _localStorage.Submit);
+            int harvested = harvestable.Harvest(_localStorage.Resource, _parent, _harvestAmount, _localStorage.Submit);
             
             _bus.PostGlobal(new ResourceHarvestedEvent(_bus, _parent, ResourceHarvestedEvent.Side.Harvester,
-                harvested, "resource_unit", _localStorage.Value, _localStorage.Capacity));
+                harvested, _localStorage.Resource, _localStorage.Value, _localStorage.Capacity));
 
             _currentCooldown += _cooldown;
         }
@@ -94,7 +98,7 @@ namespace Ratworx.MarsTS.Units.Turrets
         private void OnStorageValueChange(int oldValue, int newValue)
         {
             _bus.PostGlobal(new ResourceHarvestedEvent(_bus, _parent, ResourceHarvestedEvent.Side.Harvester,
-                newValue - oldValue, "resource_unit", _localStorage.Value, _localStorage.Capacity));
+                newValue - oldValue, _localStorage.Resource, _localStorage.Value, _localStorage.Capacity));
         }
 
         private void OnSensorUpdate(SensorUpdateEvent<IHarvestable> _event)

@@ -25,5 +25,16 @@ namespace Ratworx.MarsTS.Units {
 
             return difference;
         }
+        
+        /*protected override void OnUnitInfoDisplayed(UnitInfoEvent _event)
+        {
+            base.OnUnitInfoDisplayed(_event);
+
+            if (ReferenceEquals(_event.Unit, this))
+            {
+                UnitResourceStorageInfo info = _event.Info.Module<UnitResourceStorageInfo>("storage");
+                info.SetStorage(_storageComp);
+            }
+        }*/
     }
 }

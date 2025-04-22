@@ -11,7 +11,7 @@ using UnityEngine.Serialization;
 
 namespace Ratworx.MarsTS.Units.Turrets
 {
-    public class ProjectileTurret : NetworkBehaviour, IEntityUpdate
+    public class ProjectileTurret : NetworkBehaviour, IEntityServerUpdate
     {
         [FormerlySerializedAs("projectile")] [SerializeField]
         protected GameObject _projectile;

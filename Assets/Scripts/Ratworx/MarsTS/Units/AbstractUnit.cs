@@ -46,10 +46,6 @@ namespace Ratworx.MarsTS.Units
         }
         
 
-        
-
-        
-
         public AbstractUnit Get() => this;
 
         
@@ -62,22 +58,5 @@ namespace Ratworx.MarsTS.Units
                 // info.CurrentUnit = this;
             }*/
         }
-
-        /*public virtual bool CanCommand(string key)
-        {
-            bool canUse = false;
-
-            for (int i = 0; i < boundCommands.Length; i++)
-            {
-                if (boundCommands[i] == key) break;
-
-                if (i >= boundCommands.Length - 1) return false;
-            }
-
-            if (commands.CanCommand(key)) canUse = true;
-            //if (production.CanCommand(key)) canUse = true;
-
-            return canUse;
-        }*/
     }
 }

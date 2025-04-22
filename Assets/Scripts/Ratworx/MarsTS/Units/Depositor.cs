@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Ratworx.MarsTS.Units
 {
     public class Depositor : MonoBehaviour,
-                             IEntityUpdate
+                             IEntityServerUpdate
     {
         [SerializeField] private ResourceStorage _storage;
         [SerializeField] private DepositSensor _sensor;
@@ -42,9 +42,6 @@ namespace Ratworx.MarsTS.Units
             _currentCooldown -= Time.deltaTime;
             if (_currentCooldown <= 0f) DepositResources(depositable);
         }
-
-        // Stimky
-        public void UpdateClient() { }
 
         // TODO: Investigate if we actually need this after reworking Roughnecks logic
         private void DepositResources(IDepositable depositTarget) {

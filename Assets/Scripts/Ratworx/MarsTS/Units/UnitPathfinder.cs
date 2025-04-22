@@ -10,7 +10,7 @@ using UnityEngine.Serialization;
 
 namespace Ratworx.MarsTS.Units
 {
-    public class UnitPathfinder : MonoBehaviour, IEntityComponent<UnitPathfinder>, IEntityUpdate
+    public class UnitPathfinder : MonoBehaviour, IEntityComponent<UnitPathfinder>, IEntityServerUpdate
     {
         public UnitPathfinder Get() => this;
         public string Key => "pathing";

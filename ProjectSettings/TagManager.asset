@@ -11,6 +11,7 @@ TagManager:
   - Vehicle
   - ViewportRenderer
   - Canvas
+  - Building
   layers:
   - Default
   - TransparentFX

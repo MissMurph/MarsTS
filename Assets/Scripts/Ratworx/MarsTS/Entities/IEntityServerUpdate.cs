@@ -1,6 +1,5 @@
 namespace Ratworx.MarsTS.Entities {
-    public interface IEntityUpdate {
+    public interface IEntityServerUpdate {
         void UpdateServer();
-        void UpdateClient();
     }
 }

@@ -11,6 +11,7 @@ namespace Ratworx.MarsTS.Entities {
         private EntityCache _entityCache;
 
         private bool _isUpdating;
+        private bool _isUpdatingPhysics;
 
         private bool _isClient;
         private bool _isServer;
@@ -34,6 +35,25 @@ namespace Ratworx.MarsTS.Entities {
                         Entity entity = updateCache.Current;
                         if (_isServer) entity.ServerUpdate();
                         if (_isClient) entity.ClientUpdate();
+                    }
+
+                    _isUpdating = false;
+                }
+                catch (Exception exception) {
+                    RatLogger.Error?.Log(exception);
+                }
+            }
+        }
+
+        private void FixedUpdate() {
+            if (!_isServer) return;
+
+            using IEnumerator<Entity> updateCache = _entityCache.GetEnumerator();
+            while (_isUpdating) {
+                try {
+                    while (updateCache.MoveNext() && updateCache.Current is not null) {
+                        Entity entity = updateCache.Current;
+                        entity.PhysicsUpdate();
                     }
 
                     _isUpdating = false;

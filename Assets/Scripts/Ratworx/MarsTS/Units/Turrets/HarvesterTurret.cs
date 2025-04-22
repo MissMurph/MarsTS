@@ -11,34 +11,27 @@ using UnityEngine;
 namespace Ratworx.MarsTS.Units.Turrets
 {
     public class HarvesterTurret : MonoBehaviour,
-                                   IEntityUpdate
+                                   IEntityServerUpdate
     {
         //This is how many units per second
         [SerializeField] private int _harvestRate;
 
         private int _harvestAmount;
-
         private float _cooldown;
         private float _currentCooldown;
 
         private ResourceStorage _localStorage;
 
-        [SerializeField] private GameObject _barrel;
-
-        public float Range => _sensor.Range;
-
-        private IHarvestable _target;
-
-        private ISelectable _parent;
+        // [SerializeField] private GameObject _barrel;
+        
+        private UnitTargetManager _unitTargeting;
         private EventAgent _bus;
 
-        private HarvestSensor _sensor;
+        [SerializeField] private HarvestSensor _sensor;
 
         private void Awake()
         {
-            _parent = GetComponentInParent<ISelectable>();
             _bus = GetComponentInParent<EventAgent>();
-            _sensor = GetComponent<HarvestSensor>();
 
             _bus.AddListener<SensorUpdateEvent<IHarvestable>>(OnSensorUpdate);
 
@@ -51,8 +44,6 @@ namespace Ratworx.MarsTS.Units.Turrets
 
         public void UpdateServer()
         {
-            if (!NetworkManager.Singleton.IsServer) return;
-
             if (_currentCooldown >= 0f) _currentCooldown -= Time.deltaTime;
 
             if (_parent is ICommandable commandableUnit && commandableUnit.CurrentCommand != null &&
@@ -72,16 +63,6 @@ namespace Ratworx.MarsTS.Units.Turrets
 
             if (_target != null && _sensor.IsDetected(_target) && _currentCooldown <= 0) Harvest();
         }
-        
-        public void UpdateClient() { }
-
-        /*private void FixedUpdate()
-        {
-            if (!NetworkManager.Singleton.IsServer) return;
-
-            if (_target != null && _sensor.IsDetected(_target))
-                _barrel.transform.LookAt(_target.GameObject.transform, Vector3.up);
-        }*/
 
         private void Harvest()
         {
@@ -112,7 +93,5 @@ namespace Ratworx.MarsTS.Units.Turrets
                 _target = null;
             }
         }
-
-        public bool IsInRange(IHarvestable target) => _sensor.IsDetected(target);
     }
 }

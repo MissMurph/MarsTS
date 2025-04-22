@@ -48,7 +48,9 @@ namespace Ratworx.MarsTS.Entities
 
         private Dictionary<string, IEntityComponent> _registeredEntityComponents;
         private Dictionary<string, Component> _taggedComponents;
-        private List<IEntityUpdate> _updateComponents;
+        private List<IEntityServerUpdate> _serverUpdateComponents;
+        private List<IEntityClientUpdate> _clientUpdateComponents;
+        private List<IEntityPhysicsUpdate> _physicsUpdateComponents;
 
         private EventAgent _eventAgent;
 
@@ -66,7 +68,9 @@ namespace Ratworx.MarsTS.Entities
                 _registeredEntityComponents[component.Key] = component;
             }
 
-            _updateComponents = GetComponentsInChildren<IEntityUpdate>().ToList();
+            _serverUpdateComponents = GetComponentsInChildren<IEntityServerUpdate>().ToList();
+            _clientUpdateComponents = GetComponentsInChildren<IEntityClientUpdate>().ToList();
+            _physicsUpdateComponents = GetComponentsInChildren<IEntityPhysicsUpdate>().ToList();
 
             if (TryGetComponent(out NetworkObject found)) _taggedComponents["networking"] = found;
 
@@ -84,13 +88,18 @@ namespace Ratworx.MarsTS.Entities
         }
 
         internal void ServerUpdate() {
-            foreach (IEntityUpdate component in _updateComponents) 
+            foreach (IEntityServerUpdate component in _serverUpdateComponents) 
                 component.UpdateServer();
         }
 
         internal void ClientUpdate() {
-            foreach (IEntityUpdate component in _updateComponents) 
+            foreach (IEntityClientUpdate component in _clientUpdateComponents) 
                 component.UpdateClient();
+        }
+        
+        internal void PhysicsUpdate() {
+            foreach (IEntityPhysicsUpdate component in _physicsUpdateComponents) 
+                component.UpdatePhysics();
         }
 
         private void Initialize()

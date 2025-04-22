@@ -15,6 +15,8 @@ namespace Ratworx.MarsTS.Commands.Receivers
         bool CanCommand { get; }
         int EvaluationPriority { get; }
         bool IsActive { get; }
+        /// <summary>If true, this command cannot be cancelled or stopped until completion.</summary>
+        bool CanInterrupt { get; }
         /// <remarks>Will return <c>0</c> if no cooldown.</remarks>
         float Cooldown { get; }
         /// <summary>Evaluates if a command can automatically be determined and constructed with the given

@@ -1,3 +1,4 @@
+using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Units;
 
 namespace Ratworx.MarsTS.Events.Selectable {
@@ -6,8 +7,8 @@ namespace Ratworx.MarsTS.Events.Selectable {
 
         public bool IsDeployed { get; private set; }
 
-        public DeployEvent (EventAgent _source, ISelectable _unit, bool _isDeployed) : base("Deploy", _source, _unit) {
-            IsDeployed = _isDeployed;
+        public DeployEvent (Entity unit, bool isDeployed) : base("Deploy", unit) {
+            IsDeployed = isDeployed;
         }
     }
 }

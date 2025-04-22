@@ -7,13 +7,13 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands.Receivers
 {
-    public class StopReceiver : AbstractCommandReceiver<SimpleCommandlet>
+    public class StopReceiver : AbstractCommandReceiver<BooleanCommandlet>
     {
         public override bool CanCommand => true;
         public override bool IsActive => false;
         public override float Cooldown => 0f;
 
-        public override void ReceiveCommand(SimpleCommandlet command) {
+        public override void ReceiveCommand(BooleanCommandlet command) {
             UnitPathing.ClearPath();
             UnitTargeting.ClearTarget();
             CommandQueue.Clear();

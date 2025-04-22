@@ -50,7 +50,6 @@ namespace Ratworx.MarsTS.Entities
 		private int _maxHealth;
 
 		public GameObject GameObject => gameObject;
-		public IUnitInterface UnitInterface { get; }
 		
 		protected void OnHurt(int oldHealth, int newHealth)
 		{

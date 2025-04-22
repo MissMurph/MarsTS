@@ -26,7 +26,7 @@ namespace Ratworx.MarsTS.Commands.Commandlets {
             Init(commandName, target, commander);
         }
 
-        public override string SerializerKey => "simple";
+        public override string SerializerKey => "boolean";
 
         public override void ActivateCommand (CommandQueue queue, CommandActiveEvent _event) {
             base.ActivateCommand(queue, _event);

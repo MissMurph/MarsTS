@@ -1,7 +1,9 @@
 using System;
+using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events.Init;
 using Ratworx.MarsTS.Events.Selectable;
 using Ratworx.MarsTS.Events.Selectable.Building;
+using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.UI.Unit_Pane;
 using Ratworx.MarsTS.Units;
 using Ratworx.MarsTS.WorldObject;
@@ -93,10 +95,14 @@ namespace Ratworx.MarsTS.Buildings
             _exploitedDeposit.Exploited = true;
         }
 
-        public virtual bool CanHarvest(string resourceKey, ISelectable unit) =>
-            resourceKey == "oil" && (unit.Owner == Owner || unit.UnitType == "roughneck");
+        // TODO: We should probs do these checks on the harvesting entity??
+        public virtual bool CanHarvest(string resourceKey, Entity unit)
+            => resourceKey == "oil"
+               && ((unit.TryGetEntityComponent(out UnitOwnership ownership) &&
+                    ownership.GetRelationship(Owner) == Relationship.Owned)
+                   || unit.RegistryKey == "roughneck");
 
-        public virtual int Harvest(string resourceKey, ISelectable harvester, int harvestAmount,
+        public virtual int Harvest(string resourceKey, Entity harvester, int harvestAmount,
             Func<int, int> extractor)
         {
             if (!CanHarvest(resourceKey, harvester)) 

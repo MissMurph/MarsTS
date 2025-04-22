@@ -91,7 +91,7 @@ namespace Ratworx.MarsTS.WorldObject
 
         public virtual int Harvest(
             string resourceKey,
-            ISelectable harvester,
+            Entity harvester,
             int harvestAmount,
             Func<int, int> extractor
         ) {

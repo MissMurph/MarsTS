@@ -323,7 +323,7 @@ namespace Ratworx.MarsTS.Units.Infantry {
 			if (roughneckSquad.Stored >= roughneckSquad.Capacity) {
 				_bus.RemoveListener<ResourceHarvestedEvent>(OnExtraction);
 
-				EntityCache.TryGetEntityComponent(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
+				EntityCache.TryGetEntityComponent(_event.Unit.gameObject.name, out EventAgent targetBus);
 
 				targetBus.RemoveListener<UnitDeathEvent>(OnDepositDepleted);
 

@@ -1,18 +1,18 @@
+using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Units;
 
 namespace Ratworx.MarsTS.Events.Harvesting {
 
 	public class ResourceHarvestedEvent : ResourceEvent {
 		
-		public ISelectable Unit { get; private set; }
+		public Entity Unit { get; private set; }
 		public Side EventSide { get; private set; }
 		public int HarvestAmount { get; private set; }
 		public int StoredAmount { get; private set; }
 		public int Capacity { get; private set; }
 
 		public ResourceHarvestedEvent (
-            EventAgent source, 
-            ISelectable unit, 
+            Entity unit, 
             Side eventSide, 
             int harvestAmount, 
             string resourceType, 
@@ -20,7 +20,6 @@ namespace Ratworx.MarsTS.Events.Harvesting {
             int capacity
         ) : base(
 			$"{resourceType}Harvested", 
-			source, 
 			resourceType
 		) {
 			Unit = unit;

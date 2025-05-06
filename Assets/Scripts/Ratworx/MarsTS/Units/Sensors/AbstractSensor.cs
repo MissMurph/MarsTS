@@ -11,6 +11,7 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Units.Sensors
 {
+    [RequireComponent(typeof(Collider))]
     public abstract class AbstractSensor<T> : MonoBehaviour where T : IUnitInterface
     {
         /// <remarks><c>bool</c> value is set to true if the unit was detected, false if it's no longer detected.</remarks>
@@ -18,7 +19,7 @@ namespace Ratworx.MarsTS.Units.Sensors
         /// <remarks><c>bool</c> value is set to true if the unit is in range, false if it's no longer in range.</remarks>
         public event Action<T, bool> OnUnitInRange;
         
-        public float Range => SensorCollider.radius;
+        public float Range => _sensorCollider.radius;
 
         public List<T> Detected => detected.Values.ToList();
 
@@ -39,7 +40,7 @@ namespace Ratworx.MarsTS.Units.Sensors
             }
         }
 
-        private SphereCollider SensorCollider;
+        private SphereCollider _sensorCollider;
 
         protected readonly Dictionary<string, T> inRange = new Dictionary<string, T>();
         protected readonly Dictionary<string, T> detected = new Dictionary<string, T>();
@@ -54,14 +55,14 @@ namespace Ratworx.MarsTS.Units.Sensors
         private Entity _parentEntity;
 
         protected virtual void Awake() {
-            SensorCollider = GetComponent<SphereCollider>();
-            SensorCollider.enabled = false;
+            _sensorCollider = GetComponent<SphereCollider>();
+            _sensorCollider.enabled = false;
             Bus = GetComponentInParent<EventAgent>();
             Ownership = GetComponentInParent<UnitOwnership>();
             _parentEntity = GetComponentInParent<Entity>();
 
             foreach (Collider colliderToIgnore in transform.GetComponentsInChildren<Collider>()) {
-                Physics.IgnoreCollision(SensorCollider, colliderToIgnore, true);
+                Physics.IgnoreCollision(_sensorCollider, colliderToIgnore, true);
             }
 
             _parentEntity.OnEntityInit += OnEntityInit;
@@ -69,6 +70,12 @@ namespace Ratworx.MarsTS.Units.Sensors
 
         protected virtual void Start() {
             EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
+        }
+
+        private void OnDisable() {
+            _detectedColliders.Clear();
+            inRange.Clear();
+            detected.Clear();
         }
 
         protected void Update() {
@@ -89,7 +96,7 @@ namespace Ratworx.MarsTS.Units.Sensors
                 return;
             
             IsInitialized = true;
-            SensorCollider.enabled = true;
+            _sensorCollider.enabled = true;
         }
 
         protected virtual void OnTriggerEnter(Collider other) {
@@ -126,25 +133,22 @@ namespace Ratworx.MarsTS.Units.Sensors
         protected virtual void OnTriggerExit(Collider other) {
             if (!IsInitialized) return;
 
-            if (_detectedColliders.TryGetValue(other.transform.name, out HashSet<GameObject> colliderTable))
-            {
-                colliderTable.Remove(other.gameObject);
+            if (!_detectedColliders.TryGetValue(other.transform.name, out HashSet<GameObject> colliderTable)) 
+                return;
+            
+            colliderTable.Remove(other.gameObject);
 
-                if (colliderTable.Count <= 0) OutOfRange(other.transform.name);
-            }
+            if (colliderTable.Count <= 0)
+                OutOfRange(other.transform.name);
         }
 
-        protected virtual void OnVisionUpdate(VisionUpdateEvent evnt)
-        {
-            foreach (KeyValuePair<string, T> inRangeUnit in inRange)
-            {
-                if (GameVision.IsVisible(inRangeUnit.Key, Ownership.Owner.VisionMask))
-                {
+        protected virtual void OnVisionUpdate(VisionUpdateEvent evnt) {
+            foreach (KeyValuePair<string, T> inRangeUnit in inRange) {
+                if (GameVision.IsVisible(inRangeUnit.Key, Ownership.Owner.VisionMask)) {
                     detected[inRangeUnit.Key] = inRange[inRangeUnit.Key];
                     Bus.PostLocal(new SensorUpdateEvent<T>(Bus, detected[inRangeUnit.Key], true));
                 }
-                else if (detected.ContainsKey(inRangeUnit.Key))
-                {
+                else if (detected.ContainsKey(inRangeUnit.Key)) {
                     T toRemove = detected[inRangeUnit.Key];
                     detected.Remove(inRangeUnit.Key);
                     Bus.PostLocal(new SensorUpdateEvent<T>(Bus, toRemove, false));
@@ -153,13 +157,11 @@ namespace Ratworx.MarsTS.Units.Sensors
             }
         }
 
-        private void OnUnitDeath(UnitDeathEvent evnt) => OutOfRange(evnt.Entity.gameObject.name);
+        protected void OnUnitDeath(UnitDeathEvent evnt) => OutOfRange(evnt.Entity.gameObject.name);
 
         public virtual bool IsDetected(string name) => detected.ContainsKey(name);
 
-        public virtual bool IsDetected(T unit) {
-            return IsDetected(unit.GameObject.name);
-        }
+        public virtual bool IsDetected(T unit) => IsDetected(unit.GameObject.name);
 
         protected virtual void OutOfRange(string key) {
             if (!inRange.ContainsKey(key)
@@ -169,8 +171,7 @@ namespace Ratworx.MarsTS.Units.Sensors
 
             T toRemove = inRange[key];
 
-            if (detected.ContainsKey(key))
-            {
+            if (detected.ContainsKey(key)) {
                 detected.Remove(key);
                 Bus.PostLocal(new SensorUpdateEvent<T>(Bus, toRemove, false));
                 OnUnitDetected?.Invoke(toRemove, false);

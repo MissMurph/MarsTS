@@ -1,7 +1,7 @@
+using System;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Selectable.Attackable;
-using Ratworx.MarsTS.Events.Selectable.Internal;
 using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units.Sensors;
 using Unity.Netcode;
@@ -9,36 +9,43 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Units.Turrets
 {
+    [RequireComponent(typeof(AttackableSensor))]
     public class ProjectileTurret : NetworkBehaviour, 
-                                    IEntityServerUpdate
+                                    IEntityClientUpdate
     {
         [SerializeField] private int _damage;
         [SerializeField] private float _cooldown;
         [SerializeField] private AttackableSensor _sensor;
         [SerializeField] private GameObject _projectilePrefab;
         [SerializeField] private GameObject _barrel;
+        // [SerializeField] private GameObject _rangeIndicator;
 
         private float _currentCooldown;
+        private IAttackable _trackedTarget;
+        private Quaternion _startingBarrelRotation;
+
         private EventAgent _eventAgent;
         private UnitTargetManager _unitTargeting;
         private UnitOwnership _ownership;
+        private UnitSelection _unitSelection;
         private Entity _entity;
-        private IAttackable _trackedTarget;
 
         private void Awake() {
             _entity = GetComponentInParent<Entity>();
             _eventAgent = GetComponentInParent<EventAgent>();
+            _unitTargeting = GetComponentInParent<UnitTargetManager>();
+            _ownership = GetComponentInParent<UnitOwnership>();
+            _unitSelection = GetComponentInParent<UnitSelection>();
             _sensor = GetComponent<AttackableSensor>();
-            _unitTargeting = GetComponent<UnitTargetManager>();
-            _ownership = GetComponent<UnitOwnership>();
+
+            _startingBarrelRotation = _barrel.transform.localRotation;
         }
 
-        private void OnEnable() {
+        private void Start() {
             _sensor.OnUnitDetected += OnUnitDetected;
         }
-        
+
         private void OnDisable() {
-            _sensor.OnUnitDetected -= OnUnitDetected;
             _trackedTarget = null;
         }
 
@@ -48,13 +55,18 @@ namespace Ratworx.MarsTS.Units.Turrets
 
             if (!detected && _trackedTarget == unit) {
                 _trackedTarget = GetClosestDetected();
+                return;
             }
 
-            if (_unitTargeting.TargetUnit is IAttackable
-                && unit == _unitTargeting.TargetUnit)
+            if (_unitTargeting.TargetUnit is IAttackable && unit == _unitTargeting.TargetUnit) {
                 _trackedTarget = unit;
+                return;
+            }
             
             if (_trackedTarget != null) return;
+
+            if (detected) 
+                _trackedTarget = unit;
         }
 
         private IAttackable GetClosestDetected() {
@@ -75,20 +87,12 @@ namespace Ratworx.MarsTS.Units.Turrets
             return currentClosest;
         }
 
-        public void UpdateServer() {
-            
-        }
-
         public void UpdateClient() {
-            
-        }
-
-        private void FixedUpdate() {
-            if (!NetworkManager.Singleton.IsServer) return;
-            
-            if (_target != null && _sensor.IsDetected(_target))
-                _barrel.transform.LookAt(_sensor.GetDetectedCollider(_target.GameObject.name).transform.position,
-                    Vector3.up);
+            if (_trackedTarget != null)
+                _barrel.transform.LookAt(
+                    _sensor.GetDetectedCollider(_trackedTarget.GameObject.name).transform.position);
+            else
+                _barrel.transform.rotation = _startingBarrelRotation;
         }
 
         protected virtual void FireProjectile(Vector3 position) {
@@ -103,9 +107,9 @@ namespace Ratworx.MarsTS.Units.Turrets
 
             bullet.transform.LookAt(position);
 
-            bullet.Init(_parent, OnHit);
+            bullet.Init(_ownership.Owner, OnHit);
 
-            CurrentCooldown += _cooldown;
+            _currentCooldown += _cooldown;
         }
 
         [Rpc(SendTo.NotServer)]
@@ -128,19 +132,23 @@ namespace Ratworx.MarsTS.Units.Turrets
             attackEvent.Phase = Phase.Post;
             _eventAgent.PostGlobal(attackEvent);
         }
-
-        private void OnSensorUpdate(SensorUpdateEvent<IAttackable> evnt)
+        
+        // TODO: Convert below to selection circle
+        /*private void OnSelect(UnitSelectEvent evnt)
         {
-            if (evnt.Detected)
-            {
-                if (_target == null && evnt.Target.GetRelationship(_parent.Owner) == Relationship.Hostile)
-                    _target = evnt.Target;
-            }
-            else if (ReferenceEquals(evnt.Target, _target))
-            {
-                _target = null;
-            }
+            if (_isDeployed && evnt.Status)
+                _rangeIndicator.SetActive(true);
+            else
+                _rangeIndicator.SetActive(false);
         }
+
+        private void OnHover(UnitHoverEvent evnt)
+        {
+            if (_isDeployed && evnt.Status)
+                _rangeIndicator.SetActive(true);
+            else
+                _rangeIndicator.SetActive(false);
+        }*/
 
         public bool IsInRange(IAttackable target) => _sensor.IsDetected(target);
     }

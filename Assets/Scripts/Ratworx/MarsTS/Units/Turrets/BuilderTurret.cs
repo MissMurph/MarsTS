@@ -2,7 +2,6 @@ using Ratworx.MarsTS.Commands;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Selectable.Internal;
 using Ratworx.MarsTS.Teams;
-using Ratworx.MarsTS.Units.SafeReference;
 using Ratworx.MarsTS.Units.Sensors;
 using Unity.Netcode;
 using UnityEngine;

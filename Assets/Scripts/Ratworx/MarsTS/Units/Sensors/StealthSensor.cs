@@ -20,19 +20,20 @@ namespace Ratworx.MarsTS.Units.Sensors {
 		protected override void OnTriggerEnter (Collider other) {
 			if (!IsInitialized) return;
 
-			if (EntityCache.TryGetEntity(other.transform.root.name, out Entity entityComp)
-				&& entityComp.TryGetEntityComponent(out ISelectable target)) {
-				EventAgent targetBus = entityComp.GetEntityComponent<EventAgent>("eventAgent");
+			if (!EntityCache.TryGetEntity(other.transform.name, out Entity entityComp)
+				|| !entityComp.TryGetEntityComponent(out ISelectable target)) 
+				return;
+			
+			EventAgent targetBus = entityComp.GetEntityComponent<EventAgent>("eventAgent");
 
-				targetBus.AddListener<UnitDeathEvent>(OnUnitDeath);
-				targetBus.AddListener<EntityVisibleCheckEvent>(OnOtherEntityVisibleEvent);
+			targetBus.AddListener<UnitDeathEvent>(OnUnitDeath);
+			targetBus.AddListener<EntityVisibleCheckEvent>(OnOtherEntityVisibleEvent);
 
-				inRange[other.transform.root.name] = target;
-			}
+			inRange[other.transform.name] = target;
 		}
 
 		public override bool IsDetected (ISelectable unit) {
-			return IsDetected(unit.GameObject.transform.root.name);
+			return IsDetected(unit.GameObject.transform.name);
 		}
 
 		protected override void OutOfRange (string key) {

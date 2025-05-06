@@ -1,57 +1,85 @@
 using System;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Pathfinding;
+using Ratworx.MarsTS.Teams;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Ratworx.MarsTS.Units.Turrets {
 
-    public class Projectile : MonoBehaviour {
-
-        [SerializeField]
-        private float speed;
-
+    public class Projectile : MonoBehaviour, 
+							  IEntityServerUpdate,
+							  IEntityClientUpdate
+	{
+        [FormerlySerializedAs("speed")]
 		[SerializeField]
-		private float lifeTime;
+        private float _speed;
 
-		private bool initialized = false;
+		[FormerlySerializedAs("lifeTime")]
+		[SerializeField]
+		private float _lifeTime;
 
-		private ISelectable parent;
+		private bool _initialized = false;
 
-		private Action<bool, IAttackable> hitCallback;
+		private Faction _owner;
 
-		public void Init (ISelectable _parent, Action<bool, IAttackable> callback) {
-			parent = _parent;
-			initialized = true;
-			hitCallback = callback;
+		private Action<bool, IAttackable> _hitCallback;
+
+		public void Init (Faction owner, Action<bool, IAttackable> callback) {
+			_owner = owner;
+			_initialized = true;
+			_hitCallback = callback;
 		}
 
-		private void Update () {
-			if (initialized) {
-				Vector3 oldPos = transform.position;
+		public void UpdateServer() {
+			MoveProjectile();
+		}
 
-				transform.position += transform.forward * speed * Time.deltaTime;
+		public void UpdateClient() {
+			if (NetworkManager.Singleton.IsServer) 
+				return;
+			
+			MoveProjectile();
+		}
 
-				if (Physics.Raycast(oldPos, transform.position - oldPos, out RaycastHit hit, (speed * Time.deltaTime), GameWorld.EntityMask)) {
-					OnTriggerEnter(hit.collider);
-				}
+		private void MoveProjectile() {
+			if (!_initialized)
+				return;
+			
+			Vector3 oldPos = transform.position;
 
-				lifeTime -= Time.deltaTime;
+			transform.position += transform.forward * _speed * Time.deltaTime;
 
-				if (lifeTime <= 0f) Destroy(gameObject);
+			if (Physics.Raycast(
+					oldPos,
+					transform.position - oldPos,
+					out RaycastHit hit,
+					_speed * Time.deltaTime,
+					GameWorld.EntityMask)
+			) {
+				OnTriggerEnter(hit.collider);
 			}
+
+			_lifeTime -= Time.deltaTime;
+
+			if (_lifeTime <= 0f) Destroy(gameObject);
 		}
 
 		private void OnTriggerEnter (Collider other) {
-			if (initialized) {
-				if (EntityCache.TryGetEntityComponent(other.transform.root.name, out IAttackable unit)) {
-					if (unit.GetRelationship(parent.Owner) != Teams.Relationship.Owned && unit.GetRelationship(parent.Owner) != Teams.Relationship.Friendly) {
-						hitCallback(true, unit);
-						Destroy(gameObject);
-					}
-				}
-				else {
-					Destroy(gameObject);
-				}
+			if (!_initialized) 
+				return;
+			
+			if (EntityCache.TryGetEntityComponent(other.transform.root.name, out IAttackable unit)) {
+				if (unit.GetRelationship(_owner) == Relationship.Owned ||
+					unit.GetRelationship(_owner) == Relationship.Friendly) 
+					return;
+				
+				_hitCallback(true, unit);
+				Destroy(gameObject);
+			}
+			else {
+				Destroy(gameObject);
 			}
 		}
 	}

@@ -46,20 +46,20 @@ namespace Ratworx.MarsTS.Units.Turrets
                 {
                     var attackCommand = commandableUnit.CurrentCommand as Commandlet<IAttackable>;
 
-                    if (_sensor.IsDetected(attackCommand.Target)) _target = attackCommand.Target;
+                    if (Sensor.IsDetected(attackCommand.Target)) _target = attackCommand.Target;
                 }
 
                 if (_target == null)
                 {
-                    float distance = _sensor.Range * _sensor.Range;
+                    float distance = Sensor.Range * Sensor.Range;
                     IAttackable currentClosest = null;
 
-                    foreach (IAttackable unit in _sensor.Detected)
+                    foreach (IAttackable unit in Sensor.Detected)
                     {
                         if (unit.GetRelationship(_parent.Owner) == Relationship.Hostile)
                         {
                             float newDistance =
-                                Vector3.Distance(_sensor.GetDetectedCollider(unit.GameObject.name).transform.position,
+                                Vector3.Distance(Sensor.GetDetectedCollider(unit.GameObject.name).transform.position,
                                     transform.position);
 
                             if (newDistance < distance) currentClosest = unit;
@@ -69,8 +69,8 @@ namespace Ratworx.MarsTS.Units.Turrets
                     if (currentClosest != null) _target = currentClosest;
                 }
 
-                if (_target != null && _sensor.IsDetected(_target) && CurrentCooldown <= 0)
-                    FireProjectile(_sensor.GetDetectedCollider(_target.GameObject.name).transform.position);
+                if (_target != null && Sensor.IsDetected(_target) && CurrentCooldown <= 0)
+                    FireProjectile(Sensor.GetDetectedCollider(_target.GameObject.name).transform.position);
             }
             else
             {

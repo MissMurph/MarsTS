@@ -88,18 +88,30 @@ namespace Ratworx.MarsTS.Entities
         }
 
         internal void ServerUpdate() {
-            foreach (IEntityServerUpdate component in _serverUpdateComponents) 
+            foreach (IEntityServerUpdate component in _serverUpdateComponents) {
+                if (component is MonoBehaviour { enabled: false }) 
+                    return;
+                
                 component.UpdateServer();
+            }
         }
 
         internal void ClientUpdate() {
-            foreach (IEntityClientUpdate component in _clientUpdateComponents) 
+            foreach (IEntityClientUpdate component in _clientUpdateComponents) {
+                if (component is MonoBehaviour { enabled: false }) 
+                    return;
+                
                 component.UpdateClient();
+            }
         }
         
         internal void PhysicsUpdate() {
-            foreach (IEntityPhysicsUpdate component in _physicsUpdateComponents) 
+            foreach (IEntityPhysicsUpdate component in _physicsUpdateComponents) {
+                if (component is MonoBehaviour { enabled: false }) 
+                    return;
+                
                 component.UpdatePhysics();
+            }
         }
 
         private void Initialize()

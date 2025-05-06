@@ -1,4 +1,3 @@
-using Ratworx.MarsTS.Commands;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Selectable.Attackable;
@@ -7,83 +6,73 @@ using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units.Sensors;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Ratworx.MarsTS.Units.Turrets
 {
-    public class ProjectileTurret : NetworkBehaviour, IEntityServerUpdate
+    public class ProjectileTurret : NetworkBehaviour, 
+                                    IEntityServerUpdate
     {
-        [FormerlySerializedAs("projectile")] [SerializeField]
-        protected GameObject _projectile;
+        [SerializeField] private int _damage;
+        [SerializeField] private float _cooldown;
+        [SerializeField] private AttackableSensor _sensor;
+        [SerializeField] private GameObject _projectilePrefab;
+        [SerializeField] private GameObject _barrel;
 
-        [FormerlySerializedAs("damage")] [SerializeField]
-        protected int _damage;
+        private float _currentCooldown;
+        private EventAgent _eventAgent;
+        private UnitTargetManager _unitTargeting;
+        private UnitOwnership _ownership;
+        private Entity _entity;
+        private IAttackable _trackedTarget;
 
-        [FormerlySerializedAs("cooldown")] [SerializeField]
-        protected float _cooldown;
-
-        protected float CurrentCooldown;
-
-        [FormerlySerializedAs("barrel")] [SerializeField]
-        protected GameObject _barrel;
-
-        public float Range => _sensor.Range;
-
-        // protected IAttackable _target;
-
-        // protected ISelectable _parent;
-        protected EventAgent _bus;
-
-        protected AttackableSensor _sensor;
-
-        protected UnitTargetManager UnitTarget;
-
-        protected virtual void Awake()
-        {
-            // _parent = GetComponentInParent<ISelectable>();
-            _bus = GetComponentInParent<EventAgent>();
+        private void Awake() {
+            _entity = GetComponentInParent<Entity>();
+            _eventAgent = GetComponentInParent<EventAgent>();
             _sensor = GetComponent<AttackableSensor>();
-            UnitTarget = GetComponent<UnitTargetManager>();
-
-            _bus.AddListener<SensorUpdateEvent<IAttackable>>(OnSensorUpdate);
+            _unitTargeting = GetComponent<UnitTargetManager>();
+            _ownership = GetComponent<UnitOwnership>();
         }
 
-        protected virtual void Update()
-        {
-            if (!NetworkManager.Singleton.IsServer) return;
+        private void OnEnable() {
+            _sensor.OnUnitDetected += OnUnitDetected;
+        }
+        
+        private void OnDisable() {
+            _sensor.OnUnitDetected -= OnUnitDetected;
+            _trackedTarget = null;
+        }
 
-            if (CurrentCooldown >= 0f) CurrentCooldown -= Time.deltaTime;
+        private void OnUnitDetected(IAttackable unit, bool detected) {
+            if (unit.GetRelationship(_ownership.Owner) != Relationship.Hostile) 
+                return;
 
-            if (_parent is ICommandable commandableUnit && commandableUnit.CurrentCommand != null &&
-                commandableUnit.CurrentCommand.Name == "attack")
-            {
-                var attackCommand = commandableUnit.CurrentCommand as Commandlet<IAttackable>;
-
-                if (_sensor.IsDetected(attackCommand.Target)) _target = attackCommand.Target;
+            if (!detected && _trackedTarget == unit) {
+                _trackedTarget = GetClosestDetected();
             }
 
-            if (_target == null)
-            {
-                float distance = _sensor.Range * _sensor.Range;
-                IAttackable currentClosest = null;
+            if (_unitTargeting.TargetUnit is IAttackable
+                && unit == _unitTargeting.TargetUnit)
+                _trackedTarget = unit;
+            
+            if (_trackedTarget != null) return;
+        }
 
-                foreach (IAttackable unit in _sensor.Detected)
-                {
-                    if (unit.GetRelationship(_parent.Owner) == Relationship.Hostile)
-                    {
-                        float newDistance =
-                            Vector3.Distance(_sensor.GetDetectedCollider(unit.GameObject.name).transform.position,
-                                transform.position);
+        private IAttackable GetClosestDetected() {
+            float distance = _sensor.Range * _sensor.Range;
+            IAttackable currentClosest = null;
 
-                        if (newDistance < distance) currentClosest = unit;
-                    }
-                }
+            foreach (IAttackable unit in _sensor.Detected) {
+                if (unit.GetRelationship(_ownership.Owner) != Relationship.Hostile) 
+                    continue;
+                
+                float newDistance =
+                    Vector3.Distance(_sensor.GetDetectedCollider(unit.GameObject.name).transform.position, 
+                        transform.position);
 
-                if (currentClosest != null) _target = currentClosest;
+                if (newDistance < distance) currentClosest = unit;
             }
 
-            if (_target != null && _sensor.IsDetected(_target) && CurrentCooldown <= 0)
-                FireProjectile(_sensor.GetDetectedCollider(_target.GameObject.name).transform.position);
+            return currentClosest;
         }
 
         public void UpdateServer() {
@@ -102,16 +91,17 @@ namespace Ratworx.MarsTS.Units.Turrets
                     Vector3.up);
         }
 
-        protected virtual void FireProjectile(Vector3 _position)
-        {
-            if (NetworkManager.Singleton.IsServer) FireProjectileClientRpc(_position);
+        protected virtual void FireProjectile(Vector3 position) {
+            if (NetworkManager.Singleton.IsServer) 
+                FireProjectileClientRpc(position);
 
-            Vector3 direction = (_position - transform.position).normalized;
+            // Vector3 direction = (position - transform.position).normalized;
 
-            Projectile bullet = Instantiate(_projectile, _barrel.transform.position, Quaternion.Euler(Vector3.zero))
-                .GetComponent<Projectile>();
+            Projectile bullet =
+                Instantiate(_projectilePrefab, _barrel.transform.position, Quaternion.Euler(Vector3.zero))
+                    .GetComponent<Projectile>();
 
-            bullet.transform.LookAt(_position);
+            bullet.transform.LookAt(position);
 
             bullet.Init(_parent, OnHit);
 
@@ -119,26 +109,24 @@ namespace Ratworx.MarsTS.Units.Turrets
         }
 
         [Rpc(SendTo.NotServer)]
-        protected virtual void FireProjectileClientRpc(Vector3 position)
-        {
+        private void FireProjectileClientRpc(Vector3 position) {
             FireProjectile(position);
         }
 
-        protected virtual void OnHit(bool success, IAttackable unit)
-        {
+        protected virtual void OnHit(bool success, IAttackable unit) {
             if (!NetworkManager.Singleton.IsServer || !success) return;
             
-            UnitAttackEvent attackEvent = new UnitAttackEvent(_bus, unit as ISelectable, _parent, _damage);
+            UnitAttackEvent attackEvent = new UnitAttackEvent(unit, _entity, _damage);
 				
             attackEvent.Phase = Phase.Pre;
-            _bus.PostGlobal(attackEvent);
+            _eventAgent.PostGlobal(attackEvent);
 
             // Captures modified damage
             int damage = attackEvent.Damage;
             unit.Attack(damage);
 			
             attackEvent.Phase = Phase.Post;
-            _bus.PostGlobal(attackEvent);
+            _eventAgent.PostGlobal(attackEvent);
         }
 
         private void OnSensorUpdate(SensorUpdateEvent<IAttackable> evnt)

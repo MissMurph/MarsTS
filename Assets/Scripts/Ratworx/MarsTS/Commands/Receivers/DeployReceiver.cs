@@ -2,6 +2,7 @@ using Ratworx.MarsTS.Commands.Commandlets;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events.Commands;
 using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Units.Turrets;
 using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands.Receivers
@@ -13,6 +14,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         [SerializeField] private int _deployTime;
         [SerializeField] private int _undeployTime;
         [SerializeField] private EntityAttribute _moveSpeedAttribute;
+        [SerializeField] private ProjectileTurret _artilleryTurret;
         
         public override bool CanCommand { get; }
         public override bool IsActive { get; }

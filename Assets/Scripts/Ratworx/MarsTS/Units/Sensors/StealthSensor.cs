@@ -14,7 +14,7 @@ namespace Ratworx.MarsTS.Units.Sensors {
 		protected virtual void OnOtherEntityVisibleEvent (EntityVisibleCheckEvent _event) {
 			if (!Detecting || _event.Phase == Phase.Pre) return;
 
-			_event.VisibleTo |= Parent.Owner.VisionMask;
+			_event.VisibleTo |= Ownership.Owner.VisionMask;
 		}
 
 		protected override void OnTriggerEnter (Collider other) {

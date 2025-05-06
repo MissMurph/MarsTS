@@ -23,16 +23,16 @@ namespace Ratworx.MarsTS.Units.Turrets {
 
 		private readonly List<Collider> _hit = new List<Collider>();
 
-		private ISelectable _attacker;
+		private Entity _attacker;
 
 		private EventAgent _bus;
 
-		public void Init (int damage, Faction owner, ISelectable attacker) {
+		public void Init (int damage, Faction owner, Entity attacker) {
 			_damage = damage;
 			_owner = owner;
 
 			_attacker = attacker;
-			EntityCache.TryGetEntityComponent(_attacker.GameObject.name, out _bus);
+			EntityCache.TryGetEntityComponent(_attacker.gameObject.name, out _bus);
 			
 			_initialized = true;
 		}
@@ -67,7 +67,7 @@ namespace Ratworx.MarsTS.Units.Turrets {
 
 		private void AttackUnit(IAttackable unit)
 		{
-			UnitAttackEvent attackEvent = new UnitAttackEvent(_bus, unit as ISelectable, _attacker, _damage);
+			UnitAttackEvent attackEvent = new UnitAttackEvent(unit, _attacker, _damage);
 				
 			attackEvent.Phase = Phase.Pre;
 			_bus.PostGlobal(attackEvent);

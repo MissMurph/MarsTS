@@ -6,28 +6,30 @@ using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units.Sensors;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Ratworx.MarsTS.Units.Turrets
 {
     [RequireComponent(typeof(AttackableSensor))]
-    public class ProjectileTurret : NetworkBehaviour, 
+    public class ProjectileTurret : NetworkBehaviour,
+                                    IEntityServerUpdate,
                                     IEntityClientUpdate
     {
+        [SerializeField] protected float Cooldown;
+        
         [SerializeField] private int _damage;
-        [SerializeField] private float _cooldown;
         [SerializeField] private AttackableSensor _sensor;
         [SerializeField] private GameObject _projectilePrefab;
         [SerializeField] private GameObject _barrel;
         // [SerializeField] private GameObject _rangeIndicator;
 
-        private float _currentCooldown;
-        private IAttackable _trackedTarget;
+        protected float CurrentCooldown;
+        protected IAttackable TrackedTarget;
+        
         private Quaternion _startingBarrelRotation;
-
         private EventAgent _eventAgent;
         private UnitTargetManager _unitTargeting;
         private UnitOwnership _ownership;
-        private UnitSelection _unitSelection;
         private Entity _entity;
 
         private void Awake() {
@@ -35,7 +37,6 @@ namespace Ratworx.MarsTS.Units.Turrets
             _eventAgent = GetComponentInParent<EventAgent>();
             _unitTargeting = GetComponentInParent<UnitTargetManager>();
             _ownership = GetComponentInParent<UnitOwnership>();
-            _unitSelection = GetComponentInParent<UnitSelection>();
             _sensor = GetComponent<AttackableSensor>();
 
             _startingBarrelRotation = _barrel.transform.localRotation;
@@ -46,27 +47,27 @@ namespace Ratworx.MarsTS.Units.Turrets
         }
 
         private void OnDisable() {
-            _trackedTarget = null;
+            TrackedTarget = null;
         }
 
         private void OnUnitDetected(IAttackable unit, bool detected) {
             if (unit.GetRelationship(_ownership.Owner) != Relationship.Hostile) 
                 return;
 
-            if (!detected && _trackedTarget == unit) {
-                _trackedTarget = GetClosestDetected();
+            if (!detected && TrackedTarget == unit) {
+                TrackedTarget = GetClosestDetected();
                 return;
             }
 
             if (_unitTargeting.TargetUnit is IAttackable && unit == _unitTargeting.TargetUnit) {
-                _trackedTarget = unit;
+                TrackedTarget = unit;
                 return;
             }
             
-            if (_trackedTarget != null) return;
+            if (TrackedTarget != null) return;
 
             if (detected) 
-                _trackedTarget = unit;
+                TrackedTarget = unit;
         }
 
         private IAttackable GetClosestDetected() {
@@ -87,14 +88,29 @@ namespace Ratworx.MarsTS.Units.Turrets
             return currentClosest;
         }
 
+        public virtual void UpdateServer() {
+            if (CurrentCooldown > 0f) 
+                CurrentCooldown -= Time.deltaTime;
+            
+            if (TrackedTarget == null) 
+                return;
+
+            if (CurrentCooldown > 0f)
+                return;
+            
+            FireProjectile(TrackedTarget.GameObject.transform.position);
+            CurrentCooldown += Cooldown;
+        }
+
         public void UpdateClient() {
-            if (_trackedTarget != null)
+            if (TrackedTarget != null)
                 _barrel.transform.LookAt(
-                    _sensor.GetDetectedCollider(_trackedTarget.GameObject.name).transform.position);
+                    _sensor.GetDetectedCollider(TrackedTarget.GameObject.name).transform.position);
             else
                 _barrel.transform.rotation = _startingBarrelRotation;
         }
 
+        // TODO: Investigate this _always_ hitting by tracking transform
         protected virtual void FireProjectile(Vector3 position) {
             if (NetworkManager.Singleton.IsServer) 
                 FireProjectileClientRpc(position);
@@ -108,8 +124,6 @@ namespace Ratworx.MarsTS.Units.Turrets
             bullet.transform.LookAt(position);
 
             bullet.Init(_ownership.Owner, OnHit);
-
-            _currentCooldown += _cooldown;
         }
 
         [Rpc(SendTo.NotServer)]

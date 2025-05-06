@@ -1,4 +1,5 @@
 using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Selectable.Internal;
 using Ratworx.MarsTS.Teams;
@@ -8,7 +9,10 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Units.Turrets {
 
-    public class BuilderTurret : MonoBehaviour {
+    public class BuilderTurret : MonoBehaviour, 
+								 IEntityServerUpdate, 
+								 IEntityClientUpdate
+	{
 
 		[SerializeField]
 		private int repairRate;

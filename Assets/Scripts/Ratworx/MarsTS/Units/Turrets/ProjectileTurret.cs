@@ -18,14 +18,15 @@ namespace Ratworx.MarsTS.Units.Turrets
         [SerializeField] protected float Cooldown;
         
         [SerializeField] private int _damage;
-        [SerializeField] private AttackableSensor _sensor;
         [SerializeField] private GameObject _projectilePrefab;
         [SerializeField] private GameObject _barrel;
         // [SerializeField] private GameObject _rangeIndicator;
 
         protected float CurrentCooldown;
+        // TODO: Investigate if we can move a unit out of game bounds to trigger this to clear safely
         protected IAttackable TrackedTarget;
-        
+
+        private AttackableSensor _sensor;
         private Quaternion _startingBarrelRotation;
         private EventAgent _eventAgent;
         private UnitTargetManager _unitTargeting;

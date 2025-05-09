@@ -26,12 +26,12 @@ namespace Ratworx.MarsTS.Vision {
 
 		private UnitVision visionComponent;
 
-		private ISelectable parent;
+		private Entity parent;
 
 		private EventAgent bus;
 
 		private void Awake () {
-			parent = GetComponent<ISelectable>();
+			parent = GetComponent<Entity>();
 			bus = GetComponent<EventAgent>();
 			visionComponent = GetComponent<UnitVision>();
 
@@ -49,8 +49,8 @@ namespace Ratworx.MarsTS.Vision {
 			if (isSneaking) {
 				int sneakMask = parent.Owner.VisionMask;
 
-				foreach (ISelectable unit in stealthSensor.InRange) {
-					if (unit.UnitType == "pumpjack") continue;
+				foreach (Entity unit in stealthSensor.InRange) {
+					if (unit.RegistryKey.Contains("pumpjack")) continue;
 					if (unit.Owner is null) continue;
 					sneakMask |= unit.Owner.VisionMask;
 				}

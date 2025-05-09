@@ -64,8 +64,8 @@ namespace Ratworx.MarsTS
 
             networkObject.Spawn();
             
-            if (_owner > 0) 
-                selectable.SetOwner(TeamCache.Faction(_owner));
+            // if (_owner > 0) 
+                // selectable.SetOwner(TeamCache.Faction(_owner));
             
             if (_destroyOnSpawn) 
                 Destroy(gameObject, 0.1f);

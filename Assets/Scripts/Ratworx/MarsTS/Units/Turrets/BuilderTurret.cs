@@ -1,3 +1,4 @@
+using System;
 using Ratworx.MarsTS.Commands;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
@@ -6,109 +7,121 @@ using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units.Sensors;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace Ratworx.MarsTS.Units.Turrets {
-
+namespace Ratworx.MarsTS.Units.Turrets 
+{
+	// TODO: Lots of shared code between this and projectile turret, we oughta make an abstract turret
+	[RequireComponent(typeof(AttackableSensor))]
     public class BuilderTurret : MonoBehaviour, 
 								 IEntityServerUpdate, 
 								 IEntityClientUpdate
 	{
-
-		[SerializeField]
-		private int repairRate;
+		[SerializeField] private int _repairRate;
+		[SerializeField] private GameObject _barrel;
 
 		private int _repairAmount;
-
 		private float _cooldown;
 		private float _currentCooldown;
 
-		[SerializeField]
-		private GameObject barrel;
+		private float Range => _sensor.Range;
 
-		public float Range => _sensor.Range;
+		// TODO: Investigate if we can move a unit out of game bounds to trigger this to clear safely
+		private IAttackable _trackedTarget;
 
-		private UnitReference<IAttackable> _target = new UnitReference<IAttackable>();
-
-		private ISelectable _parent;
-		private EventAgent _bus;
-
+		private Entity _parentEntity;
+		private EventAgent _eventAgent;
 		private AttackableSensor _sensor;
+		private UnitOwnership _ownership;
+		private UnitTargetManager _unitTargeting;
+		private Quaternion _startingBarrelRotation;
 
 		private void Awake () {
-			_parent = GetComponentInParent<ISelectable>();
-			_bus = GetComponentInParent<EventAgent>();
+			_parentEntity = GetComponentInParent<Entity>();
+			_eventAgent = GetComponentInParent<EventAgent>();
 			_sensor = GetComponent<AttackableSensor>();
+			_ownership = GetComponentInParent<UnitOwnership>();
+			_unitTargeting = GetComponentInParent<UnitTargetManager>();
+			
+			_cooldown = 1f / _repairRate;
+			_repairAmount = (int)(_repairRate * _cooldown);
 
-			_bus.AddListener<SensorUpdateEvent<IAttackable>>(OnSensorUpdate);
-
-			_cooldown = 1f / repairRate;
-			_repairAmount = (int)(repairRate * _cooldown);
+			_startingBarrelRotation = _barrel.transform.localRotation;
 		}
 
-		private void Update () {
-			if (!NetworkManager.Singleton.IsServer) return;
+		private void Start() {
+			_sensor.OnUnitDetected += OnUnitDetected;
+		}
 
-			if (_currentCooldown >= 0f) {
+		private void OnDisable() {
+			_trackedTarget = null;
+		}
+
+		private void OnUnitDetected(IAttackable unit, bool detected) {
+			if (unit.GetRelationship(_ownership.Owner) != Relationship.Owned
+				&& unit.GetRelationship(_ownership.Owner) != Relationship.Friendly) 
+				return;
+
+			if (!detected && _trackedTarget == unit) {
+				_trackedTarget = GetClosestDetected();
+				return;
+			}
+
+			if (_unitTargeting.TargetUnit is IAttackable && unit == _unitTargeting.TargetUnit) {
+				_trackedTarget = unit;
+				return;
+			}
+            
+			if (_trackedTarget != null) return;
+
+			if (detected) 
+				_trackedTarget = unit;
+		}
+		
+		private IAttackable GetClosestDetected() {
+			float distance = _sensor.Range * _sensor.Range;
+			IAttackable currentClosest = null;
+
+			foreach (IAttackable unit in _sensor.Detected) {
+				if (unit.GetRelationship(_ownership.Owner) != Relationship.Owned
+					&& unit.GetRelationship(_ownership.Owner) != Relationship.Friendly) 
+					continue;
+                
+				float newDistance =
+					Vector3.Distance(_sensor.GetDetectedCollider(unit.GameObject.name).transform.position, 
+						transform.position);
+
+				if (newDistance < distance) currentClosest = unit;
+			}
+
+			return currentClosest;
+		}
+		
+		public void UpdateServer() {
+			if (_currentCooldown > 0f) 
 				_currentCooldown -= Time.deltaTime;
-			}
+            
+			if (_trackedTarget == null) 
+				return;
 
-			if (_parent is ICommandable commandableUnit && commandableUnit.CurrentCommand != null && commandableUnit.CurrentCommand.Name == "repair") {
-				var repairCommand = commandableUnit.CurrentCommand as Commandlet<IAttackable>;
-
-				if (_sensor.IsDetected(repairCommand.Target)) {
-					_target.Set(repairCommand.Target);
-				}
-			}
-
-			if (_target.Get == null) {
-				float distance = Range;
-				IAttackable currentClosest = null;
-
-				foreach (IAttackable unit in _sensor.Detected) {
-					if (unit.GetRelationship(_parent.Owner) == Relationship.Owned || unit.GetRelationship(_parent.Owner) == Relationship.Friendly) {
-						if (unit.Health >= unit.MaxHealth) break;
-
-						float newDistance = Vector3.Distance(unit.GameObject.transform.position, transform.position);
-
-						if (newDistance < distance) {
-							currentClosest = unit;
-						}
-					}
-				}
-
-				if (currentClosest != null) _target.Set(currentClosest);
-			}
-
-			if (_target.Get != null && _sensor.IsDetected(_target.Get) && _currentCooldown <= 0) {
-				Repair();
-			}
+			if (_currentCooldown > 0f)
+				return;
+            
+			Repair();
+			_currentCooldown += _cooldown;
 		}
-
-		private void FixedUpdate () {
-			if (_target.Get != null && _sensor.Detected.Contains(_target.Get)) {
-				barrel.transform.LookAt(_target.GameObject.transform, Vector3.up);
-			}
+		
+		public void UpdateClient() {
+			if (_trackedTarget != null)
+				_barrel.transform.LookAt(
+					_sensor.GetDetectedCollider(_trackedTarget.GameObject.name).transform.position);
+			else
+				_barrel.transform.rotation = _startingBarrelRotation;
 		}
 
 		private void Repair () {
-			_target.Get.Attack(-_repairAmount);
+			_trackedTarget.Attack(-_repairAmount);
 			_currentCooldown += _cooldown;
-		}
-
-		private void OnSensorUpdate (SensorUpdateEvent<IAttackable> @event) {
-			if (@event.Detected) {
-				if (_target.Get == null)
-				{
-					_target.Set(@event.Target);
-				}
-			}
-			else if (ReferenceEquals(@event.Target, _target.Get)) {
-				_target.Set(null);
-			}
-		}
-
-		public bool IsInRange (IAttackable target) {
-			return _sensor.IsDetected(target);
 		}
 	}
 }

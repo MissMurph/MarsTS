@@ -56,9 +56,9 @@ namespace Ratworx.MarsTS.Commands.Factories {
 		}
 
 		protected override void ConstructCommandletServer(bool target, int factionId, ICollection<string> selection, bool inclusive) {
-			DeployCommandlet order = (DeployCommandlet)Instantiate(orderPrefab);
+			BooleanCommandlet order = (BooleanCommandlet)Instantiate(orderPrefab);
 
-			order.InitDeploy(Name, target, TeamCache.Faction(factionId), deployTime);
+			order.Init(Name, target, TeamCache.Faction(factionId));
 
 			foreach (string entity in selection) {
 				if (EntityCache.TryGetEntityComponent(entity, out ICommandable unit))

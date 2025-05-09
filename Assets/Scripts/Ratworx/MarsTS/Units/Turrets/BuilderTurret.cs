@@ -1,13 +1,8 @@
-using System;
-using Ratworx.MarsTS.Commands;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
-using Ratworx.MarsTS.Events.Selectable.Internal;
 using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units.Sensors;
-using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Ratworx.MarsTS.Units.Turrets 
 {
@@ -23,9 +18,6 @@ namespace Ratworx.MarsTS.Units.Turrets
 		private int _repairAmount;
 		private float _cooldown;
 		private float _currentCooldown;
-
-		private float Range => _sensor.Range;
-
 		// TODO: Investigate if we can move a unit out of game bounds to trigger this to clear safely
 		private IAttackable _trackedTarget;
 

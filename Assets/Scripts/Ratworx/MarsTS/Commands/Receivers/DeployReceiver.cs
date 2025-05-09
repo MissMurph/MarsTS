@@ -1,13 +1,17 @@
 using Ratworx.MarsTS.Commands.Commandlets;
 using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Commands;
 using Ratworx.MarsTS.Events.Selectable;
 using Ratworx.MarsTS.Units.Turrets;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands.Receivers
 {
-    public class DeployReceiver : AbstractCommandReceiver<BooleanCommandlet>
+    public class DeployReceiver : AbstractCommandReceiver<BooleanCommandlet>,
+                                  IEntityServerUpdate,
+                                  IEntityClientUpdate
     {
         [SerializeField] private bool _deployed;
         // How many seconds it takes to deploy
@@ -15,17 +19,27 @@ namespace Ratworx.MarsTS.Commands.Receivers
         [SerializeField] private int _undeployTime;
         [SerializeField] private EntityAttribute _moveSpeedAttribute;
         [SerializeField] private ProjectileTurret _artilleryTurret;
-        
-        public override bool CanCommand { get; }
-        public override bool IsActive { get; }
-        public override float Cooldown { get; }
 
+        public override bool CanCommand => true;
+        public override bool IsActive => _deployed;
+        public override float Cooldown => _currentDeployTime;
+
+        private bool _deploying;
+        // private bool _undeploying;
+        private float _currentDeployTime;
         private BooleanCommandlet _deployCommandlet;
         private int _undeployedMoveSpeed;
+        
         private Entity _entity;
+        private EventAgent _eventAgent;
+        private CommandQueue _commandQueue;
         
         private void Awake() {
             _entity = GetComponent<Entity>();
+            _eventAgent = GetComponent<EventAgent>();
+            _commandQueue = GetComponent<CommandQueue>();
+
+            _currentDeployTime = 0f;
         }
         
         private void Start () {
@@ -33,39 +47,69 @@ namespace Ratworx.MarsTS.Commands.Receivers
         }
         
         public override void ReceiveCommand (BooleanCommandlet command) {
-            if (command.Target) {
-                _undeployedMoveSpeed = _moveSpeedAttribute.Value;
-                _moveSpeedAttribute.Value = 0;
-                // RigidBody.velocity = Vector3.zero;
-                _deployed = true;
-            }
-            else {
-                EventAgent.PostLocal(new DeployEvent(_entity, false));
-            }
+            _deployCommandlet = command;
+            _deployCommandlet.Callback.AddListener(OnCommandComplete);
+            
+            _deployCommandlet = command;
 
-            EventAgent.AddListener<CommandCompleteEvent>(DeployComplete);
+            if (!_deployCommandlet.Target) return;
+            
+            _undeployedMoveSpeed = _moveSpeedAttribute.Value;
+
+            if (!NetworkManager.Singleton.IsServer) return;
+                
+            _moveSpeedAttribute.Value = 0;
+            _deploying = command.Target;
         }
 
-        private void DeployComplete (CommandCompleteEvent evnt) {
-            // Bus.RemoveListener<CommandCompleteEvent>(DeployComplete);
+        public void UpdateServer() {
+            if (_deployCommandlet is null) return;
 
-            // _deployed = (evnt.Command as Commandlet<bool>).Target;
+            _currentDeployTime += Time.deltaTime;
 
+            float deployTimer = _deploying ? _deployTime : _undeployTime;
+
+            _eventAgent.PostGlobal(new CommandWorkEvent(_deployCommandlet, _commandQueue,
+                _currentDeployTime / deployTimer));
+
+            if (_currentDeployTime < deployTimer) return;
+            
+            _deployCommandlet.CompleteCommand(_commandQueue);
+            _currentDeployTime = 0f;
+        }
+
+        public void UpdateClient() {
+            if (_deployCommandlet is null) return;
+
+            _currentDeployTime += Time.deltaTime;
+
+            float deployTimer = _deploying ? _deployTime : _undeployTime;
+
+            _eventAgent.PostGlobal(new CommandWorkEvent(_deployCommandlet, _commandQueue,
+                _currentDeployTime / deployTimer));
+        }
+
+        private void OnCommandComplete (CommandCompleteEvent evnt) {
+            _eventAgent.PostGlobal(new CommandWorkEvent(_deployCommandlet, _commandQueue, 1f));
+            _deployCommandlet.Callback.RemoveListener(OnCommandComplete);
+            _deployCommandlet = null;
+            
+            if (!NetworkManager.Singleton.IsServer) return;
+            
             if (_deployed) {
                 // TODO: Implement command swapping on the Queue
                 // boundCommands[deployCommandIndex] = "undeploy";
+                _artilleryTurret.gameObject.SetActive(true);
                 EventAgent.PostLocal(new DeployEvent(_entity, _deployed));
             }
             else {
                 _moveSpeedAttribute.Value = _undeployedMoveSpeed;
+                _artilleryTurret.gameObject.SetActive(false);
                 // TODO: Implement command swapping on the Queue
                 // boundCommands[deployCommandIndex] = "deploy";
             }
-			
-            // EventAgent.PostGlobal(new CommandsUpdatedEvent(_entity, boundCommands));
         }
         
-        public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) 
-            => throw new System.NotImplementedException();
+        public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) => (false, null);
     }
 }

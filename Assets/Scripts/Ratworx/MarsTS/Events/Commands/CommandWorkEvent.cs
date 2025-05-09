@@ -5,14 +5,19 @@ namespace Ratworx.MarsTS.Events.Commands
 {
 	public class CommandWorkEvent : CommandEvent 
 	{
-		public string CommandName { get; private set; }
-		public IWorkable Work { get; private set; }
+		/// <summary>The progress of work done, between 0 - 1.</summary>
+		public float Progress { get; private set; }
 
-		public CommandWorkEvent (EventAgent _source, Commandlet _command, ICommandable _unit, IWorkable _work) 
-			: base("Work", _source, _command, _unit) 
-		{
-			CommandName = _command.Name;
-			Work = _work;
+		public CommandWorkEvent (
+			Commandlet command,
+			ICommandable unit,
+			float progress
+		) : base(
+			"Work",
+			command,
+			unit
+		) {
+			Progress = progress;
 		}
 	}
 }

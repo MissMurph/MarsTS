@@ -8,7 +8,7 @@ namespace Ratworx.MarsTS.Events {
 		public int WorkRequired { get; private set; }
 		public int CurrentWork { get; private set; }
 
-		public WorkEvent (EventAgent _source, ISelectable _unit, int _workRequired, int _currentWork) : base("work", _source) {
+		public WorkEvent (EventAgent _source, ISelectable _unit, int _workRequired, int _currentWork) : base("work") {
 			Unit = _unit;
 			WorkRequired = _workRequired;
 			CurrentWork = _currentWork;

@@ -82,18 +82,18 @@ namespace Ratworx.MarsTS.Commands
 			}
 
 			if (isServer && Current is IWorkable workOrder) {
-				workTimeToStep -= Time.deltaTime;
+				/*workTimeToStep -= Time.deltaTime;
 
 				if (workTimeToStep <= 0) {
 					workOrder.CurrentWork++;
 					workTimeToStep += workStepTime;
 
-					bus.PostGlobal(new CommandWorkEvent(bus, Current, orderSource, workOrder));
+					// bus.PostGlobal(new CommandWorkEvent(bus, Current, orderSource, workOrder));
 					SendWorkEventToClientRpc();
 				}
 
 				if (workOrder.CurrentWork >= workOrder.WorkRequired)
-					CompleteCurrentCommand(false);
+					CompleteCurrentCommand(false);*/
 			}
 
 			foreach (Timer cooldown in activeCooldowns.Values) {
@@ -115,7 +115,7 @@ namespace Ratworx.MarsTS.Commands
 			completedCooldowns = new();
 		}
 
-		[Rpc(SendTo.NotServer)]
+		/*[Rpc(SendTo.NotServer)]
 		private void SendWorkEventToClientRpc() {
 			if (Current is IWorkable workOrder) {
 				bus.PostGlobal(new CommandWorkEvent(bus, Current, orderSource, workOrder));
@@ -123,7 +123,7 @@ namespace Ratworx.MarsTS.Commands
 			else
 				RatLogger.Error?.Log(
 					$"Current command {Current.Name} is not {typeof(IWorkable)}! Cannot post work event");
-		}
+		}*/
 
 		/*	Dequeueing Commands	*/
 
@@ -158,7 +158,7 @@ namespace Ratworx.MarsTS.Commands
 		}
 
 		protected virtual void CompleteCurrentCommand(bool _cancelled) {
-			Current.CompleteCommand(bus, orderSource, _cancelled);
+			// Current.CompleteCommand(bus, orderSource, _cancelled);
 
 			if (NetworkManager.Singleton.IsServer)
 				CompleteCommandClientRpc(_cancelled);

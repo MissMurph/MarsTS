@@ -1,4 +1,3 @@
-using System;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Selectable.Attackable;
@@ -6,10 +5,10 @@ using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units.Sensors;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Ratworx.MarsTS.Units.Turrets
 {
+    // TODO: Lots of shared code between this and projectile turret, we oughta make an abstract turret
     [RequireComponent(typeof(AttackableSensor))]
     public class ProjectileTurret : NetworkBehaviour,
                                     IEntityServerUpdate,

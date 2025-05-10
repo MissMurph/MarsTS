@@ -1,3 +1,4 @@
+using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Selectable;
 using Ratworx.MarsTS.Events.Selectable.Attackable;
@@ -5,7 +6,8 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Units.Infantry
 {
-    public class SquadDummyColliderTracker : MonoBehaviour
+    public class SquadColliderTracker : MonoBehaviour,
+                                        IEntityServerUpdate
     {
         [SerializeField] private InfantryMember _trackedMember;
         [SerializeField] private bool _updateWithVision;

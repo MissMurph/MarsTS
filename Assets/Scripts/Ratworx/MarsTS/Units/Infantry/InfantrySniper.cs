@@ -6,7 +6,6 @@ using Ratworx.MarsTS.Events.Commands;
 using Ratworx.MarsTS.Events.Selectable;
 using Ratworx.MarsTS.Events.Selectable.Attackable;
 using Ratworx.MarsTS.Teams;
-using Ratworx.MarsTS.Units.SafeReference;
 using Ratworx.MarsTS.Units.Turrets;
 using Unity.Netcode;
 using UnityEngine;
@@ -15,66 +14,11 @@ namespace Ratworx.MarsTS.Units.Infantry {
 
     public class InfantrySniper : AbstractUnit {
 
-		[SerializeField]
-		protected float baseSpeed;
-
-		[SerializeField]
-		protected float currentSpeed;
-
-		[SerializeField]
-		private float sneakSpeed;
-
-		[SerializeField]
-		private float flareRange;
-
-		[SerializeField]
-		private GameObject flarePrefab;
-
-		protected GroundDetection ground;
-		
-		protected UnitReference<IAttackable> AttackTarget = new UnitReference<IAttackable>();
-
-		protected Vector3 flareTarget;
-
-		private ProjectileTurret equippedWeapon;
-
-		protected bool isSneaking;
-
-		protected override void Awake () {
-			base.Awake();
-
-			ground = GetComponent<GroundDetection>();
-
-			currentSpeed = baseSpeed;
-
-			equippedWeapon = GetComponentInChildren<ProjectileTurret>();
-		}
-
-		protected override void ServerUpdate () {
-			//I'd like to move these all to commands, for now they'll remain here
-			//Will start devising a method to do so
-			if (AttackTarget.Get != null) {
-				if (equippedWeapon.IsInRange(AttackTarget.Get)) {
-					TrackedTarget = null;
-					CurrentPath = Path.Empty;
-				}
-				else if (!ReferenceEquals(TrackedTarget, AttackTarget.GameObject.transform)) {
-					SetTarget(AttackTarget.GameObject.transform);
-				}
-			}
-
-			if (CurrentCommand != null && CurrentCommand.Name == "flare") {
-				if ((flareTarget - transform.position).sqrMagnitude < (flareRange * flareRange)) {
-					TrackedTarget = null;
-					CurrentPath = Path.Empty;
-
-					FireFlare(flareTarget);
-				}
-				else {
-					SetTarget(flareTarget);
-				}
-			}
-		}
+		[SerializeField] protected float baseSpeed;
+		[SerializeField] protected float currentSpeed;
+		[SerializeField] private float sneakSpeed;
+		[SerializeField] private float flareRange;
+		[SerializeField] private GameObject flarePrefab;
 
 		protected virtual void FixedUpdate () {
 			if (!NetworkManager.Singleton.IsServer) return;
@@ -98,79 +42,6 @@ namespace Ratworx.MarsTS.Units.Infantry {
 					Body.velocity = Vector3.zero;
 				}
 			}
-		}
-
-		public override void Order (Commandlet order, bool inclusive) {
-			if (!GetRelationship(order.Commander).Equals(Relationship.Owned)) return;
-
-			switch (order.Name) {
-				case "attack":
-					break;
-				case "sneak":
-					Sneak(order);
-					break;
-				case "flare":
-					break;
-				default:
-					base.Order(order, inclusive);
-					return;
-			}
-
-			if (inclusive) commands.EnqueueCommand(order);
-			else commands.ExecuteCommand(order);
-		}
-
-		protected override void ExecuteOrder (CommandStartEvent _event) {
-			switch (_event.Command.Name) {
-				case "attack":
-					Attack(_event.Command);
-					break;
-				case "flare":
-					Flare(_event.Command);
-					break;
-				default:
-					base.ExecuteOrder(_event);
-					break;
-			}
-		}
-
-		/*	Commands	*/
-
-		/*	Attack	*/
-		protected void Attack (Commandlet order) {
-			if (order is Commandlet<IAttackable> deserialized) {
-				AttackTarget.Set(deserialized.Target);
-
-				EntityCache.TryGetEntityComponent(AttackTarget.GameObject.transform.root.name, out EventAgent targetBus);
-
-				targetBus.AddListener<UnitDeathEvent>(OnTargetDeath);
-
-				order.Callback.AddListener(AttackCancelled);
-			}
-		}
-
-		//Could potentially move these to the actual Command Classes
-		private void AttackCancelled (CommandCompleteEvent _event) {
-			if (_event.Command is Commandlet<IAttackable> deserialized) {
-				EntityCache.TryGetEntityComponent(deserialized.Target.GameObject.transform.root.name, out EventAgent targetBus);
-
-				targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
-
-				AttackTarget.Set(null);
-				// TrackedTarget = null;
-			}
-		}
-
-		private void OnTargetDeath (UnitDeathEvent _event) {
-			EntityCache.TryGetEntityComponent(_event.Unit.GameObject.transform.root.name, out EventAgent targetBus);
-
-			targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
-
-			CommandCompleteEvent newEvent = new CommandCompleteEvent(Bus, CurrentCommand, true, this);
-
-			CurrentCommand.Callback.Invoke(newEvent);
-
-			Stop();
 		}
 
 		/*	Sneak	*/
@@ -215,23 +86,6 @@ namespace Ratworx.MarsTS.Units.Infantry {
 			CurrentCommand.CompleteCommand(Bus, this);
 
 			Stop();
-		}
-
-		public override CommandFactory Evaluate (ISelectable target) {
-			if (target is IAttackable && target.GetRelationship(Owner) == Relationship.Hostile) {
-				return CommandPrimer.Get("attack");
-			}
-
-			return CommandPrimer.Get("move");
-		}
-
-		public override void AutoCommand (ISelectable target) {
-			if (target is IAttackable attackable && target.GetRelationship(Owner) == Relationship.Hostile) {
-				CommandPrimer.Get<Attack>("attack").Construct(attackable);
-				return;
-			}
-
-			CommandPrimer.Get<Move>("move").Construct(target.GameObject.transform.position);
 		}
 	}
 }

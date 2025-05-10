@@ -148,16 +148,14 @@ namespace Ratworx.MarsTS.Units.Turrets
         }
         
         // TODO: Convert below to selection circle
-        /*private void OnSelect(UnitSelectEvent evnt)
-        {
+        /*private void OnSelect(UnitSelectEvent evnt) {
             if (_isDeployed && evnt.Status)
                 _rangeIndicator.SetActive(true);
             else
                 _rangeIndicator.SetActive(false);
         }
 
-        private void OnHover(UnitHoverEvent evnt)
-        {
+        private void OnHover(UnitHoverEvent evnt) {
             if (_isDeployed && evnt.Status)
                 _rangeIndicator.SetActive(true);
             else

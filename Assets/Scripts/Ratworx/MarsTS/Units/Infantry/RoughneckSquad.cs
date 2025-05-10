@@ -50,7 +50,7 @@ namespace Ratworx.MarsTS.Units.Infantry
             unitEvents.AddListener<HarvesterDepositEvent>(OnMemberDeposit);
         }
 
-        public void OnMemberHarvest(ResourceHarvestedEvent _event)
+        /*public void OnMemberHarvest(ResourceHarvestedEvent _event)
         {
             _bus.PostGlobal(new ResourceHarvestedEvent(_bus, this, ResourceHarvestedEvent.Side.Harvester,
                 _event.HarvestAmount, _event.Resource, Stored, Capacity));
@@ -60,37 +60,7 @@ namespace Ratworx.MarsTS.Units.Infantry
         {
             _bus.PostGlobal(new HarvesterDepositEvent(_bus, this, HarvesterDepositEvent.Side.Harvester, Stored, Capacity,
                 _event.Bank));
-        }
-
-        public override void Order(Commandlet order, bool inclusive)
-        {
-            if (!GetRelationship(order.Commander).Equals(Relationship.Owned)) return;
-
-            switch (order.Name)
-            {
-                case "sneak":
-                    SquadSneak(order);
-                    return;
-                case "attack":
-
-                    break;
-                case "repair":
-
-                    break;
-                case "harvest":
-
-                    break;
-                case "deposit":
-
-                    break;
-                default:
-                    base.Order(order, inclusive);
-                    return;
-            }
-
-            if (inclusive) _commands.EnqueueCommand(order);
-            else _commands.ExecuteCommand(order);
-        }
+        }*/
 
         private void SquadSneak(Commandlet order)
         {
@@ -105,48 +75,6 @@ namespace Ratworx.MarsTS.Units.Infantry
             }
         }
 
-        public override CommandFactory Evaluate(ISelectable target)
-        {
-            if (target is IHarvestable harvestable
-                && Stored < Capacity
-                && harvestable.StoredAmount > 0
-                && harvestable.CanHarvest(storageComp.Resource, this))
-                return CommandPrimer.Get("harvest");
-
-            if (target is IDepositable
-                && Stored > 0)
-                return CommandPrimer.Get("deposit");
-
-            if (target is IAttackable && target.GetRelationship(Owner) == Relationship.Hostile)
-                return CommandPrimer.Get("attack");
-
-            return CommandPrimer.Get("move");
-        }
-
-        public override void AutoCommand(ISelectable target)
-        {
-            if (target is IHarvestable harvestable
-                && Stored < Capacity
-                && harvestable.StoredAmount > 0
-                && harvestable.CanHarvest(storageComp.Resource, this))
-            {
-                //return CommandRegistry.Get<Harvest>("harvest").Construct(harvestable);
-            }
-
-            if (target is IDepositable depositable
-                && Stored > 0)
-            {
-                CommandPrimer.Get<Deposit>("deposit").Construct(depositable);
-            }
-
-            if (target is IAttackable attackable && target.GetRelationship(Owner) == Relationship.Hostile)
-            {
-                CommandPrimer.Get<Attack>("attack").Construct(attackable);
-            }
-
-            CommandPrimer.Get<Move>("move").Construct(target.GameObject.transform.position);
-        }
-
         protected override void OnUnitInfoDisplayed(UnitInfoEvent _event)
         {
             if (ReferenceEquals(_event.Unit, this))
@@ -156,13 +84,6 @@ namespace Ratworx.MarsTS.Units.Infantry
                 UnitResourceStorageInfo storage = _event.Info.Module<UnitResourceStorageInfo>("storage");
                 storage.SetStorage(storageComp);
             }
-        }
-
-        public override bool CanCommand(string key)
-        {
-            if (key == "deposit") return true;
-
-            return base.CanCommand(key);
         }
     }
 }

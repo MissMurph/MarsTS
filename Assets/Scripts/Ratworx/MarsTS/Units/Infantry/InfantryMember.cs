@@ -10,10 +10,10 @@ namespace Ratworx.MarsTS.Units.Infantry
         /// <remarks><c>InfantrySquad</c> will be null of being removed from a squad.</remarks>
         public Action<InfantrySquad> OnSquadMembershipChanged;
         
-        [SerializeField] private InfantrySquad _squad;
+        [SerializeField] private SquadManager _squad;
         [SerializeField] private MonoBehaviour[] _squadDisablingComponents;
 
-        public void SetSquad(InfantrySquad squad) {
+        public void SetSquad(SquadManager squad) {
             _squad = squad;
 
             if (squad is not null) {
@@ -27,8 +27,8 @@ namespace Ratworx.MarsTS.Units.Infantry
 
         [Rpc(SendTo.NotServer)]
         private void SetSquadClientRpc(string squadEntityName) {
-            if (!EntityCache.TryGetEntityComponent(squadEntityName, out InfantrySquad squad)) {
-                Debug.LogError($"Couldn't find {typeof(InfantrySquad)} with name {squadEntityName}!");
+            if (!EntityCache.TryGetEntityComponent(squadEntityName, out SquadManager squad)) {
+                Debug.LogError($"Couldn't find {typeof(SquadManager)} with name {squadEntityName}!");
                 return;
             }
 

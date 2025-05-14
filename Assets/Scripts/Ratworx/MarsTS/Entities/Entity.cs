@@ -206,7 +206,7 @@ namespace Ratworx.MarsTS.Entities
 
         public override void OnDestroy()
         {
-            _eventAgent.PostGlobal(new EntityDestroyEvent(_eventAgent, this));
+            _eventAgent.PostGlobal(new EntityDestroyEvent(this));
         }
 
         public Entity GetEntityComponent() => this;

@@ -23,26 +23,13 @@ namespace Ratworx.MarsTS.Units.Infantry
 
         protected Entity _entityComponent;
 
-        [FormerlySerializedAs("maxMembers")] [SerializeField]
-        protected int _maxMembers;
-
-        [FormerlySerializedAs("startingMembers")] [SerializeField]
-        protected InfantryMember[] _startingMembers;
-
-        [FormerlySerializedAs("selectionColliderPrefab")] [SerializeField]
-        protected GameObject _selectionColliderPrefab;
-
-        [FormerlySerializedAs("dummyColliderPrefab")] [SerializeField]
-        protected GameObject _dummyColliderPrefab;
-
-        [SerializeField] protected InfantryMember _memberPrefab;
+        
 
         protected EventAgent _bus;
 
 
         protected SquadVisionParser _squadVisibility;
 
-        protected EntitySpawner _spawnerPrefab;
 
         private bool _isInitialized = false;
         private bool _isInitializing = false;

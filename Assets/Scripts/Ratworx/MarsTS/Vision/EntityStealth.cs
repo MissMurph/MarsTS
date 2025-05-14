@@ -1,4 +1,3 @@
-using System;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Selectable;
@@ -6,65 +5,52 @@ using Ratworx.MarsTS.Units;
 using Ratworx.MarsTS.Units.Sensors;
 using UnityEngine;
 
-namespace Ratworx.MarsTS.Vision {
+namespace Ratworx.MarsTS.Vision
+{
+    [RequireComponent(typeof(UnitVision))]
+    public class EntityStealth : MonoBehaviour, IEntityComponent<EntityStealth>
+    {
+        [SerializeField] private bool _isSneaking;
+        public string Key => "stealth";
 
-	[RequireComponent(typeof(UnitVision))]
-	public class EntityStealth : MonoBehaviour, IEntityComponent<EntityStealth> {
+        private SelectableSensor _stealthSensor;
+        private EventAgent _eventAgent;
+        private UnitOwnership _ownership;
 
-		/*	ITaggable Properties	*/
+        private void Awake() {
+            _eventAgent = GetComponentInParent<EventAgent>();
+            _ownership = GetComponentInParent<UnitOwnership>();
 
-		public string Key { get { return "stealth"; } }
+            _stealthSensor = transform.Find("SneakRange").GetComponent<SelectableSensor>();
+        }
 
-		public Type Type { get { return typeof(EntityStealth); } }
+        private void Start() {
+            _eventAgent.AddListener<SneakEvent>(OnSneak);
+            _eventAgent.AddListener<EntityVisibleCheckEvent>(OnVisionCheck);
+        }
 
-		/*	Stealth Fields	*/
+        private void OnVisionCheck(EntityVisibleCheckEvent _event) {
+            if (_event.Phase == Phase.Post) return;
+            if (!_isSneaking) return;
+            
+            int sneakMask = _ownership.Owner.VisionMask;
 
-        private SelectableSensor stealthSensor;
+            foreach (ISelectable unit in _stealthSensor.InRange) {
+                if (unit.Entity.RegistryKey.Contains("pumpjack")) continue;
+                if (unit.Owner is null) continue;
+                
+                sneakMask |= unit.Owner.VisionMask;
+            }
 
-		[SerializeField]
-        private bool isSneaking;
+            _event.VisibleTo = sneakMask;
+        }
 
-		private UnitVision visionComponent;
+        private void OnSneak(SneakEvent evnt) {
+            _isSneaking = evnt.IsSneaking;
+        }
 
-		private Entity parent;
-
-		private EventAgent bus;
-
-		private void Awake () {
-			parent = GetComponent<Entity>();
-			bus = GetComponent<EventAgent>();
-			visionComponent = GetComponent<UnitVision>();
-
-			stealthSensor = transform.Find("SneakRange").GetComponent<SelectableSensor>();
-		}
-
-		private void Start () {
-			bus.AddListener<SneakEvent>(OnSneak);
-			bus.AddListener<EntityVisibleCheckEvent>(OnVisionCheck);
-		}
-
-		private void OnVisionCheck (EntityVisibleCheckEvent _event) {
-			if (_event.Phase == Phase.Post) return;
-
-			if (isSneaking) {
-				int sneakMask = parent.Owner.VisionMask;
-
-				foreach (Entity unit in stealthSensor.InRange) {
-					if (unit.RegistryKey.Contains("pumpjack")) continue;
-					if (unit.Owner is null) continue;
-					sneakMask |= unit.Owner.VisionMask;
-				}
-
-				_event.VisibleTo = sneakMask;
-			}
-		}
-
-		private void OnSneak (SneakEvent _event) {
-			isSneaking = _event.IsSneaking;
-		}
-
-		public EntityStealth Get () {
-			return this;
-		}
-	}
+        public EntityStealth Get() {
+            return this;
+        }
+    }
 }

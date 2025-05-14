@@ -10,7 +10,7 @@ using UnityEngine;
 namespace Ratworx.MarsTS.Units
 {
     [RequireComponent(typeof(UnitOwnership))]
-    public class UnitSelection : NetworkBehaviour,
+    public class UnitSelection : MonoBehaviour,
                                  ISelectable,
                                  IEntityComponent<UnitSelection>
     {
@@ -24,12 +24,10 @@ namespace Ratworx.MarsTS.Units
         public GameObject GameObject => gameObject;
         public Entity Entity { get; private set; }
 
-        [SerializeField]
-        private Sprite _icon;
+        [SerializeField] private Sprite _icon;
 
         private EventAgent _eventAgent;
         private UnitOwnership _unitOwnership;
-
 
         private void Awake() {
             Entity = GetComponent<Entity>();
@@ -37,18 +35,16 @@ namespace Ratworx.MarsTS.Units
             _unitOwnership = GetComponent<UnitOwnership>();
         }
 
-        public void Select(bool status)
-        {
+        public void Select(bool status) {
             OnUnitSelectionChange?.Invoke(status);
             _eventAgent.PostLocal(new UnitSelectEvent(_eventAgent, status));
         }
 
-        public void Hover(bool status)
-        {
+        public void Hover(bool status) {
             OnUnitHoverChange?.Invoke(status);
             _eventAgent.PostLocal(new UnitHoverEvent(_eventAgent, status));
         }
-        
+
         public Relationship GetRelationship(Faction other) => _unitOwnership.GetRelationship(other);
         public UnitSelection Get() => this;
 

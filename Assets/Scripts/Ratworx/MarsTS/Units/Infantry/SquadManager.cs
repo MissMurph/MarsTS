@@ -1,8 +1,13 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using Ratworx.MarsTS.Commands;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Selectable;
 using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Logging;
+using Ratworx.MarsTS.Units.Squads;
 using Ratworx.MarsTS.Vision;
 using Unity.Netcode;
 using UnityEngine;
@@ -13,28 +18,41 @@ namespace Ratworx.MarsTS.Units.Infantry
                                 IEntityComponent<SquadManager>,
                                 IEntityServerUpdate
     {
+        /// <remarks><c>bool</c> value reflects if the member is joining or leaving the squad</remarks>
+        public event Action<SquadMemberEntry, bool> OnSquadMembershipChanged;
+        
         public List<InfantryMember> Members {
             get
             {
                 var output = new List<InfantryMember>();
 
-                foreach (MemberEntry unitEntry in _members.Values) {
-                    output.Add(unitEntry.Member);
+                foreach (SquadMemberEntry unitEntry in _members.Values) {
+                    output.Add(unitEntry.Membership);
                 }
 
                 return output;
             }
         }
 
-        private readonly Dictionary<string, MemberEntry> _members = new Dictionary<string, MemberEntry>();
+        public List<SquadMemberEntry> MemberEntries => _members.Values.ToList();
+        public int MaxMembers => _maxMembers;
+
+        [SerializeField] private int _maxMembers;
+        [SerializeField] private InfantryMember[] _startingMembers;
+        [SerializeField] private GameObject _selectionColliderPrefab;
+        [SerializeField] private GameObject _dummyColliderPrefab;
+        [SerializeField] private InfantryMember _memberPrefab;
+
+        private readonly Dictionary<int, SquadMemberEntry> _members = new Dictionary<int, SquadMemberEntry>();
 
         private Vector3 _squadAvgPos;
         
         private Entity _entity;
         private EventAgent _eventAgent;
         private SquadVisionParser _squadVisibility;
+        private EntitySpawner _spawnerPrefab;
 
-        protected virtual void Awake() {
+        private void Awake() {
             _entity = GetComponent<Entity>();
             _eventAgent = GetComponent<EventAgent>();
             _squadVisibility = GetComponent<SquadVisionParser>();
@@ -47,11 +65,11 @@ namespace Ratworx.MarsTS.Units.Infantry
             
             _squadAvgPos = Vector3.zero;
 
-            foreach (MemberEntry entry in _members.Values)
+            foreach (SquadMemberEntry entry in _members.Values)
             {
-                if (!entry.Member) continue;
+                if (!entry.Membership) continue;
                 
-                _squadAvgPos += entry.Member.transform.position;
+                _squadAvgPos += entry.Membership.transform.position;
             }
 
             _squadAvgPos /= _members.Count;
@@ -77,7 +95,7 @@ namespace Ratworx.MarsTS.Units.Infantry
             EntitySpawner spawner = Instantiate(_spawnerPrefab, transform.position, transform.rotation);
             spawner.SetDeferredSpawn(true);
             spawner.SetEntity(_memberPrefab.gameObject);
-            spawner.SetOwner(Owner.Id);
+            // spawner.SetOwner(Owner.Id);
 
             //We capture pos here as squad will move around while instantiating
             Vector3 spawnPos = transform.position;
@@ -121,46 +139,51 @@ namespace Ratworx.MarsTS.Units.Infantry
                 if (phase == Phase.Pre)
                     return;
 
-                RegisterMember(unit);
+                RegisterMember(memberEntity);
             };
         }
 
-        protected virtual void RegisterMember(InfantryMember member) {
-            MemberEntry newEntry = new MemberEntry();
+        protected virtual void RegisterMember(Entity memberEntity) {
+            SquadMemberEntry newEntry = new SquadMemberEntry();
 
-            newEntry.Key = member.name;
-            newEntry.Member = member;
-            newEntry.Bus = member.GetComponent<EventAgent>();
+            newEntry.InstanceId = memberEntity.Id;
+            newEntry.Entity = memberEntity;
+            memberEntity.TryGetEntityComponent(out newEntry.Membership);
+            memberEntity.TryGetEntityComponent(out newEntry.EventAgent);
+            memberEntity.TryGetEntityComponent(out newEntry.Ownership);
+            memberEntity.TryGetEntityComponent(out newEntry.Selection);
+            memberEntity.TryGetEntityComponent(out newEntry.CommandQueue);
+            
+            _members[newEntry.InstanceId] = newEntry;
 
-            _members[newEntry.Key] = newEntry;
-
-            member.SetOwner(Owner);
-            member.SetSquad(this);
-
-            InstantiateDummyColliders(member);
+            newEntry.Membership.SetSquad(this);
+            
+            InstantiateDummyColliders(newEntry.Membership);
 
             if (NetworkManager.Singleton.IsServer) {
-                AttachMemberServerListeners(member);
-                RegisterMemberClientRpc(newEntry.Key);
+                AttachMemberServerListeners(newEntry.Membership);
+                RegisterMemberClientRpc(newEntry.InstanceId);
             }
 
-            if (NetworkManager.Singleton.IsClient)
-                AttachMemberClientListeners(member);
-
-            if (!_isInitialized) _isInitialized = true;
+            // if (!_isInitialized) _isInitialized = true;
         }
 
         [Rpc(SendTo.NotServer)]
-        private void RegisterMemberClientRpc(string entityName) {
+        private void RegisterMemberClientRpc(int instanceId) {
             if (NetworkManager.Singleton.IsServer)
                 return;
 
-            if (!EntityCache.TryGetEntityComponent(entityName, out InfantryMember member)) {
-                Debug.LogError($"[CLIENT] Failed to find Entity {entityName} for registering infantry member!");
+            if (!EntityCache.TryGetEntity(instanceId, out Entity entity)) {
+                RatLogger.Error?.Log($"[CLIENT] Failed to find Entity {instanceId} for registering infantry member!");
+                return;
+            }
+            
+            if (!entity.TryGetEntityComponent(out InfantryMember _)) {
+                RatLogger.Error?.Log($"[CLIENT] Failed to find {nameof(InfantryMember)} on {entity.name} for registering infantry member!");
                 return;
             }
 
-            RegisterMember(member);
+            RegisterMember(entity);
         }
 
         protected virtual void AttachMemberServerListeners(InfantryMember unit) {
@@ -169,12 +192,6 @@ namespace Ratworx.MarsTS.Units.Infantry
             unitEvents.AddListener<UnitDeathEvent>(DeregisterMember);
 
             _eventAgent.PostLocal(new SquadRegisterEvent(_eventAgent, this, unit));
-        }
-
-        private void AttachMemberClientListeners(InfantryMember unit) {
-            EventAgent unitEvents = unit.GetComponent<EventAgent>();
-
-            unitEvents.AddListener<UnitHurtEvent>(ForwardHurtEvent);
         }
 
         private void InstantiateDummyColliders(InfantryMember member) {
@@ -187,26 +204,19 @@ namespace Ratworx.MarsTS.Units.Infantry
             detectCollider.Init(member);
         }
 
-        private void DeregisterMember(UnitDeathEvent _event) {
-            MemberEntry deadEntry = _members[_event.Unit.GameObject.name];
+        private void DeregisterMember(UnitDeathEvent evnt) {
+            SquadMemberEntry deadEntry = _members[evnt.Entity.Id];
+            
+            _members.Remove(deadEntry.InstanceId);
 
-            _members.Remove(deadEntry.Key);
-
-            if (_members.Count <= 0) {
-                _eventAgent.PostGlobal(new UnitDeathEvent(_eventAgent, this));
-                Destroy(gameObject);
-            }
+            if (_members.Count > 0) return;
+            
+            _eventAgent.PostGlobal(new UnitDeathEvent(_entity));
+            Destroy(gameObject, 0.1f);
         }
 
         public override void OnDestroy() {
             _members.Clear();
-        }
-
-        protected class MemberEntry
-        {
-            public string Key;
-            public InfantryMember Member;
-            public EventAgent Bus;
         }
 
         public SquadManager Get() => this;

@@ -40,7 +40,7 @@ namespace Ratworx.MarsTS.Vision
 
         private void OnMemberDeath(UnitDeathEvent evnt)
         {
-            string deadKey = evnt.Unit.GameObject.name;
+            string deadKey = evnt.Entity.gameObject.name;
 
             _squadVision.Remove(deadKey);
         }

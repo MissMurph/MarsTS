@@ -125,7 +125,7 @@ namespace Ratworx.MarsTS.Teams
             
             foreach (Roster roster in _ownedUnits.Values)
             {
-                if (!typeof(IDepositable).IsAssignableFrom(roster.Type)) continue;
+                if (!typeof(IDepositable).IsAssignableFrom(roster.RegistryType)) continue;
 
                 output.AddRange(roster.Cast<IDepositable>());
             }

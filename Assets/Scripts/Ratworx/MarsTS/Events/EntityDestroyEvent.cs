@@ -6,8 +6,8 @@ namespace Ratworx.MarsTS.Events {
 
 		public Entity Entity { get; private set; }
 
-		public EntityDestroyEvent (EventAgent _source, Entity _entity) : base("entityDestroyed", _source) {
-			Entity = _entity;
+		public EntityDestroyEvent (Entity entity) : base("entityDestroyed") {
+			Entity = entity;
 		}
 	}
 }

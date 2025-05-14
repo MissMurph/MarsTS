@@ -23,9 +23,9 @@ namespace Ratworx.MarsTS.UI.Unit_Bars
 
             bus.AddListener<UnitHurtEvent>(_event =>
             {
-                UpdateBarWithFillLevel((float)_event.Targetable.Health / _event.Targetable.MaxHealth);
+                UpdateBarWithFillLevel((float)_event.Attackable.Health / _event.Attackable.MaxHealth);
 
-                if (_event.Targetable.Health < _event.Targetable.MaxHealth)
+                if (_event.Attackable.Health < _event.Attackable.MaxHealth)
                 {
                     _hurt = true;
                     _barRenderer.enabled = true;

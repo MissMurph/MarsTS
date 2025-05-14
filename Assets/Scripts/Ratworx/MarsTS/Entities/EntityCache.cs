@@ -51,6 +51,9 @@ namespace Ratworx.MarsTS.Entities {
 			return false;
 		}
 
+		public static bool TryGetEntity(int instanceId, out Entity output)
+			=> _instance._instanceMap.TryGetValue(instanceId, out output);
+
 		/// <example>
 		/// <code>
 		/// name:instanceID:componentKey
@@ -105,9 +108,9 @@ namespace Ratworx.MarsTS.Entities {
 			return _instance._instanceMap.TryAdd(id, entity) ? id : -1;
 		}
 
-		private void OnEntityDestroyed (EntityDestroyEvent _event) {
+		private void OnEntityDestroyed (EntityDestroyEvent evnt) {
 			if (_instance == null) return;
-			if (TryGetEntity(_event.Entity.gameObject.name, out Entity found)) {
+			if (TryGetEntity(evnt.Entity.gameObject.name, out Entity found)) {
 				_instanceMap.Remove(found.Id);
 			}
 		}

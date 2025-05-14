@@ -33,7 +33,7 @@ namespace Ratworx.MarsTS.Entities
 			if (Health <= 0) return;
 			if (damage < 0 && Health >= MaxHealth) return;
 
-			UnitHurtEvent hurtEvent = new UnitHurtEvent(_eventAgent, this, damage);
+			UnitHurtEvent hurtEvent = new UnitHurtEvent(this, damage);
 			hurtEvent.Phase = Phase.Pre;
 			_eventAgent.PostGlobal(hurtEvent);
 
@@ -62,7 +62,7 @@ namespace Ratworx.MarsTS.Entities
 			}
 			else
 			{
-				UnitHurtEvent hurtEvent = new UnitHurtEvent(_eventAgent, this, oldHealth - newHealth);
+				UnitHurtEvent hurtEvent = new UnitHurtEvent(this, oldHealth - newHealth);
 				hurtEvent.Phase = Phase.Post;
 				_eventAgent.PostGlobal(hurtEvent);
 			}

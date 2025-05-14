@@ -65,7 +65,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
 		}
 
 		private void OnTargetHealed(UnitHurtEvent evnt) {
-			if (evnt.Targetable.Health < evnt.Targetable.MaxHealth) return;
+			if (evnt.Attackable.Health < evnt.Attackable.MaxHealth) return;
 			
 			_repairCommand.CompleteCommand(CommandQueue);
 		}

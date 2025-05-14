@@ -4,11 +4,11 @@ namespace Ratworx.MarsTS.Events.Selectable.Attackable {
 
 	public class UnitHurtEvent : UnitEvent {
 
-		public IAttackable Targetable { get; private set; }
+		public IAttackable Attackable { get; private set; }
 		public int Damage { get; private set; }
 
-		public UnitHurtEvent (EventAgent source, IAttackable unit, int damage) : base("Hurt", source, unit as ISelectable) {
-			Targetable = unit;
+		public UnitHurtEvent (IAttackable unit, int damage) : base("Hurt", unit.Entity) {
+			Attackable = unit;
 			Damage = damage;
 		}
 

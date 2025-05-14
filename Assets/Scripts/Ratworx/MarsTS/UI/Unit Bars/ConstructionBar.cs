@@ -18,8 +18,8 @@ namespace Ratworx.MarsTS.UI.Unit_Bars
 
                 GetComponentInParent<EventAgent>().AddListener<UnitHurtEvent>(_event =>
                 {
-                    UpdateBarWithFillLevel((float)_event.Targetable.Health / _event.Targetable.MaxHealth);
-                    if (_event.Targetable.Health >= _event.Targetable.MaxHealth) gameObject.SetActive(false);
+                    UpdateBarWithFillLevel((float)_event.Attackable.Health / _event.Attackable.MaxHealth);
+                    if (_event.Attackable.Health >= _event.Attackable.MaxHealth) gameObject.SetActive(false);
                 });
             }
             else

@@ -90,10 +90,10 @@ namespace Ratworx.MarsTS.UI.Unit_Pane
 
         private void OnEntityHurt(UnitHurtEvent _event)
         {
-            if (ReferenceEquals(_event.Targetable, CurrentUnit))
+            if (ReferenceEquals(_event.Attackable, CurrentUnit))
             {
-                CurrentHealth = _event.Targetable.Health;
-                MaxHealth = _event.Targetable.MaxHealth;
+                CurrentHealth = _event.Attackable.Health;
+                MaxHealth = _event.Attackable.MaxHealth;
             }
         }
 

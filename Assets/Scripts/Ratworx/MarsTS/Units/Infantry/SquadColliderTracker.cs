@@ -2,12 +2,15 @@ using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Selectable;
 using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace Ratworx.MarsTS.Units.Infantry
 {
+    // [RequireComponent(NetworkTransform)]
     public class SquadColliderTracker : MonoBehaviour,
-                                        IEntityServerUpdate
+                                        IEntityServerUpdate,
+                                        IEntityClientUpdate
     {
         [SerializeField] private InfantryMember _trackedMember;
         [SerializeField] private bool _updateWithVision;
@@ -54,9 +57,18 @@ namespace Ratworx.MarsTS.Units.Infantry
             _collider.enabled = evnt.Visible;
         }
 
-        private void Update()
-        {
+        public void UpdateServer() {
             if (!_isInitialized
+                || _isSelfDestructing
+                || !_trackedMember) return;
+
+            transform.position = _trackedMember.transform.position;
+        }
+
+        public void UpdateClient() {
+            // We don't want this to run twice on the server (I mean it's not that bad...)
+            if (NetworkManager.Singleton.IsServer
+                || !_isInitialized
                 || _isSelfDestructing
                 || !_trackedMember) return;
 

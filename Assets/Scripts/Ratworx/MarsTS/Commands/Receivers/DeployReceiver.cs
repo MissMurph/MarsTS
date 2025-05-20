@@ -1,4 +1,5 @@
 using Ratworx.MarsTS.Commands.Commandlets;
+using Ratworx.MarsTS.Commands.Factories;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Commands;
@@ -11,7 +12,8 @@ namespace Ratworx.MarsTS.Commands.Receivers
 {
     public class DeployReceiver : AbstractCommandReceiver<BooleanCommandlet>,
                                   IEntityServerUpdate,
-                                  IEntityClientUpdate
+                                  IEntityClientUpdate,
+                                  ICostingCommand
     {
         [SerializeField] private bool _deployed;
         // How many seconds it takes to deploy
@@ -31,13 +33,9 @@ namespace Ratworx.MarsTS.Commands.Receivers
         private int _undeployedMoveSpeed;
         
         private Entity _entity;
-        private EventAgent _eventAgent;
-        private CommandQueue _commandQueue;
         
         private void Awake() {
             _entity = GetComponent<Entity>();
-            _eventAgent = GetComponent<EventAgent>();
-            _commandQueue = GetComponent<CommandQueue>();
 
             _currentDeployTime = 0f;
         }
@@ -55,11 +53,11 @@ namespace Ratworx.MarsTS.Commands.Receivers
             if (!_deployCommandlet.Target) return;
             
             _undeployedMoveSpeed = _moveSpeedAttribute.Value;
+            _deploying = command.Target;
 
             if (!NetworkManager.Singleton.IsServer) return;
-                
+
             _moveSpeedAttribute.Value = 0;
-            _deploying = command.Target;
         }
 
         public void UpdateServer() {
@@ -69,12 +67,12 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
             float deployTimer = _deploying ? _deployTime : _undeployTime;
 
-            _eventAgent.PostGlobal(new CommandWorkEvent(_deployCommandlet, _commandQueue,
+            EventAgent.PostGlobal(new CommandWorkEvent(_deployCommandlet, CommandQueue,
                 _currentDeployTime / deployTimer));
 
             if (_currentDeployTime < deployTimer) return;
             
-            _deployCommandlet.CompleteCommand(_commandQueue);
+            _deployCommandlet.CompleteCommand(CommandQueue);
             _currentDeployTime = 0f;
         }
 
@@ -85,12 +83,12 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
             float deployTimer = _deploying ? _deployTime : _undeployTime;
 
-            _eventAgent.PostGlobal(new CommandWorkEvent(_deployCommandlet, _commandQueue,
+            EventAgent.PostGlobal(new CommandWorkEvent(_deployCommandlet, CommandQueue,
                 _currentDeployTime / deployTimer));
         }
 
         private void OnCommandComplete (CommandCompleteEvent evnt) {
-            _eventAgent.PostGlobal(new CommandWorkEvent(_deployCommandlet, _commandQueue, 1f));
+            EventAgent.PostGlobal(new CommandWorkEvent(_deployCommandlet, CommandQueue, 1f));
             _deployCommandlet.Callback.RemoveListener(OnCommandComplete);
             _deployCommandlet = null;
             
@@ -111,5 +109,6 @@ namespace Ratworx.MarsTS.Commands.Receivers
         }
         
         public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) => (false, null);
+        public CostEntry[] GetCost() => new CostEntry[1] { new CostEntry { key = "time", amount = 5 } };
     }
 }

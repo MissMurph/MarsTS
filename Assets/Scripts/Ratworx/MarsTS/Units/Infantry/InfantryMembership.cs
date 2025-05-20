@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Units.Infantry
 {
-    public class InfantryMember : NetworkBehaviour
+    public class InfantryMembership : NetworkBehaviour
     {
         /// <remarks><c>InfantrySquad</c> will be null of being removed from a squad.</remarks>
         public Action<InfantrySquad> OnSquadMembershipChanged;

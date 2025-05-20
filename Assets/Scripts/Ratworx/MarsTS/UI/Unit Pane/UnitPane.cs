@@ -31,7 +31,7 @@ namespace Ratworx.MarsTS.UI.Unit_Pane {
 
 			if (rosters.Count == 1 && rosters[0].Count == 1) {
 				foreach (Roster typeEntry in rosters) {
-					infoCard.DisplayInfo(typeEntry.Get());
+					infoCard.DisplayInfo(typeEntry.GetFirst());
 				}
 			}
 			else {

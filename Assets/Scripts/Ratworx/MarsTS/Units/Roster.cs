@@ -64,8 +64,8 @@ namespace Ratworx.MarsTS.Units
             instances = new Dictionary<int, ISelectable>();
             Commands = new List<string>();
         }
-
-        public ISelectable Get()
+        
+        public ISelectable GetFirst()
         {
             foreach (ISelectable unit in instances.Values)
             {

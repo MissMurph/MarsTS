@@ -112,7 +112,8 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			
 			if (!CanFactionAfford(faction)) return;
 			
-			FlareCommandlet order = (FlareCommandlet)Instantiate(orderPrefab);
+			// TODO: Fix
+			/*FlareCommandlet order = (FlareCommandlet)Instantiate(orderPrefab);
 
 			order.InitFlare(Name, target, TeamCache.Faction(factionId), _cooldown, _cost);
 
@@ -123,7 +124,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 					Debug.LogWarning($"ICommandable on Unit {entity} not found! Command {Name} being ignored by unit!");
 			}
 			
-			WithdrawResourcesFromFaction(faction);
+			WithdrawResourcesFromFaction(faction);*/
 		}
 
 		public override void CancelSelection () {

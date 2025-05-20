@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Units.Infantry {
 
-    public class Marine : InfantryMember {
+    public class Marine : InfantryMembership {
 
 		private ProjectileTurret equippedWeapon;
 

@@ -172,7 +172,7 @@ namespace Ratworx.MarsTS.Player {
 				Physics.Raycast(ray, out RaycastHit selectableHit, 1000f, GameWorld.SelectableMask);
 
 				if (selectableHit.collider != null && EntityCache.TryGetEntityComponent(selectableHit.collider.transform.root.name, out ISelectable target)) {
-					if (Selected[UIController.instance.PrimarySelected].Get() is ICommandable commandable) {
+					if (Selected[UIController.instance.PrimarySelected].GetFirst() is ICommandable commandable) {
 						commandable.AutoCommand(target);
 						return;
 					}

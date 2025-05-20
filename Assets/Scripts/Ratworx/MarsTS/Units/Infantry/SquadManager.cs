@@ -11,6 +11,7 @@ using Ratworx.MarsTS.Units.Squads;
 using Ratworx.MarsTS.Vision;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Ratworx.MarsTS.Units.Infantry
 {
@@ -21,10 +22,10 @@ namespace Ratworx.MarsTS.Units.Infantry
         /// <remarks><c>bool</c> value reflects if the member is joining or leaving the squad</remarks>
         public event Action<SquadMemberEntry, bool> OnSquadMembershipChanged;
         
-        public List<InfantryMember> Members {
+        public List<InfantryMembership> Members {
             get
             {
-                var output = new List<InfantryMember>();
+                var output = new List<InfantryMembership>();
 
                 foreach (SquadMemberEntry unitEntry in _members.Values) {
                     output.Add(unitEntry.Membership);
@@ -38,10 +39,10 @@ namespace Ratworx.MarsTS.Units.Infantry
         public int MaxMembers => _maxMembers;
 
         [SerializeField] private int _maxMembers;
-        [SerializeField] private InfantryMember[] _startingMembers;
+        [SerializeField] private InfantryMembership[] _startingMembers;
         [SerializeField] private GameObject _selectionColliderPrefab;
         [SerializeField] private GameObject _dummyColliderPrefab;
-        [SerializeField] private InfantryMember _memberPrefab;
+        [FormerlySerializedAs("_memberPrefab")] [SerializeField] private InfantryMembership _membershipPrefab;
 
         private readonly Dictionary<int, SquadMemberEntry> _members = new Dictionary<int, SquadMemberEntry>();
 
@@ -94,18 +95,18 @@ namespace Ratworx.MarsTS.Units.Infantry
 
             EntitySpawner spawner = Instantiate(_spawnerPrefab, transform.position, transform.rotation);
             spawner.SetDeferredSpawn(true);
-            spawner.SetEntity(_memberPrefab.gameObject);
+            spawner.SetEntity(_membershipPrefab.gameObject);
             // spawner.SetOwner(Owner.Id);
 
             //We capture pos here as squad will move around while instantiating
             Vector3 spawnPos = transform.position;
 
-            InfantryMember firstMember = spawner.SpawnEntity().GetComponent<InfantryMember>();
+            InfantryMembership firstMembership = spawner.SpawnEntity().GetComponent<InfantryMembership>();
 
-            AttachMemberInitListener(firstMember);
+            AttachMemberInitListener(firstMembership);
 
             Vector3 memberHalfExtents =
-                firstMember.transform
+                firstMembership.transform
                     .Find("GroundCollider")
                     .GetComponent<BoxCollider>()
                     .size;
@@ -125,13 +126,13 @@ namespace Ratworx.MarsTS.Units.Infantry
 
                 spawner.transform.position = pos;
 
-                InfantryMember member = spawner.SpawnEntity().GetComponent<InfantryMember>();
+                InfantryMembership membership = spawner.SpawnEntity().GetComponent<InfantryMembership>();
 
-                AttachMemberInitListener(member);
+                AttachMemberInitListener(membership);
             }
         }
 
-        private void AttachMemberInitListener(InfantryMember unit) {
+        private void AttachMemberInitListener(InfantryMembership unit) {
             Entity memberEntity = unit.GetComponent<Entity>();
 
             memberEntity.OnEntityInit += phase =>
@@ -178,30 +179,30 @@ namespace Ratworx.MarsTS.Units.Infantry
                 return;
             }
             
-            if (!entity.TryGetEntityComponent(out InfantryMember _)) {
-                RatLogger.Error?.Log($"[CLIENT] Failed to find {nameof(InfantryMember)} on {entity.name} for registering infantry member!");
+            if (!entity.TryGetEntityComponent(out InfantryMembership _)) {
+                RatLogger.Error?.Log($"[CLIENT] Failed to find {nameof(InfantryMembership)} on {entity.name} for registering infantry member!");
                 return;
             }
 
             RegisterMember(entity);
         }
 
-        protected virtual void AttachMemberServerListeners(InfantryMember unit) {
+        protected virtual void AttachMemberServerListeners(InfantryMembership unit) {
             EventAgent unitEvents = unit.GetComponent<EventAgent>();
 
             unitEvents.AddListener<UnitDeathEvent>(DeregisterMember);
 
-            _eventAgent.PostLocal(new SquadRegisterEvent(_eventAgent, this, unit));
+            // _eventAgent.PostLocal(new SquadRegisterEvent(_eventAgent, this, unit));
         }
 
-        private void InstantiateDummyColliders(InfantryMember member) {
+        private void InstantiateDummyColliders(InfantryMembership membership) {
             SquadColliderTracker selectCollider = Instantiate(_selectionColliderPrefab, transform)
                 .GetComponent<SquadColliderTracker>();
-            selectCollider.Init(member);
+            selectCollider.Init(membership);
 
             SquadColliderTracker detectCollider = Instantiate(_dummyColliderPrefab, transform)
                 .GetComponent<SquadColliderTracker>();
-            detectCollider.Init(member);
+            detectCollider.Init(membership);
         }
 
         private void DeregisterMember(UnitDeathEvent evnt) {

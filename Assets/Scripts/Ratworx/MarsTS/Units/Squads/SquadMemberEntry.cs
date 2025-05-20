@@ -8,7 +8,7 @@ namespace Ratworx.MarsTS.Units.Squads
     public class SquadMemberEntry
     {
         public int InstanceId;
-        public InfantryMember Membership;
+        public InfantryMembership Membership;
         public Entity Entity;
         public EventAgent EventAgent;
         public UnitOwnership Ownership;

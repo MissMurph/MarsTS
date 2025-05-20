@@ -1,3 +1,4 @@
+using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Units;
 
 namespace Ratworx.MarsTS.Events.Selectable {
@@ -6,8 +7,8 @@ namespace Ratworx.MarsTS.Events.Selectable {
 
 		public bool IsSneaking { get; private set; }
 
-		public SneakEvent (EventAgent _source, ISelectable _unit, bool _isSneaking) : base("Sneak", _source, _unit) {
-			IsSneaking = _isSneaking;
+		public SneakEvent (Entity unit, bool isSneaking) : base("Sneak", unit) {
+			IsSneaking = isSneaking;
 		}
 	}
 }

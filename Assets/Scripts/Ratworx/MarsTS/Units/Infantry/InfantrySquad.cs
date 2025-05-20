@@ -21,7 +21,7 @@ namespace Ratworx.MarsTS.Units.Infantry
         
 
 
-        protected Entity _entityComponent;
+        /*protected Entity _entityComponent;
 
         
 
@@ -89,6 +89,6 @@ namespace Ratworx.MarsTS.Units.Infantry
                 HealthInfo info = _event.Info.Module<HealthInfo>("health");
                 info.CurrentUnit = this;
             }
-        }
+        }*/
     }
 }

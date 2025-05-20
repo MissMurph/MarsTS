@@ -4,6 +4,7 @@ namespace Ratworx.MarsTS.Units.Locomotion
 {
     public class CarLocomotion : AbstractLocomotion
     {
+        // TODO: Convert from physics based to kinematic
         [SerializeField] private float _topSpeed;
         [SerializeField] private float _reverseSpeed;
         [SerializeField] private float _acceleration;

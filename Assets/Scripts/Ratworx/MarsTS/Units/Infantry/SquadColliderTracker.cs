@@ -4,6 +4,7 @@ using Ratworx.MarsTS.Events.Selectable;
 using Ratworx.MarsTS.Events.Selectable.Attackable;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Ratworx.MarsTS.Units.Infantry
 {
@@ -12,7 +13,7 @@ namespace Ratworx.MarsTS.Units.Infantry
                                         IEntityServerUpdate,
                                         IEntityClientUpdate
     {
-        [SerializeField] private InfantryMember _trackedMember;
+        [FormerlySerializedAs("_trackedMember")] [SerializeField] private InfantryMembership _trackedMembership;
         [SerializeField] private bool _updateWithVision;
 
         private bool _isInitialized = false;
@@ -25,13 +26,13 @@ namespace Ratworx.MarsTS.Units.Infantry
             _collider = GetComponent<Collider>();
         }
 
-        public void Init(InfantryMember member)
+        public void Init(InfantryMembership membership)
         {
-            _trackedMember = member;
+            _trackedMembership = membership;
 
-            _memberBus = member.GetComponent<EventAgent>();
+            _memberBus = membership.GetComponent<EventAgent>();
 
-            transform.position = member.transform.position;
+            transform.position = membership.transform.position;
 
             AttachListenersToMember();
             
@@ -60,9 +61,9 @@ namespace Ratworx.MarsTS.Units.Infantry
         public void UpdateServer() {
             if (!_isInitialized
                 || _isSelfDestructing
-                || !_trackedMember) return;
+                || !_trackedMembership) return;
 
-            transform.position = _trackedMember.transform.position;
+            transform.position = _trackedMembership.transform.position;
         }
 
         public void UpdateClient() {
@@ -70,9 +71,9 @@ namespace Ratworx.MarsTS.Units.Infantry
             if (NetworkManager.Singleton.IsServer
                 || !_isInitialized
                 || _isSelfDestructing
-                || !_trackedMember) return;
+                || !_trackedMembership) return;
 
-            transform.position = _trackedMember.transform.position;
+            transform.position = _trackedMembership.transform.position;
         }
 
         public void SetUpdatingWithVision(bool status)

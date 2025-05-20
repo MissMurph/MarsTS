@@ -97,8 +97,8 @@ namespace Ratworx.MarsTS.UI {
 
         private void OnCooldownUpdate (CooldownEvent _event) {
 			if (current is null) return;
-			if (_event.CommandKey == current.Name
-                && Player.Player.HasSelected(_event.Unit)
+			if (_event.CommandNameKey == current.Name
+                && Player.Player.HasSelected(_event.Entity)
                 && Player.Player.UI.PrimarySelected == _event.Unit.RegistryKey) {
 
                 EvaluateCooldown();

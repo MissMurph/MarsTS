@@ -1,12 +1,9 @@
-using System;
-using System.Collections;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Selectable;
 using Ratworx.MarsTS.Pathfinding;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Ratworx.MarsTS.Units
 {

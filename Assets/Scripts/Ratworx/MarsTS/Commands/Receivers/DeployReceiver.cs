@@ -1,7 +1,6 @@
 using Ratworx.MarsTS.Commands.Commandlets;
 using Ratworx.MarsTS.Commands.Factories;
 using Ratworx.MarsTS.Entities;
-using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Commands;
 using Ratworx.MarsTS.Events.Selectable;
 using Ratworx.MarsTS.Units.Turrets;

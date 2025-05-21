@@ -1,5 +1,4 @@
 using Ratworx.MarsTS.Commands;
-using Ratworx.MarsTS.Commands.Factories;
 
 namespace Ratworx.MarsTS.Events.Commands 
 {

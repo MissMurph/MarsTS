@@ -2,57 +2,14 @@ using System;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Harvesting;
-using Ratworx.MarsTS.Events.Selectable;
 using Ratworx.MarsTS.Events.Selectable.Attackable;
-using Ratworx.MarsTS.Events.Selectable.Internal;
-using Ratworx.MarsTS.Teams;
-using Ratworx.MarsTS.UI.Unit_Pane;
-using Ratworx.MarsTS.Units;
 using UnityEngine;
 
 namespace Ratworx.MarsTS.WorldObject
 {
-    public class ResourceDeposit : MonoBehaviour, IHarvestable, ISelectable, IEntityComponent<ResourceDeposit>
+    public class ResourceDeposit : EntityAttribute, 
+                                   IHarvestable
     {
-        public GameObject GameObject => gameObject;
-        public IUnitInterface UnitInterface => this;
-
-        /*	ISelectable Properties	*/
-
-        public int Id => _entityComponent.Id;
-
-        public string UnitType => _key;
-
-        public string RegistryKey => UnitType + ":" + _key;
-
-        [SerializeField] private string _key;
-
-        public Faction Owner => TeamCache.Faction(0);
-
-        public Sprite Icon => _icon;
-
-        [SerializeField] private Sprite _icon;
-
-        /*	ITaggable Properties	*/
-
-        public string Key => "selectable";
-
-        public Type Type => typeof(ResourceDeposit);
-
-        /*	IHarvestable Properties	*/
-
-        public int OriginalAmount { get; private set; }
-
-        public int StoredAmount => _resourceStorage.Value;
-
-        /*	Deposit Fields	*/
-
-        private Entity _entityComponent;
-
-        protected EventAgent _bus;
-
-        private GameObject _selectionCircle;
-
         //This is just for the registry key, some examples:
         //deposit:scrap
         //deposit:oil_slick
@@ -61,33 +18,48 @@ namespace Ratworx.MarsTS.WorldObject
         //deposit:rock
         [SerializeField] private string _depositType;
 
-        protected ResourceStorage _resourceStorage;
+        // protected ResourceStorage _resourceStorage;
+        
+        public GameObject GameObject => gameObject;
+        public Entity Entity => _entity;
+        public int OriginalAmount { get; private set; }
 
-        protected virtual void Awake()
-        {
-            _entityComponent = GetComponent<Entity>();
-            _resourceStorage = GetComponent<ResourceStorage>();
-            _bus = GetComponent<EventAgent>();
-            _selectionCircle = transform.Find("SelectionCircle").gameObject;
-            _selectionCircle.SetActive(false);
+        public int StoredAmount => Value;
+        public string Resource { get; }
+
+        private EventAgent _eventAgent;
+        private Entity _entity;
+
+        protected virtual void Awake() {
+            _entity = GetComponent<Entity>();
+            _eventAgent = GetComponent<EventAgent>();
         }
 
-        private void Start()
-        {
-            //selectionCircle.GetComponent<Renderer>().material = GetRelationship(Player.Main).Material();
-            OriginalAmount = _resourceStorage.Value;
-            EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
+        private void Start() {
+            OriginalAmount = Value;
+            // EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
+            OnAttributeChange += OnResourceExtracted;
         }
 
-        public bool CanHarvest(string resourceKey, ISelectable unit)
-        {
-            if (resourceKey == _depositType) return true;
-            return false;
+        private void OnResourceExtracted(int oldValue, int newValue) {
+            _eventAgent.PostGlobal(
+                new ResourceHarvestedEvent(
+                    _entity,
+                    ResourceHarvestedEvent.Side.Deposit,
+                    newValue - oldValue,
+                    _depositType,
+                    StoredAmount,
+                    OriginalAmount
+                )
+            );
+
+            if (Value > 0) return;
+            
+            _eventAgent.PostGlobal(new UnitDeathEvent(_entity));
+            Destroy(gameObject, 0.01f);
         }
 
-        public ResourceDeposit Get() => this;
-
-        public Relationship GetRelationship(Faction player) => Relationship.Neutral;
+        public bool CanHarvest(string resourceKey, Entity unit) => resourceKey == _depositType;
 
         public virtual int Harvest(
             string resourceKey,
@@ -95,56 +67,23 @@ namespace Ratworx.MarsTS.WorldObject
             int harvestAmount,
             Func<int, int> extractor
         ) {
-            int availableAmount = Mathf.Min(harvestAmount, _resourceStorage.Value);
+            int availableAmount = Mathf.Min(harvestAmount, Value);
 
             int finalAmount = extractor(availableAmount);
+            Value -= finalAmount;
 
-            if (finalAmount > 0)
-            {
-                _bus.PostGlobal(new ResourceHarvestedEvent(_bus, this, ResourceHarvestedEvent.Side.Deposit,
-                    finalAmount, resourceKey, StoredAmount, OriginalAmount));
-                _resourceStorage.Value -= finalAmount;
-            }
-
-            if (StoredAmount <= 0)
-            {
-                _bus.PostGlobal(new UnitDeathEvent(_bus, this));
-                Destroy(gameObject, 0.01f);
-            }
+            
 
             return finalAmount;
         }
 
-        public void Select(bool status)
-        {
-            _selectionCircle.SetActive(status);
-            _bus.PostLocal(new UnitSelectEvent(_bus, status));
-        }
-
-        public void Hover(bool status)
-        {
-            //These are seperated due to the Player Selection Check
-            if (status)
-            {
-                _selectionCircle.SetActive(true);
-                _bus.PostLocal(new UnitHoverEvent(_bus, status));
-            }
-            else if (!Player.Player.HasSelected(this))
-            {
-                _selectionCircle.SetActive(false);
-                _bus.PostLocal(new UnitHoverEvent(_bus, status));
-            }
-        }
-
-        public bool SetOwner(Faction player) => false;
-
-        private void OnUnitInfoDisplayed(UnitInfoEvent _event)
+        /*private void OnUnitInfoDisplayed(UnitInfoEvent _event)
         {
             if (ReferenceEquals(_event.Unit, this))
             {
                 UnitResourceStorageInfo info = _event.Info.Module<UnitResourceStorageInfo>("deposit");
                 info.SetStorage(_resourceStorage);
             }
-        }
+        }*/
     }
 }

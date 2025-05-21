@@ -4,7 +4,6 @@ using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Init;
 using Ratworx.MarsTS.Events.Player;
 using Ratworx.MarsTS.Events.Selectable;
-using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units;
 using UnityEngine;
 using UnityEngine.Serialization;

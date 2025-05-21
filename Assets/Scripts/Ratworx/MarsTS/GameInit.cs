@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ratworx.MarsTS;
 using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.UI;
 using Unity.Netcode;

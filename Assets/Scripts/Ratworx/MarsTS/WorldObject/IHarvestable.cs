@@ -8,6 +8,7 @@ namespace Ratworx.MarsTS.WorldObject
     {
         int OriginalAmount { get; }
         int StoredAmount { get; }
+        string Resource { get; }
         int Harvest(string resourceKey, Entity harvester, int harvestAmount, Func<int, int> extractor);
         bool CanHarvest(string resourceKey, Entity unit);
     }

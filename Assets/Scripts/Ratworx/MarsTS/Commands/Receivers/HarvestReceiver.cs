@@ -40,8 +40,9 @@ namespace Ratworx.MarsTS.Commands.Receivers
         }
 
         public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) {
-            if (!entity.TryGetEntityComponent(out IHarvestable _)
-                || _storage.Value >= _storage.Capacity) 
+            if (!entity.TryGetEntityComponent(out IHarvestable harvestable)
+                || _storage.Value >= _storage.Capacity
+                || harvestable.Resource != _storage.Resource)
                 return (false, null);
 
             return (true, CommandPrimer.Get(CommandKey));

@@ -1,4 +1,3 @@
-using System;
 using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units.Infantry;
 using UnityEngine;

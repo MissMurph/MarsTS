@@ -5,7 +5,6 @@ using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units;
 using UnityEngine;
 using Unity.Netcode;
-using UnityEngine.Serialization;
 
 namespace Ratworx.MarsTS.Entities 
 {

@@ -1,5 +1,3 @@
-using System;
-
 namespace Ratworx.MarsTS.Entities {
 
 	public interface IEntityComponent<T> : IEntityComponent {

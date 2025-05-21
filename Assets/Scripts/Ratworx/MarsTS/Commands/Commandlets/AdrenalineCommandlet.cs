@@ -1,4 +1,3 @@
-using System;
 using Ratworx.MarsTS.Commands.Serializers;
 using Ratworx.MarsTS.Events.Commands;
 using Ratworx.MarsTS.Teams;

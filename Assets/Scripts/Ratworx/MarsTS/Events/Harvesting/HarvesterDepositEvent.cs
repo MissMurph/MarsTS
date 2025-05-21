@@ -1,6 +1,5 @@
 using Ratworx.MarsTS.Buildings;
 using Ratworx.MarsTS.Entities;
-using Ratworx.MarsTS.Units;
 
 namespace Ratworx.MarsTS.Events.Harvesting {
 

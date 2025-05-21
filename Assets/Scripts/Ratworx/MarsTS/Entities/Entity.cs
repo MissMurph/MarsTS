@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Init;
-using Ratworx.MarsTS;
 using Ratworx.MarsTS.Registry;
 using Unity.Netcode;
 using UnityEngine;

@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Ratworx.MarsTS.Commands.Commandlets;
-using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Pathfinding;
 using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units;

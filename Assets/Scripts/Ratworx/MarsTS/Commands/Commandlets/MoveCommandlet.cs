@@ -7,11 +7,11 @@ namespace Ratworx.MarsTS.Commands.Commandlets {
     public class MoveCommandlet : Commandlet<Vector3> {
 	    public override string SerializerKey => "move";
 
-        protected override void Deserialize(SerializedCommandWrapper _data) {
-	        SerializedMoveCommandlet deserialized = (SerializedMoveCommandlet)_data.commandletData;
+        protected override void Deserialize(SerializedCommandWrapper data) {
+	        SerializedMoveCommandlet deserialized = (SerializedMoveCommandlet)data.commandletData;
 
-	        Name = _data.Key;
-	        Commander = TeamCache.Faction(_data.Faction);
+	        Name = data.Key;
+	        Commander = TeamCache.Faction(data.Faction);
 	        _target = deserialized.TargetPosition;
         }
     }

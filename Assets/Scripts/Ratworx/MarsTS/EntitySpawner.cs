@@ -1,5 +1,6 @@
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Logging;
+using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units;
 using Unity.Netcode;
 using UnityEngine;
@@ -9,7 +10,7 @@ namespace Ratworx.MarsTS
     public class EntitySpawner : MonoBehaviour
     {
         [SerializeField] private GameObject _prefab = null;
-        [SerializeField] private int _owner;
+        [SerializeField] private Faction _owner;
         // Tells the spawner to wait until manually called if true
         [SerializeField] private bool _deferSpawn;
         [SerializeField] private bool _destroyOnSpawn = true;
@@ -33,7 +34,7 @@ namespace Ratworx.MarsTS
         /// <summary>Will tell the spawner to wait until <see cref="SpawnEntity"/> is called before spawning.</summary>
         public void SetDeferredSpawn(bool value) => _deferSpawn = value;
 
-        public void SetOwner(int newValue) => _owner = newValue;
+        public void SetOwner(Faction newValue) => _owner = newValue;
 
         public void SetEntity(GameObject prefab) => _prefab = prefab;
 
@@ -53,17 +54,13 @@ namespace Ratworx.MarsTS
 
         private Entity InstantiateAndSpawnEntity()
         {
-            RatLogger.Verbose?.Log($"Spawning {_prefab.name}");
-            
             GameObject instantiated = Instantiate(_prefab, transform.position, transform.rotation);
-            var selectable = instantiated.GetComponent<ISelectable>();
-            var networkObject = instantiated.GetComponent<NetworkObject>();
             var entity = instantiated.GetComponent<Entity>();
+            UnitOwnership ownership = instantiated.GetComponent<UnitOwnership>();
+            var networkObject = instantiated.GetComponent<NetworkObject>();
 
             networkObject.Spawn();
-            
-            // if (_owner > 0) 
-                // selectable.SetOwner(TeamCache.Faction(_owner));
+            ownership.SetOwner(_owner);
             
             if (_destroyOnSpawn) 
                 Destroy(gameObject, 0.1f);

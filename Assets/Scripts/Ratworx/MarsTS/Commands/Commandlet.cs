@@ -57,11 +57,11 @@ namespace Ratworx.MarsTS.Commands {
 			Deserialize(_data);
 		}
 
-		protected virtual void Deserialize(SerializedCommandWrapper _data)
+		protected virtual void Deserialize(SerializedCommandWrapper data)
 		{
-			Name = _data.Name;
-			Commander = TeamCache.Faction(_data.Faction);
-			Id = _data.Id;
+			Name = data.Name;
+			Commander = TeamCache.Faction(data.Faction);
+			Id = data.Id;
 
 			CommandletsCache.Register(this);
 		}

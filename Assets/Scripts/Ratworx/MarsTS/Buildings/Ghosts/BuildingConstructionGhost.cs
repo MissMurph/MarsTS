@@ -8,6 +8,7 @@ using Ratworx.MarsTS.Events.Init;
 using Ratworx.MarsTS.Events.Selectable;
 using Ratworx.MarsTS.Events.Selectable.Attackable;
 using Ratworx.MarsTS.Events.Selectable.Internal;
+using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.UI.Unit_Pane;
 using Ratworx.MarsTS.Units;
@@ -19,7 +20,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
 {
     public class BuildingConstructionGhost : NetworkBehaviour
     {
-        private CostEntry[] _constructionCost;
+        private ResourceCost[] _constructionCost;
         
         private int _healthPerConstructionPoint;
 
@@ -55,7 +56,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
             _entityComponent = GetComponent<Entity>();
         }
 
-        public virtual void InitializeGhost(string buildingKey, int constructionWorkRequired, params CostEntry[] constructionCost)
+        public virtual void InitializeGhost(string buildingKey, int constructionWorkRequired, params ResourceCost[] constructionCost)
         {
             if (!NetworkManager.Singleton.IsServer) return;
             
@@ -67,7 +68,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
             _bus.PostLocal(new UnitInitEvent(this, _bus));
         }
 
-        protected void UpdateProperties(string buildingKey, int constructionWorkRequired, params CostEntry[] constructionCost)
+        protected void UpdateProperties(string buildingKey, int constructionWorkRequired, params ResourceCost[] constructionCost)
         { 
             Registry.Registry.TryGetObject($"building:{buildingKey}", out Building buildingBeingConstructed);
 
@@ -149,7 +150,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
         {
             _bus.PostGlobal(new UnitDeathEvent(_bus, this));
 
-            foreach (CostEntry materialCost in _constructionCost)
+            foreach (ResourceCost materialCost in _constructionCost)
             {
                 Owner.GetResource(materialCost.key).Deposit(materialCost.amount);
             }

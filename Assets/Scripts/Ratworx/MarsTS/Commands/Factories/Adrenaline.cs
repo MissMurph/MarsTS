@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Ratworx.MarsTS.Networking;
+using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Units;
 using Unity.Collections;
 using Unity.Netcode;
@@ -50,8 +51,8 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			Construct(totalCanUse > totalUsing, Player.Player.ListSelected);
 		}
 
-		public override CostEntry[] GetCost () 
-			=> new CostEntry[1] { new CostEntry { key = "time", amount = (int)cooldown } };
+		public override ResourceCost[] GetCost () 
+			=> new ResourceCost[1] { new ResourceCost { key = "time", amount = (int)cooldown } };
 
 		public override void CancelSelection () {
 

@@ -1,6 +1,7 @@
 using Ratworx.MarsTS.Commands;
 using Ratworx.MarsTS.Commands.Factories;
 using Ratworx.MarsTS.Player;
+using Ratworx.MarsTS.Production;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -45,7 +46,7 @@ namespace Ratworx.MarsTS.UI {
 
 			RectTransform wholeTooltip = transform as RectTransform;
 
-			CostEntry[] commandCost = source.GetCost();
+			ResourceCost[] commandCost = source.GetCost();
 
             foreach (GameObject instantiated in costModules) {
                 Destroy(instantiated);

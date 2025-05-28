@@ -16,11 +16,11 @@ namespace Ratworx.MarsTS.Commands.Commandlets {
         public override void ActivateCommand (CommandQueue queue, CommandActiveEvent _event) 
             => queue.Cooldown(this, _event.Activity ? duration : cooldown);
 
-        protected override void Deserialize(SerializedCommandWrapper _data) {
-            SerializedBoolCommandlet deserialized = (SerializedBoolCommandlet)_data.commandletData;
+        protected override void Deserialize(SerializedCommandWrapper data) {
+            SerializedBoolCommandlet deserialized = (SerializedBoolCommandlet)data.commandletData;
 
-            Name = _data.Name;
-            Commander = TeamCache.Faction(_data.Faction);
+            Name = data.Name;
+            Commander = TeamCache.Faction(data.Faction);
             _target = deserialized.Status;
         }
     }

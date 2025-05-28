@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Networking;
 using Ratworx.MarsTS.Pathfinding;
+using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Units;
 using Ratworx.MarsTS.WorldObject;
 using Unity.Collections;
@@ -72,7 +73,7 @@ namespace Ratworx.MarsTS.Commands.Factories
             if (context.canceled) CancelSelection();
         }
 
-        public override CostEntry[] GetCost() => new CostEntry[0];
+        public override ResourceCost[] GetCost() => new ResourceCost[0];
 
         public override void CancelSelection()
         {

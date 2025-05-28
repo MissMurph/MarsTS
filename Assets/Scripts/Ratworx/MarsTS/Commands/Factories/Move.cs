@@ -1,6 +1,7 @@
 using System;
 using Ratworx.MarsTS.Networking;
 using Ratworx.MarsTS.Pathfinding;
+using Ratworx.MarsTS.Production;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -30,7 +31,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			ConstructCommandletServer(target, factionId, selection.ToStringList(), inclusive);
 		}
 
-		public override CostEntry[] GetCost () => Array.Empty<CostEntry>();
+		public override ResourceCost[] GetCost () => Array.Empty<ResourceCost>();
 
 		public override void StartSelection () {
 			Player.Player.Input.Hook("Select", OnClick);

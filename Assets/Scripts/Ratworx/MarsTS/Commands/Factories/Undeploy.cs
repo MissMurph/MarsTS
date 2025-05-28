@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Ratworx.MarsTS.Commands.Commandlets;
 using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units;
 using Unity.Netcode;
@@ -50,13 +52,13 @@ namespace Ratworx.MarsTS.Commands.Factories {
 		
 		[Rpc(SendTo.Server)]
 		private void ConstructCommandletServerRpc(int factionId, string selection, bool inclusive) {
-			ConstructCommandletServer(true, factionId, new List<string>{ selection }, inclusive);
+			ConstructCommandletServer(false, factionId, new List<string>{ selection }, inclusive);
 		}
 
 		protected override void ConstructCommandletServer(bool target, int factionId, ICollection<string> selection, bool inclusive) {
-			DeployCommandlet order = (DeployCommandlet)Instantiate(orderPrefab);
+			BooleanCommandlet order = (BooleanCommandlet)Instantiate(orderPrefab);
 
-			order.InitDeploy(Name, target, TeamCache.Faction(factionId), deployTime);
+			order.Init(Name, target, TeamCache.Faction(factionId));
 
 			foreach (string entity in selection) {
 				if (EntityCache.TryGetEntityComponent(entity, out ICommandable unit))
@@ -66,8 +68,8 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			}
 		}
 
-		public override CostEntry[] GetCost () {
-			return new CostEntry[1] { new CostEntry { key = "time", amount = 5 } };
+		public override ResourceCost[] GetCost () {
+			return new ResourceCost[1] { new ResourceCost { key = "time", amount = 5 } };
 		}
 
 		public override void CancelSelection () {

@@ -7,6 +7,7 @@ using Ratworx.MarsTS.Events.Init;
 using Ratworx.MarsTS.Events.Player;
 using Ratworx.MarsTS.Networking;
 using Ratworx.MarsTS.Pathfinding;
+using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units;
 using Unity.Collections;
@@ -37,7 +38,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 		protected int constructionWorkRequired;
 		
 		[SerializeField]
-		protected CostEntry[] Cost;
+		protected ResourceCost[] Cost;
 
 		private void Awake () {
 			//Cost = building.ConstructionCost;
@@ -146,10 +147,10 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			WithdrawResourcesFromFaction(faction);
 		}
 
-		public override CostEntry[] GetCost () {
-			 List<CostEntry> spool = Cost.ToList();
+		public override ResourceCost[] GetCost () {
+			 List<ResourceCost> spool = Cost.ToList();
 
-			CostEntry time = new CostEntry {
+			ResourceCost time = new ResourceCost {
 				key = "time",
 				amount = constructionWorkRequired
 			};
@@ -172,7 +173,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			=> !Cost.Any(entry => faction.GetResource(entry.key).Amount < entry.amount);
 
 		protected void WithdrawResourcesFromFaction(Faction faction) {
-			foreach (CostEntry entry in Cost) 
+			foreach (ResourceCost entry in Cost) 
 				faction.GetResource(entry.key).Withdraw(entry.amount);
 		}
 	}

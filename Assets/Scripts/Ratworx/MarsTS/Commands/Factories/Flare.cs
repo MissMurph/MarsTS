@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Ratworx.MarsTS.Pathfinding;
+using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units;
 using Unity.Netcode;
@@ -33,7 +34,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 
 		[FormerlySerializedAs("cost")]
 		[SerializeField]
-		private CostEntry[] _cost;
+		private ResourceCost[] _cost;
 
 		public override void StartSelection() {
 			if (!CanFactionAfford(Player.Player.Commander)) return;
@@ -134,10 +135,10 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			}
 		}
 
-		public override CostEntry[] GetCost () {
-			List<CostEntry> spool = _cost.ToList();
+		public override ResourceCost[] GetCost () {
+			List<ResourceCost> spool = _cost.ToList();
 
-			CostEntry time = new CostEntry
+			ResourceCost time = new ResourceCost
 			{
 				key = "time",
 				amount = (int)_cooldown,
@@ -153,7 +154,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 		
 		private void WithdrawResourcesFromFaction(Faction faction)
 		{
-			foreach (CostEntry entry in _cost)
+			foreach (ResourceCost entry in _cost)
 			{
 				faction.GetResource(entry.key).Withdraw(entry.amount);
 			}

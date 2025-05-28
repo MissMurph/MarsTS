@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Ratworx.MarsTS.Commands.Factories;
 using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Registry;
 using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.UI;
@@ -48,7 +49,7 @@ namespace Ratworx.MarsTS.Commands {
 
 		public abstract void StartSelection ();
 		public abstract void CancelSelection ();
-		public abstract CostEntry[] GetCost ();
+		public abstract ResourceCost[] GetCost ();
 
 		private void Start() {
 			//GetComponent<NetworkObject>().Spawn();

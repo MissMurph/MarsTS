@@ -98,27 +98,27 @@ namespace Ratworx.MarsTS.UI.Unit_Pane {
 		}
 
 		private void Start () {
-			EventBus.AddListener<ProductionCompleteEvent>(OnUnitProduction);
-			EventBus.AddListener<ProductionEvent>(OnProductionStep);
-			EventBus.AddListener<ProductionEvent>(OnProductionUpdate);
+			EventBus.AddListener<ProductionStepCompleteEvent>(OnUnitProduction);
+			EventBus.AddListener<ProductionStepEvent>(OnProductionStep);
+			EventBus.AddListener<ProductionStepEvent>(OnProductionUpdate);
 		}
 
-		private void OnProductionUpdate (ProductionEvent _event) {
-			if (_event.Name != "productionStarted" && _event.Name != "productionQueued") return;
-			if (ReferenceEquals(_event.Producer, currentUnit)) {
-				SetQueue(currentUnit, _event.CurrentProduction, _event.Queue.QueuedProduction);
+		private void OnProductionUpdate (ProductionStepEvent stepEvent) {
+			if (stepEvent.Name != "productionStarted" && stepEvent.Name != "productionQueued") return;
+			if (ReferenceEquals(stepEvent.Producer, currentUnit)) {
+				SetQueue(currentUnit, stepEvent.CurrentProduction, stepEvent.Queue.QueuedProduction);
 			}
 		}
 
-		private void OnProductionStep (ProductionEvent _event) {
-			if (_event.Name != "productionStep") return;
-			if (ReferenceEquals(_event.Producer, currentUnit)) {
-				CurrentProduction = _event.CurrentProduction.ProductionProgress;
-				MaxProduction = _event.CurrentProduction.ProductionRequired;
+		private void OnProductionStep (ProductionStepEvent stepEvent) {
+			if (stepEvent.Name != "productionStep") return;
+			if (ReferenceEquals(stepEvent.Producer, currentUnit)) {
+				CurrentProduction = stepEvent.CurrentProduction.ProductionProgress;
+				MaxProduction = stepEvent.CurrentProduction.ProductionRequired;
 			}
 		}
 
-		private void OnUnitProduction (ProductionCompleteEvent _event) {
+		private void OnUnitProduction (ProductionStepCompleteEvent _event) {
 			if (ReferenceEquals(_event.Producer, currentUnit)) {
 				IProducable currentProd = _event.CurrentProduction;
 				IProducable[] queue = _event.Queue.QueuedProduction;

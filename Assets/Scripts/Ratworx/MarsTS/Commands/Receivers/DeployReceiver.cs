@@ -3,6 +3,7 @@ using Ratworx.MarsTS.Commands.Factories;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events.Commands;
 using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Units.Turrets;
 using Unity.Netcode;
 using UnityEngine;
@@ -108,6 +109,6 @@ namespace Ratworx.MarsTS.Commands.Receivers
         }
         
         public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) => (false, null);
-        public CostEntry[] GetCost() => new CostEntry[1] { new CostEntry { key = "time", amount = 5 } };
+        public ResourceCost[] GetCost() => new ResourceCost[1] { new ResourceCost { key = "time", amount = 5 } };
     }
 }

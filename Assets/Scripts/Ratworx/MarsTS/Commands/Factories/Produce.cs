@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Ratworx.MarsTS.Commands.Commandlets;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Logging;
+using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units;
 using Unity.Netcode;
@@ -12,53 +12,32 @@ using UnityEngine.Serialization;
 
 namespace Ratworx.MarsTS.Commands.Factories
 {
-    public class Produce : CommandFactory<GameObject>
+    public class Produce : CommandFactory<string>
     {
-        public override string Name => $"{CommandKey}/{_unitPrefab.name}";
+        public override string Name => $"{CommandKey}/{_productRegistryKey}";
         protected virtual string CommandKey => _commandKey;
         public override Sprite Icon => _unit.Icon;
 
         public override string Description => _description;
 
-        [FormerlySerializedAs("description")] [SerializeField]
+        [FormerlySerializedAs("description")]
+        [SerializeField]
         protected string _description;
 
-        [FormerlySerializedAs("unitPrefab")] [SerializeField]
-        protected GameObject _unitPrefab;
-
-        [FormerlySerializedAs("timeRequired")] [SerializeField]
-        protected int _timeRequired;
-
-        [FormerlySerializedAs("Cost")] [SerializeField]
-        protected CostEntry[] _cost;
-
-        [SerializeField]
         protected string _productRegistryKey;
 
-        private ISelectable _unit
-        {
-            get;
-            set;
-        }
+        private ISelectable _unit { get; set; }
 
         [SerializeField] private string _commandKey = "produce";
 
-        private void Awake()
-        {
-            _unit = _unitPrefab.GetComponent<ISelectable>();
-        }
-
-        public override void StartSelection()
-        {
+        public override void StartSelection() {
             if (!CanFactionAfford(Player.Player.Commander)) return;
 
-            foreach (KeyValuePair<string, Roster> entry in Player.Player.Selected)
-            {
+            foreach (KeyValuePair<string, Roster> entry in Player.Player.Selected) {
                 int lowestAmount = 9999;
                 ICommandable lowestCommandable = null;
 
-                foreach (ICommandable commandable in entry.Value.Orderable)
-                {
+                foreach (ICommandable commandable in entry.Value.Orderable) {
                     if (!commandable.CanCommand(Name)
                         || commandable.Count >= lowestAmount)
                         continue;
@@ -75,13 +54,11 @@ namespace Ratworx.MarsTS.Commands.Factories
         //We create separate calls for now since Productionlets are different to normal commands
         //This is due to having to serialize GameObject as a target when we don't need to
         [Rpc(SendTo.Server)]
-        protected virtual void ConstructProductionletServerRpc(int factionId, string selection)
-        {
+        protected virtual void ConstructProductionletServerRpc(int factionId, string selection) {
             ConstructProductionletServer(factionId, selection);
         }
 
-        protected virtual void ConstructProductionletServer(int factionId, string selection)
-        {
+        protected virtual void ConstructProductionletServer(int factionId, string selection) {
             Faction faction = TeamCache.Faction(factionId);
 
             if (!CanFactionAfford(faction))
@@ -89,9 +66,9 @@ namespace Ratworx.MarsTS.Commands.Factories
 
             ProduceCommandlet order = Instantiate(orderPrefab) as ProduceCommandlet;
 
-            order.InitProduce(Name, CommandKey, _productRegistryKey,_unitPrefab, TeamCache.Faction(factionId), _timeRequired, _cost);
+            order.InitProduce(Name, CommandKey, _productRegistryKey, TeamCache.Faction(factionId));
 
-            if (EntityCache.TryGetEntityComponent(selection, out ICommandable unit)) 
+            if (EntityCache.TryGetEntityComponent(selection, out ICommandable unit))
                 unit.Order(order, true);
             else
                 RatLogger.Error?.Log($"Failed to find selected entity {selection} for command {Name}");
@@ -99,11 +76,10 @@ namespace Ratworx.MarsTS.Commands.Factories
             WithdrawResourcesFromFaction(faction);
         }
 
-        public override CostEntry[] GetCost()
-        {
-            List<CostEntry> spool = _cost.ToList();
+        public override ResourceCost[] GetCost() {
+            /*List<ResourceCost> spool = _cost.ToList();
 
-            CostEntry time = new CostEntry
+            ResourceCost time = new ResourceCost
             {
                 key = "time",
                 amount = _timeRequired
@@ -111,29 +87,20 @@ namespace Ratworx.MarsTS.Commands.Factories
 
             spool.Add(time);
 
-            return spool.ToArray();
+            return spool.ToArray();*/
+            return Array.Empty<ResourceCost>();
         }
 
-        public override void CancelSelection()
-        {
-        }
+        public override void CancelSelection() { }
 
         protected bool CanFactionAfford(Faction faction)
-            => !_cost.Any(entry => faction.GetResource(entry.key).Amount < entry.amount);
+            // => !_cost.Any(entry => faction.GetResource(entry.key).Amount < entry.amount);
+            => true;
 
-        protected void WithdrawResourcesFromFaction(Faction faction)
-        {
-            foreach (CostEntry entry in _cost)
-            {
+        protected void WithdrawResourcesFromFaction(Faction faction) {
+            /*foreach (ResourceCost entry in _cost) {
                 faction.GetResource(entry.key).Withdraw(entry.amount);
-            }
+            }*/
         }
-    }
-
-    [Serializable]
-    public class CostEntry
-    {
-        public string key;
-        public int amount;
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using Ratworx.MarsTS.Player;
+using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Units;
 using UnityEngine;
 
@@ -21,7 +22,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			UIController.Command.LoadCommandPage(buildingCommands);
 		}
 
-		public override CostEntry[] GetCost () => Array.Empty<CostEntry>();
+		public override ResourceCost[] GetCost () => Array.Empty<ResourceCost>();
 
 		public override void CancelSelection () { }
 	}

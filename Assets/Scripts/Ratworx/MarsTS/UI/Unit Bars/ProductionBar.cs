@@ -10,13 +10,13 @@ namespace Ratworx.MarsTS.UI.Unit_Bars {
 
 			EventAgent bus = GetComponentInParent<EventAgent>();
 
-			bus.AddListener<ProductionEvent>((_event) => {
+			bus.AddListener<ProductionStepEvent>((_event) => {
 				if (_event.Name != "productionStep") return;
 				if (!_barRenderer.enabled) _barRenderer.enabled = true; 
 				UpdateBarWithFillLevel((float)_event.CurrentProduction.ProductionProgress / _event.CurrentProduction.ProductionRequired);
 			});
 
-			bus.AddListener<ProductionCompleteEvent>((_event) => {
+			bus.AddListener<ProductionStepCompleteEvent>((_event) => {
 				_barRenderer.enabled = false;
 				UpdateBarWithFillLevel(0f);
 			});

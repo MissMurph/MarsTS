@@ -3,6 +3,7 @@ using Ratworx.MarsTS.Commands.Commandlets;
 using Ratworx.MarsTS.Commands.Factories;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events.Commands;
+using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Units;
 using Unity.Netcode;
 using UnityEngine;
@@ -13,7 +14,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
                                  IEntityServerUpdate,
                                  ICostingCommand
     {
-        [SerializeField] private CostEntry[] _cost;
+        [SerializeField] private ResourceCost[] _cost;
         [SerializeField] private int _cooldown;
         [SerializeField] private int _flareRange;
         // TODO: Replace below with getting from the registry
@@ -23,7 +24,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         public override bool IsActive => false;
         public override float Cooldown => 0f;
 
-        private CostEntry[] _resourceSpendOnCommand;
+        private ResourceCost[] _resourceSpendOnCommand;
         private MoveCommandlet _command;
 
         public override void ReceiveCommand(MoveCommandlet command) {
@@ -63,7 +64,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
             if (evnt.IsCancelled) {
                 if (!NetworkManager.Singleton.IsServer) return;
                 
-                foreach (CostEntry costing in _resourceSpendOnCommand) {
+                foreach (ResourceCost costing in _resourceSpendOnCommand) {
                     Ownership.Owner.GetResource(costing.key).Deposit(costing.amount);
                 }
             }
@@ -73,6 +74,6 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
         public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) => throw new System.NotImplementedException();
 
-        public CostEntry[] GetCost() => _cost.Append(new CostEntry{ key = "time", amount = _cooldown}).ToArray();
+        public ResourceCost[] GetCost() => _cost.Append(new ResourceCost{ key = "time", amount = _cooldown}).ToArray();
     }
 }

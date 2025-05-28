@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Ratworx.MarsTS.Commands.Commandlets;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Networking;
+using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units;
 using Unity.Collections;
@@ -82,8 +83,8 @@ namespace Ratworx.MarsTS.Commands.Factories {
 		}
 
 
-		public override CostEntry[] GetCost () {
-			return new CostEntry[1] { new CostEntry { key = "time", amount = 60} };
+		public override ResourceCost[] GetCost () {
+			return new ResourceCost[1] { new ResourceCost { key = "time", amount = 60} };
 		}
 
 		public override void CancelSelection () {

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Ratworx.MarsTS.Production;
 using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands.Factories {
@@ -13,7 +14,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 		public override void StartSelection () {
 			bool canAfford = true;
 
-			foreach (CostEntry entry in _cost) {
+			foreach (ResourceCost entry in _cost) {
 				if (Player.Player.Commander.GetResource(entry.key).Amount < entry.amount) {
 					canAfford = false;
 					break;
@@ -23,7 +24,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			if (canAfford) {
 				//Player.Main.DeliverCommand(Construct(prefab), Player.Include);
 
-				foreach (CostEntry entry in _cost) {
+				foreach (ResourceCost entry in _cost) {
 					Player.Player.Commander.GetResource(entry.key).Withdraw(entry.amount);
 				}
 			}
@@ -33,14 +34,14 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			return new UpgradeCommandlet("upgrade", _target, timeRequired, cost);
 		}*/
 
-		public override CostEntry[] GetCost () {
-			List<CostEntry> spool = new List<CostEntry>();
+		public override ResourceCost[] GetCost () {
+			List<ResourceCost> spool = new List<ResourceCost>();
 
-			foreach (CostEntry entry in _cost) {
+			foreach (ResourceCost entry in _cost) {
 				spool.Add(entry);
 			}
 
-			CostEntry time = new CostEntry();
+			ResourceCost time = new ResourceCost();
 			time.key = "time";
 			time.amount = _timeRequired;
 

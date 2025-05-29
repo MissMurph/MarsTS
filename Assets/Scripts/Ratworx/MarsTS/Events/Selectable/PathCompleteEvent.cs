@@ -4,7 +4,7 @@ namespace Ratworx.MarsTS.Events.Selectable {
 
 		public bool Complete { get; private set; }
 
-		public PathCompleteEvent (EventAgent _source, bool _complete) : base("pathComplete", _source) {
+		public PathCompleteEvent (bool _complete) : base("pathComplete") {
 			Complete = _complete;
 		}
 	}

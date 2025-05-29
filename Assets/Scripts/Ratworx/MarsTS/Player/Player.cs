@@ -24,13 +24,13 @@ namespace Ratworx.MarsTS.Player {
 		public static Dictionary<string, Roster> Selected => Main._selected;
 		private readonly Dictionary<string, Roster> _selected = new Dictionary<string, Roster>();
 		
-		public static List<string> ListSelected {
+		public static List<int> ListSelected {
 			get {
-				var outputList = new List<string>();
+				var outputList = new List<int>();
 
 				foreach (Roster typeRoster in Selected.Values) {
-					foreach (ISelectable unit in typeRoster.List()) {
-						outputList.Add(unit.GameObject.name);
+					foreach (Entity unit in typeRoster.List()) {
+						outputList.Add(unit.Id);
 					}
 				}
 
@@ -82,7 +82,7 @@ namespace Ratworx.MarsTS.Player {
 		public void SetCommander(Faction commander) {
 			_commander = commander;
 			
-			_bus.PostGlobal(new PlayerInitEvent(_bus));
+			_bus.PostGlobal(new PlayerInitEvent());
 		}
 
 		private void Update () {
@@ -122,8 +122,8 @@ namespace Ratworx.MarsTS.Player {
 		}
 
 		public static bool HasSelected (ISelectable unit) {
-			if (Selected.TryGetValue(unit.RegistryKey, out Roster typeRoster)) {
-				return typeRoster.Contains(unit.Id);
+			if (Selected.TryGetValue(unit.Entity.RegistryKey, out Roster typeRoster)) {
+				return typeRoster.Contains(unit.Entity.Id);
 			}
 
 			return false;
@@ -131,10 +131,10 @@ namespace Ratworx.MarsTS.Player {
 
 		public void SelectUnit (params ISelectable[] selection) {
 			foreach (ISelectable target in selection) {
-				Roster units = GetRoster(target.RegistryKey);
+				Roster units = GetRoster(target.Entity.RegistryKey);
 
-				if (!units.TryAdd(target)) {
-					units.Remove(target.Id);
+				if (!units.TryAdd(target.Entity)) {
+					units.Remove(target.Entity.Id);
 					target.Select(false);
 					if (units.Count == 0) _selected.Remove(units.RegistryKey);
 				}
@@ -148,8 +148,8 @@ namespace Ratworx.MarsTS.Player {
 
 		public void ClearSelection () {
 			foreach (Roster units in _selected.Values) {
-				foreach (ISelectable unit in units.List()) {
-					unit.Select(false);
+				foreach (Entity unit in units.List()) {
+					unit.GetEntityComponent<ISelectable>().Select(false);
 				}
 
 				units.Clear();
@@ -172,27 +172,27 @@ namespace Ratworx.MarsTS.Player {
 				Physics.Raycast(ray, out RaycastHit walkableHit, 1000f, GameWorld.WalkableMask);
 				Physics.Raycast(ray, out RaycastHit selectableHit, 1000f, GameWorld.SelectableMask);
 
-				if (selectableHit.collider != null && EntityCache.TryGetEntityComponent(selectableHit.collider.transform.root.name, out ISelectable target)) {
-					if (Selected[UIController.instance.PrimarySelected].GetFirst() is ICommandable commandable) {
-						commandable.AutoCommand(target);
-						return;
-					}
+				if (selectableHit.collider != null && EntityCache.TryGetEntity(selectableHit.collider.transform.name, out Entity targetEntity)) {
+					if (!Selected[UIController.instance.PrimarySelected].IsCommandable()) return;
+					
+					List<ICommandable> commandables = Selected[UIController.instance.PrimarySelected].GetCommandables();
+					CommandFactory factory = commandables[0].EvaluateCommand(targetEntity);
+					// TODO: add an overload to determine target off an Entity
 				}
 				else if (walkableHit.collider != null) {
 					Vector3 hitPos = walkableHit.point;
 
 					CommandPrimer.Get<Move>("move").Construct(hitPos);
-					return;
 				}
 			}
 		}
 
-		public void DeliverCommand (Commandlet packet, bool inclusive) {
+		public void DeliverCommand(Commandlet packet, bool inclusive) {
 			foreach (KeyValuePair<string, Roster> entry in Selected) {
-				foreach (ISelectable unit in entry.Value.List()) {
-					if (unit is ICommandable orderable) {
-						orderable.Order(packet, inclusive);
-					}
+				foreach (Entity unit in entry.Value.List()) {
+					if (!unit.TryGetEntityComponent(out ICommandable commandable)) continue;
+
+					commandable.Order(packet, inclusive);
 				}
 			}
 		}
@@ -204,8 +204,8 @@ namespace Ratworx.MarsTS.Player {
 
 				foreach (ICommandable orderable in entry.Value.GetCommandables()) {
 					if (!orderable.CanCommand(packet.Command.Name)) continue;
-					if (orderable.Count < lowestAmount) {
-						lowestAmount = orderable.Count;
+					if (orderable.QueueCount < lowestAmount) {
+						lowestAmount = orderable.QueueCount;
 						lowestOrderable = orderable;
 					}
 				}

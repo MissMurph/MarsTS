@@ -183,9 +183,10 @@ namespace Ratworx.MarsTS.Player {
 			Ray ray = Player.ViewPort.ScreenPointToRay(mousePos);
 
 			if (PrimarySelected != null && Physics.Raycast(ray, out RaycastHit selectable, 1000f, GameWorld.SelectableMask)) {
-				if (EntityCache.TryGetEntityComponent(selectable.collider.transform.parent.gameObject.name, out ISelectable target)) {
-					if (Player.Selected.TryGetValue(PrimarySelected, out Roster roster) && roster.GetFirst() is ICommandable commandable) {
-						CommandFactory result = commandable.Evaluate(target);
+				if (EntityCache.TryGetEntity(selectable.rigidbody.transform.gameObject.name, out Entity target)) {
+					if (Player.Selected.TryGetValue(PrimarySelected, out Roster roster) && roster.IsCommandable()) {
+						ICommandable commandable = roster.GetFirst().GetEntityComponent<ICommandable>();
+						CommandFactory result = commandable.EvaluateCommand(target);
 						CursorSprite sprite = result.Pointer;
 						Cursor.SetCursor(sprite.texture, sprite.target, CursorMode.Auto);
 						return;

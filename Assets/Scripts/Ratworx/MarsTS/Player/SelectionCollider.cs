@@ -59,7 +59,7 @@ namespace Ratworx.MarsTS.Player {
 			Dictionary<string, List<ISelectable>> typeDict = new Dictionary<string, List<ISelectable>>();
 
 			foreach (ISelectable unit in factionList) {
-				string[] splitKey = unit.RegistryKey.Split(':');
+				string[] splitKey = unit.Entity.RegistryKey.Split(':');
 				List<ISelectable> typeList = typeDict.GetValueOrDefault(splitKey[0], new List<ISelectable>());
 				if (!typeDict.ContainsKey(splitKey[0])) typeDict[splitKey[0]] = typeList;
 				typeList.Add(unit);

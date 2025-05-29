@@ -45,7 +45,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 				GhostTransform.position,
 				Quaternion.Euler(Vector3.zero),
 				Player.Player.Commander.Id,
-				Player.Player.ListSelected.ToNativeArray32(),
+				Player.Player.ListSelected.ToArray(),
 				Player.Player.Include
 			);
 			

@@ -40,10 +40,10 @@ namespace Ratworx.MarsTS.Commands.Factories
 
                 foreach (ICommandable commandable in entry.Value.GetCommandables()) {
                     if (!commandable.CanCommand(Name)
-                        || commandable.Count >= lowestAmount)
+                        || commandable.QueueCount >= lowestAmount)
                         continue;
 
-                    lowestAmount = commandable.Count;
+                    lowestAmount = commandable.QueueCount;
                     lowestCommandable = commandable;
                 }
 

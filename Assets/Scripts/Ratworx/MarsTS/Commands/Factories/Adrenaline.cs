@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Ratworx.MarsTS.Commands.Receivers;
 using Ratworx.MarsTS.Extensions;
 using Ratworx.MarsTS.Networking;
 using Ratworx.MarsTS.Production;
@@ -41,10 +42,10 @@ namespace Ratworx.MarsTS.Commands.Factories {
 				foreach (ICommandable unit in roster.GetCommandables()) {
 					if (unit.CanCommand(Name)) totalCanUse++;
 
-					if (unit.Active.Count == 0) continue;
+					if (unit.ActiveCommands.Count == 0) continue;
 
-					foreach (string activeCommand in unit.Active) {
-						if (activeCommand == Name) totalUsing++;
+					foreach (ICommandReceiver activeCommand in unit.ActiveCommands) {
+						if (activeCommand.CommandKey == Name) totalUsing++;
 					}
 				}
 			}
@@ -59,13 +60,13 @@ namespace Ratworx.MarsTS.Commands.Factories {
 
 		}
 		
-		public void Construct(bool status, List<string> selection) {
-			ConstructCommandletServerRpc(status, Player.Player.Commander.Id, selection.ToNativeArray32(), Player.Player.Include);
+		public void Construct(bool status, List<int> selection) {
+			ConstructCommandletServerRpc(status, Player.Player.Commander.Id, selection.ToArray(), Player.Player.Include);
 		}
 
 		[Rpc(SendTo.Server)]
-		private void ConstructCommandletServerRpc(bool status, int factionId, NativeArray<FixedString32Bytes> selection, bool inclusive) {
-			ConstructCommandletServer(status, factionId, selection.ToStringList(), inclusive);
+		private void ConstructCommandletServerRpc(bool status, int factionId, int[] selection, bool inclusive) {
+			ConstructCommandletServer(status, factionId, selection, inclusive);
 		}
 	}
 }

@@ -62,13 +62,13 @@ namespace Ratworx.MarsTS.Commands.Factories {
 				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.WalkableMask)) {
 					if (!CanFactionAfford(Player.Player.Commander)) return;
 
-					string selection = string.Empty;
+					int selection = 0;
 					
 					foreach (Roster roster in Player.Player.Selected.Values) {
 						if (!roster.GetCommands().Contains(Name)) continue;
 
 						// TODO: Replace this with a check for which instance is closest
-						selection = roster.GetCommandables()[0].GameObject.name;
+						selection = roster.GetCommandables()[0].Entity.Id;
 						break;
 					}
 					
@@ -88,7 +88,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			}
 		}
 
-		public void Construct(Vector3 hitPoint, string selection) {
+		public void Construct(Vector3 hitPoint, int selection) {
 			ConstructCommandletServerRpc(
 				hitPoint, 
 				Player.Player.Commander.Id, 
@@ -101,30 +101,10 @@ namespace Ratworx.MarsTS.Commands.Factories {
 		private void ConstructCommandletServerRpc(
 			Vector3 target,
 			int factionId,
-			string selection,
+			int selection,
 			bool inclusive
 		) {
-			ConstructCommandletServer(target, factionId, new List<string>{ selection }, inclusive);
-		}
-
-		protected override void ConstructCommandletServer(Vector3 target, int factionId, ICollection<string> selection, bool inclusive) {
-			Faction faction = TeamCache.Faction(factionId);
-			
-			if (!CanFactionAfford(faction)) return;
-			
-			// TODO: Fix
-			/*FlareCommandlet order = (FlareCommandlet)Instantiate(orderPrefab);
-
-			order.InitFlare(Name, target, TeamCache.Faction(factionId), _cooldown, _cost);
-
-			foreach (string entity in selection) {
-				if (EntityCache.TryGetEntityComponent(entity, out ICommandable unit))
-					unit.Order(order, inclusive);
-				else
-					Debug.LogWarning($"ICommandable on Unit {entity} not found! Command {Name} being ignored by unit!");
-			}
-			
-			WithdrawResourcesFromFaction(faction);*/
+			ConstructCommandletServer(target, factionId, new[] { selection }, inclusive);
 		}
 
 		public override void CancelSelection () {

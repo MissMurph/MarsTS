@@ -50,7 +50,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			ConstructCommandletServerRpc(
 				target.GameObject.name, 
 				Player.Player.Commander.Id, 
-				Player.Player.ListSelected.ToNativeArray32(), 
+				Player.Player.ListSelected.ToArray(), 
 				Player.Player.Include
 			);
 		}
@@ -59,7 +59,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 		private void ConstructCommandletServerRpc (
 			string target, 
 			int factionId, 
-			NativeArray<FixedString32Bytes> selection, 
+			int[] selection, 
 			bool inclusive
 		) {
 			if (!EntityCache.TryGetEntityComponent(target, out IAttackable unit))
@@ -68,7 +68,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 				return;
 			}
 			
-			ConstructCommandletServer(unit, factionId, selection.ToStringList(), inclusive);
+			ConstructCommandletServer(unit, factionId, selection, inclusive);
 		}
 
 		public override ResourceCost[] GetCost () => Array.Empty<ResourceCost>();

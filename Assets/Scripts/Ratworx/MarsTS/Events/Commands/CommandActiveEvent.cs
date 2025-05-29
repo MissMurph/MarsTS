@@ -1,4 +1,5 @@
 using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Commands.Receivers;
 
 namespace Ratworx.MarsTS.Events.Commands 
 {
@@ -6,8 +7,8 @@ namespace Ratworx.MarsTS.Events.Commands
 	{
 		public bool Activity { get; private set; }
 
-		public CommandActiveEvent (ICommandable unit, Commandlet command, bool activity) 
-			: base("Active", command, unit) 
+		public CommandActiveEvent (ICommandable unit, ICommandReceiver commandReceiver, bool activity) 
+			: base("Active", commandReceiver, unit) 
 		{
 			Activity = activity;
 		}

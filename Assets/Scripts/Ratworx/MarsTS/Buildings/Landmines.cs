@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Buildings
 {
-    public class Landmines : Building
+    public class Landmines : BuildingGhosts
     {
         /*private Dictionary<string, Landmine> _childMines;
          

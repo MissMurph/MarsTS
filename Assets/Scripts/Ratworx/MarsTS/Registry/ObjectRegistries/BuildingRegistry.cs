@@ -2,7 +2,7 @@ using Ratworx.MarsTS.Buildings;
 
 namespace Ratworx.MarsTS.Registry.ObjectRegistries
 {
-    public class BuildingRegistry : GenericObjectRegistry<Building>
+    public class BuildingRegistry : GenericObjectRegistry<BuildingGhosts>
     {
         
     }

@@ -35,12 +35,12 @@ namespace Ratworx.MarsTS.Units
 
         public void Select(bool status) {
             OnUnitSelectionChange?.Invoke(status);
-            _eventAgent.PostLocal(new UnitSelectEvent(_eventAgent, status));
+            _eventAgent.PostLocal(new UnitSelectEvent(status));
         }
 
         public void Hover(bool status) {
             OnUnitHoverChange?.Invoke(status);
-            _eventAgent.PostLocal(new UnitHoverEvent(_eventAgent, status));
+            _eventAgent.PostLocal(new UnitHoverEvent(status));
         }
 
         public Relationship GetRelationship(Faction other) => _unitOwnership.GetRelationship(other);

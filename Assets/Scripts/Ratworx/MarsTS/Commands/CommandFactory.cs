@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Ratworx.MarsTS.Commands.Factories;
 using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Logging;
 using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Registry;
 using Ratworx.MarsTS.Teams;
@@ -14,16 +15,17 @@ namespace Ratworx.MarsTS.Commands {
 	public abstract class CommandFactory<T> : CommandFactory
 	{
 		//Only call this on the server
-		protected virtual void ConstructCommandletServer (T target, int factionId, ICollection<string> selection, bool inclusive) {
+		protected virtual void ConstructCommandletServer (T target, int factionId, int[] selection, bool inclusive) {
 			Commandlet<T> order = Instantiate(orderPrefab);
 
 			order.Init(Name, target, TeamCache.Faction(factionId));
 
-			foreach (string entity in selection) {
-				if (EntityCache.TryGetEntityComponent(entity, out ICommandable unit))
+			foreach (int entityId in selection) {
+				if (EntityCache.TryGetEntity(entityId, out Entity entity)
+				&& entity.TryGetEntityComponent(out ICommandable unit))
 					unit.Order(order, inclusive);
 				else
-					Debug.LogWarning($"ICommandable on Unit {entity} not found! Command {Name} being ignored by unit!");
+					RatLogger.Warning?.Log($"ICommandable on Unit {entityId} not found! Command {Name} being ignored by unit!");
 			}
 		}
 

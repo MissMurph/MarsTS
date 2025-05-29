@@ -122,7 +122,7 @@ namespace Ratworx.MarsTS.Units.Sensors
 
                 if (GameVision.IsVisible(other.transform.gameObject, Ownership.Owner.VisionMask)) {
                     detected[other.transform.name] = target;
-                    Bus.PostLocal(new SensorUpdateEvent<T>(Bus, target, true));
+                    Bus.PostLocal(new SensorUpdateEvent<T>(target, true));
                     OnUnitDetected?.Invoke(target, true);
                 }
             }
@@ -146,12 +146,12 @@ namespace Ratworx.MarsTS.Units.Sensors
             foreach (KeyValuePair<string, T> inRangeUnit in inRange) {
                 if (GameVision.IsVisible(inRangeUnit.Key, Ownership.Owner.VisionMask)) {
                     detected[inRangeUnit.Key] = inRange[inRangeUnit.Key];
-                    Bus.PostLocal(new SensorUpdateEvent<T>(Bus, detected[inRangeUnit.Key], true));
+                    Bus.PostLocal(new SensorUpdateEvent<T>(detected[inRangeUnit.Key], true));
                 }
                 else if (detected.ContainsKey(inRangeUnit.Key)) {
                     T toRemove = detected[inRangeUnit.Key];
                     detected.Remove(inRangeUnit.Key);
-                    Bus.PostLocal(new SensorUpdateEvent<T>(Bus, toRemove, false));
+                    Bus.PostLocal(new SensorUpdateEvent<T>(toRemove, false));
                     OnUnitDetected?.Invoke(toRemove, false);
                 }
             }
@@ -173,7 +173,7 @@ namespace Ratworx.MarsTS.Units.Sensors
 
             if (detected.ContainsKey(key)) {
                 detected.Remove(key);
-                Bus.PostLocal(new SensorUpdateEvent<T>(Bus, toRemove, false));
+                Bus.PostLocal(new SensorUpdateEvent<T>(toRemove, false));
                 OnUnitDetected?.Invoke(toRemove, false);
             }
 

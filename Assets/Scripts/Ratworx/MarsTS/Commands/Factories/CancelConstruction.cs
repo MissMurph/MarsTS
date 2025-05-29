@@ -21,13 +21,13 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			Construct(Player.Player.ListSelected);
 		}
 
-		public void Construct(List<string> selection) {
-			ConstructCommandletServerRpc(Player.Player.Commander.Id, selection.ToNativeArray32(), Player.Player.Include);
+		public void Construct(List<int> selection) {
+			ConstructCommandletServerRpc(Player.Player.Commander.Id, selection.ToArray(), Player.Player.Include);
 		}
 
 		[Rpc(SendTo.Server)]
-		public void ConstructCommandletServerRpc(int factionId, NativeArray<FixedString32Bytes> selection, bool inclusive) {
-			ConstructCommandletServer(true, factionId, selection.ToStringList(), inclusive);
+		public void ConstructCommandletServerRpc(int factionId, int[] selection, bool inclusive) {
+			ConstructCommandletServer(true, factionId, selection, inclusive);
 		}
 
 		public override ResourceCost[] GetCost () {

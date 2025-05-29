@@ -166,7 +166,7 @@ namespace Ratworx.MarsTS
 
                 EntitySpawner spawner = startPositions[spawnedCount];
 
-                spawner.SetOwner(toSpawnHqFor.Id);
+                spawner.SetOwner(toSpawnHqFor);
 
                 spawner.SpawnEntity();
 

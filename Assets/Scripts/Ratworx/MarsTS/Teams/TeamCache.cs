@@ -67,7 +67,7 @@ namespace Ratworx.MarsTS.Teams {
 		}
 
 		private void InitTeams (IEnumerable<ulong> players) {
-			TeamsInitEvent @event = new TeamsInitEvent(_bus) {
+			TeamsInitEvent @event = new TeamsInitEvent() {
 				Phase = Phase.Pre
 			};
 

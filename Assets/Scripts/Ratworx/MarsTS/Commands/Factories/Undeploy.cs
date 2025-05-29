@@ -35,9 +35,9 @@ namespace Ratworx.MarsTS.Commands.Factories {
 					continue;
 				
 				foreach (ICommandable unit in rollup.GetCommandables()) {
-					if (!unit.Active.Contains(Name))
-						continue;
-						
+					if (unit.ActiveCommands.Count == 0) continue;
+					if (unit.Commands()[Name].IsActive) continue;
+
 					toCommand.Add(unit);
 				}
 			}
@@ -52,21 +52,8 @@ namespace Ratworx.MarsTS.Commands.Factories {
 		}
 		
 		[Rpc(SendTo.Server)]
-		private void ConstructCommandletServerRpc(int factionId, string selection, bool inclusive) {
-			ConstructCommandletServer(false, factionId, new List<string>{ selection }, inclusive);
-		}
-
-		protected override void ConstructCommandletServer(bool target, int factionId, ICollection<string> selection, bool inclusive) {
-			BooleanCommandlet order = (BooleanCommandlet)Instantiate(orderPrefab);
-
-			order.Init(Name, target, TeamCache.Faction(factionId));
-
-			foreach (string entity in selection) {
-				if (EntityCache.TryGetEntityComponent(entity, out ICommandable unit))
-					unit.Order(order, inclusive);
-				else
-					Debug.LogWarning($"ICommandable on Unit {entity} not found! Command {Name} being ignored by unit!");
-			}
+		private void ConstructCommandletServerRpc(int factionId, int[] selection, bool inclusive) {
+			ConstructCommandletServer(false, factionId, selection, inclusive);
 		}
 
 		public override ResourceCost[] GetCost () {

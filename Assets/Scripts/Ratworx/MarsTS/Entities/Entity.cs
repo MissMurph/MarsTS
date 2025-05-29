@@ -12,27 +12,25 @@ namespace Ratworx.MarsTS.Entities
 {
     [RequireComponent(typeof(EventAgent))]
     [RequireComponent(typeof(NetworkObject))]
-    public class Entity : NetworkBehaviour, 
+    public class Entity : NetworkBehaviour,
                           IRegistryObject<Entity>,
                           IEquatable<Entity>
     {
         public int Id { get; private set; }
 
         public string RegistryKey => _registryKey;
-        
-        [FormerlySerializedAs("registryKey")] 
-        [SerializeField] 
+
+        [FormerlySerializedAs("registryKey")]
+        [SerializeField]
         private string _registryKey;
 
         public string RegistryType => _registryType;
 
-        [SerializeField]
-        private string _registryType;
+        [SerializeField] private string _registryType;
 
 
         /// <summary>This safer init event will post immediately if the entity is already initialized</summary>
-        public event Action<Phase> OnEntityInit
-        {
+        public event Action<Phase> OnEntityInit {
             add
             {
                 if (Id > 0)
@@ -53,17 +51,17 @@ namespace Ratworx.MarsTS.Entities
 
         private EventAgent _eventAgent;
 
-        [FormerlySerializedAs("toTag")] [SerializeField] private TagReference[] _toTag;
+        [FormerlySerializedAs("toTag")]
+        [SerializeField]
+        private TagReference[] _toTag;
 
-        private void Awake()
-        {
+        private void Awake() {
             _eventAgent = GetComponent<EventAgent>();
 
             _registeredEntityComponents = new Dictionary<string, IEntityComponent>();
             _taggedComponents = new Dictionary<string, Component>();
 
-            foreach (IEntityComponent component in GetComponents<IEntityComponent>())
-            {
+            foreach (IEntityComponent component in GetComponents<IEntityComponent>()) {
                 _registeredEntityComponents[component.Key] = component;
             }
 
@@ -73,14 +71,12 @@ namespace Ratworx.MarsTS.Entities
 
             if (TryGetComponent(out NetworkObject found)) _taggedComponents["networking"] = found;
 
-            foreach (TagReference entry in _toTag)
-            {
+            foreach (TagReference entry in _toTag) {
                 _taggedComponents[entry.Tag] = entry.Component;
             }
         }
 
-        public override void OnNetworkSpawn()
-        {
+        public override void OnNetworkSpawn() {
             if (!NetworkManager.Singleton.IsServer) return;
 
             GameInit.OnSpawnEntities += Initialize;
@@ -88,33 +84,32 @@ namespace Ratworx.MarsTS.Entities
 
         internal void ServerUpdate() {
             foreach (IEntityServerUpdate component in _serverUpdateComponents) {
-                if (component is MonoBehaviour { enabled: false }) 
+                if (component is MonoBehaviour { enabled: false })
                     return;
-                
+
                 component.UpdateServer();
             }
         }
 
         internal void ClientUpdate() {
             foreach (IEntityClientUpdate component in _clientUpdateComponents) {
-                if (component is MonoBehaviour { enabled: false }) 
+                if (component is MonoBehaviour { enabled: false })
                     return;
-                
+
                 component.UpdateClient();
             }
         }
-        
+
         internal void PhysicsUpdate() {
             foreach (IEntityPhysicsUpdate component in _physicsUpdateComponents) {
-                if (component is MonoBehaviour { enabled: false }) 
+                if (component is MonoBehaviour { enabled: false })
                     return;
-                
+
                 component.UpdatePhysics();
             }
         }
 
-        private void Initialize()
-        {
+        private void Initialize() {
             Id = EntityCache.Register(this);
             name = $"{_registryKey}:{Id}";
 
@@ -124,17 +119,15 @@ namespace Ratworx.MarsTS.Entities
         }
 
         [Rpc(SendTo.NotServer)]
-        private void SynchronizeClientRpc(int id)
-        {
+        private void SynchronizeClientRpc(int id) {
             Id = id;
             name = $"{_registryKey}:{Id}";
             EntityCache.Register(this);
             PostInitEvents();
         }
 
-        private void PostInitEvents()
-        {
-            EntityInitEvent initCall = new EntityInitEvent(this, _eventAgent);
+        private void PostInitEvents() {
+            EntityInitEvent initCall = new EntityInitEvent(this);
 
             // Broken up into two steps for silly business, I think, I don't quite remember lmao
             initCall.Phase = Phase.Pre;
@@ -146,17 +139,15 @@ namespace Ratworx.MarsTS.Entities
             _eventAgent.PostGlobal(initCall);
         }
 
-        public bool TryGetEntityComponent<T>(string key, out T output)
-        {
-            if (_registeredEntityComponents.TryGetValue(key, out IEntityComponent component) && component is T superType)
-            {
+        public bool TryGetEntityComponent<T>(string key, out T output) {
+            if (_registeredEntityComponents.TryGetValue(key, out IEntityComponent component) &&
+                component is T superType) {
                 output = superType;
                 return true;
             }
-            
+
             if (typeof(T) == typeof(Component) && _taggedComponents.TryGetValue(key, out Component found) &&
-                found is T superTypedComponent)
-            {
+                found is T superTypedComponent) {
                 output = superTypedComponent;
                 return true;
             }
@@ -165,22 +156,17 @@ namespace Ratworx.MarsTS.Entities
             return false;
         }
 
-        public bool TryGetEntityComponent<T>(out T output)
-        {
-            foreach (IEntityComponent taggableComponent in _registeredEntityComponents.Values)
-            {
-                if (taggableComponent is T superType)
-                {
+        public bool TryGetEntityComponent<T>(out T output) {
+            foreach (IEntityComponent taggableComponent in _registeredEntityComponents.Values) {
+                if (taggableComponent is T superType) {
                     output = superType;
                     return true;
                 }
             }
 
             if (typeof(Component).IsAssignableFrom(typeof(T)))
-                foreach (Component nonTaggableComponent in _taggedComponents.Values)
-                {
-                    if (nonTaggableComponent is T superTypedComponent)
-                    {
+                foreach (Component nonTaggableComponent in _taggedComponents.Values) {
+                    if (nonTaggableComponent is T superTypedComponent) {
                         output = superTypedComponent;
                         return true;
                     }
@@ -190,8 +176,7 @@ namespace Ratworx.MarsTS.Entities
             return false;
         }
 
-        public T GetEntityComponent<T>(string key)
-        {
+        public T GetEntityComponent<T>(string key) {
             if (_registeredEntityComponents.TryGetValue(key, out IEntityComponent taggable) && taggable is T superType)
                 return superType;
 
@@ -203,25 +188,37 @@ namespace Ratworx.MarsTS.Entities
             return default;
         }
 
-        public override void OnDestroy()
-        {
+        public T GetEntityComponent<T>() {
+            foreach (IEntityComponent entityComponent in _registeredEntityComponents.Values) {
+                if (entityComponent is T superType) return superType;
+            }
+
+            if (!typeof(T).IsSubclassOf(typeof(Component))) return default;
+
+            foreach (Component component in _taggedComponents.Values) {
+                if (component is T superTypedComponent)
+                    return superTypedComponent;
+            }
+
+            return default;
+        }
+
+        public override void OnDestroy() {
             _eventAgent.PostGlobal(new EntityDestroyEvent(this));
         }
 
         public Entity GetEntityComponent() => this;
 
-        public bool Equals(Entity other)
-        {
+        public bool Equals(Entity other) {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return base.Equals(other) && Id == other.Id;
         }
 
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((Entity)obj);
         }
 

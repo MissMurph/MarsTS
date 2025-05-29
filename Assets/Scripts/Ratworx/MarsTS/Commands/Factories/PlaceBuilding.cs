@@ -15,6 +15,7 @@ using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 namespace Ratworx.MarsTS.Commands.Factories {
 
@@ -30,8 +31,9 @@ namespace Ratworx.MarsTS.Commands.Factories {
 		[SerializeField]
 		private string description;
 
+		[FormerlySerializedAs("building")]
 		[SerializeField]
-		protected Building building;
+		protected BuildingGhosts _buildingGhosts;
 
 		protected Transform GhostTransform;
 		protected BuildingSelectionGhost SelectionGhostComp;
@@ -50,9 +52,9 @@ namespace Ratworx.MarsTS.Commands.Factories {
 		public override void StartSelection () {
 			if (!CanFactionAfford(Player.Player.Commander)) return;
 			
-			GhostTransform = Instantiate(building.SelectionGhost).transform;
+			GhostTransform = Instantiate(_buildingGhosts.SelectionGhost).transform;
 			SelectionGhostComp = GhostTransform.GetComponent<BuildingSelectionGhost>();
-			SelectionGhostComp.InitializeGhost(building);
+			SelectionGhostComp.InitializeGhost(_buildingGhosts);
 			
 			Player.Player.Input.Hook("Select", OnSelect);
 			Player.Player.Input.Hook("Order", OnOrder);
@@ -87,7 +89,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 					hit.point,
 					Quaternion.Euler(Vector3.zero),
 					Player.Player.Commander.Id,
-					Player.Player.ListSelected.ToNativeArray32(),
+					Player.Player.ListSelected.ToArray(),
 					Player.Player.Include
 				);
 
@@ -109,15 +111,15 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			Vector3 position,
 			Quaternion rotation,
 			int factionId,
-			NativeArray<FixedString32Bytes> selection,
+			int[] selection,
 			bool inclusive
-		) => PlaceBuildingServer(position, rotation, factionId, selection.ToStringList(), inclusive);
+		) => PlaceBuildingServer(position, rotation, factionId, selection, inclusive);
 
 		private void PlaceBuildingServer(
 			Vector3 position,
 			Quaternion rotation,
 			int factionId,
-			List<string> selection,
+			int[] selection,
 			bool inclusive
 		) {
 			Faction faction = TeamCache.Faction(factionId);
@@ -125,7 +127,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			if (!CanFactionAfford(faction)) 
 				return;
 			
-			GameObject constructionGhost = Instantiate(building.ConstructionGhost, position, rotation);
+			GameObject constructionGhost = Instantiate(_buildingGhosts.ConstructionGhost, position, rotation);
 			
 			//Building newBuilding = Instantiate(building, position, rotation);
 

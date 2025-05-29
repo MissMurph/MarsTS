@@ -1,14 +1,14 @@
+using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.UI.Unit_Pane;
 using Ratworx.MarsTS.Units;
 
 namespace Ratworx.MarsTS.Events.Selectable {
 
 	public class UnitInfoEvent : UnitEvent {
-		public string Key { get { return Unit.RegistryKey; } }
 		public UnitInfoCard Info { get; private set; }
 
-		public UnitInfoEvent (EventAgent _source, ISelectable _unit, UnitInfoCard _infoCard) : base("Info", _source, _unit) {
-			Info = _infoCard;
+		public UnitInfoEvent (Entity unit, UnitInfoCard infoCard) : base("Info", unit) {
+			Info = infoCard;
 		}
 	}
 }

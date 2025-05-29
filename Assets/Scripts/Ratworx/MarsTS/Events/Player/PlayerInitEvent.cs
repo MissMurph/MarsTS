@@ -4,7 +4,7 @@ namespace Ratworx.MarsTS.Events.Player {
 
 
 
-		public PlayerInitEvent (EventAgent _source) : base("playerInit", _source) {
+		public PlayerInitEvent () : base("playerInit") {
 		}
 	}
 }

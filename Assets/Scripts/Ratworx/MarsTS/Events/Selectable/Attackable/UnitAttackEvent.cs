@@ -5,6 +5,7 @@ namespace Ratworx.MarsTS.Events.Selectable.Attackable
 {
     public class UnitAttackEvent : UnitEvent
     {
+        public IAttackable VictimAttackable { get; private set; }
         public Entity Attacker { get; private set; }
         public int Damage { get; private set; }
 
@@ -18,6 +19,7 @@ namespace Ratworx.MarsTS.Events.Selectable.Attackable
         ) {
             Attacker = attacker;
             Damage = damage;
+            VictimAttackable = victim;
         }
 
         public void SetDamage(int newDamage) {

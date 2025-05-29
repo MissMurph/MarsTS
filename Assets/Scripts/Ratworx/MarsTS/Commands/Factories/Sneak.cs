@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Ratworx.MarsTS.Commands.Commandlets;
+using Ratworx.MarsTS.Commands.Receivers;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Extensions;
 using Ratworx.MarsTS.Networking;
@@ -14,11 +15,11 @@ using UnityEngine;
 namespace Ratworx.MarsTS.Commands.Factories {
 
     public class Sneak : CommandFactory<bool> {
-		public override string Name { get { return "sneak"; } }
+		public override string Name => "sneak";
 
-		public override Type TargetType { get { return typeof(bool); } }
+		public override Type TargetType => typeof(bool);
 
-		public override string Description { get { return description; } }
+		public override string Description => description;
 
 		[SerializeField]
 		private string description;
@@ -33,10 +34,10 @@ namespace Ratworx.MarsTS.Commands.Factories {
 					totalWithSneak += rollup.Count;
 
 					foreach (ICommandable unit in rollup.GetCommandables()) {
-						if (unit.Active.Count == 0) continue;
+						if (unit.ActiveCommands.Count == 0) continue;
 
-						foreach (string activeCommand in unit.Active) {
-							if (activeCommand == Name) totalSneakActive++;
+						foreach (ICommandReceiver activeCommand in unit.ActiveCommands) {
+							if (activeCommand.CommandKey == Name) totalSneakActive++;
 						}
 					}
 				}
@@ -49,7 +50,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			ConstructCommandletServerRpc(
 				status,
 				Player.Player.Commander.Id,
-				Player.Player.ListSelected.ToNativeArray32(),
+				Player.Player.ListSelected.ToArray(),
 				Player.Player.Include
 			);
 		}
@@ -58,10 +59,10 @@ namespace Ratworx.MarsTS.Commands.Factories {
 		private void ConstructCommandletServerRpc(
 			bool status, 
 			int factionId, 
-			NativeArray<FixedString32Bytes> selection, 
+			int[] selection, 
 			bool inclusive
 		) {
-			ConstructCommandletServer(status, factionId, selection.ToStringList(), inclusive);
+			ConstructCommandletServer(status, factionId, selection, inclusive);
 		}
 
 		public override ResourceCost[] GetCost () {

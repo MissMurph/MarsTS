@@ -17,7 +17,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
 
         public virtual bool Legal => Collisions.Count == 0;
 
-        public virtual void InitializeGhost(Building buildingBeingConstructed)
+        public virtual void InitializeGhost(BuildingGhosts buildingBeingConstructed)
         {
             Instantiate(buildingBeingConstructed.transform.Find("Model"), transform);
             GameObject legalityCollider = Instantiate(buildingBeingConstructed.transform.Find("Collider"), transform).gameObject;

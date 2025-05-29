@@ -4,7 +4,7 @@ namespace Ratworx.MarsTS.Events.Init {
 
 
 
-		public TeamsInitEvent (EventAgent _source) : base("teamsInit", _source) {
+		public TeamsInitEvent () : base("teamsInit") {
 
 		}
 	}

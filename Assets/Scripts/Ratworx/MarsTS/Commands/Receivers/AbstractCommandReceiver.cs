@@ -17,7 +17,6 @@ namespace Ratworx.MarsTS.Commands.Receivers
         public abstract bool CanCommand { get; }
         public abstract bool IsActive { get; }
         public abstract float Cooldown { get; }
-        public abstract (bool valid, CommandFactory factory) EvaluateCommand(Entity entity);
 
         protected UnitPathfinder UnitPathing;
         protected UnitTargetManager UnitTargeting;
@@ -39,7 +38,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         }
         
         public abstract void ReceiveCommand(T command);
-
+        public abstract (bool valid, CommandFactory factory) EvaluateCommand(Entity entity);
         protected void PostStateUpdatedEvent() => OnCommandStateUpdated?.Invoke();
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Ratworx.MarsTS.Commands;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Units;
@@ -37,9 +38,12 @@ namespace Ratworx.MarsTS.Extensions
             var output = new List<string>();
 
             if (roster.GetFirst().TryGetEntityComponent(out ICommandable commandable)) 
-                output.AddRange(commandable.Commands());
+                output.AddRange(commandable.Commands().Select(kvp => kvp.Key));
 
             return output;
         }
+
+        public static bool IsCommandable(this Roster roster) 
+            => roster.GetFirst().TryGetEntityComponent(out ICommandable _);
     }
 }

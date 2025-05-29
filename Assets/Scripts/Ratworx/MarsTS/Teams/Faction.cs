@@ -108,12 +108,12 @@ namespace Ratworx.MarsTS.Teams
             {
                 Roster roster = GetRoster(key);
 
-                if (!roster.TryAdd(evnt.Unit)) 
+                if (!roster.TryAdd(evnt.Entity)) 
                     Debug.Log($"Couldn't add Unit {evnt.Entity.gameObject.name} to {gameObject.name} Roster!");
             }
-            else if (_ownedUnits.TryGetValue(key, out Roster roster) && roster.Contains(evnt.Unit.Id))
+            else if (_ownedUnits.TryGetValue(key, out Roster roster) && roster.Contains(evnt.Entity.Id))
             {
-                roster.Remove(evnt.Unit.Id);
+                roster.Remove(evnt.Entity.Id);
 
                 if (roster.Count == 0) _ownedUnits.Remove(key);
             }
@@ -125,9 +125,9 @@ namespace Ratworx.MarsTS.Teams
             
             foreach (Roster roster in _ownedUnits.Values)
             {
-                if (!typeof(IDepositable).IsAssignableFrom(roster.RegistryType)) continue;
+                if (!roster.GetFirst().TryGetEntityComponent(out IDepositable depositable)) continue;
 
-                output.AddRange(roster.Cast<IDepositable>());
+                output.AddRange(roster.Select(entity => entity.GetEntityComponent<IDepositable>()));
             }
 
             return output;

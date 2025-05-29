@@ -133,12 +133,12 @@ namespace Ratworx.MarsTS.Vision {
 				Dirty = true;
 
 				if (!initialized) {
-					bus.PostGlobal(new VisionInitEvent(bus));
+					bus.PostGlobal(new VisionInitEvent());
 					initialized = true;
 					return;
 				}
 
-				VisionUpdateEvent _event = new VisionUpdateEvent(bus);
+				VisionUpdateEvent _event = new VisionUpdateEvent();
 
 				_event.Phase = Phase.Pre;
 

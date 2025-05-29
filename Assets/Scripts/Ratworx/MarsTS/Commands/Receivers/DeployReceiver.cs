@@ -67,7 +67,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
             float deployTimer = _deploying ? _deployTime : _undeployTime;
 
-            EventAgent.PostGlobal(new CommandWorkEvent(_deployCommandlet, CommandQueue,
+            EventAgent.PostGlobal(new CommandWorkEvent(_deployCommandlet, this, CommandQueue,
                 _currentDeployTime / deployTimer));
 
             if (_currentDeployTime < deployTimer) return;
@@ -83,12 +83,12 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
             float deployTimer = _deploying ? _deployTime : _undeployTime;
 
-            EventAgent.PostGlobal(new CommandWorkEvent(_deployCommandlet, CommandQueue,
+            EventAgent.PostGlobal(new CommandWorkEvent(_deployCommandlet, this, CommandQueue,
                 _currentDeployTime / deployTimer));
         }
 
         private void OnCommandComplete (CommandCompleteEvent evnt) {
-            EventAgent.PostGlobal(new CommandWorkEvent(_deployCommandlet, CommandQueue, 1f));
+            EventAgent.PostGlobal(new CommandWorkEvent(_deployCommandlet, this, CommandQueue, 1f));
             _deployCommandlet.OnCommandComplete.RemoveListener(OnCommandComplete);
             _deployCommandlet = null;
             

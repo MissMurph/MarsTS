@@ -4,7 +4,7 @@ namespace Ratworx.MarsTS.Events.Selectable.Internal {
 
 		public bool Status { get; private set; }
 
-		public UnitSelectEvent (EventAgent _source, bool status) : base("unitSelect", _source) {
+		public UnitSelectEvent (bool status) : base("unitSelect") {
 			Status = status;
 		}
 	}

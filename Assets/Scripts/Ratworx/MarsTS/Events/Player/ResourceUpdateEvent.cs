@@ -6,12 +6,12 @@ namespace Ratworx.MarsTS.Events.Player {
 	public class ResourceUpdateEvent : AbstractEvent {
 
 		public Faction Player { get; private set; }
-		public int Amount { get { return Resource.Amount; } }
+		public int Amount => Resource.Amount;
 		public PlayerResource Resource { get; private set; }
 
-		public ResourceUpdateEvent (EventAgent _source, Faction _player, PlayerResource _resource) : base("resourceBanked", _source) {
-			Player = _player;
-			Resource = _resource;
+		public ResourceUpdateEvent (Faction player, PlayerResource resource) : base("resourceBanked") {
+			Player = player;
+			Resource = resource;
 		}
 	}
 }

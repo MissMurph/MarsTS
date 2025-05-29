@@ -9,7 +9,7 @@ namespace Ratworx.MarsTS.Events.Selectable.Internal {
 		public bool Detected { get; private set; }
 		public T Target { get; private set; }
 
-		public SensorUpdateEvent(EventAgent _source, T _unit, bool _detected) : base("sensorUpdate", _source) {
+		public SensorUpdateEvent(T _unit, bool _detected) : base("sensorUpdate") {
 			SensorType = typeof(T);
 			Target = _unit;
 			Detected = _detected;

@@ -28,46 +28,31 @@ namespace Ratworx.MarsTS.Commands.Factories {
 		private int deployTime;
 
 		public override void StartSelection () {
-			var toCommand = new List<ICommandable>();
+			var toCommand = new List<int>();
 
 			foreach (Roster rollup in Player.Player.Selected.Values) {
 				if (!rollup.GetCommands().Contains(Name)) 
 					continue;
 				
 				foreach (ICommandable unit in rollup.GetCommandables()) {
-					if (unit.Active.Contains(Name))
-						continue;
-						
-					toCommand.Add(unit);
+					if (unit.ActiveCommands.Count == 0) continue;
+					if (unit.Commands()[Name].IsActive) continue;
+
+					toCommand.Add(unit.Entity.Id);
 				}
 			}
 
-			foreach (ICommandable unit in toCommand) {
-				Construct(unit.GameObject.name);
-			}
+			Construct(toCommand);
 		}
 
 		// This can only be done per unit
-		public void Construct(string selection) {
-			ConstructCommandletServerRpc(Player.Player.Commander.Id, selection, Player.Player.Include);
+		public void Construct(List<int> selection) {
+			ConstructCommandletServerRpc(Player.Player.Commander.Id, selection.ToArray(), Player.Player.Include);
 		}
 
 		[Rpc(SendTo.Server)]
-		private void ConstructCommandletServerRpc(int factionId, string selection, bool inclusive) {
-			ConstructCommandletServer(true, factionId, new List<string>{ selection }, inclusive);
-		}
-
-		protected override void ConstructCommandletServer(bool target, int factionId, ICollection<string> selection, bool inclusive) {
-			BooleanCommandlet order = (BooleanCommandlet)Instantiate(orderPrefab);
-
-			order.Init(Name, target, TeamCache.Faction(factionId));
-
-			foreach (string entity in selection) {
-				if (EntityCache.TryGetEntityComponent(entity, out ICommandable unit))
-					unit.Order(order, inclusive);
-				else
-					Debug.LogWarning($"ICommandable on Unit {entity} not found! Command {Name} being ignored by unit!");
-			}
+		private void ConstructCommandletServerRpc(int factionId, int[] selection, bool inclusive) {
+			ConstructCommandletServer(true, factionId, selection, inclusive);
 		}
 
 		public override ResourceCost[] GetCost () {

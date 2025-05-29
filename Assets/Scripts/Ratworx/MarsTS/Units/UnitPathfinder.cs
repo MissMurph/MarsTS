@@ -58,7 +58,7 @@ namespace Ratworx.MarsTS.Units
 
             if (_pathIndex < CurrentPath.Length) return;
             
-            _eventAgent.PostLocal(new PathCompleteEvent(_eventAgent, true));
+            _eventAgent.PostLocal(new PathCompleteEvent(true));
             CurrentPath = Path.Empty;
         }
 

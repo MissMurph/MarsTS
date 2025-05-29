@@ -1,11 +1,11 @@
 using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Commands.Receivers;
 
 namespace Ratworx.MarsTS.Events.Commands {
 
 	public class CooldownCompletedEvent : CommandEvent {
-
-		public CooldownCompletedEvent (string name, EventAgent _source, Commandlet _command, ICommandable _unit) 
-			: base(name, _source, _command, _unit) 
+		public CooldownCompletedEvent (ICommandReceiver receiver, ICommandable unit) 
+			: base("CooldownCompleted", receiver, unit) 
 		{
 
 		}

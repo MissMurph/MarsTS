@@ -8,7 +8,7 @@ namespace Ratworx.MarsTS.Events.Selectable {
 
 		public ISelectable RegisteredMember { get; private set; }
 
-		public SquadRegisterEvent (EventAgent _source, ISelectable _host, ISelectable _member) : base("squadRegister", _source) {
+		public SquadRegisterEvent (ISelectable _host, ISelectable _member) : base("squadRegister") {
 			Host = _host;
 			RegisteredMember = _member;
 		}

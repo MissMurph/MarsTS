@@ -40,6 +40,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
             _preModifiedMoveSpeed = _moveSpeedAttribute.Value;
             _moveSpeedAttribute.Value = Mathf.RoundToInt(_moveSpeedAttribute.Value * _moveSpeedModifier);
+            _adrenalineCommandlet.CompleteCommand(CommandQueue);
         }
 
         private void OnCommandComplete(CommandCompleteEvent evnt) {
@@ -56,18 +57,17 @@ namespace Ratworx.MarsTS.Commands.Receivers
             if (_adrenalineCommandlet is null) return;
 
             _remainingBoostingTime -= Time.deltaTime;
-            EventAgent.PostGlobal(new CooldownEvent(_adrenalineCommandlet, _entity, _remainingBoostingTime));
+            EventAgent.PostGlobal(new CooldownEvent(this, _entity, _remainingBoostingTime));
 
-            if (_remainingBoostingTime > 0f) return;
-
-            _adrenalineCommandlet.CompleteCommand(CommandQueue);
+            // if (_remainingBoostingTime > 0f) return;
+            // _adrenalineCommandlet.CompleteCommand(CommandQueue);
         }
 
         public void UpdateClient() {
             if (_adrenalineCommandlet is null) return;
 
             _remainingBoostingTime -= Time.deltaTime;
-            EventAgent.PostGlobal(new CooldownEvent(_adrenalineCommandlet, _entity, _remainingBoostingTime));
+            EventAgent.PostGlobal(new CooldownEvent(this, _entity, _remainingBoostingTime));
         }
 
         // TODO: Investigate turning below into an optional interface, numerous receivers just do the below

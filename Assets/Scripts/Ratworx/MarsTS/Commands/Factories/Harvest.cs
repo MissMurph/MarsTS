@@ -39,7 +39,7 @@ namespace Ratworx.MarsTS.Commands.Factories
                     && EntityCache.TryGetEntityComponent(hit.collider.transform.parent.name + ":selectable", out ISelectable unit)
                     && unit is IHarvestable target)
                 {
-                    Construct(target, Player.Player.Commander.Id, Player.Player.ListSelected, Player.Player.Include);
+                    Construct(target, Player.Player.Commander.Id, Player.Player.ListSelected.ToArray(), Player.Player.Include);
                 }
 
                 Player.Player.Input.Release("Select");
@@ -47,16 +47,16 @@ namespace Ratworx.MarsTS.Commands.Factories
             }
         }
 
-        public void Construct(IHarvestable target, int factionId, List<string> selection, bool inclusive)
+        public void Construct(IHarvestable target, int factionId, int[] selection, bool inclusive)
         {
             if (NetworkManager.Singleton.IsServer)
                 ConstructCommandletServer(target, factionId, selection, inclusive);
             else
-                ConstructCommandletServerRpc(target.GameObject.name, factionId, selection.ToNativeArray32(), inclusive);
+                ConstructCommandletServerRpc(target.GameObject.name, factionId, selection, inclusive);
         }
 
         [Rpc(SendTo.Server)]
-        private void ConstructCommandletServerRpc(string target, int factionId, NativeArray<FixedString32Bytes> selection, bool inclusive)
+        private void ConstructCommandletServerRpc(string target, int factionId, int[] selection, bool inclusive)
         {
             if (!EntityCache.TryGetEntityComponent(target, out IHarvestable unit))
             {
@@ -64,7 +64,7 @@ namespace Ratworx.MarsTS.Commands.Factories
                 return;
             }
 
-            ConstructCommandletServer(unit, factionId, selection.ToStringList(), inclusive);
+            ConstructCommandletServer(unit, factionId, selection, inclusive);
         }
 
         private void OnOrder(InputAction.CallbackContext context)

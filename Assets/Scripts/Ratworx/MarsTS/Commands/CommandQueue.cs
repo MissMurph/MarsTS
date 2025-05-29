@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Ratworx.MarsTS.Commands.Cache;
 using Ratworx.MarsTS.Commands.Factories;
+using Ratworx.MarsTS.Commands.Receivers;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Commands;
@@ -28,81 +29,104 @@ namespace Ratworx.MarsTS.Commands
         public Commandlet CurrentCommand => Current;
         private Commandlet Current { get; set; }
 
-        public Commandlet[] Queue => commandQueue.ToArray();
-        private Queue<Commandlet> commandQueue;
+        public Commandlet[] Queue => _commandQueue.ToArray();
+        private Queue<Commandlet> _commandQueue;
 
-        public List<string> Active => activeCommands.Keys.ToList();
-        private Dictionary<string, Commandlet> activeCommands;
+        public List<ICommandReceiver> ActiveCommands => _activeCommands.Values.ToList();
+        private Dictionary<string, ICommandReceiver> _activeCommands;
 
-        public List<Timer> Cooldowns => activeCooldowns.Values.ToList();
+        public List<Timer> Cooldowns => _activeCooldowns.Values.ToList();
 
-        private Dictionary<string, Timer> activeCooldowns;
-        private List<Timer> completedCooldowns;
+        private Dictionary<string, Timer> _activeCooldowns;
+        private List<Timer> _completedCooldowns;
 
-        public int Count => Current != null ? 1 + commandQueue.Count : 0;
+        public int QueueCount => Current != null ? 1 + _commandQueue.Count : 0;
 
         private EventAgent _eventAgent;
 
         public Entity Entity { get; private set; }
+        
+        private Dictionary<string, ICommandReceiver> _commands;
+        
+        public Dictionary<string, ICommandReceiver> Commands() => _commands;
 
-        [SerializeField] private string[] _commands;
+        private List<ICommandReceiver> _receiversByEvalPriority;
+
+        public CommandQueue Get() => this;
+        public GameObject GameObject => gameObject;
 
         private void Awake() {
             Entity = GetComponent<Entity>();
             _eventAgent = GetComponent<EventAgent>();
 
-            commandQueue = new Queue<Commandlet>();
+            _commandQueue = new Queue<Commandlet>();
 
-            activeCommands = new Dictionary<string, Commandlet>();
+            _activeCommands = new Dictionary<string, ICommandReceiver>();
+            _commands = new Dictionary<string, ICommandReceiver>();
+            _receiversByEvalPriority = new List<ICommandReceiver>();
 
-            activeCooldowns = new Dictionary<string, Timer>();
-            completedCooldowns = new List<Timer>();
+            _activeCooldowns = new Dictionary<string, Timer>();
+            _completedCooldowns = new List<Timer>();
+            
+            foreach (ICommandReceiver receiver in GetComponentsInChildren<ICommandReceiver>()) {
+                _commands[receiver.CommandKey] = receiver;
+                _receiversByEvalPriority.Add(receiver);
+            }
+
+            _receiversByEvalPriority.Sort(CompareReceiversByEvaluationPriority);
         }
 
         public void UpdateServer() {
-            if (Current is null && commandQueue.Count > 0) {
+            if (Current is null && _commandQueue.Count > 0) {
                 Dequeue();
             }
+            
+            UpdateTimers();
         }
 
         public void UpdateClient() {
-            
+            UpdateTimers();
         }
 
-        protected virtual void Update() {
-            foreach (Timer cooldown in activeCooldowns.Values) {
+        private void UpdateTimers() {
+            foreach (Timer cooldown in _activeCooldowns.Values) {
                 cooldown.timeRemaining -= Time.deltaTime;
 
                 if (cooldown.timeRemaining <= 0) {
-                    completedCooldowns.Add(cooldown);
+                    _completedCooldowns.Add(cooldown);
                     continue;
                 }
 
-                _eventAgent.PostGlobal(new CooldownEvent(cooldown.commandName, parent, cooldown));
+                _eventAgent.PostGlobal(new CooldownEvent(cooldown.command, Entity, cooldown.timeRemaining));
+                OnCommandsStateChanged?.Invoke();
             }
 
-            foreach (Timer expiredCooldown in completedCooldowns) {
-                activeCooldowns.Remove(expiredCooldown.commandName);
-                _eventAgent.PostGlobal(new CooldownEvent(_eventAgent, expiredCooldown.commandName, parent, expiredCooldown));
+            foreach (Timer expiredCooldown in _completedCooldowns) {
+                _activeCooldowns.Remove(expiredCooldown.commandName);
+                _eventAgent.PostGlobal(new CooldownEvent(expiredCooldown.command, Entity, expiredCooldown.timeRemaining));
+                OnCommandsStateChanged?.Invoke();
             }
 
-            completedCooldowns = new();
+            _completedCooldowns = new();
         }
 
         /*	Dequeueing Commands	*/
 
         protected virtual void Dequeue() {
-            Commandlet order = commandQueue.Dequeue();
+            Commandlet order = _commandQueue.Dequeue();
 
             Current = order;
             order.OnCommandComplete.AddListener(OnOrderComplete);
 
             order.StartCommand(this);
-            
+            OnCommandListChanged?.Invoke();
+
+            if (NetworkManager.Singleton.IsServer) 
+                DequeueClientRpc();
         }
 
         [Rpc(SendTo.NotServer)]
-        protected virtual void DequeueClientRpc() {
+        private void DequeueClientRpc() {
             if (NetworkManager.IsHost) return;
             Dequeue();
         }
@@ -110,36 +134,38 @@ namespace Ratworx.MarsTS.Commands
         /*	Completing Commands	*/
 
         [Rpc(SendTo.NotServer)]
-        protected virtual void CompleteCommandClientRpc(bool _cancelled) {
+        private void CompleteCommandClientRpc(bool _cancelled) {
             CompleteCurrentCommand(_cancelled);
         }
 
-        protected virtual void CompleteCurrentCommand(bool _cancelled) {
+        private void CompleteCurrentCommand(bool _cancelled) {
+            // This is 
             // Current.CompleteCommand(bus, orderSource, _cancelled);
 
             if (NetworkManager.Singleton.IsServer)
                 CompleteCommandClientRpc(_cancelled);
         }
 
-        protected virtual void OnOrderComplete(CommandCompleteEvent _event) {
-            if (!ReferenceEquals(_event.Unit, orderSource)) return;
+        private void OnOrderComplete(CommandCompleteEvent evnt) {
+            evnt.Command.OnCommandComplete.RemoveListener(OnOrderComplete);
             Current = null;
-            _eventAgent.PostGlobal(_event);
+            _eventAgent.PostGlobal(evnt);
+            OnCommandListChanged?.Invoke();
         }
 
         /*	Executing Commands	*/
-        public void ExecuteCommand(Commandlet order) {
-            if (!orderSource.CanCommand(order.Command.Name)) return;
-            commandQueue.Clear();
+        private void ExecuteCommand(Commandlet order) {
+            if (!CanCommand(order.Command.Name)) return;
+            _commandQueue.Clear();
 
             if (Current != null) {
                 // if (!Current.CanInterrupt()) return;
 
-                Current.CompleteCommand(orderSource, true);
+                Current.CompleteCommand(this, true);
             }
-
-            Current = null;
-            commandQueue.Enqueue(order);
+            
+            // Current = null;
+            _commandQueue.Enqueue(order);
 
             if (NetworkManager.Singleton.IsServer) ExecuteClientRpc(order.gameObject);
         }
@@ -153,51 +179,49 @@ namespace Ratworx.MarsTS.Commands
 
         /*	Enqueueing Commands	*/
 
-        public void EnqueueCommand(Commandlet order) {
-            if (!orderSource.CanCommand(order.Command.Name)) return;
-            commandQueue.Enqueue(order);
+        private void EnqueueCommand(Commandlet order) {
+            if (!CanCommand(order.Command.Name)) return;
+            _commandQueue.Enqueue(order);
+            OnCommandListChanged?.Invoke();
 
             if (NetworkManager.Singleton.IsServer) EnqueueClientRpc(order.gameObject);
         }
 
         [Rpc(SendTo.NotServer)]
-        protected virtual void EnqueueClientRpc(NetworkObjectReference orderReference) {
+        private void EnqueueClientRpc(NetworkObjectReference orderReference) {
             if (NetworkManager.Singleton.IsHost) return;
 
             EnqueueCommand(orderReference.GameObject().GetComponent<Commandlet>());
         }
 
         /*	Activating Commands	*/
-        public void ActivateCommand(Commandlet order, bool status) {
+        public void ActivateCommand(ICommandReceiver order, bool status) {
             if (status) {
-                activeCommands[order.Name] = order;
+                _activeCommands[order.CommandKey] = order;
             }
-            else if (activeCommands.TryGetValue(order.Name, out Commandlet toDeactivate)) {
-                activeCommands.Remove(toDeactivate.Name);
+            else if (_activeCommands.TryGetValue(order.CommandKey, out ICommandReceiver toDeactivate)) {
+                _activeCommands.Remove(toDeactivate.CommandKey);
             }
-
+            
             _eventAgent.PostGlobal(new CommandActiveEvent(this, order, status));
-
+            OnCommandsStateChanged?.Invoke();
+            
             if (NetworkManager.Singleton.IsServer)
-                ActivateCommandClientRpc(order.Id, status);
+                ActivateCommandClientRpc(order.CommandKey, status);
         }
 
         [Rpc(SendTo.NotServer)]
-        private void ActivateCommandClientRpc(int id, bool status) {
-            if (!CommandletsCache.TryGet(id, out Commandlet order)) {
-                RatLogger.Error?.Log($"Couldn't find commandlet {id}! Cannot activate");
-                return;
-            }
-
-            ActivateCommand(order, status);
+        private void ActivateCommandClientRpc(string commandKey, bool status) {
+            ActivateCommand(_commands[commandKey], status);
         }
 
         public void DeactivateCommand(string key) {
-            if (!activeCommands.TryGetValue(key, out Commandlet toDeactivate)) return;
+            if (!_activeCommands.TryGetValue(key, out ICommandReceiver toDeactivate)) return;
 
             CommandActiveEvent evnt = new CommandActiveEvent(this, toDeactivate, false);
-            activeCommands.Remove(toDeactivate.Name);
+            _activeCommands.Remove(toDeactivate.CommandKey);
             _eventAgent.PostGlobal(evnt);
+            OnCommandsStateChanged?.Invoke();
 
             if (NetworkManager.Singleton.IsServer)
                 DeactivateCommandClientRpc(key);
@@ -211,7 +235,8 @@ namespace Ratworx.MarsTS.Commands
         /*	Cooldowns	*/
 
         public void Cooldown(Commandlet order, float time) {
-            activeCooldowns[order.Name] = new Timer { commandName = order.Name, duration = time, timeRemaining = time };
+            _activeCooldowns[order.Name] = new Timer { commandName = order.Name, duration = time, timeRemaining = time };
+            OnCommandsStateChanged?.Invoke();
 
             if (NetworkManager.Singleton.IsServer) CooldownClientRpc(order.Id, time);
         }
@@ -229,15 +254,15 @@ namespace Ratworx.MarsTS.Commands
         /*	Misc.	*/
 
         public void Clear() {
-            foreach (Commandlet order in commandQueue)
+            foreach (Commandlet order in _commandQueue)
                 order.CompleteCommand(this, true);
 
-            commandQueue.Clear();
+            _commandQueue.Clear();
 
             if (Current != null)
                 Current.CompleteCommand(this, true);
 
-            Current = null;
+            // Current = null;
 
             if (NetworkManager.Singleton.IsServer) ClearClientRpc();
         }
@@ -247,8 +272,8 @@ namespace Ratworx.MarsTS.Commands
             Clear();
         }
 
-        public virtual bool CanCommand(string key) {
-            return !activeCooldowns.ContainsKey(key);
+        public virtual bool CanCommand(string commandKey) {
+            return !_activeCooldowns.ContainsKey(commandKey);
         }
 
         public void Order(Commandlet order, bool inclusive) {
@@ -258,21 +283,33 @@ namespace Ratworx.MarsTS.Commands
                 ExecuteCommand(order);
         }
 
-        public CommandFactory Evaluate(ISelectable target) => throw new NotImplementedException();
+        public CommandFactory EvaluateCommand(Entity target) => throw new NotImplementedException();
 
-        public void AutoCommand(ISelectable target) {
-            throw new NotImplementedException();
+        public void AddCommand(ICommandReceiver receiver) {
+            if (_commands.ContainsKey(receiver.CommandKey)) 
+                RatLogger.Warning?.Log($"Receiver already bound to {receiver.CommandKey}! Replacing with new receiver, is this intended?");
+
+            _commands[receiver.CommandKey] = receiver;
+            OnCommandListChanged?.Invoke();
         }
 
-        public string[] Commands() => _commands;
-
-        public CommandQueue Get() => this;
-        public GameObject GameObject => gameObject;
+        public void RemoveCommand(string commandKey) {
+            _commands.Remove(commandKey);
+            OnCommandListChanged?.Invoke();
+        }
+        
+        private int CompareReceiversByEvaluationPriority(ICommandReceiver a, ICommandReceiver b) {
+            if (a.EvaluationPriority > b.EvaluationPriority)
+                return 1;
+            if (a.EvaluationPriority < b.EvaluationPriority)
+                return -1;
+            return 0;
+        }
     }
 
     public class Timer
     {
-        public Commandlet command;
+        public ICommandReceiver command;
         public string commandName;
         public float duration;
         public float timeRemaining;

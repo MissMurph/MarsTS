@@ -48,7 +48,7 @@ namespace Ratworx.MarsTS.Units.Sensors {
 
 			if (detected.ContainsKey(key)) {
 				detected.Remove(key);
-				Bus.PostLocal(new SensorUpdateEvent<ISelectable>(Bus, toRemove, false));
+				Bus.PostLocal(new SensorUpdateEvent<ISelectable>(toRemove, false));
 			}
 
 			inRange.Remove(key);

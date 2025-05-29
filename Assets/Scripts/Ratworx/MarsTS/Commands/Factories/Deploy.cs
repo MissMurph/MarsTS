@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Ratworx.MarsTS.Commands.Commandlets;
 using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Extensions;
 using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units;
@@ -30,10 +31,10 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			var toCommand = new List<ICommandable>();
 
 			foreach (Roster rollup in Player.Player.Selected.Values) {
-				if (!rollup.Commands.Contains(Name)) 
+				if (!rollup.GetCommands().Contains(Name)) 
 					continue;
 				
-				foreach (ICommandable unit in rollup.Orderable) {
+				foreach (ICommandable unit in rollup.GetCommandables()) {
 					if (unit.Active.Contains(Name))
 						continue;
 						

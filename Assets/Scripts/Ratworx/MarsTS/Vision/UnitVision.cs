@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Init;
@@ -37,9 +38,8 @@ namespace Ratworx.MarsTS.Vision
 
         private Entity _entity;
         private UnitOwnership _ownership;
-        
-        [SerializeField]
-        private GameObject[] _hideables;
+
+        [SerializeField] private List<GameObject> _hideables;
 
         protected virtual void Awake() {
             Bus = GetComponent<EventAgent>();
@@ -61,7 +61,7 @@ namespace Ratworx.MarsTS.Vision
             if (phase == Phase.Pre) return;
 
             GameVision.Register(gameObject.name, this);
-            
+
             EventBus.AddListener<VisionUpdateEvent>(OnVisionUpdate);
             EventBus.AddListener<VisionInitEvent>(OnVisionInit);
         }
@@ -96,9 +96,8 @@ namespace Ratworx.MarsTS.Vision
 
             //Posting here allows other components to modify the units visibility
             Bus.PostGlobal(entityEvent);
-            
-            foreach (GameObject hideable in _hideables)
-            {
+
+            foreach (GameObject hideable in _hideables) {
                 hideable.SetActive(entityEvent.Visible);
             }
 
@@ -107,8 +106,8 @@ namespace Ratworx.MarsTS.Vision
             Bus.PostGlobal(entityEvent);
         }
 
-        public VisionEntry Collect() =>
-            new VisionEntry
+        public VisionEntry Collect()
+            => new VisionEntry
             {
                 gridPos = GameVision.GetGridPosFromWorldPos(transform.position),
                 range = Mathf.RoundToInt(_visionRange / GameVision.NodeSize),
@@ -119,6 +118,10 @@ namespace Ratworx.MarsTS.Vision
         private void OnDrawGizmos() {
             if (GameVision.Initialized && GameVision.DrawGizmos)
                 Gizmos.DrawWireSphere(transform.position, _visionRange * GameVision.NodeSize);
+        }
+
+        public void SetObjectHideable(GameObject childObject) {
+            _hideables.Add(childObject);
         }
 
         public UnitVision Get() => this;

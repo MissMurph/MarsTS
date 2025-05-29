@@ -1,129 +1,62 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Logging;
 
 namespace Ratworx.MarsTS.Units
 {
-    public class Roster : IEnumerable<ISelectable>
+    public class Roster : IEnumerable<Entity>
     {
         public string RegistryKey { get; private set; }
         public string RegistryType { get; private set; }
-        public List<string> Commands { get; }
 
-        public List<ICommandable> Orderable
-        {
-            get
-            {
-                if (commandables == null) return new List<ICommandable>();
-
-                List<ICommandable> output = new List<ICommandable>();
-
-                foreach (ICommandable commandable in commandables.Values)
-                {
-                    output.Add(commandable);
-                }
-
-                return output;
-            }
-        }
-
-        private readonly Dictionary<int, ISelectable> instances;
-        private Dictionary<int, ICommandable> commandables;
-
+        private readonly Dictionary<int, Entity> instances;
         public int Count => instances.Count;
 
-        public Roster(string registryKey, ISelectable[] units)
-        {
+        public Roster(string registryKey, Entity[] units) {
             RegistryKey = registryKey;
-
-            instances = new Dictionary<int, ISelectable>();
-            Commands = new List<string>();
-
-            //Commands.AddRange(Registry.Get<ISelectable>(registryKey).Commands());
-
-            //Commands.AddRange(UnitRegistry.Unit(Type).Commands());
-            //Commands.AddRange(units[0].Commands());
-
-            foreach (ISelectable unit in units)
-            {
-                if (TryAdd(unit))
-                    if (unit is ICommandable orderable)
-                    {
-                        if (Commands.Count == 0) Commands.AddRange(orderable.Commands());
-                        if (commandables == null) commandables = new Dictionary<int, ICommandable>();
-
-                        commandables[unit.Entity.Id] = orderable;
-                    }
-            }
+            RegistryType = units[0].RegistryType;
+            instances = new Dictionary<int, Entity>();
         }
 
-        public Roster()
-        {
-            instances = new Dictionary<int, ISelectable>();
-            Commands = new List<string>();
-        }
-        
-        public ISelectable GetFirst()
-        {
-            foreach (ISelectable unit in instances.Values)
-            {
-                return unit;
+        public Roster() => instances = new Dictionary<int, Entity>();
+
+        public Entity GetFirst() => instances.Values.FirstOrDefault();
+
+        public Entity Get(int id) => instances.GetValueOrDefault(id);
+
+        public List<Entity> List() => new List<Entity>(instances.Values);
+
+        public bool TryAdd(Entity unit) {
+            if (string.IsNullOrEmpty(RegistryKey)) {
+                RegistryKey = unit.RegistryKey;
+                RegistryType = unit.RegistryType;
             }
 
-            return null;
-        }
-
-        public ISelectable Get(int id) => instances.TryGetValue(id, out ISelectable unit) ? unit : null;
-
-        public List<ISelectable> List() => new List<ISelectable>(instances.Values);
-
-        public bool TryAdd(ISelectable unit)
-        {
-            if (string.IsNullOrEmpty(RegistryKey))
-            {
-                RegistryKey = unit.Entity.RegistryKey;
-                RegistryType = unit.Entity.RegistryType;
-            }
-
-            if (!unit.Entity.RegistryKey.Equals(RegistryKey))
-            {
-                RatLogger.Error?.Log($"Unit type {unit.Entity.RegistryKey} doesn't match roster's registered type of {RegistryKey}!");
+            if (!unit.RegistryKey.Equals(RegistryKey)) {
+                RatLogger.Error?.Log($"Unit type {unit.RegistryKey} doesn't match roster's registered type of {RegistryKey}!");
                 return false;
             }
 
-            if (!instances.TryAdd(unit.Entity.Id, unit)) {
-                RatLogger.Message?.Log($"Unit {unit.Entity.Id} already added to Roster of {RegistryType} type!");
-                return false;
-            }
+            if (instances.TryAdd(unit.Id, unit)) return true;
 
-            if (unit is ICommandable orderable)
-            {
-                if (Commands.Count == 0) Commands.AddRange(orderable.Commands());
-                if (commandables == null) commandables = new Dictionary<int, ICommandable>();
-
-                commandables[unit.Entity.Id] = orderable;
-            }
-
-            return true;
+            RatLogger.Message?.Log($"Unit {unit.Id} already added to Roster of {RegistryType} type!");
+            return false;
         }
 
-        public void Remove(params int[] ids)
-        {
-            foreach (int id in ids)
-            {
+        public void Remove(params int[] ids) {
+            foreach (int id in ids) {
                 instances.Remove(id);
             }
         }
 
         public bool Contains(int id) => instances.ContainsKey(id);
 
-        public void Clear()
-        {
-            instances.Clear();
-        }
+        public void Clear() => instances.Clear();
 
-        public IEnumerator<ISelectable> GetEnumerator() => instances.Values.GetEnumerator();
+        public IEnumerator<Entity> GetEnumerator() => instances.Values.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }

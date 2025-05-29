@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Ratworx.MarsTS.Extensions;
 using Ratworx.MarsTS.Pathfinding;
 using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Teams;
@@ -64,10 +65,10 @@ namespace Ratworx.MarsTS.Commands.Factories {
 					string selection = string.Empty;
 					
 					foreach (Roster roster in Player.Player.Selected.Values) {
-						if (!roster.Commands.Contains(Name)) continue;
+						if (!roster.GetCommands().Contains(Name)) continue;
 
 						// TODO: Replace this with a check for which instance is closest
-						selection = roster.Orderable[0].GameObject.name;
+						selection = roster.GetCommandables()[0].GameObject.name;
 						break;
 					}
 					

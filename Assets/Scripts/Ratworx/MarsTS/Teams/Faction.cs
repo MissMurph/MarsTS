@@ -100,20 +100,20 @@ namespace Ratworx.MarsTS.Teams
             return Relationship.Hostile;
         }
         
-        private void OnUnitOwnershipChange (UnitOwnerChangeEvent _event)
+        private void OnUnitOwnershipChange (UnitOwnerChangeEvent evnt)
         {
-            string key = _event.Unit.RegistryKey;
+            string key = evnt.Entity.RegistryKey;
             
-            if (_event.Unit.Owner == this)
+            if (evnt.NewOwner == this)
             {
                 Roster roster = GetRoster(key);
 
-                if (!roster.TryAdd(_event.Unit)) 
-                    Debug.Log($"Couldn't add Unit {_event.Unit.GameObject.name} to {gameObject.name} Roster!");
+                if (!roster.TryAdd(evnt.Unit)) 
+                    Debug.Log($"Couldn't add Unit {evnt.Entity.gameObject.name} to {gameObject.name} Roster!");
             }
-            else if (_ownedUnits.TryGetValue(key, out Roster roster) && roster.Contains(_event.Unit.Id))
+            else if (_ownedUnits.TryGetValue(key, out Roster roster) && roster.Contains(evnt.Unit.Id))
             {
-                roster.Remove(_event.Unit.Id);
+                roster.Remove(evnt.Unit.Id);
 
                 if (roster.Count == 0) _ownedUnits.Remove(key);
             }

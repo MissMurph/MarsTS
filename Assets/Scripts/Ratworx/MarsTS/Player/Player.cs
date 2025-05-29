@@ -5,6 +5,7 @@ using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Player;
 using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.Extensions;
 using Ratworx.MarsTS.Pathfinding;
 using Ratworx.MarsTS.Player.Input;
 using Ratworx.MarsTS.Teams;
@@ -201,7 +202,7 @@ namespace Ratworx.MarsTS.Player {
 				int lowestAmount = 999;
 				ICommandable lowestOrderable = null;
 
-				foreach (ICommandable orderable in entry.Value.Orderable) {
+				foreach (ICommandable orderable in entry.Value.GetCommandables()) {
 					if (!orderable.CanCommand(packet.Command.Name)) continue;
 					if (orderable.Count < lowestAmount) {
 						lowestAmount = orderable.Count;
@@ -220,11 +221,11 @@ namespace Ratworx.MarsTS.Player {
 			if (context.canceled) _alternate = false;
 		}
 
-		private void OnEntityDeath (UnitDeathEvent _event) {
-			string key = _event.Unit.RegistryKey;
+		private void OnEntityDeath (UnitDeathEvent evnt) {
+			string key = evnt.Entity.RegistryKey;
 
-			if (Selected.TryGetValue(key, out Roster unitRoster) && unitRoster.Contains(_event.Unit.Id)) {
-				unitRoster.Remove(_event.Unit.Id);
+			if (Selected.TryGetValue(key, out Roster unitRoster) && unitRoster.Contains(evnt.Entity.Id)) {
+				unitRoster.Remove(evnt.Entity.Id);
 
 				if (unitRoster.Count == 0) Selected.Remove(key);
 

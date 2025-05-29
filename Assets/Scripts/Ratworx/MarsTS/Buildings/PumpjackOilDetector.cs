@@ -1,23 +1,34 @@
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
-using Ratworx.MarsTS.Events.Selectable.Building;
+using Ratworx.MarsTS.Events.Selectable.Attackable;
 using Ratworx.MarsTS.WorldObject;
 using UnityEngine;
 
-namespace Ratworx.MarsTS.Buildings {
+namespace Ratworx.MarsTS.Buildings
+{
+    public class PumpjackOilDetector : MonoBehaviour
+    {
+        private EventAgent _eventAgent;
+        private OilDeposit _exploitedDeposit;
 
-    public class PumpjackOilDetector : MonoBehaviour {
+        private void Awake() {
+            _eventAgent = GetComponentInParent<EventAgent>();
+        }
 
-		private EventAgent bus;
+        private void Start() {
+            _eventAgent.AddListener<UnitDeathEvent>(OnBuildingDeath);
+        }
 
-		private void Awake () {
-			bus = GetComponentInParent<EventAgent>();
-		}
+        private void OnTriggerEnter(Collider other) {
+            if (!EntityCache.TryGetEntityComponent(other.transform.root.name, out OilDeposit found)) 
+                return;
+            
+            _exploitedDeposit = found;
+            found.Exploited = true;
+        }
 
-		private void OnTriggerEnter (Collider other) {
-			if (EntityCache.TryGetEntityComponent(other.transform.root.name, out OilDeposit found)) {
-				bus.PostLocal(new PumpjackExploitInitEvent(bus, found));
-			}
-		}
-	}
+        private void OnBuildingDeath(UnitDeathEvent evnt) {
+            _exploitedDeposit.Exploited = false;
+        }
+    }
 }

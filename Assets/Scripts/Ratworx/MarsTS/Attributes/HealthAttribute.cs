@@ -15,11 +15,13 @@ namespace Ratworx.MarsTS.Entities
 		public Entity Entity { get; private set; }
 
 		private EventAgent _eventAgent;
+		private UnitOwnership _ownership;
 
 		private void Awake() {
 			_key = "health";
 			Entity = GetComponent<Entity>();
 			_eventAgent = GetComponent<EventAgent>();
+			_ownership = GetComponent<UnitOwnership>();
 		}
 
 		public override void OnNetworkSpawn() {
@@ -43,7 +45,7 @@ namespace Ratworx.MarsTS.Entities
 			_eventAgent.PostGlobal(hurtEvent);
 		}
 
-		public Relationship GetRelationship(Faction player) => throw new NotImplementedException();
+		public Relationship GetRelationship(Faction player) => _ownership.GetRelationship(player);
 		
 		[SerializeField]
 		private int _maxHealth;
@@ -65,6 +67,10 @@ namespace Ratworx.MarsTS.Entities
 				hurtEvent.Phase = Phase.Post;
 				_eventAgent.PostGlobal(hurtEvent);
 			}
+		}
+
+		public void SetMaxHealth(int newValue) {
+			_maxHealth = newValue;
 		}
     }
 }

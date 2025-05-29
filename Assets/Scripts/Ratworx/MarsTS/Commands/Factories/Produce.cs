@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Ratworx.MarsTS.Commands.Commandlets;
 using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Extensions;
 using Ratworx.MarsTS.Logging;
 using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Teams;
@@ -37,7 +38,7 @@ namespace Ratworx.MarsTS.Commands.Factories
                 int lowestAmount = 9999;
                 ICommandable lowestCommandable = null;
 
-                foreach (ICommandable commandable in entry.Value.Orderable) {
+                foreach (ICommandable commandable in entry.Value.GetCommandables()) {
                     if (!commandable.CanCommand(Name)
                         || commandable.Count >= lowestAmount)
                         continue;

@@ -15,7 +15,7 @@ namespace Ratworx.MarsTS.Commands {
 
 		public string Name { get; protected set; }
 		public Faction Commander { get; protected set; }
-		public UnityEvent<CommandCompleteEvent> Callback = new UnityEvent<CommandCompleteEvent>();
+		public UnityEvent<CommandCompleteEvent> OnCommandComplete = new UnityEvent<CommandCompleteEvent>();
 		public virtual CommandFactory Command => CommandPrimer.Get(Name);
 		public abstract string SerializerKey { get; }
 		public List<string> commandedUnits = new List<string>();
@@ -27,19 +27,14 @@ namespace Ratworx.MarsTS.Commands {
 			Commander = commander;
 		}
 
-		public virtual void StartCommand (EventAgent eventAgent, ICommandable unit) {
+		public virtual void StartCommand (ICommandable unit) {
 			commandedUnits.Add(unit.GameObject.name);
-			eventAgent.PostLocal(new CommandStartEvent(this, unit));
-		}
-
-		public virtual void ActivateCommand (CommandQueue queue, CommandActiveEvent _event) {
-
 		}
 
 		public virtual void CompleteCommand (ICommandable unit, bool isCancelled = false) 
 		{
 			commandedUnits.Remove(unit.GameObject.name);
-			Callback.Invoke(new CommandCompleteEvent(this, isCancelled, unit));
+			OnCommandComplete.Invoke(new CommandCompleteEvent(this, isCancelled, unit));
 		}
 		
 		//Making virtual while testing

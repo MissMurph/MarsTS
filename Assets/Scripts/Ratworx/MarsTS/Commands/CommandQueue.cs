@@ -14,326 +14,267 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands
 {
-	public class CommandQueue : NetworkBehaviour, 
-								IEntityComponent<CommandQueue>, 
-								ICommandable
-	{
-		public virtual string Key => "commandQueue";
+    public class CommandQueue : NetworkBehaviour,
+                                IEntityComponent<CommandQueue>,
+                                ICommandable,
+                                IEntityServerUpdate,
+                                IEntityClientUpdate
+    {
+        public event Action OnCommandsStateChanged;
+        public event Action OnCommandListChanged;
+        
+        public virtual string Key => "commandQueue";
 
-		public Commandlet CurrentCommand => Current;
-		public Commandlet Current { get; protected set; }
+        public Commandlet CurrentCommand => Current;
+        private Commandlet Current { get; set; }
 
-		public Commandlet[] Queue => commandQueue.ToArray();
-		protected Queue<Commandlet> commandQueue;
+        public Commandlet[] Queue => commandQueue.ToArray();
+        private Queue<Commandlet> commandQueue;
 
-		public List<string> Active => activeCommands.Keys.ToList();
-		protected Dictionary<string, Commandlet> activeCommands;
+        public List<string> Active => activeCommands.Keys.ToList();
+        private Dictionary<string, Commandlet> activeCommands;
 
-		public List<Timer> Cooldowns => activeCooldowns.Values.ToList();
+        public List<Timer> Cooldowns => activeCooldowns.Values.ToList();
 
-		protected Dictionary<string, Timer> activeCooldowns;
-		protected List<Timer> completedCooldowns;
+        private Dictionary<string, Timer> activeCooldowns;
+        private List<Timer> completedCooldowns;
 
-		public int Count => Current != null ? 1 + commandQueue.Count : 0;
+        public int Count => Current != null ? 1 + commandQueue.Count : 0;
 
-		protected ISelectable parent;
-		protected ICommandable orderSource;
-		protected EventAgent bus;
+        private EventAgent _eventAgent;
 
-		public Entity Entity { get; private set; }
+        public Entity Entity { get; private set; }
 
-		protected bool isServer;
+        [SerializeField] private string[] _commands;
 
-		private int workSpeed;
-		private float workStepTime;
-		private float workTimeToStep;
+        private void Awake() {
+            Entity = GetComponent<Entity>();
+            _eventAgent = GetComponent<EventAgent>();
 
-		[SerializeField] private string[] _commands;
+            commandQueue = new Queue<Commandlet>();
 
-		protected virtual void Awake() {
-			parent = GetComponent<ISelectable>();
-			orderSource = parent as ICommandable;
-			Entity = GetComponent<Entity>();
-			bus = GetComponent<EventAgent>();
+            activeCommands = new Dictionary<string, Commandlet>();
 
-			commandQueue = new Queue<Commandlet>();
+            activeCooldowns = new Dictionary<string, Timer>();
+            completedCooldowns = new List<Timer>();
+        }
 
-			activeCommands = new Dictionary<string, Commandlet>();
+        public void UpdateServer() {
+            if (Current is null && commandQueue.Count > 0) {
+                Dequeue();
+            }
+        }
 
-			activeCooldowns = new Dictionary<string, Timer>();
-			completedCooldowns = new List<Timer>();
+        public void UpdateClient() {
+            
+        }
 
-			workStepTime = 1f / workSpeed;
-			workTimeToStep = 0f;
-		}
+        protected virtual void Update() {
+            foreach (Timer cooldown in activeCooldowns.Values) {
+                cooldown.timeRemaining -= Time.deltaTime;
 
-		public override void OnNetworkSpawn() {
-			base.OnNetworkSpawn();
+                if (cooldown.timeRemaining <= 0) {
+                    completedCooldowns.Add(cooldown);
+                    continue;
+                }
 
-			isServer = NetworkManager.IsServer;
-		}
+                _eventAgent.PostGlobal(new CooldownEvent(cooldown.commandName, parent, cooldown));
+            }
 
-		protected virtual void Update() {
-			if (isServer && Current == null && commandQueue.Count > 0) {
-				Dequeue();
-				DequeueClientRpc(Current.gameObject);
+            foreach (Timer expiredCooldown in completedCooldowns) {
+                activeCooldowns.Remove(expiredCooldown.commandName);
+                _eventAgent.PostGlobal(new CooldownEvent(_eventAgent, expiredCooldown.commandName, parent, expiredCooldown));
+            }
 
-				return;
-			}
+            completedCooldowns = new();
+        }
 
-			if (isServer && Current is IWorkable workOrder) {
-				/*workTimeToStep -= Time.deltaTime;
+        /*	Dequeueing Commands	*/
 
-				if (workTimeToStep <= 0) {
-					workOrder.CurrentWork++;
-					workTimeToStep += workStepTime;
+        protected virtual void Dequeue() {
+            Commandlet order = commandQueue.Dequeue();
 
-					// bus.PostGlobal(new CommandWorkEvent(bus, Current, orderSource, workOrder));
-					SendWorkEventToClientRpc();
-				}
+            Current = order;
+            order.OnCommandComplete.AddListener(OnOrderComplete);
 
-				if (workOrder.CurrentWork >= workOrder.WorkRequired)
-					CompleteCurrentCommand(false);*/
-			}
+            order.StartCommand(this);
+            
+        }
 
-			foreach (Timer cooldown in activeCooldowns.Values) {
-				cooldown.timeRemaining -= Time.deltaTime;
+        [Rpc(SendTo.NotServer)]
+        protected virtual void DequeueClientRpc() {
+            if (NetworkManager.IsHost) return;
+            Dequeue();
+        }
 
-				if (cooldown.timeRemaining <= 0) {
-					completedCooldowns.Add(cooldown);
-					continue;
-				}
+        /*	Completing Commands	*/
 
-				bus.PostGlobal(new CooldownEvent(bus, cooldown.commandName, parent, cooldown));
-			}
+        [Rpc(SendTo.NotServer)]
+        protected virtual void CompleteCommandClientRpc(bool _cancelled) {
+            CompleteCurrentCommand(_cancelled);
+        }
 
-			foreach (Timer expiredCooldown in completedCooldowns) {
-				activeCooldowns.Remove(expiredCooldown.commandName);
-				bus.PostGlobal(new CooldownEvent(bus, expiredCooldown.commandName, parent, expiredCooldown));
-			}
+        protected virtual void CompleteCurrentCommand(bool _cancelled) {
+            // Current.CompleteCommand(bus, orderSource, _cancelled);
 
-			completedCooldowns = new();
-		}
+            if (NetworkManager.Singleton.IsServer)
+                CompleteCommandClientRpc(_cancelled);
+        }
 
-		/*[Rpc(SendTo.NotServer)]
-		private void SendWorkEventToClientRpc() {
-			if (Current is IWorkable workOrder) {
-				bus.PostGlobal(new CommandWorkEvent(bus, Current, orderSource, workOrder));
-			}
-			else
-				RatLogger.Error?.Log(
-					$"Current command {Current.Name} is not {typeof(IWorkable)}! Cannot post work event");
-		}*/
+        protected virtual void OnOrderComplete(CommandCompleteEvent _event) {
+            if (!ReferenceEquals(_event.Unit, orderSource)) return;
+            Current = null;
+            _eventAgent.PostGlobal(_event);
+        }
 
-		/*	Dequeueing Commands	*/
+        /*	Executing Commands	*/
+        public void ExecuteCommand(Commandlet order) {
+            if (!orderSource.CanCommand(order.Command.Name)) return;
+            commandQueue.Clear();
 
-		[Rpc(SendTo.NotServer)]
-		protected virtual void DequeueClientRpc(NetworkObjectReference orderReference) {
-			if (NetworkManager.IsHost) return;
+            if (Current != null) {
+                // if (!Current.CanInterrupt()) return;
 
-			if (!ReferenceEquals(orderReference.GameObject(), commandQueue.Peek().gameObject)) {
-				Debug.LogWarning("Potential Desync with client Command Queue! Check " + commandQueue.Peek().Name + "!");
-			}
+                Current.CompleteCommand(orderSource, true);
+            }
 
-			Dequeue();
-		}
+            Current = null;
+            commandQueue.Enqueue(order);
 
-		protected virtual void Dequeue() {
-			Commandlet order = commandQueue.Dequeue();
+            if (NetworkManager.Singleton.IsServer) ExecuteClientRpc(order.gameObject);
+        }
 
-			Current = order;
-			order.Callback.AddListener(OnOrderComplete);
+        [Rpc(SendTo.NotServer)]
+        private void ExecuteClientRpc(NetworkObjectReference orderReference) {
+            if (NetworkManager.Singleton.IsHost) return;
 
-			if (order is IWorkable workable)
-				workable.OnWork += OnOrderWork;
+            ExecuteCommand(orderReference.GameObject().GetComponent<Commandlet>());
+        }
 
-			order.StartCommand(bus, orderSource);
-		}
+        /*	Enqueueing Commands	*/
 
-		/*	Completing Commands	*/
+        public void EnqueueCommand(Commandlet order) {
+            if (!orderSource.CanCommand(order.Command.Name)) return;
+            commandQueue.Enqueue(order);
 
-		[Rpc(SendTo.NotServer)]
-		protected virtual void CompleteCommandClientRpc(bool _cancelled) {
-			CompleteCurrentCommand(_cancelled);
-		}
+            if (NetworkManager.Singleton.IsServer) EnqueueClientRpc(order.gameObject);
+        }
 
-		protected virtual void CompleteCurrentCommand(bool _cancelled) {
-			// Current.CompleteCommand(bus, orderSource, _cancelled);
+        [Rpc(SendTo.NotServer)]
+        protected virtual void EnqueueClientRpc(NetworkObjectReference orderReference) {
+            if (NetworkManager.Singleton.IsHost) return;
 
-			if (NetworkManager.Singleton.IsServer)
-				CompleteCommandClientRpc(_cancelled);
-		}
+            EnqueueCommand(orderReference.GameObject().GetComponent<Commandlet>());
+        }
 
-		protected virtual void OnOrderComplete(CommandCompleteEvent _event) {
-			if (!ReferenceEquals(_event.Unit, orderSource)) return;
-			Current = null;
-			bus.PostGlobal(_event);
-		}
+        /*	Activating Commands	*/
+        public void ActivateCommand(Commandlet order, bool status) {
+            if (status) {
+                activeCommands[order.Name] = order;
+            }
+            else if (activeCommands.TryGetValue(order.Name, out Commandlet toDeactivate)) {
+                activeCommands.Remove(toDeactivate.Name);
+            }
 
-		/*	Executing Commands	*/
+            _eventAgent.PostGlobal(new CommandActiveEvent(this, order, status));
 
-		public virtual void ExecuteCommand(Commandlet order) {
-			if (!orderSource.CanCommand(order.Command.Name)) return;
-			commandQueue.Clear();
+            if (NetworkManager.Singleton.IsServer)
+                ActivateCommandClientRpc(order.Id, status);
+        }
 
-			if (Current != null) {
-				// if (!Current.CanInterrupt()) return;
+        [Rpc(SendTo.NotServer)]
+        private void ActivateCommandClientRpc(int id, bool status) {
+            if (!CommandletsCache.TryGet(id, out Commandlet order)) {
+                RatLogger.Error?.Log($"Couldn't find commandlet {id}! Cannot activate");
+                return;
+            }
 
-				Current.CompleteCommand(orderSource, true);
-			}
+            ActivateCommand(order, status);
+        }
 
-			Current = null;
-			commandQueue.Enqueue(order);
+        public void DeactivateCommand(string key) {
+            if (!activeCommands.TryGetValue(key, out Commandlet toDeactivate)) return;
 
-			if (NetworkManager.Singleton.IsServer) ExecuteClientRpc(order.gameObject);
-		}
+            CommandActiveEvent evnt = new CommandActiveEvent(this, toDeactivate, false);
+            activeCommands.Remove(toDeactivate.Name);
+            _eventAgent.PostGlobal(evnt);
 
-		[Rpc(SendTo.NotServer)]
-		protected virtual void ExecuteClientRpc(NetworkObjectReference orderReference) {
-			if (NetworkManager.Singleton.IsHost) return;
+            if (NetworkManager.Singleton.IsServer)
+                DeactivateCommandClientRpc(key);
+        }
 
-			ExecuteCommand(orderReference.GameObject().GetComponent<Commandlet>());
-		}
+        [Rpc(SendTo.NotServer)]
+        private void DeactivateCommandClientRpc(string key) {
+            DeactivateCommand(key);
+        }
 
-		/*	Enqueueing Commands	*/
+        /*	Cooldowns	*/
 
-		public virtual void EnqueueCommand(Commandlet order) {
-			if (!orderSource.CanCommand(order.Command.Name)) return;
-			commandQueue.Enqueue(order);
+        public void Cooldown(Commandlet order, float time) {
+            activeCooldowns[order.Name] = new Timer { commandName = order.Name, duration = time, timeRemaining = time };
 
-			if (NetworkManager.Singleton.IsServer) EnqueueClientRpc(order.gameObject);
-		}
+            if (NetworkManager.Singleton.IsServer) CooldownClientRpc(order.Id, time);
+        }
 
-		[Rpc(SendTo.NotServer)]
-		protected virtual void EnqueueClientRpc(NetworkObjectReference orderReference) {
-			if (NetworkManager.Singleton.IsHost) return;
+        [Rpc(SendTo.NotServer)]
+        private void CooldownClientRpc(int id, float time) {
+            if (!CommandletsCache.TryGet(id, out Commandlet order)) {
+                RatLogger.Error?.Log($"Couldn't find Commandlet {id}, cannot start Cooldown");
+                return;
+            }
 
-			EnqueueCommand(orderReference.GameObject().GetComponent<Commandlet>());
-		}
+            Cooldown(order, time);
+        }
 
-		/*	Activating Commands	*/
+        /*	Misc.	*/
 
-		public void Activate(Commandlet order, bool status) {
-			if (status) {
-				activeCommands[order.Name] = order;
-				order.ActivateCommand(this, new CommandActiveEvent(bus, orderSource, order, status));
-			}
-			else if (activeCommands.TryGetValue(order.Name, out Commandlet toDeactivate)) {
-				CommandActiveEvent _event = new CommandActiveEvent(bus, orderSource, toDeactivate, status);
-				toDeactivate.ActivateCommand(this, _event);
-				activeCommands.Remove(toDeactivate.Name);
-			}
+        public void Clear() {
+            foreach (Commandlet order in commandQueue)
+                order.CompleteCommand(this, true);
 
-			bus.PostGlobal(new CommandActiveEvent(bus, orderSource, order, status));
+            commandQueue.Clear();
 
-			if (NetworkManager.Singleton.IsServer)
-				ActivateClientRpc(order.Id, status);
-		}
+            if (Current != null)
+                Current.CompleteCommand(this, true);
 
-		[Rpc(SendTo.NotServer)]
-		private void ActivateClientRpc(int id, bool status) {
-			if (!CommandletsCache.TryGet(id, out Commandlet order)) {
-				RatLogger.Error?.Log($"Couldn't find commandlet {id}! Cannot activate");
-				return;
-			}
+            Current = null;
 
-			Activate(order, status);
-		}
+            if (NetworkManager.Singleton.IsServer) ClearClientRpc();
+        }
 
-		public void Deactivate(string key) {
-			if (!activeCommands.TryGetValue(key, out Commandlet toDeactivate)) return;
+        [Rpc(SendTo.NotServer)]
+        private void ClearClientRpc() {
+            Clear();
+        }
 
-			CommandActiveEvent _event = new CommandActiveEvent(bus, orderSource, toDeactivate, false);
-			toDeactivate.ActivateCommand(this, _event);
-			activeCommands.Remove(toDeactivate.Name);
-			bus.PostGlobal(_event);
+        public virtual bool CanCommand(string key) {
+            return !activeCooldowns.ContainsKey(key);
+        }
 
-			if (NetworkManager.Singleton.IsServer)
-				DeactivateClientRpc(key);
-		}
+        public void Order(Commandlet order, bool inclusive) {
+            if (inclusive)
+                EnqueueCommand(order);
+            else
+                ExecuteCommand(order);
+        }
 
-		[Rpc(SendTo.NotServer)]
-		private void DeactivateClientRpc(string key) {
-			Deactivate(key);
-		}
+        public CommandFactory Evaluate(ISelectable target) => throw new NotImplementedException();
 
-		/*	Cooldowns	*/
+        public void AutoCommand(ISelectable target) {
+            throw new NotImplementedException();
+        }
 
-		public void Cooldown(Commandlet order, float time) {
-			activeCooldowns[order.Name] = new Timer { commandName = order.Name, duration = time, timeRemaining = time };
+        public string[] Commands() => _commands;
 
-			if (NetworkManager.Singleton.IsServer) CooldownClientRpc(order.Id, time);
-		}
+        public CommandQueue Get() => this;
+        public GameObject GameObject => gameObject;
+    }
 
-		[Rpc(SendTo.NotServer)]
-		private void CooldownClientRpc(int id, float time) {
-			if (!CommandletsCache.TryGet(id, out Commandlet order)) {
-				RatLogger.Error?.Log($"Couldn't find Commandlet {id}, cannot start Cooldown");
-				return;
-			}
-
-			Cooldown(order, time);
-		}
-
-		/*	Misc.	*/
-
-		public void Clear() {
-			foreach (Commandlet order in commandQueue)
-				order.CompleteCommand(orderSource, true);
-
-			commandQueue.Clear();
-
-			if (Current != null)
-				Current.CompleteCommand(orderSource, true);
-
-			Current = null;
-
-			if (NetworkManager.Singleton.IsServer) ClearClientRpc();
-		}
-
-		[Rpc(SendTo.NotServer)]
-		private void ClearClientRpc() {
-			Clear();
-		}
-
-		public virtual bool CanCommand(string key) {
-			return !activeCooldowns.ContainsKey(key);
-		}
-
-		protected virtual void OnOrderWork(int oldValue, int newValue) {
-			if (Current is not IWorkable workOrder) return;
-
-			if (workOrder.CurrentWork >= workOrder.WorkRequired) {
-				workOrder.OnWork -= OnOrderWork;
-				CompleteCurrentCommand(false);
-			}
-			else
-				bus.PostGlobal(new WorkEvent(bus, parent, workOrder.WorkRequired, workOrder.CurrentWork));
-		}
-
-		public void Order(Commandlet order, bool inclusive) {
-			if (inclusive)
-				EnqueueCommand(order);
-			else
-				ExecuteCommand(order);
-		}
-
-		public CommandFactory Evaluate(ISelectable target) => throw new NotImplementedException();
-
-		public void AutoCommand(ISelectable target) {
-			throw new NotImplementedException();
-		}
-
-		public string[] Commands() => _commands;
-
-		public CommandQueue Get() => this;
-		public GameObject GameObject => gameObject;
-	}
-
-	public class Timer
-	{
-		public string commandName;
-		public float duration;
-		public float timeRemaining;
-	}
+    public class Timer
+    {
+        public Commandlet command;
+        public string commandName;
+        public float duration;
+        public float timeRemaining;
+    }
 }

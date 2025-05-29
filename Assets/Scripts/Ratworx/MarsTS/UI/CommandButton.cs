@@ -1,6 +1,7 @@
 using Ratworx.MarsTS.Commands;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Commands;
+using Ratworx.MarsTS.Extensions;
 using Ratworx.MarsTS.Units;
 using TMPro;
 using UnityEngine;
@@ -95,11 +96,11 @@ namespace Ratworx.MarsTS.UI {
             }
         }
 
-        private void OnCooldownUpdate (CooldownEvent _event) {
+        private void OnCooldownUpdate (CooldownEvent evnt) {
 			if (current is null) return;
-			if (_event.CommandNameKey == current.Name
-                && Player.Player.HasSelected(_event.Entity)
-                && Player.Player.UI.PrimarySelected == _event.Unit.RegistryKey) {
+			if (evnt.Command.Name == current.Name
+                && Player.Player.HasSelected(evnt.Entity)
+                && Player.Player.UI.PrimarySelected == evnt.Unit.RegistryKey) {
 
                 EvaluateCooldown();
                 EvaluateUsability();
@@ -107,7 +108,7 @@ namespace Ratworx.MarsTS.UI {
         }
 
         private void EvaluateUsability () {
-			foreach (ICommandable unit in Player.Player.Selected[Player.Player.UI.PrimarySelected].Orderable) {
+			foreach (ICommandable unit in Player.Player.Selected[Player.Player.UI.PrimarySelected].GetCommandables()) {
                 if (unit.CanCommand(current.Name)) {
                     usable.SetActive(false);
                     return;
@@ -118,7 +119,7 @@ namespace Ratworx.MarsTS.UI {
 		}
 
         private void EvaluateActivity () {
-            foreach (ICommandable unit in Player.Player.Selected[Player.Player.UI.PrimarySelected].Orderable) {
+            foreach (ICommandable unit in Player.Player.Selected[Player.Player.UI.PrimarySelected].GetCommandables()) {
                 if (unit.Active.Contains(current.Name)) {
                     activity.SetActive(true);
                     return;
@@ -133,7 +134,7 @@ namespace Ratworx.MarsTS.UI {
 			float lowestCooldown = 999f;
             float cooldownDuration = 0f;
 
-			foreach (ICommandable unit in Player.Player.Selected[Player.Player.UI.PrimarySelected].Orderable) {
+			foreach (ICommandable unit in Player.Player.Selected[Player.Player.UI.PrimarySelected].GetCommandables()) {
                 foreach (Timer activeCooldown in unit.Cooldowns) {
 					if (activeCooldown.commandName == current.Name) {
                         coolingDown = true;

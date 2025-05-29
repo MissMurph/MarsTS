@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Ratworx.MarsTS.Buildings;
 using Ratworx.MarsTS.Buildings.Ghosts;
+using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Init;
 using Ratworx.MarsTS.Events.Player;
@@ -17,11 +18,12 @@ using UnityEngine.InputSystem;
 
 namespace Ratworx.MarsTS.Commands.Factories {
 
-	public class PlaceBuilding : CommandFactory<IAttackable> {
+	public class PlaceBuilding : CommandFactory<IAttackable>
+	{
 
-		public override string Name => "construct/" + building.UnitType;
+		public override string Name => "construct/"; //+ building.UnitType;
 
-		public override Sprite Icon => building.Icon;
+		public override Sprite Icon => null;
 
 		public override string Description => description;
 
@@ -130,19 +132,21 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			BuildingConstructionGhost ghost = constructionGhost.GetComponent<BuildingConstructionGhost>();
 			NetworkObject buildingNetworking = constructionGhost.GetComponent<NetworkObject>();
 			EventAgent buildingEvents = constructionGhost.GetComponent<EventAgent>();
+			var ghostOwnership = constructionGhost.GetComponent<UnitOwnership>();
+			var ghostHealth = constructionGhost.GetComponent<HealthAttribute>();
 
 			buildingEvents.AddListener<UnitInitEvent>(
 				_ => {
 					//if (@event.Phase == Phase.Pre) 
 					//return;
 					
-					CommandPrimer.Get<Repair>("repair").Construct(ghost, factionId, selection, inclusive);
+					CommandPrimer.Get<Repair>("repair").Construct(ghostHealth, factionId, selection, inclusive);
 				}
 			);
 			
 			buildingNetworking.Spawn();
-			ghost.SetOwner(faction);
-			ghost.InitializeGhost(building.RegistryKey, constructionWorkRequired, Cost);
+			ghostOwnership.SetOwner(faction);
+			// ghost.InitializeGhost(building.RegistryKey, constructionWorkRequired, Cost);
 
 			WithdrawResourcesFromFaction(faction);
 		}

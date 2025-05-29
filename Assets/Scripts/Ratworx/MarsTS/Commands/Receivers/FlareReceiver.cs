@@ -31,7 +31,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
             _command = command;
             UnitPathing.FindPathTo(_command.Target);
 
-            _command.Callback.AddListener(OnCommandComplete);
+            _command.OnCommandComplete.AddListener(OnCommandComplete);
             
             if (!NetworkManager.Singleton.IsServer) return;
 
@@ -59,7 +59,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         }
 
         private void OnCommandComplete(CommandCompleteEvent evnt) {
-            evnt.Command.Callback.RemoveListener(OnCommandComplete);
+            evnt.Command.OnCommandComplete.RemoveListener(OnCommandComplete);
             
             if (evnt.IsCancelled) {
                 if (!NetworkManager.Singleton.IsServer) return;

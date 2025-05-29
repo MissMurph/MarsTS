@@ -8,7 +8,6 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Units
 {
-    [RequireComponent(typeof(UnitSelection))]
     public class UnitOwnership : NetworkBehaviour,
                                  IEntityComponent<UnitOwnership>,
                                  IUnitInterface

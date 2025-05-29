@@ -17,7 +17,7 @@ namespace Ratworx.MarsTS.UI.Unit_Bars {
 			_barRenderer.SetPropertyBlock(_matBlock);
 		}
 
-		protected virtual void Awake () {
+		private void Awake () {
 			_barRenderer = GetComponent<MeshRenderer>();
 			_matBlock = new MaterialPropertyBlock();
 		}

@@ -1,221 +1,150 @@
 using System;
-using System.Collections.Generic;
 using Ratworx.MarsTS.Commands;
-using Ratworx.MarsTS.Commands.Factories;
+using Ratworx.MarsTS.Commands.Commandlets;
+using Ratworx.MarsTS.Commands.Receivers;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Init;
-using Ratworx.MarsTS.Events.Selectable;
 using Ratworx.MarsTS.Events.Selectable.Attackable;
-using Ratworx.MarsTS.Events.Selectable.Internal;
 using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Teams;
-using Ratworx.MarsTS.UI.Unit_Pane;
 using Ratworx.MarsTS.Units;
-using Ratworx.MarsTS.Vision;
 using Unity.Netcode;
 using UnityEngine;
 
 namespace Ratworx.MarsTS.Buildings.Ghosts
 {
-    public class BuildingConstructionGhost : NetworkBehaviour
+    public class BuildingConstructionGhost : NetworkBehaviour, ICommandReceiver<BooleanCommandlet>
     {
         private ResourceCost[] _constructionCost;
-        
-        private int _healthPerConstructionPoint;
 
-        protected int ConstructionRequired
-        {
-            get => constructionRequired.Value;
-            set => constructionRequired.Value = value;
-        }
+        private GameObject _buildingBeingConstructed;
 
-        protected int CurrentConstruction
-        {
-            get => currentConstruction.Value;
-            set => currentConstruction.Value = value;
-        }
-        
-        [SerializeField] private NetworkVariable<int> constructionRequired =
-            new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
-
-        [SerializeField] private NetworkVariable<int> currentConstruction =
-            new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
-
-        private Building _buildingBeingConstructed;
-        
-        private Entity _entityComponent;
+        private Entity _entity;
         private EventAgent _bus;
         private Transform _model;
 
         private GameObject[] _visionObjects = Array.Empty<GameObject>();
+        private HealthAttribute _healthAttribute;
+        private ConstructionProgressAttribute _constructionAttribute;
+        private ConstructionGhostSelection _ghostSelection;
+        private UnitOwnership _ownership;
 
-        private void Awake()
-        {
+        private void Awake() {
             _bus = GetComponent<EventAgent>();
-            _entityComponent = GetComponent<Entity>();
+            _entity = GetComponent<Entity>();
+            _healthAttribute = GetComponent<HealthAttribute>();
+            _constructionAttribute = GetComponent<ConstructionProgressAttribute>();
+            _ownership = GetComponent<UnitOwnership>();
         }
 
-        public virtual void InitializeGhost(string buildingKey, int constructionWorkRequired, params ResourceCost[] constructionCost)
-        {
+        public virtual void InitializeGhost(string buildingKey, params ResourceCost[] constructionCost) {
             if (!NetworkManager.Singleton.IsServer) return;
-            
-            UpdateProperties(buildingKey, constructionWorkRequired, constructionCost);
+
+            UpdateProperties(buildingKey, constructionCost);
             InstantiateChildObjects();
-            
+
             InitializeGhostClientRpc(buildingKey);
 
-            _bus.PostLocal(new UnitInitEvent(this, _bus));
+            _bus.PostLocal(new UnitInitEvent(_entity));
         }
 
-        protected void UpdateProperties(string buildingKey, int constructionWorkRequired, params ResourceCost[] constructionCost)
-        { 
-            Registry.Registry.TryGetObject($"building:{buildingKey}", out Building buildingBeingConstructed);
+        protected void UpdateProperties(string registryKey, params ResourceCost[] constructionCost) {
+            Registry.Registry.TryGetPrefab($"{registryKey}", out GameObject buildingBeingConstructed);
 
-            ConstructionRequired = constructionWorkRequired;
-            MaxHealth = buildingBeingConstructed.MaxHealth;
+            var targetHealth = buildingBeingConstructed.GetComponent<HealthAttribute>();
             
-            if (CurrentConstruction > 0)
-            {
-                float constructedProportion = (float)CurrentConstruction / ConstructionRequired;
-                Health = Mathf.RoundToInt(maxHealth.Value * constructedProportion);
-            }
-            else
-            {
-                Health = 1;
-            }
-            
+            _healthAttribute.SetMaxHealth(targetHealth.MaxHealth);
+
             _buildingBeingConstructed = buildingBeingConstructed;
             _constructionCost = constructionCost;
-            UnitType = buildingBeingConstructed.UnitType;
-            Icon = buildingBeingConstructed.Icon;
-            
-            _healthPerConstructionPoint = 
-                Mathf.RoundToInt((float)buildingBeingConstructed.MaxHealth / ConstructionRequired);
         }
 
         [Rpc(SendTo.NotServer)]
-        private void InitializeGhostClientRpc(string buildingKey)
-        {
+        private void InitializeGhostClientRpc(string buildingKey) {
             UpdatePropertiesClient(buildingKey);
             InstantiateChildObjects();
         }
 
-        private void UpdatePropertiesClient(string buildingKey)
-        {
-            Registry.Registry.TryGetObject($"building:{buildingKey}", out Building buildingBeingConstructed);
-            
+        private void UpdatePropertiesClient(string buildingKey) {
+            Registry.Registry.TryGetPrefab($"{buildingKey}", out GameObject buildingBeingConstructed);
+
             _buildingBeingConstructed = buildingBeingConstructed;
-            UnitType = buildingBeingConstructed.UnitType;
-            Icon = buildingBeingConstructed.Icon;
         }
 
-        private void InstantiateChildObjects()
-        {
+        private void InstantiateChildObjects() {
             _model = Instantiate(_buildingBeingConstructed.transform.Find("Model"), transform);
 
             var selectionCircle = Instantiate(_buildingBeingConstructed.transform.Find("SelectionCircle"), transform);
             var mapSquare = Instantiate(_buildingBeingConstructed.transform.Find("MapSquare"), transform);
             var barOrientation = Instantiate(_buildingBeingConstructed.transform.Find("BarOrientation"), transform);
             Instantiate(_buildingBeingConstructed.transform.Find("Collider"), transform);
-            var selectionCollider = Instantiate(_buildingBeingConstructed.transform.Find("SelectionCollider"), transform);
+            var selectionCollider =
+                Instantiate(_buildingBeingConstructed.transform.Find("SelectionCollider"), transform);
 
-            if (CurrentConstruction > 0)
-            {
-                float constructedProportion = (float)CurrentConstruction / ConstructionRequired;
+            if (_constructionAttribute.Value > 0) {
+                float constructedProportion = (float)_constructionAttribute.Value / _healthAttribute.MaxHealth;
                 _model.localScale = Vector3.one * constructedProportion;
             }
-            else
-            {
-                _model.localScale = Vector3.zero;
+            else {
+                _model.localScale = Vector3.one * 0.01f;
             }
-                
+
             _visionObjects = new[]
             {
-                _model.gameObject, 
-                selectionCircle.gameObject, 
-                mapSquare.gameObject, 
-                barOrientation.gameObject, 
+                _model.gameObject,
+                selectionCircle.gameObject,
+                mapSquare.gameObject,
+                barOrientation.gameObject,
                 //hitCollider.gameObject,
                 selectionCollider.gameObject
             };
-            
-            foreach (GameObject visionObject in _visionObjects)
-            {
+
+            foreach (GameObject visionObject in _visionObjects) {
                 visionObject.SetActive(false);
             }
         }
 
-        private void CancelConstruction()
-        {
-            _bus.PostGlobal(new UnitDeathEvent(_bus, this));
+        public void ReceiveCommand(BooleanCommandlet command) {
+            CancelConstruction();
+        }
 
-            foreach (ResourceCost materialCost in _constructionCost)
-            {
-                Owner.GetResource(materialCost.key).Deposit(materialCost.amount);
+        private void CancelConstruction() {
+            _bus.PostGlobal(new UnitDeathEvent(_entity));
+
+            foreach (ResourceCost materialCost in _constructionCost) {
+                _ownership.Owner.GetResource(materialCost.key).Deposit(materialCost.amount);
             }
 
             Destroy(gameObject, 0.1f);
         }
 
-        private void CompleteConstruction()
-        {
+        private void CompleteConstruction() {
             SendCompletionClientEventRpc();
-            
-            Building newBuilding = Instantiate(_buildingBeingConstructed, transform.position, transform.rotation);
+
+            GameObject newBuilding = Instantiate(_buildingBeingConstructed, transform.position, transform.rotation);
             NetworkObject buildingNetworking = newBuilding.GetComponent<NetworkObject>();
-            
+            UnitOwnership buildingOwnership = newBuilding.GetComponent<UnitOwnership>();
+
             buildingNetworking.Spawn();
-            newBuilding.SetOwner(Owner);
-            
-            _bus.PostGlobal(new UnitDeathEvent(_bus, this));
+            buildingOwnership.SetOwner(_ownership.Owner);
+
+            _bus.PostGlobal(new UnitDeathEvent(_entity));
             Destroy(gameObject, 0.1f);
         }
 
         [Rpc(SendTo.NotServer)]
-        private void SendCompletionClientEventRpc()
-        {
-            _bus.PostGlobal(new UnitDeathEvent(_bus, this));
+        private void SendCompletionClientEventRpc() {
+            _bus.PostGlobal(new UnitDeathEvent(_entity));
         }
 
-        public void Attack(int damage)
-        {
-            UnitHurtEvent hurtEvent = new UnitHurtEvent(_bus, this, damage);
-            hurtEvent.Phase = Phase.Pre;
-            _bus.PostGlobal(hurtEvent);
-            
-            damage = hurtEvent.Damage;
-
-            if (damage < 0)
-            {
-                CurrentConstruction -= damage;
-
-                float progress = (float)CurrentConstruction / ConstructionRequired;
-
-                Health += _healthPerConstructionPoint * -damage;
-                Health = Mathf.Clamp(Health, 0, MaxHealth);
-
-                _model.localScale = Vector3.one * progress;
-
-                hurtEvent.Phase = Phase.Post;
-                _bus.PostGlobal(hurtEvent);
-
-                if (progress >= 1f) CompleteConstruction();
-                return;
-            }
-            
-            if (Health <= 0) return;
-            
-            Health -= damage;
-
-            hurtEvent.Phase = Phase.Post;
-            _bus.PostGlobal(hurtEvent);
-
-            if (Health <= 0)
-            {
-                _bus.PostGlobal(new UnitDeathEvent(_bus, this));
-                Destroy(gameObject, 0.1f);
-            }
-        }
+        public event Action OnCommandStateUpdated;
+        public string CommandKey => "cancelConstruction";
+        public bool CanCommand => true;
+        public int EvaluationPriority => 0;
+        public bool IsActive => false;
+        public bool CanInterrupt => false;
+        public float Cooldown => 0f;
+        public (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) => (false, null);
     }
 }

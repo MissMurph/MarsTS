@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Ratworx.MarsTS.Extensions;
 using Ratworx.MarsTS.Networking;
 using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Units;
@@ -34,10 +35,10 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			int totalUsing = 0;
 
 			//Inspect all selected to make all units using this ability match up with others that are active using
-			foreach (Roster rollup in Player.Player.Selected.Values) {
-				if (!rollup.Commands.Contains(Name)) continue;
+			foreach (Roster roster in Player.Player.Selected.Values) {
+				if (!roster.GetCommands().Contains(Name)) continue;
 
-				foreach (ICommandable unit in rollup.Orderable) {
+				foreach (ICommandable unit in roster.GetCommandables()) {
 					if (unit.CanCommand(Name)) totalCanUse++;
 
 					if (unit.Active.Count == 0) continue;

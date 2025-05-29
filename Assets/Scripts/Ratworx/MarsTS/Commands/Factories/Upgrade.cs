@@ -5,53 +5,10 @@ using UnityEngine;
 namespace Ratworx.MarsTS.Commands.Factories {
 
 	public class Upgrade : Produce {
-		public override string Name { get { return "upgrade/" + _unitPrefab.name; } }
+		public override string Name => "upgrade";
 
-		public override Sprite Icon { get { return icon; } }
+		public override Sprite Icon => icon;
 
-		public override string Description { get { return _description; } }
-
-		public override void StartSelection () {
-			bool canAfford = true;
-
-			foreach (ResourceCost entry in _cost) {
-				if (Player.Player.Commander.GetResource(entry.key).Amount < entry.amount) {
-					canAfford = false;
-					break;
-				}
-			}
-
-			if (canAfford) {
-				//Player.Main.DeliverCommand(Construct(prefab), Player.Include);
-
-				foreach (ResourceCost entry in _cost) {
-					Player.Player.Commander.GetResource(entry.key).Withdraw(entry.amount);
-				}
-			}
-		}
-
-		/*public override Commandlet Construct (GameObject _target) {
-			return new UpgradeCommandlet("upgrade", _target, timeRequired, cost);
-		}*/
-
-		public override ResourceCost[] GetCost () {
-			List<ResourceCost> spool = new List<ResourceCost>();
-
-			foreach (ResourceCost entry in _cost) {
-				spool.Add(entry);
-			}
-
-			ResourceCost time = new ResourceCost();
-			time.key = "time";
-			time.amount = _timeRequired;
-
-			spool.Add(time);
-
-			return spool.ToArray();
-		}
-
-		public override void CancelSelection () {
-
-		}
+		public override string Description => _description;
 	}
 }

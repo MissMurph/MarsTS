@@ -28,7 +28,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
             
             _attackCommand.Target.Entity.TryGetEntityComponent(out EventAgent targetBus);
             targetBus.AddListener<UnitDeathEvent>(OnTargetDeath);
-            _attackCommand.Callback.AddListener(OnCommandComplete);
+            _attackCommand.OnCommandComplete.AddListener(OnCommandComplete);
         }
 
         public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) {
@@ -56,7 +56,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
             _attackCommand.Target.Entity.TryGetEntityComponent(out EventAgent targetBus);
             
             targetBus.RemoveListener<UnitDeathEvent>(OnTargetDeath);
-            evnt.Command.Callback.RemoveListener(OnCommandComplete);
+            evnt.Command.OnCommandComplete.RemoveListener(OnCommandComplete);
             
             _targetTrackRange.OnUnitDetected -= OnTargetDetected;
             _attackCommand = null;

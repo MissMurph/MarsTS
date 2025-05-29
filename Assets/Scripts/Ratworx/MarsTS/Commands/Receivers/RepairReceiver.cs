@@ -36,7 +36,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
 			_repairCommand.Target.Entity.TryGetEntityComponent(out EventAgent targetBus);
 			targetBus.AddListener<UnitHurtEvent>(OnTargetHealed);
 			targetBus.AddListener<UnitDeathEvent>(OnTargetDeath);
-			_repairCommand.Callback.AddListener(OnCommandComplete);
+			_repairCommand.OnCommandComplete.AddListener(OnCommandComplete);
 		}
 
 		public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) {

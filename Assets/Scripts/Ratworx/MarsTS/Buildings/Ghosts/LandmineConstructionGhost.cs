@@ -6,12 +6,10 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
 {
     public class LandmineConstructionGhost : BuildingConstructionGhost
     {
-        public override void InitializeGhost(string buildingBeingConstructed, int constructionWorkRequired,
-            params ResourceCost[] constructionCost)
-        {
+        public override void InitializeGhost(string buildingBeingConstructed, params ResourceCost[] constructionCost) {
             if (!NetworkManager.Singleton.IsServer) return;
 
-            UpdateProperties(buildingBeingConstructed, constructionWorkRequired, constructionCost);
+            UpdateProperties(buildingBeingConstructed, constructionCost);
         }
     }
 }

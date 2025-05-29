@@ -34,7 +34,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         public override void ReceiveCommand(BooleanCommandlet command) {
             _adrenalineCommandlet = command;
             _remainingBoostingTime = _duration;
-            _adrenalineCommandlet.Callback.AddListener(OnCommandComplete);
+            _adrenalineCommandlet.OnCommandComplete.AddListener(OnCommandComplete);
 
             if (!NetworkManager.Singleton.IsServer) return;
 
@@ -43,7 +43,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         }
 
         private void OnCommandComplete(CommandCompleteEvent evnt) {
-            _adrenalineCommandlet.Callback.RemoveListener(OnCommandComplete);
+            _adrenalineCommandlet.OnCommandComplete.RemoveListener(OnCommandComplete);
             _adrenalineCommandlet = null;
 
             if (!NetworkManager.Singleton.IsServer) return;

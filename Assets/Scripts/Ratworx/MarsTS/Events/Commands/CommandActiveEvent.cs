@@ -6,10 +6,10 @@ namespace Ratworx.MarsTS.Events.Commands
 	{
 		public bool Activity { get; private set; }
 
-		public CommandActiveEvent (EventAgent _source, ICommandable _unit, Commandlet _command, bool _activity) 
-			: base("Active", _source, _command, _unit) 
+		public CommandActiveEvent (ICommandable unit, Commandlet command, bool activity) 
+			: base("Active", command, unit) 
 		{
-			Activity = _activity;
+			Activity = activity;
 		}
 	}
 }

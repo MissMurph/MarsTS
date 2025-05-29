@@ -12,7 +12,8 @@ namespace Ratworx.MarsTS.Buildings
 {
     public class Landmines : Building
     {
-        private Dictionary<string, Landmine> _childMines;
+        /*private Dictionary<string, Landmine> _childMines;
+         
         private Dictionary<string, Collider> _entityColliders;
         private Dictionary<string, Transform> _selectionColliders;
         private Dictionary<string, Transform> _detectableColliders;
@@ -149,53 +150,6 @@ namespace Ratworx.MarsTS.Buildings
             Bus.PostGlobal(hurtEvent);
         }
 
-        private void OnChildVisionUpdate(EntityVisibleEvent _event)
-        {
-            // if (_selectionColliders.TryGetValue(_event.UnitName, out Transform collider))
-            //     collider.gameObject.SetActive(_event.Visible);
-        }
-
-        public override void Hover(bool status)
-        {
-            foreach (Landmine child in _childMines.Values)
-            {
-                child.Hover(status);
-            }
-        }
-
-        public override void Select(bool status)
-        {
-            foreach (Landmine child in _childMines.Values)
-            {
-                child.Select(status);
-            }
-        }
-
-        public override void Attack(int damage)
-        {
-            if (base.Health <= 0)
-                return;
-
-            if (damage < 0 && base.Health >= MaxHealth)
-                return;
-
-            UnitHurtEvent hurtEvent = new UnitHurtEvent(Bus, this, damage);
-            hurtEvent.Phase = Phase.Pre;
-            Bus.PostGlobal(hurtEvent);
-
-            damage = hurtEvent.Damage;
-            base.Health -= damage;
-
-            hurtEvent.Phase = Phase.Post;
-            Bus.PostGlobal(hurtEvent);
-
-            if (base.Health <= 0)
-            {
-                Bus.PostGlobal(new UnitDeathEvent(Bus, this));
-                Destroy(gameObject, 0.1f);
-            }
-        }
-
         protected override void OnUnitInfoDisplayed(UnitInfoEvent @event)
         {
             if (ReferenceEquals(@event.Unit, this))
@@ -203,6 +157,6 @@ namespace Ratworx.MarsTS.Buildings
                 HealthInfo info = @event.Info.Module<HealthInfo>("health");
                 info.CurrentUnit = this;
             }
-        }
+        }*/
     }
 }

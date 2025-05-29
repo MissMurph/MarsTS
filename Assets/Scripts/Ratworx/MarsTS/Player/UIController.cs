@@ -4,6 +4,7 @@ using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Commands;
 using Ratworx.MarsTS.Events.Player;
+using Ratworx.MarsTS.Extensions;
 using Ratworx.MarsTS.Pathfinding;
 using Ratworx.MarsTS.UI;
 using Ratworx.MarsTS.UI.Unit_Pane;
@@ -263,7 +264,7 @@ namespace Ratworx.MarsTS.Player {
 			unitPane.UpdateUnits(new List<Roster>(_event.Selected.Values));
 			
 			foreach (KeyValuePair<string, Roster> entry in _event.Selected) {
-				List<string> availableCommands = new List<string>(entry.Value.Commands);
+				var availableCommands = new List<string>(entry.Value.GetCommands());
 				commandProfiles.Add(entry.Key, availableCommands);
 				profileIndex[index] = entry.Key;
 				index++;

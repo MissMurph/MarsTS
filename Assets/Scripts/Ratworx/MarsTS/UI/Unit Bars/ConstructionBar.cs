@@ -1,31 +1,23 @@
-using Ratworx.MarsTS.Events;
-using Ratworx.MarsTS.Events.Selectable.Attackable;
-using Ratworx.MarsTS.Units;
+using Ratworx.MarsTS.Entities;
 
 namespace Ratworx.MarsTS.UI.Unit_Bars
 {
     public class ConstructionBar : UnitBar
     {
-        private void Start()
-        {
-            IAttackable parent = GetComponentInParent<IAttackable>();
-
-            if (parent.Health <= 1)
-            {
-                UpdateBarWithFillLevel(0f);
-
-                _barRenderer.enabled = true;
-
-                GetComponentInParent<EventAgent>().AddListener<UnitHurtEvent>(_event =>
-                {
-                    UpdateBarWithFillLevel((float)_event.Attackable.Health / _event.Attackable.MaxHealth);
-                    if (_event.Attackable.Health >= _event.Attackable.MaxHealth) gameObject.SetActive(false);
-                });
-            }
-            else
-            {
-                _barRenderer.enabled = false;
-            }
+        private ConstructionProgressAttribute _constructionAttribute;
+        private HealthAttribute _healthAttribute;
+        
+        private void Awake() {
+            _constructionAttribute = GetComponentInParent<ConstructionProgressAttribute>();
+            _healthAttribute = GetComponentInParent<HealthAttribute>();
         }
+        
+        private void Start() {
+            _constructionAttribute.OnAttributeChange += OnConstructionProgressChanged;
+            _barRenderer.enabled = true;
+        }
+
+        private void OnConstructionProgressChanged(int oldValue, int newValue) 
+            => UpdateBarWithFillLevel((float)_constructionAttribute.Value / _healthAttribute.MaxHealth);
     }
 }

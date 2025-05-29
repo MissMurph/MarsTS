@@ -1,9 +1,13 @@
+using System;
 using System.Collections.Generic;
 using Ratworx.MarsTS.Units;
 
 namespace Ratworx.MarsTS.Commands {
 
-    public interface ICommandable : IUnitInterface {
+    public interface ICommandable : IUnitInterface
+	{
+		event Action OnCommandsStateChanged;
+		event Action OnCommandListChanged;
 		Commandlet CurrentCommand { get; }
 		int Count { get; }
 		List<string> Active { get; }

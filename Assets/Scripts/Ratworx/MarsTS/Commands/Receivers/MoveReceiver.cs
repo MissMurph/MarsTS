@@ -19,7 +19,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
             
             UnitPathing.FindPathTo(command.Target);
             EventAgent.AddListener<PathCompleteEvent>(OnPathComplete);
-            _moveCommand.Callback.AddListener(OnCommandComplete);
+            _moveCommand.OnCommandComplete.AddListener(OnCommandComplete);
         }
 
         public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity)
@@ -27,7 +27,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
         private void OnCommandComplete(CommandCompleteEvent evnt) {
             EventAgent.RemoveListener<PathCompleteEvent>(OnPathComplete);
-            evnt.Command.Callback.RemoveListener(OnCommandComplete);
+            evnt.Command.OnCommandComplete.RemoveListener(OnCommandComplete);
             _moveCommand = null;
             UnitPathing.ClearPath();
         }

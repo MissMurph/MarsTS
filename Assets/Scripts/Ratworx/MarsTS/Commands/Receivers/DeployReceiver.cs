@@ -46,7 +46,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         
         public override void ReceiveCommand (BooleanCommandlet command) {
             _deployCommandlet = command;
-            _deployCommandlet.Callback.AddListener(OnCommandComplete);
+            _deployCommandlet.OnCommandComplete.AddListener(OnCommandComplete);
             
             _deployCommandlet = command;
 
@@ -89,7 +89,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
         private void OnCommandComplete (CommandCompleteEvent evnt) {
             EventAgent.PostGlobal(new CommandWorkEvent(_deployCommandlet, CommandQueue, 1f));
-            _deployCommandlet.Callback.RemoveListener(OnCommandComplete);
+            _deployCommandlet.OnCommandComplete.RemoveListener(OnCommandComplete);
             _deployCommandlet = null;
             
             if (!NetworkManager.Singleton.IsServer) return;

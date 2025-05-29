@@ -1,15 +1,12 @@
-using Ratworx.MarsTS.Units;
+using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events.Selectable;
 
 namespace Ratworx.MarsTS.Events.Init
 {
-    public class UnitInitEvent : AbstractEvent
+    // TODO: stimky
+    public class UnitInitEvent : UnitEvent
     {
-        public ISelectable Unit { get; private set; }
-
-        public UnitInitEvent(ISelectable unit, EventAgent source) 
-            : base("unitInit", source)
-        {
-            Unit = unit;
-        }
+        public UnitInitEvent(Entity unit)
+            : base("unitInit", unit) { }
     }
 }

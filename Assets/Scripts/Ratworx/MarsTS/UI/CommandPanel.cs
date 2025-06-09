@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Extensions;
 using UnityEngine;
 
 namespace Ratworx.MarsTS.UI {
@@ -28,6 +30,38 @@ namespace Ratworx.MarsTS.UI {
 
 		private void Start () {
 			_tooltip.gameObject.SetActive(false);
+
+			Player.Player.Selection.OnPlayerSelectionChanged += UpdateSelectedCommands;
+			Player.Player.Selection.OnPrimarySelectionChanged += UpdateSelectedCommands;
+			Player.Player.Selection.OnPrimarySelectedCommandsChanged += UpdateSelectedCommands;
+			Player.Player.Selection.OnPrimarySelectedCommandsStateChanged += UpdateSelectedCommandStates;
+		}
+
+		private void UpdateSelectedCommandStates() {
+			
+		}
+
+		private void UpdateSelectedCommands() {
+			List<string> commands = Player.Player.Selection.PrimarySelection.GetCommands();
+			
+			for (int i = 0; i < _buttonCount; i++) {
+				if (i >= commands.Count) {
+					_boundCommands[i] = string.Empty;
+					_registeredButtons[i].UpdateCommand(_boundCommands[i]);
+					continue;
+				}
+
+				_boundCommands[i] = commands[i];
+				_registeredButtons[i].UpdateCommand(commands[i]);
+			}
+
+			if (_currentTooltip > -1 && !string.IsNullOrEmpty(_boundCommands[_currentTooltip])) {
+				_tooltip.ShowCommand(_boundCommands[_currentTooltip]);
+				_tooltip.gameObject.SetActive(true);
+			}
+			else {
+				_tooltip.gameObject.SetActive(false);
+			}
 		}
 
 		public void Press (int index) {

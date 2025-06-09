@@ -1,73 +1,84 @@
+using System;
 using System.Collections.Generic;
 using Ratworx.MarsTS.Units;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace Ratworx.MarsTS.UI.Unit_Pane {
+namespace Ratworx.MarsTS.UI.Unit_Pane
+{
+    public class UnitPane : MonoBehaviour
+    {
+        private Dictionary<string, UnitCard> _cardMap;
 
-    public class UnitPane : MonoBehaviour {
+        [FormerlySerializedAs("cardPrefab")]
+        [SerializeField]
+        private GameObject _cardPrefab;
 
-        private Dictionary<string, UnitCard> cardMap;
+        private UnitInfoCard _infoCard;
 
-		[SerializeField]
-		private GameObject cardPrefab;
+        private void Awake() {
+            _cardMap = new Dictionary<string, UnitCard>();
+            _infoCard = transform.Find("UnitInfo").GetComponent<UnitInfoCard>();
+        }
 
-		private UnitInfoCard infoCard;
+        private void Start() {
+            Player.Player.Selection.OnPlayerSelectionChanged += UpdateDisplayedUnits;
+            Player.Player.Selection.OnPrimarySelectionChanged += UpdatePrimarySelectedCard;
+        }
 
-		private void Awake () {
-			cardMap = new Dictionary<string, UnitCard>();
-			infoCard = transform.Find("UnitInfo").GetComponent<UnitInfoCard>();
-		}
+        private void UpdateDisplayedUnits() {
+            
+        }
 
-		public void UpdateUnits (List<Roster> rosters) {
-			/*Dictionary<string, int> translation = new();
+        private void UpdatePrimarySelectedCard() {
+            
+        }
 
-			foreach (Roster units in rosters.Values) {
-				translation.Add(units.RegistryKey, units.Count);
-			}
+        public void UpdateUnits(List<Roster> rosters) {
+            /*Dictionary<string, int> translation = new();
 
-			UpdateUnits(translation);*/
+            foreach (Roster units in rosters.Values) {
+                translation.Add(units.RegistryKey, units.Count);
+            }
 
-			ClearSelection();
+            UpdateUnits(translation);*/
 
-			if (rosters.Count == 1 && rosters[0].Count == 1) {
-				foreach (Roster typeEntry in rosters) {
-					infoCard.DisplayInfo(typeEntry.GetFirst());
-				}
-			}
-			else {
-				foreach (Roster typeEntry in rosters) {
-					UnitCard component = Instantiate(cardPrefab, transform).GetComponent<UnitCard>();
+            ClearSelection();
 
-					RectTransform rect = component.transform as RectTransform;
-					rect.anchorMin = new Vector2(0, 0);
-					rect.anchorMax = new Vector2(0, 0);
-					rect.anchoredPosition = new Vector3(45 + (80 * cardMap.Count), 75, 0);
+            if (rosters.Count == 1 && rosters[0].Count == 1)
+                foreach (Roster typeEntry in rosters) {
+                    _infoCard.DisplayInfo(typeEntry.GetFirst());
+                }
+            else
+                foreach (Roster typeEntry in rosters) {
+                    UnitCard component = Instantiate(_cardPrefab, transform).GetComponent<UnitCard>();
 
-					//component.UpdateUnit(UnitRegistry.Prefab(typeEntry.Key).name, typeEntry.Value);
+                    RectTransform rect = component.transform as RectTransform;
+                    rect.anchorMin = new Vector2(0, 0);
+                    rect.anchorMax = new Vector2(0, 0);
+                    rect.anchoredPosition = new Vector3(45 + 80 * _cardMap.Count, 75, 0);
 
-					component.UpdateUnit(typeEntry.RegistryKey, typeEntry.Count);
+                    //component.UpdateUnit(UnitRegistry.Prefab(typeEntry.Key).name, typeEntry.Value);
+                    component.UpdateUnit(typeEntry.RegistryKey, typeEntry.Count);
 
-					cardMap.Add(typeEntry.RegistryKey, component);
-				}
-			}
-		}
+                    _cardMap.Add(typeEntry.RegistryKey, component);
+                }
+        }
 
-		public UnitCard Card (string key) {
-			if (cardMap.TryGetValue(key, out UnitCard output)) {
-				return output;
-			}
+        public UnitCard Card(string key) {
+            if (_cardMap.TryGetValue(key, out UnitCard output)) return output;
 
-			return null;
-		}
+            return null;
+        }
 
-		private void ClearSelection () {
-			foreach (UnitCard card in cardMap.Values) {
-				Destroy(card.gameObject);
-			 }
+        private void ClearSelection() {
+            foreach (UnitCard card in _cardMap.Values) {
+                Destroy(card.gameObject);
+            }
 
-			infoCard.Deactivate();
+            _infoCard.Deactivate();
 
-			cardMap.Clear();
-		}
+            _cardMap.Clear();
+        }
     }
 }

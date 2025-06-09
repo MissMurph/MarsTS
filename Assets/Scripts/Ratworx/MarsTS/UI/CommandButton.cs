@@ -3,6 +3,7 @@ using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Commands;
 using Ratworx.MarsTS.Extensions;
 using Ratworx.MarsTS.Units;
+using Ratworx.MarsTS.Player;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,18 +14,18 @@ namespace Ratworx.MarsTS.UI
     {
         private CommandFactory current;
 
-        private Image icon;
-        private Image cooldown;
-        private GameObject usable;
-        private GameObject activity;
-        private TextMeshProUGUI cooldownText;
+        private Image _icon;
+        private Image _cooldown;
+        private GameObject _usable;
+        private GameObject _activity;
+        private TextMeshProUGUI _cooldownText;
 
         private void Awake() {
-            icon = transform.Find("Icon").GetComponent<Image>();
-            cooldown = transform.Find("CooldownOverlay").GetComponent<Image>();
-            usable = transform.Find("UsableOverlay").gameObject;
-            activity = transform.Find("ActivityBorder").gameObject;
-            cooldownText = cooldown.GetComponentInChildren<TextMeshProUGUI>();
+            _icon = transform.Find("Icon").GetComponent<Image>();
+            _cooldown = transform.Find("CooldownOverlay").GetComponent<Image>();
+            _usable = transform.Find("UsableOverlay").gameObject;
+            _activity = transform.Find("ActivityBorder").gameObject;
+            _cooldownText = _cooldown.GetComponentInChildren<TextMeshProUGUI>();
 
             Deactivate();
         }
@@ -45,8 +46,8 @@ namespace Ratworx.MarsTS.UI
 
             current = factory;
 
-            icon.sprite = current.Icon;
-            icon.gameObject.SetActive(true);
+            _icon.sprite = current.Icon;
+            _icon.gameObject.SetActive(true);
 
             EvaluateActivity();
             EvaluateUsability();
@@ -57,10 +58,10 @@ namespace Ratworx.MarsTS.UI
 
         public void Deactivate() {
             current = null;
-            icon.gameObject.SetActive(false);
-            cooldown.gameObject.SetActive(false);
-            usable.SetActive(false);
-            activity.SetActive(false);
+            _icon.gameObject.SetActive(false);
+            _cooldown.gameObject.SetActive(false);
+            _usable.SetActive(false);
+            _activity.SetActive(false);
         }
 
         public void OnPointerEnterButton() { }
@@ -68,7 +69,7 @@ namespace Ratworx.MarsTS.UI
         public void OnPointerExitButton() { }
 
         private void OnCommandStart(CommandStartEvent _event) {
-            if (current is null) return;
+            if (current is null) return; 
             if (_event.Command.Command.Name == current.Name) {
                 if (!Player.Player.HasSelected(_event.Unit as ISelectable)) return;
                 if (Player.Player.UI.PrimarySelected != (_event.Unit as ISelectable)?.RegistryKey) return;
@@ -83,7 +84,7 @@ namespace Ratworx.MarsTS.UI
             if (_event.CommandReceiver.Name == current.Name
                 && Player.Player.HasSelected(_event.Unit as ISelectable)
                 && Player.Player.UI.PrimarySelected == (_event.Unit as ISelectable)?.RegistryKey)
-                activity.SetActive(_event.Activity);
+                _activity.SetActive(_event.Activity);
         }
 
         private void OnCooldownUpdate(CooldownEvent evnt) {
@@ -99,23 +100,24 @@ namespace Ratworx.MarsTS.UI
         private void EvaluateUsability() {
             foreach (ICommandable unit in Player.Player.Selected[Player.Player.UI.PrimarySelected].GetCommandables()) {
                 if (unit.CanCommand(current.Name)) {
-                    usable.SetActive(false);
+                    _usable.SetActive(false);
                     return;
                 }
             }
 
-            usable.SetActive(true);
+            _usable.SetActive(true);
         }
 
         private void EvaluateActivity() {
             foreach (ICommandable unit in Player.Player.Selected[Player.Player.UI.PrimarySelected].GetCommandables()) {
                 if (unit.ActiveCommands.Contains(current.Name)) {
-                    activity.SetActive(true);
+                    _activity.SetActive(true);
                     return;
+                    
                 }
             }
 
-            activity.SetActive(false);
+            _activity.SetActive(false);
         }
 
         private void EvaluateCooldown() {
@@ -137,12 +139,12 @@ namespace Ratworx.MarsTS.UI
 
             if (coolingDown) {
                 float progress = lowestCooldown / cooldownDuration;
-                cooldown.fillAmount = progress;
-                cooldownText.text = ((int)lowestCooldown).ToString();
-                cooldown.gameObject.SetActive(true);
+                _cooldown.fillAmount = progress;
+                _cooldownText.text = ((int)lowestCooldown).ToString();
+                _cooldown.gameObject.SetActive(true);
             }
             else {
-                cooldown.gameObject.SetActive(false);
+                _cooldown.gameObject.SetActive(false);
             }
         }
     }

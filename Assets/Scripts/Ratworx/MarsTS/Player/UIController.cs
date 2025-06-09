@@ -29,7 +29,7 @@ namespace Ratworx.MarsTS.Player {
 		private CommandPanel commandPanel;
 		private UnitPane unitPane;
 
-		private Dictionary<string, List<string>> commandProfiles;
+		private Dictionary<string, List<string>> _commandProfiles;
 		private string[] profileIndex;
 
 		private int primaryIndex;
@@ -50,30 +50,7 @@ namespace Ratworx.MarsTS.Player {
 
 		[SerializeField]
 		private CursorSprite defaultCursorSprite;
-
-		public string PrimarySelected {
-			get {
-				return primarySelected;
-			}
-			set {
-				if (primarySelected != null) {
-					UnitCard card = unitPane.Card(primarySelected);
-					if (card != null) unitPane.Card(primarySelected).Selected = false;
-				}
-
-				primarySelected = value;
-
-				if (primarySelected != null) {
-					UnitCard card = unitPane.Card(primarySelected);
-					if (card != null) unitPane.Card(primarySelected).Selected = true;
-					commandPanel.UpdateCommands(commandProfiles[primarySelected].ToArray());
-				}
-				else commandPanel.UpdateCommands(new List<string> { }.ToArray());
-			}
-		}
-
-		private string primarySelected;
-
+		
 		[SerializeField]
 		private GraphicRaycaster canvasRaycaster;
 
@@ -101,7 +78,7 @@ namespace Ratworx.MarsTS.Player {
 
 		private void Awake () {
 			instance = this;
-			commandProfiles = new();
+			_commandProfiles = new();
 			ResetCursor();
 		}
 
@@ -182,15 +159,15 @@ namespace Ratworx.MarsTS.Player {
 
 			Ray ray = Player.ViewPort.ScreenPointToRay(mousePos);
 
-			if (PrimarySelected != null && Physics.Raycast(ray, out RaycastHit selectable, 1000f, GameWorld.SelectableMask)) {
+			if (Player.Selection.PrimarySelection != null
+				&& Player.Selection.PrimarySelection.IsCommandable()
+				&& Physics.Raycast(ray, out RaycastHit selectable, 1000f, GameWorld.SelectableMask)) {
 				if (EntityCache.TryGetEntity(selectable.rigidbody.transform.gameObject.name, out Entity target)) {
-					if (Player.Selected.TryGetValue(PrimarySelected, out Roster roster) && roster.IsCommandable()) {
-						ICommandable commandable = roster.GetFirst().GetEntityComponent<ICommandable>();
-						CommandFactory result = commandable.EvaluateCommand(target);
-						CursorSprite sprite = result.Pointer;
-						Cursor.SetCursor(sprite.texture, sprite.target, CursorMode.Auto);
-						return;
-					}
+					ICommandable commandable = Player.Selection.PrimarySelection.GetFirst().GetEntityComponent<ICommandable>();
+					CommandFactory result = commandable.EvaluateCommand(target);
+					CursorSprite sprite = result.Pointer;
+					Cursor.SetCursor(sprite.texture, sprite.target, CursorMode.Auto);
+					return;
 				}
 			}
 
@@ -257,7 +234,7 @@ namespace Ratworx.MarsTS.Player {
 		}
 
 		private void OnSelection (PlayerSelectEvent _event) {
-			commandProfiles.Clear();
+			/*_commandProfiles.Clear();
 			profileIndex = new string[_event.Selected.Count];
 			int index = 0;
 			PrimarySelected = null;
@@ -266,30 +243,30 @@ namespace Ratworx.MarsTS.Player {
 			
 			foreach (KeyValuePair<string, Roster> entry in _event.Selected) {
 				var availableCommands = new List<string>(entry.Value.GetCommands());
-				commandProfiles.Add(entry.Key, availableCommands);
+				_commandProfiles.Add(entry.Key, availableCommands);
 				profileIndex[index] = entry.Key;
 				index++;
 			}
 
 			if (profileIndex.Length > 0) PrimarySelected = profileIndex[0];
 			else PrimarySelected = null;
-			primaryIndex = 0;
+			primaryIndex = 0;*/
 		}
 
 		private void OnCommandUpdate (CommandsUpdatedEvent _event) {
-			if (PrimarySelected == _event.Unit.RegistryKey) {
+			/*if (PrimarySelected == _event.Unit.RegistryKey) {
 				commandPanel.UpdateCommands(_event.NewCommands);
-			}
+			}*/
 		}
 
 		public void Next (InputAction.CallbackContext context) {
-			if (context.performed && profileIndex.Length > 0) {
+			/*if (context.performed && profileIndex.Length > 0) {
 				int newIndex = primaryIndex >= profileIndex.Length - 1 ? 0 : primaryIndex + 1;
 				if (profileIndex[newIndex] != null) {
 					PrimarySelected = profileIndex[newIndex];
 					primaryIndex = newIndex;
 				}
-			}
+			}*/
 		}
 
 		private void OnDestroy () {

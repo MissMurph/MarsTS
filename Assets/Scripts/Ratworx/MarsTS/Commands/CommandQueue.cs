@@ -283,7 +283,15 @@ namespace Ratworx.MarsTS.Commands
                 ExecuteCommand(order);
         }
 
-        public CommandFactory EvaluateCommand(Entity target) => throw new NotImplementedException();
+        public CommandFactory EvaluateCommand(Entity target) {
+            for (int i = 0; i < _receiversByEvalPriority.Count; i++) {
+                (bool result, CommandFactory factory) = _receiversByEvalPriority[i].EvaluateCommand(target);
+                if (!result) continue;
+                return factory;
+            }
+
+            return CommandPrimer.Get("Move");
+        }
 
         public void AddCommand(ICommandReceiver receiver) {
             if (_commands.ContainsKey(receiver.CommandKey)) 

@@ -59,6 +59,9 @@ namespace Ratworx.MarsTS.Player {
 		public static UIController UI => Main._uiController;
 		private UIController _uiController;
 
+		public static PlayerSelection Selection => Main._playerSelection;
+		private PlayerSelection _playerSelection;
+
 		private ISelectable _currentHover;
 
 		private void Awake () {
@@ -173,9 +176,9 @@ namespace Ratworx.MarsTS.Player {
 				Physics.Raycast(ray, out RaycastHit selectableHit, 1000f, GameWorld.SelectableMask);
 
 				if (selectableHit.collider != null && EntityCache.TryGetEntity(selectableHit.collider.transform.name, out Entity targetEntity)) {
-					if (!Selected[UIController.instance.PrimarySelected].IsCommandable()) return;
+					if (!Selection.PrimarySelection.IsCommandable()) return;
 					
-					List<ICommandable> commandables = Selected[UIController.instance.PrimarySelected].GetCommandables();
+					List<ICommandable> commandables = Selection.PrimarySelection.GetCommandables();
 					CommandFactory factory = commandables[0].EvaluateCommand(targetEntity);
 					// TODO: add an overload to determine target off an Entity
 				}

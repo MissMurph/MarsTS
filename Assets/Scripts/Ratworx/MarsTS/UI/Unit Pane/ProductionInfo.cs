@@ -1,6 +1,8 @@
 using Ratworx.MarsTS.Commands;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Commands;
+using Ratworx.MarsTS.Production;
+using Ratworx.MarsTS.Units;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -144,18 +146,22 @@ namespace Ratworx.MarsTS.UI.Unit_Pane {
 			gameObject.SetActive(false);
 		}
 
-		public void SetQueue (ICommandable unit, IProducable current, IProducable[] queue) {
+		public void SetQueue (ProductionQueue productionQueue) {
 			currentUnit = unit;
 
 			if (current != null) {
-				currentProdIcon.sprite = current.Get().Command.Icon;
+				var prefab = Registry.Registry.TryGetPrefab(productionQueue.CurrentOrder.ProductKey, out GameObject gameObj);
+
+				var selectable = gameObj.GetComponent<ISelectable>();
+				
+				currentProdIcon.sprite = selectable.Icon;
 				currentProdIcon.transform.parent.gameObject.SetActive(true);
 				productionProgress.SetActive(true);
 
-				int orders = queue.Length;
+				int orders = productionQueue.QueueCount;
 
-				CurrentProduction = current.ProductionProgress;
-				MaxProduction = current.ProductionRequired;
+				CurrentProduction = (int)productionQueue.CurrentProductionAmount;
+				MaxProduction = productionQueue.CurrentOrder.ProductionRequired;
 
 				for (int i = 0; i < orders; i++) {
 					if (i < queueIcons.Length) {

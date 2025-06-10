@@ -1,6 +1,11 @@
 using System;
 using System.Collections.Generic;
+using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Commands.Receivers;
 using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.UI.Unit_Pane;
 using Ratworx.MarsTS.Units;
 using Unity.Netcode;
 using UnityEngine;
@@ -18,16 +23,24 @@ namespace Ratworx.MarsTS.Production
         
         public ProductionQueue Get() => this;
         public string Key => "productionQueue";
-
         public ProductionOrder CurrentOrder => _productionQueue[0];
-        public int Count => _productionQueue.Count;
+        public int QueueCount => _productionQueue.Count;
+        public float CurrentProductionAmount => _receiver.CurrentProductionAmount;
         
         private readonly List<ProductionOrder> _productionQueue = new List<ProductionOrder>();
 
         private UnitOwnership _ownership;
+        private EventAgent _eventAgent;
+        private ProductionReceiver _receiver;
 
         private void Awake() {
             _ownership = GetComponent<UnitOwnership>();
+            _eventAgent = GetComponent<EventAgent>();
+            _receiver = GetComponent<ProductionReceiver>();
+        }
+
+        private void Start() {
+            _eventAgent.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
         }
 
         public void EnqueueOrder(ProductionOrder order) {
@@ -77,15 +90,9 @@ namespace Ratworx.MarsTS.Production
 
         public void CancelOrder(int position) => CompleteOrder(position, true);
 
-        /*protected virtual void OnUnitInfoDisplayed(UnitInfoEvent @event)
-        {
-            if (!ReferenceEquals(@event.Unit, this)) return;
-
-            HealthInfo info = @event.Info.Module<HealthInfo>("health");
-            info.CurrentUnit = this;
-
-            @event.Info.Module<ProductionInfo>("productionQueue").SetQueue(this, production.Current as IProducable,
+        protected virtual void OnUnitInfoDisplayed(UnitInfoEvent evnt) {
+            evnt.Info.Module<ProductionInfo>("productionQueue").SetQueue(this, production.Current as IProducable,
                 production.QueuedProduction);
-        }*/
+        }
     }
 }

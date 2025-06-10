@@ -34,6 +34,19 @@ namespace Ratworx.MarsTS.Extensions
             return output;
         }
         
+        public static List<ISelectable> GetSelectables(this Roster roster) {
+            var output = new List<ISelectable>();
+
+            foreach (Entity entity in roster) {
+                // If this unit cannot be commanded, then none of them will have the interface, thus we check only once
+                if (!entity.TryGetEntityComponent(out ISelectable selectable)) break;
+
+                output.Add(selectable);
+            }
+
+            return output;
+        }
+        
         public static List<string> GetCommands(this Roster roster) {
             var output = new List<string>();
 

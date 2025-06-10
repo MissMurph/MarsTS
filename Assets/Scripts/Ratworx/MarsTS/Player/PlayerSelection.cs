@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Ratworx.MarsTS.Units;
 
 namespace Ratworx.MarsTS.Player
@@ -11,6 +12,9 @@ namespace Ratworx.MarsTS.Player
         public event Action OnPrimarySelectedCommandsChanged;
         public event Action OnPrimarySelectionChanged;
         public Roster PrimarySelection => _primarySelection;
+        public List<string> SelectedTypes => _registryKeysToRosters.Keys.ToList();
+        public Dictionary<string, Roster> Selected => _registryKeysToRosters;
+        public int SelectedCount => _registryKeysToRosters.Values.Sum(roster => roster.Count);
 
         private Roster _primarySelection;
 

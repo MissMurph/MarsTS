@@ -6,9 +6,10 @@ namespace Ratworx.MarsTS.Events.Selectable {
 
 	public class UnitInfoEvent : UnitEvent {
 		public UnitInfoCard Info { get; private set; }
-
-		public UnitInfoEvent (Entity unit, UnitInfoCard infoCard) : base("Info", unit) {
+		public ISelectable Selectable { get; private set; }
+		public UnitInfoEvent (ISelectable unit, UnitInfoCard infoCard) : base("Info", unit.Entity) {
 			Info = infoCard;
+			Selectable = unit;
 		}
 	}
 }

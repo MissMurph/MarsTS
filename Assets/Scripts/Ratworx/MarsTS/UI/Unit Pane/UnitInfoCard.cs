@@ -36,19 +36,23 @@ namespace Ratworx.MarsTS.UI.Unit_Pane {
 		}
 
 		public void DisplayInfo (ISelectable unit) {
-			UnitInfoEvent _event = new UnitInfoEvent(bus, unit, this);
-			bus.PostGlobal(_event);
+			UnitInfoEvent evnt = new UnitInfoEvent(unit, this);
+			// bus.PostGlobal(evnt);
+
+			var eventAgent = unit.Entity.GetEntityComponent<EventAgent>();
+
+			eventAgent.PostLocal(evnt);
 
             icon.sprite = unit.Icon;
 			icon.gameObject.SetActive(true);
 
 			UnitName name = registered["name"].Get<UnitName>();
-			name.Text(unit.UnitType);
+			name.Text(unit.Entity.RegistryKey);
             name.gameObject.SetActive(true);
 		}
 
         private void OnEntityDeath (UnitDeathEvent _event) {
-			if (ReferenceEquals(_event.Unit, currentUnit)) {
+			if (ReferenceEquals(_event.Entity, currentUnit.Entity)) {
 				currentUnit = null;
                 Deactivate();
 			}

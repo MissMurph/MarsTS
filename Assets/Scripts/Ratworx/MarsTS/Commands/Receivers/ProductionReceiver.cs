@@ -22,6 +22,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         public override bool CanCommand => true;
         public override bool IsActive => false;
         public override float Cooldown => 0f;
+        public float CurrentProductionAmount => _currentProductionAmount;
 
         private float _currentProductionAmount;
         private ProductionQueue _productionQueue;
@@ -63,7 +64,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         }
 
         public void UpdateServer() {
-            if (_productionQueue.Count <= 0
+            if (_productionQueue.QueueCount <= 0
                 || _productionQueue.CurrentOrder is null) 
                 return;
 
@@ -79,7 +80,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         public void UpdateClient() {
             // We check for if we're the server to support host topology
             if (NetworkManager.Singleton.IsServer
-                || _productionQueue.Count <= 0
+                || _productionQueue.QueueCount <= 0
                 || _productionQueue.CurrentOrder is null) 
                 return;
 

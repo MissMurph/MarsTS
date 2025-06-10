@@ -1,10 +1,13 @@
 using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Commands;
+using Ratworx.MarsTS.Logging;
 using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Units;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Ratworx.MarsTS.UI.Unit_Pane {
@@ -12,63 +15,60 @@ namespace Ratworx.MarsTS.UI.Unit_Pane {
     public class ProductionInfo : MonoBehaviour, IInfoModule {
 
 		public int CurrentProduction {
-			get {
-				return currentProduction;
-			}
+			get => _currentProduction;
 			set {
-				currentProduction = value;
+				_currentProduction = value;
 
-				FillLevel = (float)currentProduction / MaxProduction;
+				FillLevel = (float)_currentProduction / MaxProduction;
 
-				text.text = currentProduction + " / " + MaxProduction;
+				_text.text = _currentProduction + " / " + MaxProduction;
 			}
 		}
 
-		private int currentProduction = 1;
+		private int _currentProduction = 1;
 
 		public int MaxProduction {
-			get {
-				return maxProduction;
-			}
+			get => _maxProduction;
 			set {
-				maxProduction = value;
+				_maxProduction = value;
 
-				FillLevel = (float)CurrentProduction / maxProduction;
+				FillLevel = (float)CurrentProduction / _maxProduction;
 
-				text.text = CurrentProduction + " / " + maxProduction;
+				_text.text = CurrentProduction + " / " + _maxProduction;
 			}
 		}
 
-		private int maxProduction = 1;
+		private int _maxProduction = 1;
 
 		private float FillLevel {
 			set {
-				float rightEdge = literalSize - (literalSize * value);
-				barTransform.offsetMax = new Vector2(-rightEdge, 0f);
+				float rightEdge = _literalSize - (_literalSize * value);
+				_barTransform.offsetMax = new Vector2(-rightEdge, 0f);
 			}
 		}
 
-		private Image currentProdIcon;
+		private Image _currentProdIcon;
 		
+		[FormerlySerializedAs("queueObjects")]
 		[SerializeField]
-		private GameObject[] queueObjects;
+		private GameObject[] _queueObjects;
 
-		private Image[] queueIcons;
+		private Image[] _queueIcons;
 
-		private TextMeshProUGUI overflow;
+		private TextMeshProUGUI _overflow;
 
-		private GameObject productionProgress;
+		private GameObject _productionProgress;
 
-		private TextMeshProUGUI text;
-		private RectTransform barTransform;
+		private TextMeshProUGUI _text;
+		private RectTransform _barTransform;
 
-		private float literalSize;
+		private float _literalSize;
 
-		public GameObject GameObject { get { return gameObject; } }
+		public GameObject GameObject => gameObject;
 
-		public string Name { get { return "productionQueue"; } }
+		public string Name => "productionQueue";
 
-		private ICommandable currentUnit;
+		private ProductionQueue _currentSelectedQueue;
 
 		public T Get<T> () {
 			if (this is T output) return output;
@@ -76,114 +76,102 @@ namespace Ratworx.MarsTS.UI.Unit_Pane {
 		}
 
 		private void Awake () {
-			productionProgress = transform.Find("Production").gameObject;
-			text = productionProgress.GetComponentInChildren<TextMeshProUGUI>();
-			barTransform = productionProgress.transform.Find("ProductionBar") as RectTransform;
-			literalSize = barTransform.rect.xMax * 2;
+			_productionProgress = transform.Find("Production").gameObject;
+			_text = _productionProgress.GetComponentInChildren<TextMeshProUGUI>();
+			_barTransform = _productionProgress.transform.Find("ProductionBar") as RectTransform;
+			_literalSize = _barTransform.rect.xMax * 2;
 
-			overflow = transform.Find("OverflowCounter").Find("Counter").GetComponent<TextMeshProUGUI>();
-			currentProdIcon = transform.Find("CurrentOrder").Find("Icon").GetComponent<Image>();
+			_overflow = transform.Find("OverflowCounter").Find("Counter").GetComponent<TextMeshProUGUI>();
+			_currentProdIcon = transform.Find("CurrentOrder").Find("Icon").GetComponent<Image>();
 
-			queueIcons = new Image[queueObjects.Length];
+			_queueIcons = new Image[_queueObjects.Length];
 
-			for (int i = 0; i < queueObjects.Length; i++) {
-				queueIcons[i] = queueObjects[i].transform.Find("Icon").GetComponent<Image>();
+			for (int i = 0; i < _queueObjects.Length; i++) {
+				_queueIcons[i] = _queueObjects[i].transform.Find("Icon").GetComponent<Image>();
 			}
 
-			foreach (GameObject queueObject in queueObjects) {
+			foreach (GameObject queueObject in _queueObjects) {
 				queueObject.SetActive(false);
 			}
 
-			currentProdIcon.transform.parent.gameObject.SetActive(false);
-			overflow.transform.parent.gameObject.SetActive(false);
-			productionProgress.SetActive(false);
-		}
-
-		private void Start () {
-			EventBus.AddListener<ProductionStepCompleteEvent>(OnUnitProduction);
-			EventBus.AddListener<ProductionStepEvent>(OnProductionStep);
-			EventBus.AddListener<ProductionStepEvent>(OnProductionUpdate);
-		}
-
-		private void OnProductionUpdate (ProductionStepEvent stepEvent) {
-			if (stepEvent.Name != "productionStarted" && stepEvent.Name != "productionQueued") return;
-			if (ReferenceEquals(stepEvent.Producer, currentUnit)) {
-				SetQueue(currentUnit, stepEvent.CurrentProduction, stepEvent.Queue.QueuedProduction);
-			}
+			_currentProdIcon.transform.parent.gameObject.SetActive(false);
+			_overflow.transform.parent.gameObject.SetActive(false);
+			_productionProgress.SetActive(false);
 		}
 
 		private void OnProductionStep (ProductionStepEvent stepEvent) {
-			if (stepEvent.Name != "productionStep") return;
-			if (ReferenceEquals(stepEvent.Producer, currentUnit)) {
-				CurrentProduction = stepEvent.CurrentProduction.ProductionProgress;
-				MaxProduction = stepEvent.CurrentProduction.ProductionRequired;
-			}
-		}
-
-		private void OnUnitProduction (ProductionStepCompleteEvent _event) {
-			if (ReferenceEquals(_event.Producer, currentUnit)) {
-				IProducable currentProd = _event.CurrentProduction;
-				IProducable[] queue = _event.Queue.QueuedProduction;
-
-				if (currentProd != null && queue.Length > 0) {
-					SetQueue(currentUnit, currentProd, queue);
-				}
-				else {
-					Deactivate();
-				}
-			}
+			CurrentProduction = (int)_currentSelectedQueue.CurrentProductionAmount;
+			MaxProduction = _currentSelectedQueue.CurrentOrder.ProductionRequired;
 		}
 
 		public void Deactivate () {
-			currentProdIcon.transform.parent.gameObject.SetActive(false);
-			overflow.transform.parent.gameObject.SetActive(false);
-			productionProgress.SetActive(false);
+			_currentProdIcon.transform.parent.gameObject.SetActive(false);
+			_overflow.transform.parent.gameObject.SetActive(false);
+			_productionProgress.SetActive(false);
 
-			for (int i = 0; i < queueObjects.Length; i++) {
-				queueObjects[i].SetActive(false);
+			for (int i = 0; i < _queueObjects.Length; i++) {
+				_queueObjects[i].SetActive(false);
 			}
 			
 			gameObject.SetActive(false);
 		}
 
 		public void SetQueue (ProductionQueue productionQueue) {
-			currentUnit = unit;
+			if (_currentSelectedQueue is not null) {
+				EntityCache.TryGetEntityComponent(_currentSelectedQueue.gameObject.name, out EventAgent eventAgent);
+				eventAgent.RemoveListener<ProductionStepEvent>(OnProductionStep);
+				productionQueue.OnQueueChanged -= UpdateQueue;
+			}
+			
+			_currentSelectedQueue = productionQueue;
 
-			if (current != null) {
-				var prefab = Registry.Registry.TryGetPrefab(productionQueue.CurrentOrder.ProductKey, out GameObject gameObj);
-
-				var selectable = gameObj.GetComponent<ISelectable>();
+			if (_currentSelectedQueue is not null) {
+				EntityCache.TryGetEntityComponent(_currentSelectedQueue.gameObject.name, out EventAgent eventAgent);
+				eventAgent.AddListener<ProductionStepEvent>(OnProductionStep);
+				_currentSelectedQueue.OnQueueChanged += UpdateQueue;
 				
-				currentProdIcon.sprite = selectable.Icon;
-				currentProdIcon.transform.parent.gameObject.SetActive(true);
-				productionProgress.SetActive(true);
+				UpdateQueue();
+			}
+		}
 
-				int orders = productionQueue.QueueCount;
+		private void UpdateQueue() {
+			// TODO: Create a unit icon registry
+			ISelectable currentOrderSelectable = GetSelectableFromProductionOrder(_currentSelectedQueue.CurrentOrder);
 
-				CurrentProduction = (int)productionQueue.CurrentProductionAmount;
-				MaxProduction = productionQueue.CurrentOrder.ProductionRequired;
+			_currentProdIcon.sprite = currentOrderSelectable.Icon;
+			_currentProdIcon.transform.parent.gameObject.SetActive(true);
+			_productionProgress.SetActive(true);
 
-				for (int i = 0; i < orders; i++) {
-					if (i < queueIcons.Length) {
-						queueIcons[i].sprite = queue[i].Get().Command.Icon;
-						queueObjects[i].SetActive(true);
-					}
-					else {
-						queueObjects[queueObjects.Length - 1].SetActive(false);
-						overflow.text = "+" + (orders - queueObjects.Length);
-						overflow.transform.parent.gameObject.SetActive(true);
-					}
+			int orders = _currentSelectedQueue.QueueCount;
+
+			CurrentProduction = (int)_currentSelectedQueue.CurrentProductionAmount;
+			MaxProduction = _currentSelectedQueue.CurrentOrder.ProductionRequired;
+
+			for (int i = 0; i < orders; i++) {
+				if (i < _queueIcons.Length) {
+					ISelectable selectable = GetSelectableFromProductionOrder(_currentSelectedQueue.Queue[i]);
+					_queueIcons[i].sprite = selectable.Icon;
+					_queueObjects[i].SetActive(true);
 				}
-
-				if (orders < queueObjects.Length) {
-					for (int i = orders; i < queueObjects.Length; i++) {
-						queueObjects[i].SetActive(false);
-					}
+				else {
+					_queueObjects[_queueObjects.Length - 1].SetActive(false);
+					_overflow.text = "+" + (orders - _queueObjects.Length);
+					_overflow.transform.parent.gameObject.SetActive(true);
 				}
 			}
-			else {
-				Deactivate();
+
+			if (orders < _queueObjects.Length) {
+				for (int i = orders; i < _queueObjects.Length; i++) {
+					_queueObjects[i].SetActive(false);
+				}
 			}
+		}
+
+		private static ISelectable GetSelectableFromProductionOrder(ProductionOrder order) {
+			if (!Registry.Registry.TryGetPrefab(order.ProductKey, out GameObject gameObj)) {
+				RatLogger.Error?.Log($"Error getting icon for prefab {order.ProductKey}, no registry entry found.");
+			}
+			return gameObj.GetComponent<ISelectable>();
 		}
 	}
 }

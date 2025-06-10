@@ -142,7 +142,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
             networkObj.TrySetParent(_entity.transform);
         }
 
-        private void OnProductionOrderCompleteClient(ProductionOrder order, bool isCancelled) {
+        private void OnProductionOrderCompleteClient() {
             _currentProductionAmount = 0;
         }
         

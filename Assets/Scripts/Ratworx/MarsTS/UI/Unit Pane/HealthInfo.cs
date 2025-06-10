@@ -8,8 +8,7 @@ namespace Ratworx.MarsTS.UI.Unit_Pane
 {
     public class HealthInfo : MonoBehaviour, IInfoModule
     {
-        public int CurrentHealth
-        {
+        public int CurrentHealth {
             get => _currentHealth;
             set
             {
@@ -23,8 +22,7 @@ namespace Ratworx.MarsTS.UI.Unit_Pane
 
         private int _currentHealth = 1;
 
-        public int MaxHealth
-        {
+        public int MaxHealth {
             get => _maxHealth;
             set
             {
@@ -38,8 +36,7 @@ namespace Ratworx.MarsTS.UI.Unit_Pane
 
         private int _maxHealth = 1;
 
-        private float FillLevel
-        {
+        private float FillLevel {
             set
             {
                 float rightEdge = _literalSize - _literalSize * value;
@@ -47,15 +44,25 @@ namespace Ratworx.MarsTS.UI.Unit_Pane
             }
         }
 
-        public IAttackable CurrentUnit
-        {
+        public IAttackable CurrentUnit {
             get => _currentUnit;
             set
             {
+                if (_currentUnit is not null) {
+                    var eventAgent = _currentUnit.Entity.GetEntityComponent<EventAgent>();
+                    
+                    eventAgent.RemoveListener<UnitHurtEvent>(OnEntityHurt);
+                    eventAgent.RemoveListener<UnitDeathEvent>(OnEntityDeath);
+                }
+                
                 _currentUnit = value;
 
-                if (_currentUnit != null)
-                {
+                if (_currentUnit is not null) {
+                    var eventAgent = _currentUnit.Entity.GetEntityComponent<EventAgent>();
+                    
+                    eventAgent.AddListener<UnitHurtEvent>(OnEntityHurt);
+                    eventAgent.AddListener<UnitDeathEvent>(OnEntityDeath);
+
                     CurrentHealth = value.Health;
                     MaxHealth = value.MaxHealth;
                 }
@@ -73,8 +80,7 @@ namespace Ratworx.MarsTS.UI.Unit_Pane
 
         private float _literalSize;
 
-        private void Awake()
-        {
+        private void Awake() {
             _text = transform.Find("HealthNumber").GetComponent<TextMeshProUGUI>();
             _barTransform = transform.Find("HealthBar") as RectTransform;
 
@@ -82,34 +88,24 @@ namespace Ratworx.MarsTS.UI.Unit_Pane
             _literalSize = _barTransform.rect.xMax * 2;
         }
 
-        private void Start()
-        {
-            EventBus.AddListener<UnitHurtEvent>(OnEntityHurt);
-            EventBus.AddListener<UnitDeathEvent>(OnEntityDeath);
-        }
-
-        private void OnEntityHurt(UnitHurtEvent _event)
-        {
-            if (ReferenceEquals(_event.Attackable, CurrentUnit))
-            {
+        private void OnEntityHurt(UnitHurtEvent _event) {
+            if (ReferenceEquals(_event.Attackable, CurrentUnit)) {
                 CurrentHealth = _event.Attackable.Health;
                 MaxHealth = _event.Attackable.MaxHealth;
             }
         }
 
-        private void OnEntityDeath(UnitDeathEvent _event)
-        {
-            if (ReferenceEquals(_event.Unit, CurrentUnit)) CurrentUnit = null;
+        private void OnEntityDeath(UnitDeathEvent _event) {
+            CurrentUnit = null;
+            Deactivate();
         }
 
-        public T Get<T>()
-        {
+        public T Get<T>() {
             if (this is T output) return output;
             return default;
         }
 
-        public void Deactivate()
-        {
+        public void Deactivate() {
             gameObject.SetActive(false);
         }
     }

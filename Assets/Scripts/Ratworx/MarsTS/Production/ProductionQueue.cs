@@ -15,9 +15,10 @@ namespace Ratworx.MarsTS.Production
     public class ProductionQueue : NetworkBehaviour,
                                    IEntityComponent<ProductionQueue>
     {
-        public Action<ProductionOrder[]> OnQueueChanged;
-        public Action<ProductionOrder> OnOrderEnqueued;
-        public Action<ProductionOrder, bool> OnOrderComplete;
+        public Action OnQueueChanged;
+        public Action OnOrderEnqueued;
+        public Action OnOrderComplete;
+        public Action<ProductionOrder, int> OnProductionProgressIncreased;
         
         [SerializeField] private ProductionOrder _orderPrefab;
         
@@ -26,6 +27,7 @@ namespace Ratworx.MarsTS.Production
         public ProductionOrder CurrentOrder => _productionQueue[0];
         public int QueueCount => _productionQueue.Count;
         public float CurrentProductionAmount => _receiver.CurrentProductionAmount;
+        public List<ProductionOrder> Queue => _productionQueue;
         
         private readonly List<ProductionOrder> _productionQueue = new List<ProductionOrder>();
 
@@ -45,7 +47,7 @@ namespace Ratworx.MarsTS.Production
 
         public void EnqueueOrder(ProductionOrder order) {
             _productionQueue.Add(order);
-            OnQueueChanged?.Invoke(_productionQueue.ToArray());
+            OnQueueChanged?.Invoke();
 
             if (NetworkManager.Singleton.IsServer) 
                 EnqueueOrderClientRpc(order.ProductKey, order.ProductionRequired);
@@ -72,8 +74,8 @@ namespace Ratworx.MarsTS.Production
                 }
             }
             
-            OnOrderComplete?.Invoke(completedOrder, isCancelled);
-            OnQueueChanged?.Invoke(_productionQueue.ToArray());
+            OnOrderComplete?.Invoke();
+            OnQueueChanged?.Invoke();
             
             CompleteOrderClientRpc(queuePosition, isCancelled);
             
@@ -84,15 +86,14 @@ namespace Ratworx.MarsTS.Production
         private void CompleteOrderClientRpc(int queuePosition, bool isCancelled) {
             var completedOrder = _productionQueue[queuePosition];
             
-            OnOrderComplete?.Invoke(completedOrder, isCancelled);
-            OnQueueChanged?.Invoke(_productionQueue.ToArray());
+            OnOrderComplete?.Invoke();
+            OnQueueChanged?.Invoke();
         }
 
         public void CancelOrder(int position) => CompleteOrder(position, true);
 
         protected virtual void OnUnitInfoDisplayed(UnitInfoEvent evnt) {
-            evnt.Info.Module<ProductionInfo>("productionQueue").SetQueue(this, production.Current as IProducable,
-                production.QueuedProduction);
+            evnt.Info.Module<ProductionInfo>("productionQueue").SetQueue(this);
         }
     }
 }

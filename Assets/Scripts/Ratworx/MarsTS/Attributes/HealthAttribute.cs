@@ -1,7 +1,9 @@
 using System;
 using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable;
 using Ratworx.MarsTS.Events.Selectable.Attackable;
 using Ratworx.MarsTS.Teams;
+using Ratworx.MarsTS.UI.Unit_Pane;
 using Ratworx.MarsTS.Units;
 using UnityEngine;
 using Unity.Netcode;
@@ -22,6 +24,10 @@ namespace Ratworx.MarsTS.Entities
 			Entity = GetComponent<Entity>();
 			_eventAgent = GetComponent<EventAgent>();
 			_ownership = GetComponent<UnitOwnership>();
+		}
+
+		private void Start() {
+			_eventAgent.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
 		}
 
 		public override void OnNetworkSpawn() {
@@ -67,6 +73,11 @@ namespace Ratworx.MarsTS.Entities
 				hurtEvent.Phase = Phase.Post;
 				_eventAgent.PostGlobal(hurtEvent);
 			}
+		}
+		
+		protected virtual void OnUnitInfoDisplayed(UnitInfoEvent _event) {
+			HealthInfo info = _event.Info.Module<HealthInfo>("health");
+			info.CurrentUnit = this;
 		}
 
 		public void SetMaxHealth(int newValue) {

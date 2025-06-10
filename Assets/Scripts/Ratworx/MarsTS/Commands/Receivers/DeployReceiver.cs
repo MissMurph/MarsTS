@@ -35,7 +35,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         private Entity _entity;
         
         private void Awake() {
-            _entity = GetComponent<Entity>();
+            _entity = GetComponentInParent<Entity>();
 
             _currentDeployTime = 0f;
         }

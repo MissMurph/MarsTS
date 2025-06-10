@@ -28,13 +28,12 @@ namespace Ratworx.MarsTS.Commands.Receivers
         [SerializeField] private int _evaluationPriority;
         [SerializeField] private bool _canInterrupt;
         
-        // TODO: We may need to do the below as GetComponentInParent
         private void Awake() {
-            UnitPathing = GetComponent<UnitPathfinder>();
-            UnitTargeting = GetComponent<UnitTargetManager>();
-            Ownership = GetComponent<UnitOwnership>(); 
-            CommandQueue = GetComponent<CommandQueue>();
-            EventAgent = GetComponent<EventAgent>();
+            UnitPathing = GetComponentInParent<UnitPathfinder>();
+            UnitTargeting = GetComponentInParent<UnitTargetManager>();
+            Ownership = GetComponentInParent<UnitOwnership>(); 
+            CommandQueue = GetComponentInParent<CommandQueue>();
+            EventAgent = GetComponentInParent<EventAgent>();
         }
         
         public abstract void ReceiveCommand(T command);

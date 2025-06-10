@@ -4,7 +4,7 @@ using UnityEngine.Serialization;
 
 namespace Ratworx.MarsTS.Buildings
 {
-    public abstract class BuildingGhosts : NetworkBehaviour
+    public class BuildingGhosts : MonoBehaviour
     {
         [SerializeField] private GameObject _selectionGhost;
         [SerializeField] private GameObject _constructionGhost;

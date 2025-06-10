@@ -9,6 +9,7 @@ namespace Ratworx.MarsTS.Production
         public int ProductionRequired;
         /// <summary>RegistryKey to the product prefab</summary>
         public string ProductKey;
+        // TODO: Turn below into enum
         /// <summary>Pre-defined types are: <br/><c>production</c><br/><c>research</c><br/><c>upgrade</c></summary>
         public string ProductionType;
         public ResourceCost[] Cost;

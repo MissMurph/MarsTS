@@ -418,7 +418,6 @@ MonoBehaviour:
   _key: commandlets
   _namespace: ratworx
   _prefabsToRegister:
-  - {fileID: 5062450205701061265, guid: 496d2a571139ad64789835691b11f38a, type: 3}
   - {fileID: 262308078846228063, guid: aa6fcc6bf9eba1f43b325844b5b51934, type: 3}
   - {fileID: 6791844101537434035, guid: abe49472517413a49a4fa5a5eef3ecd4, type: 3}
   - {fileID: 8512689890038300718, guid: 431e566947e6f464fbf83132d5b081bf, type: 3}
@@ -426,9 +425,6 @@ MonoBehaviour:
   - {fileID: 9078585913170648526, guid: d9ec859147772184c9b3d31f69961193, type: 3}
   - {fileID: 262308078846228063, guid: 837d5944aef796548a81a1f5796733e8, type: 3}
   - {fileID: 1035222882716711203, guid: 198236874e2b3444983b43b2295a5dc0, type: 3}
-  - {fileID: 7415966196967916076, guid: 1c6557882c14cd14683702184e28497b, type: 3}
-  - {fileID: 3236094735460527928, guid: 8b49a0eaeb1aa61488830d961934bdb3, type: 3}
-  - {fileID: 7510338217003625813, guid: a2aabe80c70a3a74a96e77f614e9fd3d, type: 3}
 --- !u!114 &1188445022
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -494,8 +490,6 @@ MonoBehaviour:
   - {fileID: 5018127803035628517, guid: a9f490aa50af63244bb222d3ab0e05f0, type: 3}
   - {fileID: 974687869533868368, guid: 3469d6fccb6d6bc4b9ba66f937fcd17d, type: 3}
   - {fileID: 4002054096274699913, guid: 9fe1e05b90714ce49a1c10552559d96f, type: 3}
-  - {fileID: 8069000943633701443, guid: fdbf4b0740ccf4a42a9c67cb4d3762d6, type: 3}
-  - {fileID: 7248859610773361695, guid: b8ae55b487a53814988a1ce86421e8a1, type: 3}
 --- !u!114 &1188445025
 MonoBehaviour:
   m_ObjectHideFlags: 0

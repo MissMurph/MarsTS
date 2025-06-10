@@ -851,7 +851,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffede7701679440479b740e4f6245f82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _storage: {fileID: -4283467133816848101}
+  _storage: {fileID: 0}
 --- !u!33 &2847185248052669307
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -1220,15 +1220,16 @@ GameObject:
   m_Component:
   - component: {fileID: 5367866818507981772}
   - component: {fileID: -5516156988726761689}
-  - component: {fileID: 5367866818507981619}
   - component: {fileID: 5367866818507981774}
   - component: {fileID: 5367866818507981617}
   - component: {fileID: 8638639003086698277}
   - component: {fileID: 2018745250206065248}
   - component: {fileID: 7421492617111447454}
-  - component: {fileID: 3531387192427473891}
   - component: {fileID: 9139925973383411809}
-  - component: {fileID: -4283467133816848101}
+  - component: {fileID: 850439592024892566}
+  - component: {fileID: 5146408856619659496}
+  - component: {fileID: 8530709829761583082}
+  - component: {fileID: 7391138028872715946}
   m_Layer: 0
   m_Name: makeshift_pumpjack
   m_TagString: Untagged
@@ -1257,6 +1258,7 @@ Transform:
   - {fileID: 1973103983}
   - {fileID: 2993380890860866120}
   - {fileID: 1449320047340231748}
+  - {fileID: 270432126926453210}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1272,7 +1274,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1263396073
+  GlobalObjectIdHash: 2384780617
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -1281,37 +1283,6 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &5367866818507981619
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5367866818507981616}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c77448c1fc10234499eafae4997c1a75, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth:
-    m_InternalValue: 150
-  currentHealth:
-    m_InternalValue: 0
-  icon: {fileID: 21300000, guid: 78bed7f6e97043e499f75cb8c101f8d3, type: 3}
-  type: makeshift_pumpjack
-  _owner: 0
-  boundCommands:
-  - upgrade/camo
-  selectionGhost: {fileID: 6633247702655670159, guid: 38121fc0d5ac7f745977aff782b851b7,
-    type: 3}
-  constructionGhost: {fileID: 2819411760947315549, guid: a483aaaa4712a8549b0d4f5c6087346e,
-    type: 3}
-  visionObjects:
-  - {fileID: 8979685112403033926}
-  - {fileID: 5367866817302535497}
-  - {fileID: 5367866818414365172}
-  - {fileID: 4840080792937470200}
-  _harvestRate: 5
 --- !u!114 &5367866818507981774
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1367,7 +1338,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffb1a995f66a6914b8f45f33baabb6f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isSneaking: 0
+  _isSneaking: 0
 --- !u!114 &7421492617111447454
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1380,19 +1351,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 866af88a2db170c42a48b68ed236afd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &3531387192427473891
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5367866818507981616}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ec1573b00b570e41bd9eb6c4e1bb97d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  productionSpeed: 1
 --- !u!114 &9139925973383411809
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1405,9 +1363,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89e4001c157ec4447bc333ae420835ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  visionRange: 0
-  owner: 0
---- !u!114 &-4283467133816848101
+  _visionRange: 0
+  _hideables: []
+--- !u!114 &850439592024892566
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1416,13 +1374,51 @@ MonoBehaviour:
   m_GameObject: {fileID: 5367866818507981616}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db75fe7896a566744b02bc8532aebeab, type: 3}
+  m_Script: {fileID: 11500000, guid: 058a3fd32fc7c154dbd314a15a1fc5ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _key: 
-  _startingValue: 0
-  _capacity: 1000
-  _resourceKey: oil
+  _startingValue: 250
+  _internalValue:
+    m_InternalValue: 0
+  _maxHealth: 250
+--- !u!114 &5146408856619659496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5367866818507981616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e7d163064694102a80443073aebc100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8530709829761583082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5367866818507981616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ec1b2a83c174b499ed5218f79064152, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _icon: {fileID: 21300000, guid: 78bed7f6e97043e499f75cb8c101f8d3, type: 3}
+--- !u!114 &7391138028872715946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5367866818507981616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e7d163064694102a80443073aebc100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7385425075091297558
 GameObject:
   m_ObjectHideFlags: 0
@@ -1519,6 +1515,56 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &8611426605965182930
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 270432126926453210}
+  - component: {fileID: 6143505529018927447}
+  m_Layer: 0
+  m_Name: OilStorage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &270432126926453210
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8611426605965182930}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5367866818507981772}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6143505529018927447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8611426605965182930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db75fe7896a566744b02bc8532aebeab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _key: 
+  _startingValue: 0
+  _internalValue:
+    m_InternalValue: 0
+  _capacity: 1000
+  _resourceKey: oil
 --- !u!1001 &568225783661821611
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1686,12 +1732,6 @@ PrefabInstance:
 --- !u!4 &2993380890860866120 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1831631696989345087, guid: 25e6df0840ee3434eb5d4dcf622276e2,
-    type: 3}
-  m_PrefabInstance: {fileID: 3522346374153707383}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &8979685112403033926 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5512304058434871345, guid: 25e6df0840ee3434eb5d4dcf622276e2,
     type: 3}
   m_PrefabInstance: {fileID: 3522346374153707383}
   m_PrefabAsset: {fileID: 0}

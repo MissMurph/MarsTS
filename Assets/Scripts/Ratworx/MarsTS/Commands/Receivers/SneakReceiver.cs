@@ -26,9 +26,9 @@ namespace Ratworx.MarsTS.Commands.Receivers
         private int _preModifiedMoveSpeed;
         
         private void Awake() {
-            _entity = GetComponent<Entity>();
-            _eventAgent = GetComponent<EventAgent>();
-            _commandQueue = GetComponent<CommandQueue>();
+            _entity = GetComponentInParent<Entity>();
+            _eventAgent = GetComponentInParent<EventAgent>();
+            _commandQueue = GetComponentInParent<CommandQueue>();
         }
 
         public override void ReceiveCommand(BooleanCommandlet command) {

@@ -13,9 +13,9 @@ using UnityEngine.Serialization;
 
 namespace Ratworx.MarsTS.Commands.Factories
 {
-    public class Produce : CommandFactory<string>
+    public class Produce : CommandFactory<ProductionOption>
     {
-        public override string Name => $"{CommandKey}/{_productRegistryKey}";
+        public override string Name => _commandKey;
         protected virtual string CommandKey => _commandKey;
         public override Sprite Icon => _unit.Icon;
 
@@ -24,9 +24,7 @@ namespace Ratworx.MarsTS.Commands.Factories
         [FormerlySerializedAs("description")]
         [SerializeField]
         protected string _description;
-
-        protected string _productRegistryKey;
-
+        
         private ISelectable _unit { get; set; }
 
         [SerializeField] private string _commandKey = "produce";
@@ -47,19 +45,19 @@ namespace Ratworx.MarsTS.Commands.Factories
                     lowestCommandable = commandable;
                 }
 
-                if (lowestCommandable != null)
-                    ConstructProductionletServerRpc(Player.Player.Commander.Id, lowestCommandable.GameObject.name);
+                // if (lowestCommandable != null)
+                    // ConstructProductionletServerRpc(Player.Player.Commander.Id, lowestCommandable.GameObject.name);
             }
         }
 
         //We create separate calls for now since Productionlets are different to normal commands
         //This is due to having to serialize GameObject as a target when we don't need to
         [Rpc(SendTo.Server)]
-        protected virtual void ConstructProductionletServerRpc(int factionId, string selection) {
-            ConstructProductionletServer(factionId, selection);
+        protected virtual void ConstructProductionletServerRpc(SerializedProductionOption productionOption, int factionId, int selection) {
+            ConstructProductionletServer(productionOption.GetDeserializedOption(), factionId, selection);
         }
 
-        protected virtual void ConstructProductionletServer(int factionId, string selection) {
+        protected virtual void ConstructProductionletServer(ProductionOption productionOption, int factionId, int selection) {
             Faction faction = TeamCache.Faction(factionId);
 
             if (!CanFactionAfford(faction))
@@ -67,9 +65,12 @@ namespace Ratworx.MarsTS.Commands.Factories
 
             ProduceCommandlet order = Instantiate(orderPrefab) as ProduceCommandlet;
 
-            order.InitProduce(Name, CommandKey, _productRegistryKey, TeamCache.Faction(factionId));
+            order.Init(Name, productionOption, TeamCache.Faction(factionId));
 
-            if (EntityCache.TryGetEntityComponent(selection, out ICommandable unit))
+            
+            
+            if (EntityCache.TryGetEntity(selection, out Entity entity)
+                && entity.TryGetEntityComponent(out ICommandable unit))
                 unit.Order(order, true);
             else
                 RatLogger.Error?.Log($"Failed to find selected entity {selection} for command {Name}");

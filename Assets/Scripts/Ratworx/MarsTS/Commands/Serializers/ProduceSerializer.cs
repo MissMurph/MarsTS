@@ -1,4 +1,5 @@
 using Ratworx.MarsTS.Commands.Commandlets;
+using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Registry;
 using Unity.Netcode;
 using UnityEngine;
@@ -23,7 +24,7 @@ namespace Ratworx.MarsTS.Commands.Serializers
             if (data is not ProduceCommandlet superType) 
                 return null;
 
-            string prefabKey = superType.ProductRegistryKey;
+            var serializedOption = new SerializedProductionOption(superType.Target);
 
             return new SerializedProduceCommandlet
             {
@@ -31,7 +32,7 @@ namespace Ratworx.MarsTS.Commands.Serializers
                 SerializerKey = Key,
                 Faction = superType.Commander.Id,
                 Id = superType.Id,
-                ProductRegistryKey = prefabKey,
+                ProductionOption = serializedOption
             };
         }
     }
@@ -43,11 +44,11 @@ namespace Ratworx.MarsTS.Commands.Serializers
         public int Faction { get; set; }
         public int Id { get; set; }
 
-        public string ProductRegistryKey;
+        public SerializedProductionOption ProductionOption;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
-            serializer.SerializeValue(ref ProductRegistryKey);
+            serializer.SerializeValue(ref ProductionOption);
         }
     }
 }

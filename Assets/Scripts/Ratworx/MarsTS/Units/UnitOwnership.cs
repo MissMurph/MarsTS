@@ -12,22 +12,27 @@ namespace Ratworx.MarsTS.Units
                                  IEntityComponent<UnitOwnership>,
                                  IUnitInterface
     {
-        public Faction Owner { get; private set; }
         public Action<Faction> OnUnitOwnershipChanged;
+
+        public Faction Owner {
+            get => _owner;
+            private set => _owner = value;
+        }
+
         public UnitOwnership Get() => this;
         public string Key => "ownership";
         public GameObject GameObject => gameObject;
-        public Entity Entity => _entity;
-        
+        public Entity Entity { get; private set; }
+
         private EventAgent _eventAgent;
-        private Entity _entity;
+        [SerializeField] private Faction _owner;
 
         private void Awake() {
-            _entity = GetComponent<Entity>();
+            Entity = GetComponent<Entity>();
+            _eventAgent = GetComponent<EventAgent>();
         }
 
-        public bool SetOwner(Faction faction)
-        {
+        public bool SetOwner(Faction faction) {
             if (!NetworkManager.Singleton.IsServer) return false;
 
             Owner = faction;
@@ -37,8 +42,7 @@ namespace Ratworx.MarsTS.Units
         }
 
         [Rpc(SendTo.NotServer)]
-        private void SetOwnerClientRpc(int newId)
-        {
+        private void SetOwnerClientRpc(int newId) {
             Owner = TeamCache.Faction(newId);
             _eventAgent.PostGlobal(new UnitOwnerChangeEvent(this, Owner));
         }

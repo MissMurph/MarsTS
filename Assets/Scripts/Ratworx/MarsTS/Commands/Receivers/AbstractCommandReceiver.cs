@@ -28,7 +28,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         [SerializeField] private int _evaluationPriority;
         [SerializeField] private bool _canInterrupt;
         
-        private void Awake() {
+        protected virtual void Awake() {
             UnitPathing = GetComponentInParent<UnitPathfinder>();
             UnitTargeting = GetComponentInParent<UnitTargetManager>();
             Ownership = GetComponentInParent<UnitOwnership>(); 

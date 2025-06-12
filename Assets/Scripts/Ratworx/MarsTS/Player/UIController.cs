@@ -27,7 +27,6 @@ namespace Ratworx.MarsTS.Player {
 		}
 
 		private CommandPanel commandPanel;
-		private UnitPane unitPane;
 
 		private Dictionary<string, List<string>> _commandProfiles;
 		private string[] profileIndex;
@@ -76,6 +75,10 @@ namespace Ratworx.MarsTS.Player {
 			}
 		}
 
+		public bool IsDrawingSelection => _isDrawingSelection;
+
+		private bool _isDrawingSelection;
+
 		private void Awake () {
 			instance = this;
 			_commandProfiles = new();
@@ -86,7 +89,6 @@ namespace Ratworx.MarsTS.Player {
 			canvasRaycaster = GameObject.FindGameObjectWithTag("Canvas").GetComponent<GraphicRaycaster>();
 			selectionSquare = canvasRaycaster.transform.Find("SelectionSquare").transform as RectTransform;
 			commandPanel = GameObject.Find("Command Zone").GetComponent<CommandPanel>();
-			unitPane = GameObject.Find("Unit Pane").GetComponent<UnitPane>();
 			EventBus.AddListener<PlayerSelectEvent>(OnSelection);
 			EventBus.AddListener<CommandsUpdatedEvent>(OnCommandUpdate);
 		}
@@ -98,6 +100,7 @@ namespace Ratworx.MarsTS.Player {
 				if (!selectionSquare.gameObject.activeInHierarchy && Vector2.Distance(drawStart, drawMouse) > 2f) {
 					selectionSquare.gameObject.SetActive(true);
 					boxCollider = Instantiate(selectionPrefab).GetComponent<MeshCollider>();
+					_isDrawingSelection = true;
 				}
 
 				Vector2 topLeft;
@@ -138,11 +141,12 @@ namespace Ratworx.MarsTS.Player {
 
 				case InputActionPhase.Canceled: {
 					if (selectionSquare.gameObject.activeSelf) {
-						if (!Player.Include) Player.Main.ClearSelection();
+						if (!Player.Include) Player.Selection.ClearSelection();
 						Destroy(boxCollider.gameObject, 0.2f);
 						selectionSquare.gameObject.SetActive(false);
 					}
 
+					_isDrawingSelection = false;
 					mouseHeld = false;
 					break;
 				}
@@ -256,16 +260,6 @@ namespace Ratworx.MarsTS.Player {
 		private void OnCommandUpdate (CommandsUpdatedEvent _event) {
 			/*if (PrimarySelected == _event.Unit.RegistryKey) {
 				commandPanel.UpdateCommands(_event.NewCommands);
-			}*/
-		}
-
-		public void Next (InputAction.CallbackContext context) {
-			/*if (context.performed && profileIndex.Length > 0) {
-				int newIndex = primaryIndex >= profileIndex.Length - 1 ? 0 : primaryIndex + 1;
-				if (profileIndex[newIndex] != null) {
-					PrimarySelected = profileIndex[newIndex];
-					primaryIndex = newIndex;
-				}
 			}*/
 		}
 

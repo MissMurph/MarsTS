@@ -72,6 +72,7 @@ namespace Ratworx.MarsTS.Player {
 			_inputController = GetComponent<InputHandler>();
 			_uiController = GetComponent<UIController>();
 			_cameraControls = GetComponent<ViewportController>();
+			_playerSelection = GetComponent<PlayerSelection>();
 
 			_view = GetComponentInChildren<Camera>();
 		}
@@ -112,14 +113,15 @@ namespace Ratworx.MarsTS.Player {
 
 		public void Select (InputAction.CallbackContext context) {
 			if (context.phase == InputActionPhase.Canceled) {
-				if (UI.IsHovering) return;
-				if (!Include) ClearSelection();
+				if (UI.IsHovering
+					|| UI.IsDrawingSelection) return;
+				if (!Include) _playerSelection.ClearSelection();
 
 				Ray ray = ViewPort.ScreenPointToRay(_cursorPos);
 
 				if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)) {
 					ISelectable hitUnit = hit.collider.gameObject.GetComponentInParent<ISelectable>();
-					SelectUnit(hitUnit);
+					_playerSelection.SelectUnits(hitUnit);
 				}
 			}
 		}
@@ -130,42 +132,6 @@ namespace Ratworx.MarsTS.Player {
 			}
 
 			return false;
-		}
-
-		public void SelectUnit (params ISelectable[] selection) {
-			foreach (ISelectable target in selection) {
-				Roster units = GetRoster(target.Entity.RegistryKey);
-
-				if (!units.TryAdd(target.Entity)) {
-					units.Remove(target.Entity.Id);
-					target.Select(false);
-					if (units.Count == 0) _selected.Remove(units.RegistryKey);
-				}
-				else {
-					target.Select(true);
-				}
-			}
-
-			EventBus.Post(new PlayerSelectEvent(Selected));
-		}
-
-		public void ClearSelection () {
-			foreach (Roster units in _selected.Values) {
-				foreach (Entity unit in units.List()) {
-					unit.GetEntityComponent<ISelectable>().Select(false);
-				}
-
-				units.Clear();
-			}
-
-			_selected.Clear();
-			EventBus.Post(new PlayerSelectEvent(Selected));
-		}
-
-		private Roster GetRoster (string key) {
-			Roster map = _selected.GetValueOrDefault(key, new Roster());
-			_selected.TryAdd(key, map);
-			return map;
 		}
 
 		public void Command (InputAction.CallbackContext context) {
@@ -217,6 +183,16 @@ namespace Ratworx.MarsTS.Player {
 					lowestOrderable.Order(packet, inclusive);
 				}
 			}
+		}
+		
+		public void Next (InputAction.CallbackContext context) {
+			if (!context.performed || _playerSelection.SelectedTypesCount <= 1) return;
+
+			List<string> types = _playerSelection.SelectedTypes;
+			int currentIndex = types.IndexOf(_playerSelection.PrimarySelection.RegistryKey);
+			Roster newCurrent = _playerSelection.Selected[types[currentIndex + 1]];
+			
+			_playerSelection.SetPrimarySelection(newCurrent);
 		}
 
 		public void Alternate (InputAction.CallbackContext context) {

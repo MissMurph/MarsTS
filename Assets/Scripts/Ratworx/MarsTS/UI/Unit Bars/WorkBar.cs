@@ -6,7 +6,7 @@ namespace Ratworx.MarsTS.UI.Unit_Bars
     public class WorkBar : UnitBar
     {
         private void Start() {
-            _barRenderer.enabled = false;
+            BarRenderer.enabled = false;
 
             EventAgent bus = GetComponentInParent<EventAgent>();
 
@@ -15,11 +15,11 @@ namespace Ratworx.MarsTS.UI.Unit_Bars
 
         private void OnWorkStep(CommandWorkEvent evnt) {
             if (evnt.Progress >= 1f) {
-                _barRenderer.enabled = false;
+                BarRenderer.enabled = false;
             }
             else {
                 UpdateBarWithFillLevel(evnt.Progress);
-                _barRenderer.enabled = true;
+                BarRenderer.enabled = true;
             }
         }
     }

@@ -14,7 +14,7 @@ namespace Ratworx.MarsTS.UI.Unit_Bars
         
         private void Start() {
             _constructionAttribute.OnAttributeChange += OnConstructionProgressChanged;
-            _barRenderer.enabled = true;
+            BarRenderer.enabled = true;
         }
 
         private void OnConstructionProgressChanged(int oldValue, int newValue) 

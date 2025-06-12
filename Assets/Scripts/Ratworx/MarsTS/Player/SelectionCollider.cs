@@ -65,8 +65,8 @@ namespace Ratworx.MarsTS.Player {
 				typeList.Add(unit);
 			}
 
-			if (typeDict.TryGetValue("unit", out List<ISelectable> unitOutput)) Player.Main.SelectUnit(unitOutput.ToArray());
-			else if (typeDict.TryGetValue("building", out List<ISelectable> buildingOutput)) Player.Main.SelectUnit(buildingOutput.ToArray());
+			if (typeDict.TryGetValue("unit", out List<ISelectable> unitOutput)) Player.Selection.SelectUnits(unitOutput.ToArray());
+			else if (typeDict.TryGetValue("building", out List<ISelectable> buildingOutput)) Player.Selection.SelectUnits(buildingOutput.ToArray());
 
 
 

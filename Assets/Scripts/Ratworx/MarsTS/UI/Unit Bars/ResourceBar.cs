@@ -39,14 +39,14 @@ namespace Ratworx.MarsTS.UI.Unit_Bars
             if (currentValue > 0)
             {
                 if (!_isHoveredOrSelected)
-                    _barRenderer.enabled = true;
+                    BarRenderer.enabled = true;
 
                 _hasStored = true;
             }
             else
             {
                 if (!_isHoveredOrSelected)
-                    _barRenderer.enabled = false;
+                    BarRenderer.enabled = false;
 
                 _hasStored = false;
             }
@@ -57,9 +57,9 @@ namespace Ratworx.MarsTS.UI.Unit_Bars
             _isHoveredOrSelected = _event.Status;
 
             if (_event.Status)
-                _barRenderer.enabled = true;
+                BarRenderer.enabled = true;
             else if (!_hasStored)
-                _barRenderer.enabled = false;
+                BarRenderer.enabled = false;
         }
 
         private void OnUnitSelect(UnitSelectEvent _event)
@@ -67,9 +67,9 @@ namespace Ratworx.MarsTS.UI.Unit_Bars
             _isHoveredOrSelected = _event.Status;
 
             if (_event.Status)
-                _barRenderer.enabled = true;
+                BarRenderer.enabled = true;
             else if (!_hasStored)
-                _barRenderer.enabled = false;
+                BarRenderer.enabled = false;
         }
     }
 }

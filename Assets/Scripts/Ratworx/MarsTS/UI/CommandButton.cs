@@ -31,7 +31,10 @@ namespace Ratworx.MarsTS.UI
             Deactivate();
         }
 
-        private void Start() {
+        private void Start() => GameInit.OnSpawnSystems += OnSystemsSpawned;
+
+        private void OnSystemsSpawned()
+        {
             Player.Player.Selection.OnPrimarySelectedCommandsStateChanged += UpdateSelectedCommandState;
         }
 
@@ -75,10 +78,12 @@ namespace Ratworx.MarsTS.UI
         public void OnPointerExitButton() { }
 
         private void EvaluateUsability() {
-            foreach (ICommandable unit in Player.Player.Selection.PrimarySelection.GetCommandables()) {
-                if (unit.CanCommand(current.Name)) {
-                    _usable.SetActive(false);
-                    return;
+            if (Player.Player.Selection.PrimarySelection is not null) {
+                foreach (ICommandable unit in Player.Player.Selection.PrimarySelection.GetCommandables()) {
+                    if (unit.CanCommand(current.Name)) {
+                        _usable.SetActive(false);
+                        return;
+                    }
                 }
             }
 
@@ -86,11 +91,13 @@ namespace Ratworx.MarsTS.UI
         }
 
         private void EvaluateActivity() {
-            foreach (ICommandable unit in Player.Player.Selection.PrimarySelection.GetCommandables()) {
-                if (unit.ActiveCommands.Any(receiver => receiver.CommandKey == current.Name)) {
-                    _activity.SetActive(true);
-                    return;
+            if (Player.Player.Selection.PrimarySelection is not null) {
+                foreach (ICommandable unit in Player.Player.Selection.PrimarySelection.GetCommandables()) {
+                    if (unit.ActiveCommands.Any(receiver => receiver.CommandKey == current.Name)) {
+                        _activity.SetActive(true);
+                        return;
                     
+                    }
                 }
             }
 
@@ -102,14 +109,16 @@ namespace Ratworx.MarsTS.UI
             float lowestCooldown = 999f;
             float cooldownDuration = 0f;
 
-            foreach (ICommandable unit in Player.Player.Selection.PrimarySelection.GetCommandables()) {
-                foreach (Timer activeCooldown in unit.Cooldowns) {
-                    if (activeCooldown.commandName == current.Name) {
-                        coolingDown = true;
-                        cooldownDuration = activeCooldown.duration;
+            if (Player.Player.Selection.PrimarySelection is not null) {
+                foreach (ICommandable unit in Player.Player.Selection.PrimarySelection.GetCommandables()) {
+                    foreach (Timer activeCooldown in unit.Cooldowns) {
+                        if (activeCooldown.commandName == current.Name) {
+                            coolingDown = true;
+                            cooldownDuration = activeCooldown.duration;
 
-                        if (activeCooldown.timeRemaining < lowestCooldown)
-                            lowestCooldown = activeCooldown.timeRemaining;
+                            if (activeCooldown.timeRemaining < lowestCooldown)
+                                lowestCooldown = activeCooldown.timeRemaining;
+                        }
                     }
                 }
             }

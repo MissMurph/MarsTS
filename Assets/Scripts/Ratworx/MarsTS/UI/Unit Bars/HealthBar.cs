@@ -13,7 +13,7 @@ namespace Ratworx.MarsTS.UI.Unit_Bars
         {
             _hurt = false;
 
-            _barRenderer.enabled = false;
+            BarRenderer.enabled = false;
 
             EventAgent bus = GetComponentInParent<EventAgent>();
 
@@ -28,25 +28,25 @@ namespace Ratworx.MarsTS.UI.Unit_Bars
                 if (_event.Attackable.Health < _event.Attackable.MaxHealth)
                 {
                     _hurt = true;
-                    _barRenderer.enabled = true;
+                    BarRenderer.enabled = true;
                 }
                 else
                 {
                     _hurt = false;
-                    _barRenderer.enabled = false;
+                    BarRenderer.enabled = false;
                 }
             });
 
             bus.AddListener<UnitHoverEvent>(_event =>
             {
-                if (_event.Status) _barRenderer.enabled = true;
-                else if (!_hurt) _barRenderer.enabled = false;
+                if (_event.Status) BarRenderer.enabled = true;
+                else if (!_hurt) BarRenderer.enabled = false;
             });
 
             bus.AddListener<UnitSelectEvent>(_event =>
             {
-                if (_event.Status) _barRenderer.enabled = true;
-                else if (!_hurt) _barRenderer.enabled = false;
+                if (_event.Status) BarRenderer.enabled = true;
+                else if (!_hurt) BarRenderer.enabled = false;
             });
         }
     }

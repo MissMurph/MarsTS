@@ -12,23 +12,23 @@ namespace Ratworx.MarsTS.Units
         public string RegistryKey { get; private set; }
         public string RegistryType { get; private set; }
 
-        private readonly Dictionary<int, Entity> instances;
-        public int Count => instances.Count;
+        private readonly Dictionary<int, Entity> _instances;
+        public int Count => _instances.Count;
 
         public Roster(string registryKey, Entity[] units) {
             RegistryKey = registryKey;
             RegistryType = units[0].RegistryType;
-            instances = new Dictionary<int, Entity>();
+            _instances = new Dictionary<int, Entity>();
         }
 
-        public Roster() => instances = new Dictionary<int, Entity>();
+        public Roster() => _instances = new Dictionary<int, Entity>();
 
-        public Entity GetFirst() => instances.Values.FirstOrDefault();
+        public Entity GetFirst() => _instances.Values.FirstOrDefault();
 
-        public Entity Get(int id) => instances.GetValueOrDefault(id);
+        public Entity Get(int id) => _instances.GetValueOrDefault(id);
 
-        public List<Entity> List() => new List<Entity>(instances.Values);
-
+        public List<Entity> List() => new List<Entity>(_instances.Values);
+    
         public bool TryAdd(Entity unit) {
             if (string.IsNullOrEmpty(RegistryKey)) {
                 RegistryKey = unit.RegistryKey;
@@ -40,7 +40,7 @@ namespace Ratworx.MarsTS.Units
                 return false;
             }
 
-            if (instances.TryAdd(unit.Id, unit)) return true;
+            if (_instances.TryAdd(unit.Id, unit)) return true;
 
             RatLogger.Message?.Log($"Unit {unit.Id} already added to Roster of {RegistryType} type!");
             return false;
@@ -48,15 +48,15 @@ namespace Ratworx.MarsTS.Units
 
         public void Remove(params int[] ids) {
             foreach (int id in ids) {
-                instances.Remove(id);
+                _instances.Remove(id);
             }
         }
 
-        public bool Contains(int id) => instances.ContainsKey(id);
+        public bool Contains(int id) => _instances.ContainsKey(id);
 
-        public void Clear() => instances.Clear();
+        public void Clear() => _instances.Clear();
 
-        public IEnumerator<Entity> GetEnumerator() => instances.Values.GetEnumerator();
+        public IEnumerator<Entity> GetEnumerator() => _instances.Values.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }

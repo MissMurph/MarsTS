@@ -25,13 +25,17 @@ namespace Ratworx.MarsTS.UI.Unit_Pane
             _infoCard = transform.Find("UnitInfo").GetComponent<UnitInfoCard>();
         }
 
-        private void Start() {
+        private void Start() => GameInit.OnSpawnSystems += OnSystemsSpawned;
+
+        private void OnSystemsSpawned() {
             Player.Player.Selection.OnPlayerSelectionChanged += UpdateDisplayedUnits;
             Player.Player.Selection.OnPrimarySelectionChanged += UpdatePrimarySelectedCard;
         }
 
         private void UpdateDisplayedUnits() {
             ClearSelection();
+
+            if (Player.Player.Selection.Selected.Count <= 0) return;
 
             if (Player.Player.Selection.SelectedTypes.Count == 1 
                 && Player.Player.Selection.SelectedCount == 1)

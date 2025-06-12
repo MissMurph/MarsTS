@@ -31,13 +31,20 @@ namespace Ratworx.MarsTS.UI {
 		private void Start () {
 			_tooltip.gameObject.SetActive(false);
 
+			GameInit.OnSpawnSystems += OnSystemsSpawned;
+		}
+
+		private void OnSystemsSpawned()
+		{
 			Player.Player.Selection.OnPlayerSelectionChanged += UpdateSelectedCommands;
 			Player.Player.Selection.OnPrimarySelectionChanged += UpdateSelectedCommands;
 			Player.Player.Selection.OnPrimarySelectedCommandsChanged += UpdateSelectedCommands;
 		}
 
 		private void UpdateSelectedCommands() {
-			List<string> commands = Player.Player.Selection.PrimarySelection.GetCommands();
+			List<string> commands = Player.Player.Selection.PrimarySelection is not null
+				? Player.Player.Selection.PrimarySelection.GetCommands()
+				: new List<string>();
 			
 			for (int i = 0; i < _buttonCount; i++) {
 				if (i >= commands.Count) {

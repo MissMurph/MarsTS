@@ -28,7 +28,9 @@ namespace Ratworx.MarsTS.Commands.Receivers
         private ProductionQueue _productionQueue;
         private Entity _entity;
 
-        private void Awake() {
+        protected override void Awake() {
+            base.Awake();
+            
             _productionQueue = GetComponentInParent<ProductionQueue>();
             _entity = GetComponentInParent<Entity>();
         }
@@ -44,7 +46,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
         public override void ReceiveCommand(ProduceCommandlet command) {
             foreach (ProductionOption option in _productionOptions) {
-                if (option.ProductKey != command.ProductRegistryKey) continue;
+                if (option.ProductKey != command.Target.ProductKey) continue;
                 
                 ProductionOrder order = Instantiate(_orderPrefab).GetComponent<ProductionOrder>();
 
@@ -59,7 +61,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
                 return;
             }
             
-            RatLogger.Error?.Log($"Couldn't find matching production option for {command.ProductRegistryKey}! Cancelling order");
+            RatLogger.Error?.Log($"Couldn't find matching production option for {command.Target.ProductKey}! Cancelling order");
             command.CompleteCommand(CommandQueue, true);
         }
 

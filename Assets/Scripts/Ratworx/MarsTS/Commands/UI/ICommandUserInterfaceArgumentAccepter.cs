@@ -1,0 +1,11 @@
+using UnityEngine;
+
+namespace Ratworx.MarsTS.Commands.UI
+{
+    public interface ICommandUserInterfaceArgumentAccepter<in T>
+    {
+        public string GetArgDescription(T arg);
+        public Sprite GetArgIcon(T arg);
+        public void StartArgSelection(T arg);
+    }
+}

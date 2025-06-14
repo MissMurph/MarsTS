@@ -29,24 +29,7 @@ namespace Ratworx.MarsTS.Commands.Factories
         [SerializeField] private string _commandKey = "produce";
 
         public override void StartSelection() {
-            if (!CanFactionAfford(Player.Player.Commander)) return;
-
-            foreach (KeyValuePair<string, Roster> entry in Player.Player.Selected) {
-                int lowestAmount = 9999;
-                ICommandable lowestCommandable = null;
-
-                foreach (ICommandable commandable in entry.Value.GetCommandables()) {
-                    if (!commandable.CanCommand(Name)
-                        || commandable.QueueCount >= lowestAmount)
-                        continue;
-
-                    lowestAmount = commandable.QueueCount;
-                    lowestCommandable = commandable;
-                }
-
-                // if (lowestCommandable != null)
-                    // ConstructProductionletServerRpc(Player.Player.Commander.Id, lowestCommandable.GameObject.name);
-            }
+            
         }
 
         //We create separate calls for now since Productionlets are different to normal commands
@@ -59,7 +42,7 @@ namespace Ratworx.MarsTS.Commands.Factories
         protected virtual void ConstructProductionletServer(ProductionOption productionOption, int factionId, int selection) {
             Faction faction = TeamCache.Faction(factionId);
 
-            if (!CanFactionAfford(faction))
+            if (!productionOption.CanFactionAfford(faction))
                 return;
 
             ProduceCommandlet order = Instantiate(orderPrefab) as ProduceCommandlet;
@@ -93,10 +76,6 @@ namespace Ratworx.MarsTS.Commands.Factories
         }
 
         public override void CancelSelection() { }
-
-        protected bool CanFactionAfford(Faction faction)
-            // => !_cost.Any(entry => faction.GetResource(entry.key).Amount < entry.amount);
-            => true;
 
         protected void WithdrawResourcesFromFaction(Faction faction) {
             /*foreach (ResourceCost entry in _cost) {

@@ -62,6 +62,7 @@ namespace Ratworx.MarsTS.Player
             }
 
             _selectedRegistryKeysToRosters.Clear();
+            _primarySelection = null;
             
             EventBus.Post(new PlayerSelectEvent(Selected));
             OnPlayerSelectionChanged?.Invoke();

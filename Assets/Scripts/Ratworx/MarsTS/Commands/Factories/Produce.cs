@@ -17,16 +17,15 @@ namespace Ratworx.MarsTS.Commands.Factories
     {
         public override string Name => _commandKey;
         protected virtual string CommandKey => _commandKey;
-        public override Sprite Icon => _unit.Icon;
+        public override Sprite Icon => icon;
 
         public override string Description => _description;
 
         [FormerlySerializedAs("description")]
         [SerializeField]
         protected string _description;
-        
-        private ISelectable _unit { get; set; }
 
+        
         [SerializeField] private string _commandKey = "produce";
 
         public override void StartSelection() {

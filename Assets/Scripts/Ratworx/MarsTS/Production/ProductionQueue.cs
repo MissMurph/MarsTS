@@ -24,7 +24,11 @@ namespace Ratworx.MarsTS.Production
         
         public ProductionQueue Get() => this;
         public string Key => "productionQueue";
-        public ProductionOrder CurrentOrder => _productionQueue[0];
+
+        public ProductionOrder CurrentOrder
+            => _productionQueue.Count > 0
+                ? _productionQueue[0]
+                : null;
         public int QueueCount => _productionQueue.Count;
         public float CurrentProductionAmount => _receiver.CurrentProductionAmount;
         public List<ProductionOrder> Queue => _productionQueue;

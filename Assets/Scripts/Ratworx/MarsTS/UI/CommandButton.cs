@@ -78,7 +78,8 @@ namespace Ratworx.MarsTS.UI
         public void OnPointerExitButton() { }
 
         private void EvaluateUsability() {
-            if (Player.Player.Selection.PrimarySelection is not null) {
+            if (current is not null
+                && Player.Player.Selection.PrimarySelection is not null) {
                 foreach (ICommandable unit in Player.Player.Selection.PrimarySelection.GetCommandables()) {
                     if (unit.CanCommand(current.Name)) {
                         _usable.SetActive(false);
@@ -91,7 +92,8 @@ namespace Ratworx.MarsTS.UI
         }
 
         private void EvaluateActivity() {
-            if (Player.Player.Selection.PrimarySelection is not null) {
+            if (current is not null
+                && Player.Player.Selection.PrimarySelection is not null) {
                 foreach (ICommandable unit in Player.Player.Selection.PrimarySelection.GetCommandables()) {
                     if (unit.ActiveCommands.Any(receiver => receiver.CommandKey == current.Name)) {
                         _activity.SetActive(true);
@@ -109,7 +111,8 @@ namespace Ratworx.MarsTS.UI
             float lowestCooldown = 999f;
             float cooldownDuration = 0f;
 
-            if (Player.Player.Selection.PrimarySelection is not null) {
+            if (current is not null
+                && Player.Player.Selection.PrimarySelection is not null) {
                 foreach (ICommandable unit in Player.Player.Selection.PrimarySelection.GetCommandables()) {
                     foreach (Timer activeCooldown in unit.Cooldowns) {
                         if (activeCooldown.commandName == current.Name) {

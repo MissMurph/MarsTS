@@ -135,6 +135,11 @@ namespace Ratworx.MarsTS.UI.Unit_Pane {
 		}
 
 		private void UpdateQueue() {
+			if (_currentSelectedQueue.QueueCount <= 0) {
+				Deactivate();
+				return;
+			}
+			
 			// TODO: Create a unit icon registry
 			ISelectable currentOrderSelectable = GetSelectableFromProductionOrder(_currentSelectedQueue.CurrentOrder);
 

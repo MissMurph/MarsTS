@@ -24,7 +24,7 @@ namespace Ratworx.MarsTS.Commands.Factories
         {
             Player.Player.Input.Hook("Select", OnSelect);
             Player.Player.Input.Hook("Order", OnOrder);
-            Player.Player.UI.SetCursor(Pointer);
+            Player.Player.UI.SetCursor(pointer);
         }
 
         private void OnSelect(InputAction.CallbackContext context)
@@ -50,7 +50,7 @@ namespace Ratworx.MarsTS.Commands.Factories
         public void Construct(IHarvestable target, int factionId, int[] selection, bool inclusive)
         {
             if (NetworkManager.Singleton.IsServer)
-                ConstructCommandletServer(target, factionId, selection, inclusive);
+                ConstructCommandServer(target, factionId, selection, inclusive);
             else
                 ConstructCommandletServerRpc(target.GameObject.name, factionId, selection, inclusive);
         }
@@ -64,7 +64,7 @@ namespace Ratworx.MarsTS.Commands.Factories
                 return;
             }
 
-            ConstructCommandletServer(unit, factionId, selection, inclusive);
+            ConstructCommandServer(unit, factionId, selection, inclusive);
         }
 
         private void OnOrder(InputAction.CallbackContext context)

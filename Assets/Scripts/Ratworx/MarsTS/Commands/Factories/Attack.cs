@@ -1,10 +1,8 @@
 using System;
 using Ratworx.MarsTS.Entities;
-using Ratworx.MarsTS.Networking;
 using Ratworx.MarsTS.Pathfinding;
 using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Units;
-using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -21,7 +19,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 		public override void StartSelection () {
 			Player.Player.Input.Hook("Select", OnSelect);
 			Player.Player.Input.Hook("Order", OnOrder);
-			Player.Player.UI.SetCursor(Pointer);
+			Player.Player.UI.SetCursor(pointer);
 		}
 
 		private void OnSelect (InputAction.CallbackContext context) {
@@ -68,7 +66,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 				return;
 			}
 			
-			ConstructCommandletServer(unit, factionId, selection, inclusive);
+			ConstructCommandServer(unit, factionId, selection, inclusive);
 		}
 
 		public override ResourceCost[] GetCost () => Array.Empty<ResourceCost>();

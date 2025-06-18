@@ -4,6 +4,7 @@ using Ratworx.MarsTS.Commands.Receivers;
 using Ratworx.MarsTS.Extensions;
 using Ratworx.MarsTS.Networking;
 using Ratworx.MarsTS.Production;
+using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units;
 using Unity.Collections;
 using Unity.Netcode;
@@ -11,7 +12,7 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands.Factories {
 
-    public class Adrenaline : CommandFactory<bool> {
+    public class AdrenalineCommandFactory : CommandFactory<bool> {
 
 		public override string Name => commandName;
 
@@ -50,7 +51,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 				}
 			}
 
-			Construct(totalCanUse > totalUsing, Player.Player.ListSelected);
+			ConstructCommand(totalCanUse > totalUsing, Player.Player.ListSelected);
 		}
 
 		public override ResourceCost[] GetCost () 
@@ -60,13 +61,13 @@ namespace Ratworx.MarsTS.Commands.Factories {
 
 		}
 		
-		public void Construct(bool status, List<int> selection) {
+		/*public void Construct(bool status, List<int> selection) {
 			ConstructCommandletServerRpc(status, Player.Player.Commander.Id, selection.ToArray(), Player.Player.Include);
 		}
 
 		[Rpc(SendTo.Server)]
-		private void ConstructCommandletServerRpc(bool status, int factionId, int[] selection, bool inclusive) {
-			ConstructCommandletServer(status, factionId, selection, inclusive);
-		}
+		private void ConstructCommandletServerRpc(bool status, Faction commander, int[] selection, bool inclusive) {
+			ConstructCommandServer(status, commander, selection, inclusive);
+		}*/
 	}
 }

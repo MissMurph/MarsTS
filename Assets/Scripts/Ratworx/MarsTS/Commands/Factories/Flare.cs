@@ -104,7 +104,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			int selection,
 			bool inclusive
 		) {
-			ConstructCommandletServer(target, factionId, new[] { selection }, inclusive);
+			ConstructCommandServer(target, factionId, new[] { selection }, inclusive);
 		}
 
 		public override void CancelSelection () {

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands.Factories {
 
-	public class Upgrade : Produce {
+	public class Upgrade : ProduceCommandFactory {
 		public override string Name => "upgrade";
 
 		public override Sprite Icon => icon;

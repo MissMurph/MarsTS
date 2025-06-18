@@ -27,7 +27,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 
 		[Rpc(SendTo.Server)]
 		public void ConstructCommandletServerRpc(int factionId, int[] selection, bool inclusive) {
-			ConstructCommandletServer(true, factionId, selection, inclusive);
+			ConstructCommandServer(true, factionId, selection, inclusive);
 		}
 
 		public override ResourceCost[] GetCost () {

@@ -16,7 +16,10 @@ namespace Ratworx.MarsTS.Entities
                           IRegistryObject<Entity>,
                           IEquatable<Entity>
     {
-        public int Id { get; private set; }
+        public int Id {
+            get => _id;
+            private set => _id = value;
+        }
 
         public string RegistryKey => _registryKey;
 
@@ -54,6 +57,8 @@ namespace Ratworx.MarsTS.Entities
         [FormerlySerializedAs("toTag")]
         [SerializeField]
         private TagReference[] _toTag;
+
+        private int _id;
 
         private void Awake() {
             _eventAgent = GetComponent<EventAgent>();

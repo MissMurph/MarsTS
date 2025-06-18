@@ -28,7 +28,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			int[] selection, 
 			bool inclusive
 		) {
-			ConstructCommandletServer(target, factionId, selection, inclusive);
+			ConstructCommandServer(target, factionId, selection, inclusive);
 		}
 
 		public override ResourceCost[] GetCost () => Array.Empty<ResourceCost>();
@@ -36,7 +36,7 @@ namespace Ratworx.MarsTS.Commands.Factories {
 		public override void StartSelection () {
 			Player.Player.Input.Hook("Select", OnClick);
 			Player.Player.Input.Hook("Order", OnOrder);
-			Player.Player.UI.SetCursor(Pointer);
+			Player.Player.UI.SetCursor(pointer);
 		}
 
 		private void OnClick (InputAction.CallbackContext context) {

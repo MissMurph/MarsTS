@@ -169,7 +169,7 @@ namespace Ratworx.MarsTS.Player {
 				if (EntityCache.TryGetEntity(selectable.rigidbody.transform.gameObject.name, out Entity target)) {
 					ICommandable commandable = Player.Selection.PrimarySelection.GetFirst().GetEntityComponent<ICommandable>();
 					CommandFactory result = commandable.EvaluateCommand(target);
-					CursorSprite sprite = result.Pointer;
+					CursorSprite sprite = result.pointer;
 					Cursor.SetCursor(sprite.texture, sprite.target, CursorMode.Auto);
 					return;
 				}

@@ -13,7 +13,7 @@ using UnityEngine.Serialization;
 
 namespace Ratworx.MarsTS.Commands.Factories
 {
-    public class Produce : CommandFactory<ProductionOption>
+    public class ProduceCommandFactory : CommandFactory<ProductionOption>
     {
         public override string Name => _commandKey;
         protected virtual string CommandKey => _commandKey;
@@ -31,6 +31,8 @@ namespace Ratworx.MarsTS.Commands.Factories
         public override void StartSelection() {
             
         }
+        
+        
 
         //We create separate calls for now since Productionlets are different to normal commands
         //This is due to having to serialize GameObject as a target when we don't need to

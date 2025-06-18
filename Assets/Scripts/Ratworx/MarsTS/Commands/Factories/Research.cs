@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands.Factories
 {
-    public class Research : Produce
+    public class Research : ProduceCommandFactory
     {
         protected override string CommandKey => "research";
         

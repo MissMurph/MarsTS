@@ -36,7 +36,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
                 || attackable.GetRelationship(Ownership.Owner) != Relationship.Hostile) 
                 return (false, null);
             
-            return (true, CommandPrimer.Get(CommandKey));
+            return (true, CommandPrimer.GetFactory(CommandKey));
         }
 
         private void OnTargetDetected(IAttackable unit, bool detected) {

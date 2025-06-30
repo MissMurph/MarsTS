@@ -33,7 +33,7 @@ namespace Ratworx.MarsTS.UI {
 		}
 
 		public void ShowCommand (string commandKey) {
-            CommandFactory source = CommandPrimer.Get(commandKey);
+            CommandFactory source = CommandPrimer.GetFactory(commandKey);
 
             commandName.text = source.name;
             icon.sprite = source.Icon;

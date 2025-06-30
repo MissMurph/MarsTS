@@ -7,6 +7,6 @@ namespace Ratworx.MarsTS.Units {
 		void Select (bool status);
 		void Hover (bool status);
 		Sprite Icon { get; }
-		Relationship GetRelationship (Faction player);
+		Relationship GetRelationship(Faction other);
 	}
 }

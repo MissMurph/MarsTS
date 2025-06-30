@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Ratworx.MarsTS.Logging;
 using Ratworx.MarsTS.Registry;
 using Unity.Netcode;
 using UnityEngine;
@@ -70,8 +71,19 @@ namespace Ratworx.MarsTS.Commands
             
             RegisterFactory(key, factory);
         }
+
+        /// <remarks>Use this for generic types.</remarks>
+        public static T GetFactory<T>() where T : CommandFactory {
+            foreach (CommandFactory factory in _instance._registered.Values) {
+                if (factory is T commandFactory) 
+                    return commandFactory;
+            }
+            
+            RatLogger.Error?.Log($"No Command Factory of type {nameof(T)} registered! Returning null!");
+            return null;
+        }
         
-        public static T Get<T>(string key) where T : CommandFactory
+        public static T GetFactory<T>(string key) where T : CommandFactory
         {
             if (!_instance._registered.TryGetValue(key, out CommandFactory entry))
                 throw new ArgumentException($"Command {key} of type {typeof(T)} not found!");
@@ -82,7 +94,7 @@ namespace Ratworx.MarsTS.Commands
             throw new ArgumentException($"Command {key} is not of type {typeof(T)}, it's {entry.GetType()}");
         }
 
-        public static CommandFactory Get(string key)
+        public static CommandFactory GetFactory(string key)
         {
             if (_instance._registered.TryGetValue(key, out CommandFactory entry)) 
                 return entry;
@@ -90,7 +102,7 @@ namespace Ratworx.MarsTS.Commands
             throw new ArgumentException($"Command {key} not found!");
         }
 
-        public static bool TryGet<T>(string key, out T command) where T : CommandFactory
+        public static bool TryGetFactory<T>(string key, out T command) where T : CommandFactory
         {
             if (_instance._registered.TryGetValue(key, out CommandFactory entry))
             {
@@ -107,7 +119,7 @@ namespace Ratworx.MarsTS.Commands
             return false;
         }
 
-        public static bool TryGet(string key, out CommandFactory command)
+        public static bool TryGetFactory(string key, out CommandFactory command)
         {
             if (!_instance._registered.TryGetValue(key, out CommandFactory factory))
             {

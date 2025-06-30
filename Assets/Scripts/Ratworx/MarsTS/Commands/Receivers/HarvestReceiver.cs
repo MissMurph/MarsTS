@@ -45,7 +45,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
                 || harvestable.Resource != _storage.Resource)
                 return (false, null);
 
-            return (true, CommandPrimer.Get(CommandKey));
+            return (true, CommandPrimer.GetFactory(CommandKey));
         }
 
         private void OnHarvestableDetected(IHarvestable unit, bool detected) {

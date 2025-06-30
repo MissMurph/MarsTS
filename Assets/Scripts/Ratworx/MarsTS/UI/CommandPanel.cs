@@ -70,11 +70,11 @@ namespace Ratworx.MarsTS.UI {
 			if (string.IsNullOrEmpty(_boundCommands[index])) return;
 
 			if (!string.IsNullOrEmpty(_currentlyTargetingCommand)) 
-				CommandPrimer.Get(_currentlyTargetingCommand).CancelSelection();
+				CommandPrimer.GetFactory(_currentlyTargetingCommand).CancelSelection();
 
 			_currentlyTargetingCommand = _boundCommands[index];
 
-			CommandFactory bound = CommandPrimer.Get(_boundCommands[index]);
+			CommandFactory bound = CommandPrimer.GetFactory(_boundCommands[index]);
 			bound.StartSelection();
 		}
 

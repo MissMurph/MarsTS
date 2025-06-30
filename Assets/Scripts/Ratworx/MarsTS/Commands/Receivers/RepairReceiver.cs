@@ -48,7 +48,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
 				|| attackable.Health >= attackable.MaxHealth)
 				return (false, null);
 
-			return (true, CommandPrimer.Get(CommandKey));
+			return (true, CommandPrimer.GetFactory(CommandKey));
 		}
 
 		private void OnUnitDetected(IAttackable unit, bool detected) {

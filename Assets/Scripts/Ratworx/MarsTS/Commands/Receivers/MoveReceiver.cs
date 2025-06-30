@@ -23,7 +23,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         }
 
         public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity)
-            => (true, CommandPrimer.Get(CommandKey));
+            => (true, CommandPrimer.GetFactory(CommandKey));
 
         private void OnCommandComplete(CommandCompleteEvent evnt) {
             EventAgent.RemoveListener<PathCompleteEvent>(OnPathComplete);

@@ -151,7 +151,7 @@ namespace Ratworx.MarsTS.Player {
 				else if (walkableHit.collider != null) {
 					Vector3 hitPos = walkableHit.point;
 
-					CommandPrimer.Get<Move>("move").Construct(hitPos);
+					CommandPrimer.GetFactory<Move>("move").Construct(hitPos);
 				}
 			}
 		}

@@ -47,7 +47,7 @@ namespace Ratworx.MarsTS.Commands.Factories
             if (!productionOption.CanFactionAfford(faction))
                 return;
 
-            ProduceCommandlet order = Instantiate(orderPrefab) as ProduceCommandlet;
+            ProduceCommandlet order = Instantiate(OrderPrefab) as ProduceCommandlet;
 
             order.Init(Name, productionOption, TeamCache.Faction(factionId));
 

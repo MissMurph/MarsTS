@@ -41,7 +41,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
                 || _storage.Value <= 0)
                 return (false, null);
 
-            return (true, CommandPrimer.Get(CommandKey));
+            return (true, CommandPrimer.GetFactory(CommandKey));
         }
 
         private void OnDepositableDetected(IDepositable unit, bool detected) {

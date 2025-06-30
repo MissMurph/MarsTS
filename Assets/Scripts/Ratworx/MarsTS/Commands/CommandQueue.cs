@@ -290,7 +290,7 @@ namespace Ratworx.MarsTS.Commands
                 return factory;
             }
 
-            return CommandPrimer.Get("move");
+            return CommandPrimer.GetFactory("move");
         }
 
         public void AddCommand(ICommandReceiver receiver) {

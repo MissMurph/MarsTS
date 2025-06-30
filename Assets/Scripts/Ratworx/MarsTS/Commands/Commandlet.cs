@@ -15,7 +15,7 @@ namespace Ratworx.MarsTS.Commands
         public string Name { get; protected set; }
         public Faction Commander { get; protected set; }
         public UnityEvent<CommandCompleteEvent> OnCommandComplete = new UnityEvent<CommandCompleteEvent>();
-        public virtual CommandFactory Command => CommandPrimer.Get(Name);
+        public virtual CommandFactory Command => CommandPrimer.GetFactory(Name);
         public abstract string SerializerKey { get; }
         public List<string> commandedUnits = new List<string>();
         public int Id { get; protected set; }

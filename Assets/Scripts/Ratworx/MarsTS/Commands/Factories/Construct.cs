@@ -10,7 +10,9 @@ namespace Ratworx.MarsTS.Commands.Factories {
 
 		public override string Name => "construct";
 
-		public override string Description => description;
+		// TODO: Revisit below (command pages)
+		
+		/*public override string Description => description;
 
 		[SerializeField]
 		private string description;
@@ -24,6 +26,6 @@ namespace Ratworx.MarsTS.Commands.Factories {
 
 		public override ResourceCost[] GetCost () => Array.Empty<ResourceCost>();
 
-		public override void CancelSelection () { }
+		public override void CancelSelection () { }*/
 	}
 }

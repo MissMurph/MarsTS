@@ -50,7 +50,7 @@ namespace Ratworx.MarsTS.UI
                 return;
             }
 
-            if (!CommandPrimer.TryGet(key, out CommandFactory factory))
+            if (!CommandPrimer.TryGetFactory(key, out CommandFactory factory))
                 return;
 
             current = factory;

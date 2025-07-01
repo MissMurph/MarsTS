@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Commands.Receivers;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Units;
 
@@ -47,7 +48,7 @@ namespace Ratworx.MarsTS.Extensions
             return output;
         }
         
-        public static List<string> GetCommands(this Roster roster) {
+        public static List<string> GetCommandKeys(this Roster roster) {
             var output = new List<string>();
 
             if (roster.GetFirst().TryGetEntityComponent(out ICommandable commandable)) 
@@ -55,6 +56,9 @@ namespace Ratworx.MarsTS.Extensions
 
             return output;
         }
+
+        public static Dictionary<string, ICommandReceiver> GetCommands(this Roster roster)
+            => roster.GetFirst().TryGetEntityComponent(out ICommandable commandable) ? commandable.Commands() : null;
 
         public static bool IsCommandable(this Roster roster) 
             => roster.GetFirst().TryGetEntityComponent(out ICommandable _);

@@ -1,4 +1,5 @@
 using Ratworx.MarsTS.Commands.Commandlets;
+using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events.Commands;
 using Unity.Netcode;
@@ -71,6 +72,6 @@ namespace Ratworx.MarsTS.Commands.Receivers
         }
 
         // TODO: Investigate turning below into an optional interface, numerous receivers just do the below
-        public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) => (false, null);
+        public override (bool valid, ICommandInterface command) EvaluateCommand(Entity entity) => (false, null);
     }
 }

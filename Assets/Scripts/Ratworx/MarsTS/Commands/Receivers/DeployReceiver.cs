@@ -1,5 +1,6 @@
 using Ratworx.MarsTS.Commands.Commandlets;
 using Ratworx.MarsTS.Commands.Factories;
+using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events.Commands;
 using Ratworx.MarsTS.Events.Selectable;
@@ -108,7 +109,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
             }
         }
         
-        public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) => (false, null);
+        public override (bool valid, ICommandInterface command) EvaluateCommand(Entity entity) => (false, null);
         public ResourceCost[] GetCost() => new ResourceCost[1] { new ResourceCost { key = "time", amount = 5 } };
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Ratworx.MarsTS.Commands;
 using Ratworx.MarsTS.Commands.Factories;
+using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Player;
@@ -141,17 +142,29 @@ namespace Ratworx.MarsTS.Player {
 				Physics.Raycast(ray, out RaycastHit walkableHit, 1000f, GameWorld.WalkableMask);
 				Physics.Raycast(ray, out RaycastHit selectableHit, 1000f, GameWorld.SelectableMask);
 
-				if (selectableHit.collider != null && EntityCache.TryGetEntity(selectableHit.collider.transform.name, out Entity targetEntity)) {
+				if (selectableHit.collider != null && EntityCache.TryGetEntity(selectableHit.rigidbody.transform.name, out Entity targetEntity)) {
 					if (!Selection.PrimarySelection.IsCommandable()) return;
 					
 					List<ICommandable> commandables = Selection.PrimarySelection.GetCommandables();
-					CommandFactory factory = commandables[0].EvaluateCommand(targetEntity);
-					// TODO: add an overload to determine target off an Entity
+					ICommandInterface command = commandables[0].EvaluateCommand(targetEntity);
+					CommandPrimer.GetFactory(command.CommandKey).TryConstructCommandFromEntity(
+						command.CommandKey,
+						targetEntity,
+						Commander,
+						ListSelected,
+						Include
+					);
 				}
 				else if (walkableHit.collider != null) {
 					Vector3 hitPos = walkableHit.point;
 
-					CommandPrimer.GetFactory<Move>("move").Construct(hitPos);
+					CommandPrimer.GetFactory<CommandFactory<Vector3>>("move").ConstructCommand(
+						"move",
+						hitPos,
+						Commander,
+						ListSelected,
+						Include
+					);
 				}
 			}
 		}

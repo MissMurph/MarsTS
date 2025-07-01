@@ -1,4 +1,5 @@
 using Ratworx.MarsTS.Commands.Commandlets;
+using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events.Commands;
 using Ratworx.MarsTS.Events.Selectable;
@@ -22,8 +23,8 @@ namespace Ratworx.MarsTS.Commands.Receivers
             _moveCommand.OnCommandComplete.AddListener(OnCommandComplete);
         }
 
-        public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity)
-            => (true, CommandPrimer.GetFactory(CommandKey));
+        public override (bool valid, ICommandInterface command) EvaluateCommand(Entity entity)
+            => (true, CommandPrimer.GetInterface(CommandKey));
 
         private void OnCommandComplete(CommandCompleteEvent evnt) {
             EventAgent.RemoveListener<PathCompleteEvent>(OnPathComplete);

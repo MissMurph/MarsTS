@@ -1,4 +1,5 @@
 using System;
+using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Entities;
 
 namespace Ratworx.MarsTS.Commands.Receivers
@@ -23,6 +24,6 @@ namespace Ratworx.MarsTS.Commands.Receivers
         /// <see cref="Entity"/> as a target.</summary>
         /// <returns>Valid determines if the target is a valid candidate for this command. Factory will be null if valid
         /// is false.</returns>
-        (bool valid, CommandFactory factory) EvaluateCommand(Entity entity);
+        (bool valid, ICommandInterface command) EvaluateCommand(Entity entity);
     }
 }

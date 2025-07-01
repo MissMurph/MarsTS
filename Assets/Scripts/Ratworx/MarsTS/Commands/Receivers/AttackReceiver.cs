@@ -1,4 +1,5 @@
 using Ratworx.MarsTS.Commands.Commandlets;
+using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Commands;
@@ -31,12 +32,12 @@ namespace Ratworx.MarsTS.Commands.Receivers
             _attackCommand.OnCommandComplete.AddListener(OnCommandComplete);
         }
 
-        public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) {
+        public override (bool valid, ICommandInterface command) EvaluateCommand(Entity entity) {
             if (!entity.TryGetEntityComponent(out IAttackable attackable)
                 || attackable.GetRelationship(Ownership.Owner) != Relationship.Hostile) 
                 return (false, null);
             
-            return (true, CommandPrimer.GetFactory(CommandKey));
+            return (true, CommandPrimer.GetInterface(CommandKey));
         }
 
         private void OnTargetDetected(IAttackable unit, bool detected) {

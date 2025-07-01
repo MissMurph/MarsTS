@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands.UI
 {
-    public interface ICommandUserInterface
+    public interface ICommandInterface
     {
         public string CommandKey { get; }
         public string Description { get; }

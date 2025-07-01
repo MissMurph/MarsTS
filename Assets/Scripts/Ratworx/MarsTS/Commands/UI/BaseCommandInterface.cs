@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands.UI
 {
-    public abstract class BaseCommandUserInterface : MonoBehaviour, 
-                                                     ICommandUserInterface
+    public abstract class BaseCommandInterface : MonoBehaviour, 
+                                                     ICommandInterface
     {
         public string CommandKey => _commandKey;
         public string Description => _description;

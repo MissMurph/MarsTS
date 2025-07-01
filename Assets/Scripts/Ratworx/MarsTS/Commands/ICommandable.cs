@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Ratworx.MarsTS.Commands.Receivers;
+using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Units;
 
@@ -15,7 +16,7 @@ namespace Ratworx.MarsTS.Commands {
 		List<ICommandReceiver> ActiveCommands { get; }
 		List<Timer> Cooldowns { get; }
 		void Order (Commandlet order, bool inclusive);
-		CommandFactory EvaluateCommand (Entity target);
+		ICommandInterface EvaluateCommand(Entity target);
 		Dictionary<string, ICommandReceiver> Commands ();
 		bool CanCommand (string commandKey);
 	}

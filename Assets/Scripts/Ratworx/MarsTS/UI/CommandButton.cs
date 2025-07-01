@@ -1,5 +1,6 @@
 using System.Linq;
 using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Commands;
 using Ratworx.MarsTS.Extensions;
@@ -13,7 +14,7 @@ namespace Ratworx.MarsTS.UI
 {
     public class CommandButton : MonoBehaviour
     {
-        private CommandFactory current;
+        private ICommandInterface _current;
 
         private Image _icon;
         private Image _cooldown;
@@ -50,12 +51,12 @@ namespace Ratworx.MarsTS.UI
                 return;
             }
 
-            if (!CommandPrimer.TryGetFactory(key, out CommandFactory factory))
+            if (!CommandPrimer.TryGetInterface(key, out ICommandInterface command))
                 return;
 
-            current = factory;
+            _current = command;
 
-            _icon.sprite = current.Icon;
+            _icon.sprite = _current.GetIcon();
             _icon.gameObject.SetActive(true);
 
             EvaluateActivity();
@@ -66,7 +67,7 @@ namespace Ratworx.MarsTS.UI
         public void Press() { }
 
         public void Deactivate() {
-            current = null;
+            _current = null;
             _icon.gameObject.SetActive(false);
             _cooldown.gameObject.SetActive(false);
             _usable.SetActive(false);
@@ -78,10 +79,10 @@ namespace Ratworx.MarsTS.UI
         public void OnPointerExitButton() { }
 
         private void EvaluateUsability() {
-            if (current is not null
+            if (_current is not null
                 && Player.Player.Selection.PrimarySelection is not null) {
                 foreach (ICommandable unit in Player.Player.Selection.PrimarySelection.GetCommandables()) {
-                    if (unit.CanCommand(current.Name)) {
+                    if (unit.CanCommand(_current.CommandKey)) {
                         _usable.SetActive(false);
                         return;
                     }
@@ -92,10 +93,10 @@ namespace Ratworx.MarsTS.UI
         }
 
         private void EvaluateActivity() {
-            if (current is not null
+            if (_current is not null
                 && Player.Player.Selection.PrimarySelection is not null) {
                 foreach (ICommandable unit in Player.Player.Selection.PrimarySelection.GetCommandables()) {
-                    if (unit.ActiveCommands.Any(receiver => receiver.CommandKey == current.Name)) {
+                    if (unit.ActiveCommands.Any(receiver => receiver.CommandKey == _current.CommandKey)) {
                         _activity.SetActive(true);
                         return;
                     
@@ -111,11 +112,11 @@ namespace Ratworx.MarsTS.UI
             float lowestCooldown = 999f;
             float cooldownDuration = 0f;
 
-            if (current is not null
+            if (_current is not null
                 && Player.Player.Selection.PrimarySelection is not null) {
                 foreach (ICommandable unit in Player.Player.Selection.PrimarySelection.GetCommandables()) {
                     foreach (Timer activeCooldown in unit.Cooldowns) {
-                        if (activeCooldown.commandName == current.Name) {
+                        if (activeCooldown.commandName == _current.CommandKey) {
                             coolingDown = true;
                             cooldownDuration = activeCooldown.duration;
 

@@ -14,6 +14,7 @@ namespace Ratworx.MarsTS.Production
         /// <summary>Pre-defined types are: <br/><c>production</c><br/><c>research</c><br/><c>upgrade</c></summary>
         public string ProductionType;
         public ResourceCost[] Cost;
+        public string Description;
     }
 
     public struct SerializedProductionOption : INetworkSerializable
@@ -21,12 +22,14 @@ namespace Ratworx.MarsTS.Production
         public int ProductionRequired;
         public string ProductKey;
         public string ProductionType;
+        public string Description;
         public SerializedResourceCosts Cost;
 
         public SerializedProductionOption(ProductionOption option) {
             ProductionRequired = option.ProductionRequired;
             ProductKey = option.ProductKey;
             ProductionType = option.ProductionType;
+            Description = option.Description;
             Cost = new SerializedResourceCosts(option.Cost);
         }
         
@@ -34,6 +37,7 @@ namespace Ratworx.MarsTS.Production
             serializer.SerializeValue(ref ProductionRequired);
             serializer.SerializeValue(ref ProductKey);
             serializer.SerializeValue(ref ProductionType);
+            serializer.SerializeValue(ref Description);
             serializer.SerializeValue(ref Cost);
         }
 
@@ -42,6 +46,7 @@ namespace Ratworx.MarsTS.Production
             ProductionRequired = ProductionRequired,
             ProductKey = ProductKey,
             ProductionType = ProductionType,
+            Description = Description,
             Cost = Cost.GetDeserializedCosts()
         };
     }

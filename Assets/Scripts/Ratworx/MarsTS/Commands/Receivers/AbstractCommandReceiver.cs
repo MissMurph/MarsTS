@@ -1,4 +1,5 @@
 using System;
+using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Units;
@@ -37,7 +38,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         }
         
         public abstract void ReceiveCommand(T command);
-        public abstract (bool valid, CommandFactory factory) EvaluateCommand(Entity entity);
+        public abstract (bool valid, ICommandInterface command) EvaluateCommand(Entity entity);
         protected void PostStateUpdatedEvent() => OnCommandStateUpdated?.Invoke();
     }
 }

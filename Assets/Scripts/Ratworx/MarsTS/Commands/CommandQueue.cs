@@ -4,6 +4,7 @@ using System.Linq;
 using Ratworx.MarsTS.Commands.Cache;
 using Ratworx.MarsTS.Commands.Factories;
 using Ratworx.MarsTS.Commands.Receivers;
+using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Commands;
@@ -283,14 +284,14 @@ namespace Ratworx.MarsTS.Commands
                 ExecuteCommand(order);
         }
 
-        public CommandFactory EvaluateCommand(Entity target) {
+        public ICommandInterface EvaluateCommand(Entity target) {
             for (int i = 0; i < _receiversByEvalPriority.Count; i++) {
-                (bool result, CommandFactory factory) = _receiversByEvalPriority[i].EvaluateCommand(target);
+                (bool result, ICommandInterface command) = _receiversByEvalPriority[i].EvaluateCommand(target);
                 if (!result) continue;
-                return factory;
+                return command;
             }
 
-            return CommandPrimer.GetFactory("move");
+            return CommandPrimer.GetInterface("move");
         }
 
         public void AddCommand(ICommandReceiver receiver) {

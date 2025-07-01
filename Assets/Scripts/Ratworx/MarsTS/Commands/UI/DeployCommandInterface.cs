@@ -4,13 +4,13 @@ using Ratworx.MarsTS.Units;
 
 namespace Ratworx.MarsTS.Commands.UI
 {
-    public class DeployCommandUserInterface : BaseCommandUserInterface
+    public class DeployCommandInterface : BaseCommandInterface
     {
         public override void StartSelection() {
             var toCommand = new List<int>();
 
             foreach (Roster rollup in Player.Player.Selected.Values) {
-                if (!rollup.GetCommands().Contains(CommandKey)) 
+                if (!rollup.GetCommandKeys().Contains(CommandKey)) 
                     continue;
 				
                 foreach (ICommandable unit in rollup.GetCommandables()) {
@@ -31,8 +31,6 @@ namespace Ratworx.MarsTS.Commands.UI
                 );
         }
 
-        public override void CancelSelection() {
-            throw new System.NotImplementedException();
-        }
+        public override void CancelSelection() { }
     }
 }

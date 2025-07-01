@@ -1,5 +1,8 @@
 using Ratworx.MarsTS.Commands;
 using Ratworx.MarsTS.Commands.Factories;
+using Ratworx.MarsTS.Commands.Receivers;
+using Ratworx.MarsTS.Commands.UI;
+using Ratworx.MarsTS.Extensions;
 using Ratworx.MarsTS.Player;
 using Ratworx.MarsTS.Production;
 using TMPro;
@@ -33,10 +36,10 @@ namespace Ratworx.MarsTS.UI {
 		}
 
 		public void ShowCommand (string commandKey) {
-            CommandFactory source = CommandPrimer.GetFactory(commandKey);
+            ICommandInterface source = CommandPrimer.GetInterface(commandKey);
 
-            commandName.text = source.name;
-            icon.sprite = source.Icon;
+            commandName.text = source.CommandKey;
+            icon.sprite = source.GetIcon();
             commandDescription.text = source.Description;
             commandDescription.ForceMeshUpdate(true, true);
 
@@ -45,6 +48,10 @@ namespace Ratworx.MarsTS.UI {
 			descSize = Mathf.Max(descSize, 20f);
 
 			RectTransform wholeTooltip = transform as RectTransform;
+
+			// TODO: Fix this jank lmao
+			if (Player.Player.Selection.PrimarySelection.GetFirst().GetEntityComponent<ICommandable>()
+				.Commands()[commandKey] is ICostingCommand)
 
 			ResourceCost[] commandCost = source.GetCost();
 

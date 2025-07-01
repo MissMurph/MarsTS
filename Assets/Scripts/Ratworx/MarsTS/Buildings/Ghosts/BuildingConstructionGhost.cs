@@ -2,6 +2,7 @@ using System;
 using Ratworx.MarsTS.Commands;
 using Ratworx.MarsTS.Commands.Commandlets;
 using Ratworx.MarsTS.Commands.Receivers;
+using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Init;
@@ -145,6 +146,6 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
         public bool IsActive => false;
         public bool CanInterrupt => false;
         public float Cooldown => 0f;
-        public (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) => (false, null);
+        public (bool valid, ICommandInterface command) EvaluateCommand(Entity entity) => (false, null);
     }
 }

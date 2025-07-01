@@ -1,6 +1,7 @@
 using System.Linq;
 using Ratworx.MarsTS.Commands.Commandlets;
 using Ratworx.MarsTS.Commands.Factories;
+using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events.Commands;
 using Ratworx.MarsTS.Production;
@@ -72,7 +73,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
                 CommandQueue.Cooldown(evnt.Command, _cooldown);
         }
 
-        public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) => throw new System.NotImplementedException();
+        public override (bool valid, ICommandInterface command) EvaluateCommand(Entity entity) => throw new System.NotImplementedException();
 
         public ResourceCost[] GetCost() => _cost.Append(new ResourceCost{ key = "time", amount = _cooldown}).ToArray();
     }

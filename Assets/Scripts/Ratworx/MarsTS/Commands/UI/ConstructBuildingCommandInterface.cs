@@ -14,8 +14,8 @@ using UnityEngine.InputSystem;
 namespace Ratworx.MarsTS.Commands.UI
 {
     // TODO: Reimplement properly for ConstructionOptions
-    public class ConstructBuildingCommandUserInterface : BaseCommandUserInterface,
-                                                         ICommandUserInterfaceArgumentAccepter<ProductionOption>
+    public class ConstructBuildingCommandInterface : BaseCommandInterface,
+                                                         ICommandInterfaceArgumentAccepter<ProductionOption>
     {
         protected Transform GhostTransform;
         protected BuildingSelectionGhost SelectionGhostComp;

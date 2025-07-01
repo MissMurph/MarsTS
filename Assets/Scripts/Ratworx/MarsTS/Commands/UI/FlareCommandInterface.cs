@@ -9,7 +9,7 @@ using UnityEngine.InputSystem;
 
 namespace Ratworx.MarsTS.Commands.UI
 {
-    public class FlareCommandUserInterface : BaseCommandUserInterface
+    public class FlareCommandInterface : BaseCommandInterface
     {
         [SerializeField] private GameObject _markerPrefab;
         private Transform _markerTransform;
@@ -33,7 +33,7 @@ namespace Ratworx.MarsTS.Commands.UI
                     int selection = 0;
 
                     foreach (Roster roster in Player.Player.Selected.Values) {
-                        if (!roster.GetCommands().Contains(CommandKey)) continue;
+                        if (!roster.GetCommandKeys().Contains(CommandKey)) continue;
 
                         // TODO: Replace this with a check for which instance is closest
                         selection = roster.GetCommandables()[0].Entity.Id;

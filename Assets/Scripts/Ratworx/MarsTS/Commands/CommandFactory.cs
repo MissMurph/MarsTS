@@ -39,7 +39,22 @@ namespace Ratworx.MarsTS.Commands
 					RatLogger.Warning?.Log($"ICommandable on Unit {entityId} not found! Command {commandKey} being ignored by unit!");
 			}
 		}
-		
+
+		public override void TryConstructCommandFromEntity(
+			string commandKey,
+			Entity targetEntity,
+			Faction commander,
+			ICollection<int> selection,
+			bool enqueue
+		) {
+			if (!targetEntity.TryGetEntityComponent(out T target)) {
+				RatLogger.Warning?.Log($"Couldn't find target type {nameof(T)} on target entity, cancelling command.");
+				return;
+			}
+			
+			ConstructCommand(commandKey, target, commander, selection, enqueue);
+		}
+
 		[FormerlySerializedAs("orderPrefab")]
 		[SerializeField]
 		protected Commandlet<T> OrderPrefab;
@@ -52,5 +67,15 @@ namespace Ratworx.MarsTS.Commands
 		public string RegistryType => "command_factory";
 		public string RegistryKey => Name;
 		public CommandFactory GetEntityComponent() => this;
+		/// <summary>
+		/// Use this when you don't have the explicit Type on hand (using command evaluation)
+		/// </summary>
+		public abstract void TryConstructCommandFromEntity(
+			string commandKey,
+			Entity targetEntity,
+			Faction commander,
+			ICollection<int> selection,
+			bool enqueue
+		);
 	}
 }

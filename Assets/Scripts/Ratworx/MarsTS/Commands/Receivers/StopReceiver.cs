@@ -1,4 +1,5 @@
 using Ratworx.MarsTS.Commands.Commandlets;
+using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Entities;
 
 namespace Ratworx.MarsTS.Commands.Receivers
@@ -17,6 +18,6 @@ namespace Ratworx.MarsTS.Commands.Receivers
         }
 
         // There's no situation this will ever be an auto command
-        public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) => (false, null);
+        public override (bool valid, ICommandInterface command) EvaluateCommand(Entity entity) => (false, null);
     }
 }

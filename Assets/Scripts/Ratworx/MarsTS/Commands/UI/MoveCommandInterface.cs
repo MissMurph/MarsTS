@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 namespace Ratworx.MarsTS.Commands.UI
 {
-    public class MoveCommandUserInterface : BaseCommandUserInterface
+    public class MoveCommandInterface : BaseCommandInterface
     {
         public override void StartSelection() {
             Player.Player.Input.Hook("Select", OnClick);

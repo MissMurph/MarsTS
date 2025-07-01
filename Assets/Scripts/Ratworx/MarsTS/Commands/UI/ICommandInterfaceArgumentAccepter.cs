@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands.UI
 {
-    public interface ICommandUserInterfaceArgumentAccepter<in T>
+    public interface ICommandInterfaceArgumentAccepter<in T>
     {
         public string GetArgDescription(T arg);
         public Sprite GetArgIcon(T arg);

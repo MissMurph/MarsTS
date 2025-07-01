@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Commands;
@@ -168,8 +169,8 @@ namespace Ratworx.MarsTS.Player {
 				&& Physics.Raycast(ray, out RaycastHit selectable, 1000f, GameWorld.SelectableMask)) {
 				if (EntityCache.TryGetEntity(selectable.rigidbody.transform.gameObject.name, out Entity target)) {
 					ICommandable commandable = Player.Selection.PrimarySelection.GetFirst().GetEntityComponent<ICommandable>();
-					CommandFactory result = commandable.EvaluateCommand(target);
-					CursorSprite sprite = result.pointer;
+					ICommandInterface result = commandable.EvaluateCommand(target);
+					CursorSprite sprite = result.Cursor;
 					Cursor.SetCursor(sprite.texture, sprite.target, CursorMode.Auto);
 					return;
 				}

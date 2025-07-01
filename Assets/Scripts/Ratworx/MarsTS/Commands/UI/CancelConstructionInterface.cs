@@ -1,6 +1,6 @@
 namespace Ratworx.MarsTS.Commands.UI
 {
-    public class CancelConstructionUserInterface : BaseCommandUserInterface
+    public class CancelConstructionInterface : BaseCommandInterface
     {
         public override void StartSelection() {
             CommandPrimer.GetFactory<CommandFactory<bool>>()

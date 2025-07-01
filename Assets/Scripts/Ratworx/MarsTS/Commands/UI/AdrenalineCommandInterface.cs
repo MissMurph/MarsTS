@@ -4,7 +4,7 @@ using Ratworx.MarsTS.Units;
 
 namespace Ratworx.MarsTS.Commands.UI
 {
-    public class AdrenalineCommandUserInterface : BaseCommandUserInterface
+    public class AdrenalineCommandInterface : BaseCommandInterface
     {
         public override void StartSelection() {
             int totalCanUse = 0;
@@ -12,7 +12,7 @@ namespace Ratworx.MarsTS.Commands.UI
 
             //Inspect all selected to make all units using this ability match up with others that are active using
             foreach (Roster roster in Player.Player.Selected.Values) {
-                if (!roster.GetCommands().Contains(CommandKey)) continue;
+                if (!roster.GetCommandKeys().Contains(CommandKey)) continue;
 
                 foreach (ICommandable unit in roster.GetCommandables()) {
                     if (unit.CanCommand(CommandKey)) totalCanUse++;

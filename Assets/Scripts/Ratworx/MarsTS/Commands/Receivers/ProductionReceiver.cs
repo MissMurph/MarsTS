@@ -1,5 +1,6 @@
 using System;
 using Ratworx.MarsTS.Commands.Commandlets;
+using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events.Commands;
 using Ratworx.MarsTS.Logging;
@@ -149,6 +150,6 @@ namespace Ratworx.MarsTS.Commands.Receivers
         }
         
         // TODO: Turn below into an interface
-        public override (bool valid, CommandFactory factory) EvaluateCommand(Entity entity) => (false, null);
+        public override (bool valid, ICommandInterface command) EvaluateCommand(Entity entity) => (false, null);
     }
 }

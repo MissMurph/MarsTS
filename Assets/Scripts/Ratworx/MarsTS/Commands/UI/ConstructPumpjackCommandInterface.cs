@@ -1,3 +1,4 @@
+using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Networking;
 using Ratworx.MarsTS.Pathfinding;
 using Ratworx.MarsTS.UI;
@@ -6,7 +7,7 @@ using UnityEngine.InputSystem;
 
 namespace Ratworx.MarsTS.Commands.Factories {
 
-    public class PlacePumpjack : PlaceBuilding {
+    public class ConstructPumpjackCommandInterface : ConstructBuildingCommandInterface {
 
         private PumpjackSnapping _snapper = null;
 
@@ -14,8 +15,8 @@ namespace Ratworx.MarsTS.Commands.Factories {
 		private GameObject snapPrefab;
 
 		public override void StartSelection () {
-			if (!CanFactionAfford(Player.Player.Commander)) 
-				return;
+			/*if (!CanFactionAfford(Player.Player.Commander)) 
+				return;*/
 			
 			base.StartSelection();
 
@@ -38,8 +39,8 @@ namespace Ratworx.MarsTS.Commands.Factories {
 			if (!context.canceled) 
 				return;
 			
-			if (!CanFactionAfford(Player.Player.Commander) || !SelectionGhostComp.Legal) 
-				return;
+			/*if (!CanFactionAfford(Player.Player.Commander) || !SelectionGhostComp.Legal) 
+				return;*/
 			
 			PlaceBuildingServerRpc(
 				GhostTransform.position,

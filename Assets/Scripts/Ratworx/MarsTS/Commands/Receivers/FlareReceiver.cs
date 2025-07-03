@@ -75,6 +75,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
         public override (bool valid, ICommandInterface command) EvaluateCommand(Entity entity) => throw new System.NotImplementedException();
 
-        public ResourceCost[] GetCost() => _cost.Append(new ResourceCost{ key = "time", amount = _cooldown}).ToArray();
+        public ResourceCost[] GetCost(string argument = null) 
+            => _cost.Append(new ResourceCost{ key = "time", amount = _cooldown}).ToArray();
     }
 }

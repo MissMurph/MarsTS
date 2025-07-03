@@ -48,8 +48,9 @@ namespace Ratworx.MarsTS.Commands
         public Entity Entity { get; private set; }
         
         private Dictionary<string, ICommandReceiver> _commands;
+        private UnitCommandPage _unitCommands;
         
-        public Dictionary<string, ICommandReceiver> Commands() => _commands;
+        public CommandPage GetCommands() => _unitCommands.GetCurrentPage();
 
         private List<ICommandReceiver> _receiversByEvalPriority;
 
@@ -59,6 +60,7 @@ namespace Ratworx.MarsTS.Commands
         private void Awake() {
             Entity = GetComponent<Entity>();
             _eventAgent = GetComponent<EventAgent>();
+            _unitCommands = GetComponent<UnitCommandPage>();
 
             _commandQueue = new Queue<Commandlet>();
 

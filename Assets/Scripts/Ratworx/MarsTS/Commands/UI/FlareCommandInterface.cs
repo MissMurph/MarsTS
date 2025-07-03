@@ -16,7 +16,7 @@ namespace Ratworx.MarsTS.Commands.UI
 
         public override void StartSelection() {
             ResourceCost[] cost = (Player.Player.Selection.PrimarySelection.GetCommandables()[0]
-                .Commands()[CommandKey] as ICostingCommand)?.GetCost();
+                .GetCommands()[CommandKey] as ICostingCommand)?.GetCost();
 
             if (cost is not null && !cost.CanFactionAfford(Player.Player.Commander)) return;
 
@@ -41,7 +41,7 @@ namespace Ratworx.MarsTS.Commands.UI
                     }
                     
                     ResourceCost[] cost = (Player.Player.Selection.PrimarySelection.GetCommandables()[0]
-                        .Commands()[CommandKey] as ICostingCommand)?.GetCost();
+                        .GetCommands()[CommandKey] as ICostingCommand)?.GetCost();
 
                     CommandPrimer.GetFactory<CommandFactory<Vector3>>()
                         .ConstructCommand(

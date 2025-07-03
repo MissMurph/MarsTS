@@ -1,82 +1,76 @@
-using Ratworx.MarsTS.Commands;
-using Ratworx.MarsTS.Commands.Factories;
+using System;
 using Ratworx.MarsTS.Commands.Receivers;
-using Ratworx.MarsTS.Commands.UI;
-using Ratworx.MarsTS.Extensions;
 using Ratworx.MarsTS.Player;
 using Ratworx.MarsTS.Production;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Ratworx.MarsTS.UI {
+namespace Ratworx.MarsTS.UI
+{
+    public class CommandTooltip : MonoBehaviour
+    {
+        [SerializeField] private TextMeshProUGUI commandName;
 
-    public class CommandTooltip : MonoBehaviour {
+        [SerializeField] private Image icon;
 
-        [SerializeField]
-        private TextMeshProUGUI commandName;
+        [SerializeField] private TextMeshProUGUI commandDescription;
 
-        [SerializeField]
-        private Image icon;
-
-        [SerializeField]
-        private TextMeshProUGUI commandDescription;
-
-        [SerializeField]
-        private GameObject costPrefab;
+        [SerializeField] private GameObject costPrefab;
 
         private GameObject[] costModules;
         private Image[] costIcons;
         private TextMeshProUGUI[] costText;
 
-		private void Awake () {
+        private void Awake() {
             costModules = new GameObject[3];
             costIcons = new Image[3];
             costText = new TextMeshProUGUI[3];
-		}
+        }
 
-		public void ShowCommand (string commandKey) {
-            ICommandInterface source = CommandPrimer.GetInterface(commandKey);
+        public void ShowCommand(string key, ICommandReceiver receiver) {
+            // Arguments are placed after a / delimiter
+            string[] splitKey = key.Split('/');
+            string argument = splitKey.Length >= 2 ? splitKey[1] : string.Empty;
 
-            commandName.text = source.CommandKey;
-            icon.sprite = source.GetIcon();
-            commandDescription.text = source.Description;
+            // TODO: Convert property to method & add argument to name
+            commandName.text = receiver.CommandKey;
+            icon.sprite = receiver.GetIcon(argument);
+            commandDescription.text = receiver.GetDescription(argument);
             commandDescription.ForceMeshUpdate(true, true);
 
-			float descSize = (commandDescription.textBounds.extents * 2).y + 5;
+            float descSize = (commandDescription.textBounds.extents * 2).y + 5;
 
-			descSize = Mathf.Max(descSize, 20f);
+            descSize = Mathf.Max(descSize, 20f);
 
-			RectTransform wholeTooltip = transform as RectTransform;
+            RectTransform wholeTooltip = transform as RectTransform;
 
-			// TODO: Fix this jank lmao
-			if (Player.Player.Selection.PrimarySelection.GetFirst().GetEntityComponent<ICommandable>()
-				.Commands()[commandKey] is ICostingCommand)
+            ResourceCost[] commandCost = Array.Empty<ResourceCost>();
 
-			ResourceCost[] commandCost = source.GetCost();
+            if (receiver is ICostingCommand costingCommand) commandCost = costingCommand.GetCost();
 
             foreach (GameObject instantiated in costModules) {
                 Destroy(instantiated);
             }
 
-			if (commandCost.Length == 0) {
+            if (commandCost.Length == 0) {
                 RectTransform rect = commandDescription.transform as RectTransform;
                 rect.anchoredPosition = new Vector3(0, -65, 0);
 
-				wholeTooltip.sizeDelta = new Vector2(0, descSize + 70);
-			}
+                wholeTooltip.sizeDelta = new Vector2(0, descSize + 70);
+            }
             else {
-				RectTransform rect = commandDescription.transform as RectTransform;
-				rect.anchoredPosition = new Vector3(0, -100, 0);
+                RectTransform rect = commandDescription.transform as RectTransform;
+                rect.anchoredPosition = new Vector3(0, -100, 0);
 
                 wholeTooltip.sizeDelta = new Vector2(0, descSize + 35 + 70);
 
-				for (int i = 0; i < commandCost.Length; i++) {
+                for (int i = 0; i < commandCost.Length; i++) {
                     RectTransform newCost = Instantiate(costPrefab, transform).transform as RectTransform;
-                    newCost.anchoredPosition = new Vector3(42.5f + (80 * i), -85f, 0);
+                    newCost.anchoredPosition = new Vector3(42.5f + 80 * i, -85f, 0);
                     costModules[i] = newCost.gameObject;
 
-					Image costIcon = newCost.Find("Icon").GetComponent<Image>();
+                    Image costIcon = newCost.Find("Icon").GetComponent<Image>();
                     TextMeshProUGUI costAmount = newCost.Find("Amount").GetComponent<TextMeshProUGUI>();
 
                     costIcon.sprite = ResourceRegistry.Get(commandCost[i].key).Icon;
@@ -85,6 +79,6 @@ namespace Ratworx.MarsTS.UI {
             }
 
             wholeTooltip.anchoredPosition = new Vector3(0, wholeTooltip.sizeDelta.y / 2, 0);
-		}
+        }
     }
 }

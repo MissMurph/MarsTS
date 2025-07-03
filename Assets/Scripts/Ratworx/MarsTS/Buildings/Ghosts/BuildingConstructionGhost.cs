@@ -147,5 +147,12 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
         public bool CanInterrupt => false;
         public float Cooldown => 0f;
         public (bool valid, ICommandInterface command) EvaluateCommand(Entity entity) => (false, null);
+        public void StartSelection(string argument = null) {
+            throw new NotImplementedException();
+        }
+
+        public Sprite GetIcon(string argument = null) => throw new NotImplementedException();
+
+        public string GetDescription(string argument = null) => throw new NotImplementedException();
     }
 }

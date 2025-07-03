@@ -1,5 +1,6 @@
 using System.Linq;
 using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Commands.Receivers;
 using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Commands;
@@ -14,7 +15,7 @@ namespace Ratworx.MarsTS.UI
 {
     public class CommandButton : MonoBehaviour
     {
-        private ICommandInterface _current;
+        private ICommandReceiver _current;
 
         private Image _icon;
         private Image _cooldown;
@@ -45,18 +46,18 @@ namespace Ratworx.MarsTS.UI
             EvaluateCooldown();
         }
 
-        public void UpdateCommand(string key) {
-            if (key == "") {
+        public void UpdateCommand(string key, ICommandReceiver receiver) {
+            if (string.IsNullOrEmpty(key) || receiver is null) {
                 Deactivate();
                 return;
             }
 
-            if (!CommandPrimer.TryGetInterface(key, out ICommandInterface command))
-                return;
-
-            _current = command;
-
-            _icon.sprite = _current.GetIcon();
+            // Arguments are placed after a / delimiter
+            var splitKey = key.Split('/');
+            string argument = splitKey.Length >= 2 ? splitKey[1] : string.Empty;
+            
+            _current = receiver;
+            _icon.sprite = _current.GetIcon(argument);
             _icon.gameObject.SetActive(true);
 
             EvaluateActivity();

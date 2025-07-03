@@ -1,6 +1,7 @@
 using System;
 using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Entities;
+using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands.Receivers
 {
@@ -25,5 +26,9 @@ namespace Ratworx.MarsTS.Commands.Receivers
         /// <returns>Valid determines if the target is a valid candidate for this command. Factory will be null if valid
         /// is false.</returns>
         (bool valid, ICommandInterface command) EvaluateCommand(Entity entity);
+        // TODO: Find better home for below
+        void StartSelection(string argument = null);
+        Sprite GetIcon(string argument = null);
+        string GetDescription(string argument = null);
     }
 }

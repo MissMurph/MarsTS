@@ -15,7 +15,7 @@ namespace Ratworx.MarsTS.Commands.UI
 				
                 foreach (ICommandable unit in rollup.GetCommandables()) {
                     if (unit.ActiveCommands.Count == 0) continue;
-                    if (unit.Commands()["deploy"].IsActive) continue;
+                    if (unit.GetCommands()["deploy"].IsActive) continue;
 
                     toCommand.Add(unit.Entity.Id);
                 }

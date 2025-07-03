@@ -10,7 +10,7 @@ using UnityEngine;
 namespace Ratworx.MarsTS.Commands.UI
 {
     public class ProductionCommandInterface : BaseCommandInterface,
-                                                  ICommandInterfaceArgumentAccepter<ProductionOption>
+                                              ICommandInterfaceArgumentAccepter<ProductionOption>
     {
         public override void StartSelection() {
             throw new NotImplementedException(

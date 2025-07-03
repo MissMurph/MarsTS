@@ -40,5 +40,11 @@ namespace Ratworx.MarsTS.Commands.Receivers
         public abstract void ReceiveCommand(T command);
         public abstract (bool valid, ICommandInterface command) EvaluateCommand(Entity entity);
         protected void PostStateUpdatedEvent() => OnCommandStateUpdated?.Invoke();
+        public virtual void StartSelection(string argument = null) 
+            => CommandPrimer.GetInterface(CommandKey).StartSelection();
+        public virtual Sprite GetIcon(string argument = null) 
+            => CommandPrimer.GetInterface(CommandKey).GetIcon();
+        public virtual string GetDescription(string argument = null) 
+            => CommandPrimer.GetInterface(CommandKey).Description;
     }
 }

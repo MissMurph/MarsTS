@@ -52,13 +52,13 @@ namespace Ratworx.MarsTS.Extensions
             var output = new List<string>();
 
             if (roster.GetFirst().TryGetEntityComponent(out ICommandable commandable)) 
-                output.AddRange(commandable.Commands().Select(kvp => kvp.Key));
+                output.AddRange(commandable.GetCommands().Select(tuple => tuple.key));
 
             return output;
         }
 
-        public static Dictionary<string, ICommandReceiver> GetCommands(this Roster roster)
-            => roster.GetFirst().TryGetEntityComponent(out ICommandable commandable) ? commandable.Commands() : null;
+        public static CommandPage GetCommands(this Roster roster)
+            => roster.GetFirst().TryGetEntityComponent(out ICommandable commandable) ? commandable.GetCommands() : null;
 
         public static bool IsCommandable(this Roster roster) 
             => roster.GetFirst().TryGetEntityComponent(out ICommandable _);

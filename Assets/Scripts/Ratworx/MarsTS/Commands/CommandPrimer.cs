@@ -189,5 +189,19 @@ namespace Ratworx.MarsTS.Commands
 
         public static bool TryGetInterface(string key, out ICommandInterface commandInterface)
             => _instance._registeredInterfaces.TryGetValue(key, out commandInterface);
+
+        public static T GetInterface<T>(string key) where T : ICommandInterface {
+            if (!_instance._registeredInterfaces.TryGetValue(key, out ICommandInterface entry)) {
+                RatLogger.Error?.Log($"Command Interface {key} not found!");
+                return default;
+            }
+
+            if (entry is T output) 
+                return output;
+            
+            RatLogger.Error?.Log(
+                $"Command Interface {key} not expected type {nameof(T)}, is {entry.GetType()} instead!");
+            return default;
+        }
     }
 }

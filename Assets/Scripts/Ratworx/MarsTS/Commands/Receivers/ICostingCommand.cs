@@ -5,6 +5,6 @@ namespace Ratworx.MarsTS.Commands.Receivers
 {
     public interface ICostingCommand
     {
-        public ResourceCost[] GetCost();
+        public ResourceCost[] GetCost(string argument = null);
     }
 }

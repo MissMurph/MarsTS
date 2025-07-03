@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Commands.Receivers;
 using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Extensions;
 using UnityEngine;
@@ -10,13 +11,13 @@ namespace Ratworx.MarsTS.UI {
 
 		private CommandButton[] _registeredButtons;
 
-		private string[] _boundCommands;
+		private (string key, ICommandReceiver receiver)[] displayedCommands;
 		private int _buttonCount;
 
 		private CommandTooltip _tooltip;
 		private int _currentTooltip;
 
-		private string _currentlyTargetingCommand;
+		private (string key, ICommandReceiver receiver) _currentlyTargetingCommand;
 
 		private void Awake () {
 			//buttonCount = registeredButtons.Length;
@@ -24,7 +25,7 @@ namespace Ratworx.MarsTS.UI {
 			_registeredButtons = GetComponentsInChildren<CommandButton>();
 			_buttonCount = _registeredButtons.Length;
 
-			_boundCommands = new string[_buttonCount];
+			displayedCommands = new (string key, ICommandReceiver receiver)[_buttonCount];
 
 			_tooltip = GetComponentInChildren<CommandTooltip>();
 		}
@@ -43,23 +44,41 @@ namespace Ratworx.MarsTS.UI {
 		}
 
 		private void UpdateSelectedCommands() {
-			List<string> commands = Player.Player.Selection.PrimarySelection is not null
-				? Player.Player.Selection.PrimarySelection.GetCommandKeys()
-				: new List<string>();
+			CommandPage commands = Player.Player.Selection.PrimarySelection is not null
+				? Player.Player.Selection.PrimarySelection.GetCommands()
+				: CommandPage.Empty;
 			
-			for (int i = 0; i < _buttonCount; i++) {
-				if (i >= commands.Count) {
-					_boundCommands[i] = string.Empty;
-					_registeredButtons[i].UpdateCommand(_boundCommands[i]);
+			LoadCommandPage(commands);
+		}
+
+		public void Press (int index) {
+			if (string.IsNullOrEmpty(displayedCommands[index].key)) return;
+
+			if (!string.IsNullOrEmpty(_currentlyTargetingCommand.key)) 
+				CommandPrimer.GetInterface(_currentlyTargetingCommand.receiver.CommandKey).CancelSelection();
+
+			_currentlyTargetingCommand = displayedCommands[index];
+			
+			var splitKey = _currentlyTargetingCommand.key.Split('/');
+			string argument = splitKey.Length >= 2 ? splitKey[1] : string.Empty;
+			
+			_currentlyTargetingCommand.receiver.StartSelection(argument);
+		}
+
+		public void LoadCommandPage (CommandPage page) {
+			for (int i = 0; i < page.Length; i++) {
+				if (string.IsNullOrEmpty(page[i].key)) {
+					displayedCommands[i] = (string.Empty, null);
+					_registeredButtons[i].UpdateCommand("", null);
 					continue;
 				}
 
-				_boundCommands[i] = commands[i];
-				_registeredButtons[i].UpdateCommand(commands[i]);
+				displayedCommands[i] = page[i];
+				_registeredButtons[i].UpdateCommand(page[i].key, page[i].receiver);
 			}
-
-			if (_currentTooltip > -1 && !string.IsNullOrEmpty(_boundCommands[_currentTooltip])) {
-				_tooltip.ShowCommand(_boundCommands[_currentTooltip]);
+			
+			if (_currentTooltip > -1 && !string.IsNullOrEmpty(displayedCommands[_currentTooltip].key)) {
+				_tooltip.ShowCommand(displayedCommands[_currentTooltip].key, displayedCommands[_currentTooltip].receiver);
 				_tooltip.gameObject.SetActive(true);
 			}
 			else {
@@ -67,37 +86,10 @@ namespace Ratworx.MarsTS.UI {
 			}
 		}
 
-		public void Press (int index) {
-			if (string.IsNullOrEmpty(_boundCommands[index])) return;
-
-			if (!string.IsNullOrEmpty(_currentlyTargetingCommand)) 
-				CommandPrimer.GetInterface(_currentlyTargetingCommand).CancelSelection();
-
-			_currentlyTargetingCommand = _boundCommands[index];
-
-			ICommandInterface bound = CommandPrimer.GetInterface(_boundCommands[index]);
-			bound.StartSelection();
-		}
-
-		public void LoadCommandPage (CommandPage page) {
-			string[] commands = page.Commands;
-
-			for (int i = 0; i < commands.Length; i++) {
-				if (string.IsNullOrEmpty(commands[i])) {
-					_boundCommands[i] = null;
-					_registeredButtons[i].UpdateCommand("");
-					continue;
-				}
-
-				_boundCommands[i] = commands[i];
-				_registeredButtons[i].UpdateCommand(commands[i]);
-			}
-		}
-
 		public void OnPointerEnterButton (int index) {
-			if (!string.IsNullOrEmpty(_boundCommands[index])) {
+			if (!string.IsNullOrEmpty(displayedCommands[index].key)) {
 				_currentTooltip = index;
-				_tooltip.ShowCommand(_boundCommands[index]);
+				_tooltip.ShowCommand(displayedCommands[index].key, displayedCommands[index].receiver);
 				_tooltip.gameObject.SetActive(true);
 			}
 		}

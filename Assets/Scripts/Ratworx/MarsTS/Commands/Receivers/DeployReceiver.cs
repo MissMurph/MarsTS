@@ -110,6 +110,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         }
         
         public override (bool valid, ICommandInterface command) EvaluateCommand(Entity entity) => (false, null);
-        public ResourceCost[] GetCost() => new ResourceCost[1] { new ResourceCost { key = "time", amount = 5 } };
+        public ResourceCost[] GetCost(string argument = null) 
+            => new ResourceCost[1] { new ResourceCost { key = "time", amount = 5 } };
     }
 }

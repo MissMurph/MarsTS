@@ -17,7 +17,7 @@ namespace Ratworx.MarsTS.Commands {
 		List<Timer> Cooldowns { get; }
 		void Order (Commandlet order, bool inclusive);
 		ICommandInterface EvaluateCommand(Entity target);
-		Dictionary<string, ICommandReceiver> Commands ();
+		CommandPage GetCommands();
 		bool CanCommand (string commandKey);
 	}
 }

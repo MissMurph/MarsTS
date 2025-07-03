@@ -13,7 +13,8 @@ namespace Ratworx.MarsTS.Commands.Receivers
 {
     public class ProductionReceiver : AbstractCommandReceiver<ProduceCommandlet>,
                                       IEntityServerUpdate,
-                                      IEntityClientUpdate
+                                      IEntityClientUpdate,
+                                      ICostingCommand
     {
         [SerializeField] private int _productionPerSecond;
         [SerializeField] private ProductionOrder _orderPrefab;
@@ -151,5 +152,69 @@ namespace Ratworx.MarsTS.Commands.Receivers
         
         // TODO: Turn below into an interface
         public override (bool valid, ICommandInterface command) EvaluateCommand(Entity entity) => (false, null);
+
+        public override void StartSelection(string argument = null) {
+            if (string.IsNullOrEmpty(argument)) {
+                RatLogger.Error?.Log($"Error starting {CommandKey} selection, argument is empty!");
+                return;
+            }
+
+            foreach (ProductionOption option in _productionOptions) {
+                if (option.ProductKey != argument) continue;
+                
+                CommandPrimer.GetInterface<ProductionCommandInterface>(CommandKey).StartArgSelection(option);
+                return;
+            }
+            
+            RatLogger.Error?.Log($"Production option with key {argument} not found!");
+        }
+
+        public override Sprite GetIcon(string argument = null) {
+            if (string.IsNullOrEmpty(argument)) {
+                RatLogger.Error?.Log($"Error starting {CommandKey} selection, argument is empty!");
+                return null;
+            }
+
+            foreach (ProductionOption option in _productionOptions) {
+                if (option.ProductKey != argument) continue;
+                
+                return CommandPrimer.GetInterface<ProductionCommandInterface>(CommandKey).GetArgIcon(option);
+            }
+            
+            RatLogger.Error?.Log($"Production option with key {argument} not found!");
+            return null;
+        }
+
+        public override string GetDescription(string argument = null) {
+            if (string.IsNullOrEmpty(argument)) {
+                RatLogger.Error?.Log($"Error starting {CommandKey} selection, argument is empty!");
+                return string.Empty;
+            }
+
+            foreach (ProductionOption option in _productionOptions) {
+                if (option.ProductKey != argument) continue;
+                
+                return CommandPrimer.GetInterface<ProductionCommandInterface>(CommandKey).GetArgDescription(option);
+            }
+            
+            RatLogger.Error?.Log($"Production option with key {argument} not found!");
+            return string.Empty;
+        }
+
+        public ResourceCost[] GetCost(string argument = null) {
+            if (string.IsNullOrEmpty(argument)) {
+                RatLogger.Error?.Log($"Error starting {CommandKey} selection, argument is empty!");
+                return Array.Empty<ResourceCost>();
+            }
+
+            foreach (ProductionOption option in _productionOptions) {
+                if (option.ProductKey != argument) continue;
+                
+                return option.Cost;
+            }
+            
+            RatLogger.Error?.Log($"Production option with key {argument} not found!");
+            return Array.Empty<ResourceCost>();
+        }
     }
 }

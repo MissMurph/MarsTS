@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Ratworx.MarsTS.Commands.UI
 {
     public abstract class BaseCommandInterface : MonoBehaviour, 
-                                                     ICommandInterface
+                                                 ICommandInterface
     {
         public string CommandKey => _commandKey;
         public string Description => _description;

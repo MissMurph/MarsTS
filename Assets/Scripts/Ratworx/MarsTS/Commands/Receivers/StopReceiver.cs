@@ -1,5 +1,5 @@
 using Ratworx.MarsTS.Commands.Commandlets;
-using Ratworx.MarsTS.Commands.UI;
+using Ratworx.MarsTS.Commands.Interfaces;
 using Ratworx.MarsTS.Entities;
 
 namespace Ratworx.MarsTS.Commands.Receivers

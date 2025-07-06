@@ -1,17 +1,12 @@
 using Ratworx.MarsTS.Buildings.Ghosts;
-using Ratworx.MarsTS.Commands.Factories;
-using Ratworx.MarsTS.Entities;
-using Ratworx.MarsTS.Events;
-using Ratworx.MarsTS.Events.Init;
 using Ratworx.MarsTS.Pathfinding;
 using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Teams;
-using Ratworx.MarsTS.Units;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Ratworx.MarsTS.Commands.UI
+namespace Ratworx.MarsTS.Commands.Interfaces
 {
     // TODO: Reimplement properly for ConstructionOptions
     public class ConstructBuildingCommandInterface : BaseCommandInterface,

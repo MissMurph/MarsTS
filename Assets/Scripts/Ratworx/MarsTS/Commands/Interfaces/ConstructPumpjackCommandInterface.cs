@@ -1,11 +1,9 @@
-using Ratworx.MarsTS.Commands.UI;
-using Ratworx.MarsTS.Networking;
 using Ratworx.MarsTS.Pathfinding;
 using Ratworx.MarsTS.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Ratworx.MarsTS.Commands.Factories {
+namespace Ratworx.MarsTS.Commands.Interfaces {
 
     public class ConstructPumpjackCommandInterface : ConstructBuildingCommandInterface {
 

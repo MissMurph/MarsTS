@@ -7,7 +7,7 @@ using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units;
 using UnityEngine;
 
-namespace Ratworx.MarsTS.Commands.UI
+namespace Ratworx.MarsTS.Commands.Interfaces
 {
     public class ProductionCommandInterface : BaseCommandInterface,
                                               ICommandInterfaceArgumentAccepter<ProductionOption>

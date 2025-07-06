@@ -2,7 +2,7 @@ using Ratworx.MarsTS.Pathfinding;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Ratworx.MarsTS.Commands.UI
+namespace Ratworx.MarsTS.Commands.Interfaces
 {
     public class MoveCommandInterface : BaseCommandInterface
     {

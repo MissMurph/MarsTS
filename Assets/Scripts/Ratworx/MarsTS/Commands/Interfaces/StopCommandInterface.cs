@@ -1,4 +1,4 @@
-namespace Ratworx.MarsTS.Commands.UI
+namespace Ratworx.MarsTS.Commands.Interfaces
 {
     public class StopCommandInterface : BaseCommandInterface
     {

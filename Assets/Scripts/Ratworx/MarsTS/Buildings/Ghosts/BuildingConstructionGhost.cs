@@ -1,8 +1,8 @@
 using System;
 using Ratworx.MarsTS.Commands;
 using Ratworx.MarsTS.Commands.Commandlets;
+using Ratworx.MarsTS.Commands.Interfaces;
 using Ratworx.MarsTS.Commands.Receivers;
-using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Init;

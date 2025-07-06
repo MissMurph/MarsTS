@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Ratworx.MarsTS.Commands.UI;
+using Ratworx.MarsTS.Commands.Interfaces;
 using Ratworx.MarsTS.Logging;
 using Ratworx.MarsTS.Registry;
 using Unity.Netcode;

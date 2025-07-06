@@ -1,3 +1,4 @@
+using Ratworx.MarsTS.Buildings;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Pathfinding;
 using Ratworx.MarsTS.Teams;
@@ -5,9 +6,9 @@ using Ratworx.MarsTS.Units;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Ratworx.MarsTS.Commands.UI
+namespace Ratworx.MarsTS.Commands.Interfaces
 {
-    public class RepairCommandInterface : BaseCommandInterface
+    public class DepositCommandInterface : BaseCommandInterface
     {
         public override void StartSelection() {
             Player.Player.Input.Hook("Select", OnSelect);
@@ -23,18 +24,17 @@ namespace Ratworx.MarsTS.Commands.UI
             Ray ray = Player.Player.ViewPort.ScreenPointToRay(cursorPos);
 
             if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.SelectableMask)
-                && EntityCache.TryGetEntityComponent(hit.rigidbody.name, out IAttackable target)
-                && (target.GetRelationship(Player.Player.Commander) == Relationship.Friendly
-                    || target.GetRelationship(Player.Player.Commander) == Relationship.Owned)
-            ) {
-                CommandPrimer.GetFactory<CommandFactory<IAttackable>>().ConstructCommand(
-                    CommandKey,
-                    target,
-                    Player.Player.Commander,
-                    Player.Player.ListSelected.ToArray(),
-                    Player.Player.Include
-                );
-            }
+                && EntityCache.TryGetEntityComponent(hit.rigidbody.name, out ISelectable selectable)
+                && selectable.GetRelationship(Player.Player.Commander) == Relationship.Owned
+                && EntityCache.TryGetEntityComponent(hit.rigidbody.name, out IDepositable target))
+                CommandPrimer.GetFactory<CommandFactory<IDepositable>>()
+                    .ConstructCommand(
+                        CommandKey,
+                        target,
+                        Player.Player.Commander,
+                        Player.Player.ListSelected,
+                        Player.Player.Include
+                    );
 
             Player.Player.Input.Release("Select");
             Player.Player.UI.ResetCursor();

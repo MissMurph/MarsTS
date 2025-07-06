@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Ratworx.MarsTS.Commands.UI
+namespace Ratworx.MarsTS.Commands.Interfaces
 {
     public interface ICommandInterfaceArgumentAccepter<in T>
     {

@@ -1,7 +1,6 @@
 using System.Linq;
 using Ratworx.MarsTS.Commands;
 using Ratworx.MarsTS.Commands.Receivers;
-using Ratworx.MarsTS.Commands.UI;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Commands;
 using Ratworx.MarsTS.Extensions;

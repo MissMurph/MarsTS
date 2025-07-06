@@ -2,7 +2,7 @@ using Ratworx.MarsTS.Commands.Receivers;
 using Ratworx.MarsTS.Extensions;
 using Ratworx.MarsTS.Units;
 
-namespace Ratworx.MarsTS.Commands.UI
+namespace Ratworx.MarsTS.Commands.Interfaces
 {
     public class SneakCommandInterface : BaseCommandInterface
     {

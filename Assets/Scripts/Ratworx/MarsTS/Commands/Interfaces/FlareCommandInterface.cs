@@ -7,7 +7,7 @@ using Ratworx.MarsTS.Units;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Ratworx.MarsTS.Commands.UI
+namespace Ratworx.MarsTS.Commands.Interfaces
 {
     public class FlareCommandInterface : BaseCommandInterface
     {

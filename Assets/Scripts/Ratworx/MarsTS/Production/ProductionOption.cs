@@ -7,6 +7,7 @@ namespace Ratworx.MarsTS.Production
     [Serializable]
     public class ProductionOption
     {
+        public string OptionKey;
         public int ProductionRequired;
         /// <summary>RegistryKey to the product prefab</summary>
         public string ProductKey;
@@ -19,6 +20,7 @@ namespace Ratworx.MarsTS.Production
 
     public struct SerializedProductionOption : INetworkSerializable
     {
+        public string OptionKey;
         public int ProductionRequired;
         public string ProductKey;
         public string ProductionType;
@@ -26,6 +28,7 @@ namespace Ratworx.MarsTS.Production
         public SerializedResourceCosts Cost;
 
         public SerializedProductionOption(ProductionOption option) {
+            OptionKey = option.OptionKey;
             ProductionRequired = option.ProductionRequired;
             ProductKey = option.ProductKey;
             ProductionType = option.ProductionType;
@@ -34,6 +37,7 @@ namespace Ratworx.MarsTS.Production
         }
         
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter {
+            serializer.SerializeValue(ref OptionKey);
             serializer.SerializeValue(ref ProductionRequired);
             serializer.SerializeValue(ref ProductKey);
             serializer.SerializeValue(ref ProductionType);
@@ -43,6 +47,7 @@ namespace Ratworx.MarsTS.Production
 
         public ProductionOption GetDeserializedOption() => new ProductionOption
         {
+            OptionKey = OptionKey,
             ProductionRequired = ProductionRequired,
             ProductKey = ProductKey,
             ProductionType = ProductionType,

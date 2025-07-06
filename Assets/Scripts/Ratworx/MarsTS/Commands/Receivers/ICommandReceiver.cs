@@ -21,6 +21,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         bool CanInterrupt { get; }
         /// <remarks>Will return <c>0</c> if no cooldown.</remarks>
         float Cooldown { get; }
+        void ReceiveCommand(Commandlet command);
         /// <summary>Evaluates if a command can automatically be determined and constructed with the given
         /// <see cref="Entity"/> as a target.</summary>
         /// <returns>Valid determines if the target is a valid candidate for this command. Factory will be null if valid

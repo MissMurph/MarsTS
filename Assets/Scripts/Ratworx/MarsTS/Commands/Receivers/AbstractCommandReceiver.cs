@@ -36,7 +36,12 @@ namespace Ratworx.MarsTS.Commands.Receivers
             CommandQueue = GetComponentInParent<CommandQueue>();
             EventAgent = GetComponentInParent<EventAgent>();
         }
-        
+
+        public void ReceiveCommand(Commandlet command) {
+            if (command.Name == CommandKey
+                && command is T superType) 
+                ReceiveCommand(superType);
+        }
         public abstract void ReceiveCommand(T command);
         public abstract (bool valid, ICommandInterface command) EvaluateCommand(Entity entity);
         protected void PostStateUpdatedEvent() => OnCommandStateUpdated?.Invoke();

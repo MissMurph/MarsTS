@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Ratworx.MarsTS.Events;
 using Unity.Netcode;
 using UnityEngine;
@@ -119,7 +120,11 @@ namespace Ratworx.MarsTS.Entities {
 			_instance = null;
 		}
 
-		public IEnumerator<Entity> GetEnumerator() => _instanceMap.Values.GetEnumerator();
+		public IEnumerator<Entity> GetEnumerator() {
+			var output = _instanceMap.Values.ToArray();
+			
+			return output.AsEnumerable().GetEnumerator();
+		}
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}

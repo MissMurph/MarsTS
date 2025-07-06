@@ -20,8 +20,8 @@ namespace Ratworx.MarsTS.Commands
         public ICommandReceiver this[string key] => _commandKeysToReceivers[key];
 
         public int Length => _commandKeys.Length;
-        
-        // public (string key, ICommandReceiver receiver)
+
+        public string[] CommandKeys => _commandKeys;
 
         // 0 = (1, 1)
         // 2 = (3, 1)
@@ -34,6 +34,21 @@ namespace Ratworx.MarsTS.Commands
 
         private Dictionary<string, Vector2Int> _commandKeysToPositions = new Dictionary<string, Vector2Int>();
         private Dictionary<string, ICommandReceiver> _commandKeysToReceivers = new Dictionary<string, ICommandReceiver>();
+
+        public void RegisterReceiver(string commandKey, ICommandReceiver receiver) {
+            for (var i = 0; i < _commandKeys.Length; i++) {
+                string[] splitKey = _commandKeys[i].Split('/');
+                string actualKey = splitKey[0];
+
+                if (actualKey != commandKey) continue;
+                
+                _receivers[i] = receiver;
+                _commandKeysToReceivers[_commandKeys[i]] = receiver;
+                return;
+            }
+            
+            RatLogger.Error?.Log($"Couldn't find matching command key {commandKey} in Command Page {PageKey}!");
+        }
 
         public void AddCommand(string commandKey, ICommandReceiver receiver, Vector2Int position) {
             int index = GetIndexFromPosition(position);

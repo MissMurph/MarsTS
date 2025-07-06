@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 310026d042694070a9de61e4aa340934, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _commandKey: Move
+  _commandKey: move
   _description: Orders the unit to move to the seleced location
   _icon: {fileID: 21300000, guid: 96c7b4603d0c0c048b687334e8adcad5, type: 3}
   _cursorSprite:

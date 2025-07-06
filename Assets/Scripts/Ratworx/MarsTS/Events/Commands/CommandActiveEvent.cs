@@ -8,7 +8,7 @@ namespace Ratworx.MarsTS.Events.Commands
 		public bool Activity { get; private set; }
 
 		public CommandActiveEvent (ICommandable unit, ICommandReceiver commandReceiver, bool activity) 
-			: base("Active", commandReceiver, unit) 
+			: base("Active", unit) 
 		{
 			Activity = activity;
 		}

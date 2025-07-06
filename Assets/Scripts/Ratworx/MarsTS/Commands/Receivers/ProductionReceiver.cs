@@ -48,7 +48,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
         public override void ReceiveCommand(ProduceCommandlet command) {
             foreach (ProductionOption option in _productionOptions) {
-                if (option.ProductKey != command.Target.ProductKey) continue;
+                if (option.OptionKey != command.Target.OptionKey) continue;
                 
                 ProductionOrder order = Instantiate(_orderPrefab).GetComponent<ProductionOrder>();
 
@@ -99,7 +99,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         private void CompleteProductionOrder() {
             switch (_productionQueue.CurrentOrder.ProductionType)
             {
-                case "produce":
+                case "production":
                     SpawnProductProduce();
                     break;
                 case "research":
@@ -160,7 +160,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
             }
 
             foreach (ProductionOption option in _productionOptions) {
-                if (option.ProductKey != argument) continue;
+                if (option.OptionKey != argument) continue;
                 
                 CommandPrimer.GetInterface<ProductionCommandInterface>(CommandKey).StartArgSelection(option);
                 return;
@@ -171,12 +171,12 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
         public override Sprite GetIcon(string argument = null) {
             if (string.IsNullOrEmpty(argument)) {
-                RatLogger.Error?.Log($"Error starting {CommandKey} selection, argument is empty!");
+                RatLogger.Error?.Log($"Error getting {CommandKey} icon, argument is empty!");
                 return null;
             }
 
             foreach (ProductionOption option in _productionOptions) {
-                if (option.ProductKey != argument) continue;
+                if (option.OptionKey != argument) continue;
                 
                 return CommandPrimer.GetInterface<ProductionCommandInterface>(CommandKey).GetArgIcon(option);
             }
@@ -187,12 +187,12 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
         public override string GetDescription(string argument = null) {
             if (string.IsNullOrEmpty(argument)) {
-                RatLogger.Error?.Log($"Error starting {CommandKey} selection, argument is empty!");
+                RatLogger.Error?.Log($"Error getting {CommandKey} description, argument is empty!");
                 return string.Empty;
             }
 
             foreach (ProductionOption option in _productionOptions) {
-                if (option.ProductKey != argument) continue;
+                if (option.OptionKey != argument) continue;
                 
                 return CommandPrimer.GetInterface<ProductionCommandInterface>(CommandKey).GetArgDescription(option);
             }
@@ -203,12 +203,12 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
         public ResourceCost[] GetCost(string argument = null) {
             if (string.IsNullOrEmpty(argument)) {
-                RatLogger.Error?.Log($"Error starting {CommandKey} selection, argument is empty!");
+                RatLogger.Error?.Log($"Error getting {CommandKey} cost, argument is empty!");
                 return Array.Empty<ResourceCost>();
             }
 
             foreach (ProductionOption option in _productionOptions) {
-                if (option.ProductKey != argument) continue;
+                if (option.OptionKey != argument) continue;
                 
                 return option.Cost;
             }

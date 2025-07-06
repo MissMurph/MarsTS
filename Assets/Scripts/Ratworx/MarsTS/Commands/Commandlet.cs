@@ -31,7 +31,7 @@ namespace Ratworx.MarsTS.Commands
 
         public void CompleteCommand(ICommandable unit, bool isCancelled = false) {
             commandedUnits.Remove(unit.GameObject.name);
-            OnCommandComplete.Invoke(new CommandCompleteEvent(this, unit.GetCommands()[Name],  isCancelled, unit));
+            OnCommandComplete.Invoke(new CommandCompleteEvent(this, isCancelled, unit));
         }
 
         //Making virtual while testing

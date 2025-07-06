@@ -47,7 +47,7 @@ MonoBehaviour:
   _prefab: {fileID: 0}
   _owner: {fileID: 0}
   _deferSpawn: 1
-  _destroyOnSpawn: 1
+  _destroyOnSpawn: 0
 --- !u!1 &3792738811186551006
 GameObject:
   m_ObjectHideFlags: 0
@@ -99,14 +99,18 @@ MonoBehaviour:
   _orderPrefab: {fileID: 5628565189625785393, guid: ed346247f42ae0945bcd57f2788db5b0,
     type: 3}
   _productionOptions:
-  - ProductionRequired: 5
+  - OptionKey: roughneck
+    ProductionRequired: 5
     ProductKey: unit:roughneck
     ProductionType: production
     Cost: []
-  - ProductionRequired: 5
+    Description: cumucmcumcumcumcumcumc
+  - OptionKey: scoutcar
+    ProductionRequired: 5
     ProductKey: unit:scoutcar
     ProductionType: production
     Cost: []
+    Description: 
   _spawnPoint: {fileID: 5843079719420424781}
 --- !u!1 &3877310407130595527
 GameObject:
@@ -269,6 +273,7 @@ GameObject:
   - component: {fileID: 1893723434817422861}
   - component: {fileID: 7034360454609570856}
   - component: {fileID: 8338187163927331097}
+  - component: {fileID: 7704616323938350887}
   m_Layer: 0
   m_Name: scrapyard_headquarters
   m_TagString: Untagged
@@ -447,6 +452,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 21300000, guid: 4e0dc8ebe193b5241ab53cb683e802fa, type: 3}
+--- !u!114 &7704616323938350887
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4367344837201828623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e107228fa214501a3ff7ec3d5e58a2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _pagesToLoad:
+  - PageKey: default
+    _commandKeys:
+    - produce/roughneck
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
 --- !u!1 &4367344837301277131
 GameObject:
   m_ObjectHideFlags: 0

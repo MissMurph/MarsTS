@@ -32,33 +32,31 @@ namespace Ratworx.MarsTS.Commands.Interfaces
         public void StartArgSelection(ProductionOption arg) {
             if (!arg.CanFactionAfford(Player.Player.Commander)) return;
 
-            foreach (KeyValuePair<string, Roster> entry in Player.Player.Selected) {
-                int lowestAmount = 9999;
-                ICommandable lowestCommandable = null;
+            int lowestAmount = 9999;
+            ICommandable lowestCommandable = null;
 
-                foreach (ICommandable commandable in entry.Value.GetCommandables()) {
-                    if (!commandable.CanCommand(CommandKey)
-                        || commandable.QueueCount >= lowestAmount)
-                        continue;
+            foreach (ICommandable commandable in Player.Player.Selection.PrimarySelection.GetCommandables()) {
+                if (!commandable.CanCommand(CommandKey)
+                    || commandable.QueueCount >= lowestAmount)
+                    continue;
 
-                    lowestAmount = commandable.QueueCount;
-                    lowestCommandable = commandable;
-                }
-
-                if (lowestCommandable is null)
-                    return;
-
-                WithdrawResourcesFromFaction(arg.Cost, Player.Player.Commander);
-
-                CommandPrimer.GetFactory<CommandFactory<ProductionOption>>()
-                    .ConstructCommand(
-                        CommandKey,
-                        arg,
-                        Player.Player.Commander,
-                        new[] { lowestCommandable.Entity.Id },
-                        Player.Player.Include
-                    );
+                lowestAmount = commandable.QueueCount;
+                lowestCommandable = commandable;
             }
+
+            if (lowestCommandable is null)
+                return;
+
+            WithdrawResourcesFromFaction(arg.Cost, Player.Player.Commander);
+
+            CommandPrimer.GetFactory<CommandFactory<ProductionOption>>()
+                .ConstructCommand(
+                    CommandKey,
+                    arg,
+                    Player.Player.Commander,
+                    new[] { lowestCommandable.Entity.Id },
+                    Player.Player.Include
+                );
         }
 
         private void WithdrawResourcesFromFaction(ResourceCost[] costs, Faction faction) {

@@ -118,11 +118,18 @@ namespace Ratworx.MarsTS.Commands
         protected virtual void Dequeue() {
             Commandlet order = _commandQueue.Dequeue();
 
+            if (!_commands.TryGetValue(order.Name, out ICommandReceiver receiver)) {
+                RatLogger.Error?.Log($"Error sending command {order.Name} to receiver, no receiver with matching key found.");
+                return;
+            }
+            
             Current = order;
             order.OnCommandComplete.AddListener(OnOrderComplete);
 
             order.StartCommand(this);
-            OnCommandListChanged?.Invoke();
+            receiver.ReceiveCommand(order);
+            // OnCommandListChanged?.Invoke();
+            OnCommandsStateChanged?.Invoke();
 
             if (NetworkManager.Singleton.IsServer) 
                 DequeueClientRpc();

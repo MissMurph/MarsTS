@@ -47,7 +47,7 @@ namespace Ratworx.MarsTS.UI
 
             ResourceCost[] commandCost = Array.Empty<ResourceCost>();
 
-            if (receiver is ICostingCommand costingCommand) commandCost = costingCommand.GetCost();
+            if (receiver is ICostingCommand costingCommand) commandCost = costingCommand.GetCost(argument);
 
             foreach (GameObject instantiated in costModules) {
                 Destroy(instantiated);

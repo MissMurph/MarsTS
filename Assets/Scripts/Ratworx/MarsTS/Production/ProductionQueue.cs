@@ -42,7 +42,7 @@ namespace Ratworx.MarsTS.Production
         private void Awake() {
             _ownership = GetComponent<UnitOwnership>();
             _eventAgent = GetComponent<EventAgent>();
-            _receiver = GetComponent<ProductionReceiver>();
+            _receiver = GetComponentInChildren<ProductionReceiver>();
         }
 
         private void Start() {
@@ -81,6 +81,7 @@ namespace Ratworx.MarsTS.Production
             OnOrderComplete?.Invoke();
             OnQueueChanged?.Invoke();
             
+            _productionQueue.RemoveAt(queuePosition);
             CompleteOrderClientRpc(queuePosition, isCancelled);
             
             Destroy(completedOrder, 0.1f);

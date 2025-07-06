@@ -11,12 +11,10 @@ namespace Ratworx.MarsTS.Events.Commands
 
 		public CommandWorkEvent (
 			Commandlet command,
-			ICommandReceiver receiver,
 			ICommandable unit,
 			float progress
 		) : base(
 			"Work",
-			receiver,
 			unit
 		) {
 			Progress = progress;

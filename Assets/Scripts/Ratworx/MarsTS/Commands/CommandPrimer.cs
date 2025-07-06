@@ -42,14 +42,15 @@ namespace Ratworx.MarsTS.Commands
             
             foreach ((string key, GameObject prefab) in registry.GetAllPrefabs())
             {
-                SpawnInterface(key, prefab);
+                SpawnInterface(prefab);
             }
         }
 
-        private void SpawnInterface(string key, GameObject prefab)
+        private void SpawnInterface(GameObject prefab)
         {
             GameObject instantiated = Instantiate(prefab);
             ICommandInterface commandInterface = instantiated.GetComponent<ICommandInterface>();
+            string key = commandInterface.CommandKey;
 
             if (instantiated.TryGetComponent<NetworkObject>(out NetworkObject networkObject)) {
                 networkObject.Spawn();

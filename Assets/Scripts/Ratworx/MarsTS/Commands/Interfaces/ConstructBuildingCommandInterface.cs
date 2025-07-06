@@ -9,6 +9,7 @@ using UnityEngine.InputSystem;
 namespace Ratworx.MarsTS.Commands.Interfaces
 {
     // TODO: Reimplement properly for ConstructionOptions
+    // TODO: Convert to NetworkBehaviour (implement just interfaces)
     public class ConstructBuildingCommandInterface : BaseCommandInterface,
                                                          ICommandInterfaceArgumentAccepter<ProductionOption>
     {

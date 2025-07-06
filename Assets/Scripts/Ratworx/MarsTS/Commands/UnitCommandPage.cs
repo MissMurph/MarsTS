@@ -23,10 +23,6 @@ namespace Ratworx.MarsTS.Commands
             _currentPage = _commandPageKeysToPages["default"];
         }
 
-        public void StartSelectionAt(Vector2Int position) {
-            
-        }
-
         public CommandPage GetCurrentPage() => _currentPage;
     }
 }

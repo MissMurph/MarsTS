@@ -34,8 +34,10 @@ namespace Ratworx.MarsTS.Commands.Receivers
         private int _undeployedMoveSpeed;
         
         private Entity _entity;
-        
-        private void Awake() {
+
+        protected override void Awake() {
+            base.Awake();
+            
             _entity = GetComponentInParent<Entity>();
 
             _currentDeployTime = 0f;

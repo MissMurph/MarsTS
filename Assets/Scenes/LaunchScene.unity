@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -134,6 +134,8 @@ GameObject:
   m_Component:
   - component: {fileID: 279078106}
   - component: {fileID: 279078107}
+  - component: {fileID: 279078109}
+  - component: {fileID: 279078108}
   m_Layer: 0
   m_Name: Commands
   m_TagString: Untagged
@@ -171,29 +173,61 @@ MonoBehaviour:
   _key: command_factories
   _namespace: ratworx
   _prefabsToRegister:
-  - {fileID: 3057062535865282921, guid: 705b289a8fe32ab4692b1fb42493a980, type: 3}
-  - {fileID: 267881640687602153, guid: 67f74f53e9686d14c89aff129fe6a627, type: 3}
-  - {fileID: 5531349524687077590, guid: a7762e4366a09ec438263cef42b11ca9, type: 3}
-  - {fileID: 4956332122052170237, guid: 4b21372b3825745408cb0e99442bbb71, type: 3}
-  - {fileID: 404730182787911687, guid: d7819fcd6c2949b4fa9aa8125af0741c, type: 3}
-  - {fileID: 6270591665017431547, guid: a98af4ccdefea134eb78e539bc29a66d, type: 3}
-  - {fileID: 2628187842892179046, guid: 769c2924105cd7944a8a40eca896ae95, type: 3}
-  - {fileID: 2033957362125453448, guid: 36e7e7ced7219a6458d1982d4d2cf8e1, type: 3}
-  - {fileID: 2516520199932329893, guid: 10a912caee5228a4ea6320d96c9e97de, type: 3}
-  - {fileID: 1678601764323031716, guid: e2819091bd77a1a479697ac4f37e8339, type: 3}
-  - {fileID: 3942030250463890289, guid: c26e8c65a851ef54c8c1faf4fed9bd3b, type: 3}
-  - {fileID: 7036491822777011155, guid: 906ea77dbd11fad4b8b6077e4b94ae3d, type: 3}
-  - {fileID: 879774765586949614, guid: 84e2e88dd43782f4abcf09c6af49a2e3, type: 3}
-  - {fileID: 2839346840436041531, guid: 60ca6af2dec75b34db9143d40188fcf9, type: 3}
-  - {fileID: 5355092533762780797, guid: 8aaf0fb5ac6ecff40879c349ab5a722d, type: 3}
-  - {fileID: 4770566795186112188, guid: 0407cd29e1c591045802a1349758ee20, type: 3}
-  - {fileID: 5363801698708360245, guid: 8c9ed7776cdcef04c8b2c738cc61b557, type: 3}
-  - {fileID: 4549821421290068857, guid: 7b526a600aa91d94c97593414d53c81c, type: 3}
-  - {fileID: 4833290154102639190, guid: 97a6849b7bb2b2c4ab616cb085145d5a, type: 3}
-  - {fileID: 1335519548087172115, guid: fb6483885b8cb3d40a98f83909f86825, type: 3}
-  - {fileID: 4161531848220810385, guid: 08fefc25c2f753f438ec6032663c6a3f, type: 3}
-  - {fileID: 6072907398140352285, guid: 9a4e77d392b8c5d498b1228346d0f35d, type: 3}
-  - {fileID: 4994562280578182596, guid: aec665ee761274a4d9074fd2ae5386ef, type: 3}
+  - {fileID: 5734889556832562860, guid: d4950073b27dc7549b1178a90ffa19fd, type: 3}
+  - {fileID: 6057240045875715328, guid: d0c6c0d593bb36d40ae6b6599ae4b63b, type: 3}
+  - {fileID: 178402931613949986, guid: aba51f267b01159468fe25f0797068c5, type: 3}
+  - {fileID: 6122247794825609640, guid: f75dc7da9165dd3499e468248dc70ab1, type: 3}
+  - {fileID: 2742540783417492097, guid: 2507fa5252bacda4bb272db54bb8d2ca, type: 3}
+  - {fileID: 1727382239944696662, guid: 72dbf42fbad4643438c6ef990e738e95, type: 3}
+--- !u!114 &279078108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 279078105}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19e281ca35aa438d9842bb19758eefd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _key: command_interfaces
+  _namespace: ratworx
+  _prefabsToRegister:
+  - {fileID: 1335869816544603158, guid: bca4947c7728fd34685b32573bcad46e, type: 3}
+  - {fileID: 4359989492649424551, guid: 4ee861ebcc078374cbec63711c71dbc6, type: 3}
+  - {fileID: 1258499052039264950, guid: 517fa86aa0892ea4d9ed861800720e2d, type: 3}
+  - {fileID: 5279599414008357978, guid: dfe70aa33b7b2a146953c9655cfc585f, type: 3}
+  - {fileID: 5503735485841379129, guid: 8a841e7f995f2374eb9147a476f6f82f, type: 3}
+  - {fileID: 7783508730288369783, guid: 0dde16dddd995b74c8eecdb4a4884982, type: 3}
+  - {fileID: 7066613716386885674, guid: 276dfd6e02d3f9347b2ce4f10d4253c4, type: 3}
+  - {fileID: 7722898117226719643, guid: 2095255bd8a0d644ca1336a0bcca1990, type: 3}
+  - {fileID: 5173946749448203454, guid: f01e6d29daac3124a9c590b434cc5ac1, type: 3}
+  - {fileID: 5523405159289048878, guid: 8de3eaa49361dd442b0ee33d5c479612, type: 3}
+  - {fileID: 7471134773478830531, guid: e3f447efda3780a4889f0f9282b207bb, type: 3}
+  - {fileID: 9174628005455699294, guid: bab1ff9b72cb1fc46b25c2eed08d4f75, type: 3}
+  - {fileID: 8324731362758029345, guid: d4b8832bcd24a4c448b7d0dcfcec865d, type: 3}
+--- !u!114 &279078109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 279078105}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19e281ca35aa438d9842bb19758eefd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _key: commandlets
+  _namespace: ratworx
+  _prefabsToRegister:
+  - {fileID: 262308078846228063, guid: aa6fcc6bf9eba1f43b325844b5b51934, type: 3}
+  - {fileID: 6791844101537434035, guid: abe49472517413a49a4fa5a5eef3ecd4, type: 3}
+  - {fileID: 8512689890038300718, guid: 431e566947e6f464fbf83132d5b081bf, type: 3}
+  - {fileID: 3432517498960488343, guid: b920430aca906c946a58b104f6e932aa, type: 3}
+  - {fileID: 9078585913170648526, guid: d9ec859147772184c9b3d31f69961193, type: 3}
+  - {fileID: 1035222882716711203, guid: 198236874e2b3444983b43b2295a5dc0, type: 3}
 --- !u!1 &741740075
 GameObject:
   m_ObjectHideFlags: 0
@@ -304,7 +338,6 @@ GameObject:
   - component: {fileID: 1188445016}
   - component: {fileID: 1188445015}
   - component: {fileID: 1188445020}
-  - component: {fileID: 1188445021}
   - component: {fileID: 1188445024}
   - component: {fileID: 1188445023}
   - component: {fileID: 1188445022}
@@ -395,28 +428,6 @@ MonoBehaviour:
   - {fileID: 9042840666149580307, guid: 1c5f94134e44aca4ebce6827d691a600, type: 3}
   - {fileID: 7418287015359400986, guid: bce9c5cd19b7cb6458b42eb7af5d8e18, type: 3}
   - {fileID: 7010238093460766732, guid: 5f5bba34149d92d46a788a2e0d378b68, type: 3}
---- !u!114 &1188445021
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1188445009}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 19e281ca35aa438d9842bb19758eefd6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _key: commandlets
-  _namespace: ratworx
-  _prefabsToRegister:
-  - {fileID: 262308078846228063, guid: aa6fcc6bf9eba1f43b325844b5b51934, type: 3}
-  - {fileID: 6791844101537434035, guid: abe49472517413a49a4fa5a5eef3ecd4, type: 3}
-  - {fileID: 8512689890038300718, guid: 431e566947e6f464fbf83132d5b081bf, type: 3}
-  - {fileID: 3432517498960488343, guid: b920430aca906c946a58b104f6e932aa, type: 3}
-  - {fileID: 9078585913170648526, guid: d9ec859147772184c9b3d31f69961193, type: 3}
-  - {fileID: 262308078846228063, guid: 837d5944aef796548a81a1f5796733e8, type: 3}
-  - {fileID: 1035222882716711203, guid: 198236874e2b3444983b43b2295a5dc0, type: 3}
 --- !u!114 &1188445022
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -25,8 +25,10 @@ namespace Ratworx.MarsTS.Commands.Receivers
         private EventAgent _eventAgent;
         private bool _isSneaking;
         private int _preModifiedMoveSpeed;
-        
-        private void Awake() {
+
+        protected override void Awake() {
+            base.Awake();
+
             _entity = GetComponentInParent<Entity>();
             _eventAgent = GetComponentInParent<EventAgent>();
             _commandQueue = GetComponentInParent<CommandQueue>();

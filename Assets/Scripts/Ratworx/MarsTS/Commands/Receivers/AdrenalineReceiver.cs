@@ -27,7 +27,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         private BooleanCommandlet _adrenalineCommandlet;
         private Entity _entity;
 
-        private void Awake() {
+        protected override void Awake() {
             _entity = GetComponentInParent<Entity>();
         }
 

@@ -9,8 +9,8 @@ namespace Ratworx.MarsTS.Events.Commands
 		public Commandlet Command { get; private set; }
 
 		public CommandCompleteEvent (Commandlet command,bool cancelled, ICommandable unit) 
-			: base("Completed", unit) 
-		{
+			: base("Completed", unit) {
+			Command = command;
 			IsCancelled = cancelled;
 		}
 	}

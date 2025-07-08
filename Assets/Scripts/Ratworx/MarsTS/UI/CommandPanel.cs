@@ -37,8 +37,8 @@ namespace Ratworx.MarsTS.UI {
 
 		private void OnSystemsSpawned()
 		{
-			Player.Player.Selection.OnPlayerSelectionChanged += UpdateSelectedCommands;
-			Player.Player.Selection.OnPrimarySelectionChanged += UpdateSelectedCommands;
+			// Player.Player.Selection.OnPlayerSelectionChanged += UpdateSelectedCommands;
+			// Player.Player.Selection.OnPrimarySelectionChanged += UpdateSelectedCommands;
 			Player.Player.Selection.OnPrimarySelectedCommandsChanged += UpdateSelectedCommands;
 		}
 

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Ratworx.MarsTS.Units.Locomotion
@@ -18,7 +19,11 @@ namespace Ratworx.MarsTS.Units.Locomotion
                 return angle;
             }
         }
-        
+
+        private void Start() {
+            _currentTopSpeed = _topSpeed;
+        }
+
         public override void UpdatePhysics() {
             _velocity = RigidBody.velocity.sqrMagnitude;
             

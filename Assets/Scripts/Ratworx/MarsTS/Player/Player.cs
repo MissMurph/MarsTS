@@ -29,7 +29,7 @@ namespace Ratworx.MarsTS.Player {
 			get {
 				var outputList = new List<int>();
 
-				foreach (Roster typeRoster in Selected.Values) {
+				foreach (Roster typeRoster in Selection.Selected.Values) {
 					foreach (Entity unit in typeRoster.List()) {
 						outputList.Add(unit.Id);
 					}

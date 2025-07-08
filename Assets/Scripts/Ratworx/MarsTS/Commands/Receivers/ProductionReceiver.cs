@@ -110,6 +110,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
                     break;
             }
 
+            _currentProductionAmount = 0f;
             _productionQueue.CompleteCurrentOrder();
         }
 

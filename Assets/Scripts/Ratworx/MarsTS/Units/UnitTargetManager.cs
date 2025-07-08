@@ -13,7 +13,7 @@ namespace Ratworx.MarsTS.Units
         /// <remarks>The unit will be null on a clear</remarks>
         public Action<IUnitInterface> OnTargetChanged;
         public IUnitInterface TargetUnit => _unit;
-        public Transform TargetTransform => _unit.GameObject.transform;
+        public Transform TargetTransform => _unit?.GameObject.transform;
         public string Key => "target";
         public UnitTargetManager Get() => this;
         

@@ -32,9 +32,9 @@ namespace Ratworx.MarsTS.Commands
                     string actualKey = splitKey[0];
                     
                     foreach (ICommandReceiver receiver in allReceivers) {
-                        if (receiver.CommandKey == actualKey) 
-                            page.RegisterReceiver(receiver.CommandKey, receiver);
+                        if (receiver.CommandKey != actualKey) continue;
                         
+                        page.RegisterReceiver(commandKey, receiver);
                         break;
                     }
                 }

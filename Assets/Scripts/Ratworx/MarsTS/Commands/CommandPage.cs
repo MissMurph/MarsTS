@@ -37,10 +37,10 @@ namespace Ratworx.MarsTS.Commands
 
         public void RegisterReceiver(string commandKey, ICommandReceiver receiver) {
             for (var i = 0; i < _commandKeys.Length; i++) {
-                string[] splitKey = _commandKeys[i].Split('/');
-                string actualKey = splitKey[0];
+                /*string[] splitKey = _commandKeys[i].Split('/');
+                string actualKey = splitKey[0];*/
 
-                if (actualKey != commandKey) continue;
+                if (_commandKeys[i] != commandKey) continue;
                 
                 _receivers[i] = receiver;
                 _commandKeysToReceivers[_commandKeys[i]] = receiver;

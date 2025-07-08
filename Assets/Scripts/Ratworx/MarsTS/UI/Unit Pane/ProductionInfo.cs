@@ -140,6 +140,8 @@ namespace Ratworx.MarsTS.UI.Unit_Pane {
 				return;
 			}
 			
+			gameObject.SetActive(true);
+			
 			// TODO: Create a unit icon registry
 			ISelectable currentOrderSelectable = GetSelectableFromProductionOrder(_currentSelectedQueue.CurrentOrder);
 
@@ -152,7 +154,7 @@ namespace Ratworx.MarsTS.UI.Unit_Pane {
 			CurrentProduction = (int)_currentSelectedQueue.CurrentProductionAmount;
 			MaxProduction = _currentSelectedQueue.CurrentOrder.ProductionRequired;
 
-			for (int i = 0; i < orders; i++) {
+			for (int i = 1; i < orders; i++) {
 				if (i < _queueIcons.Length) {
 					ISelectable selectable = GetSelectableFromProductionOrder(_currentSelectedQueue.Queue[i]);
 					_queueIcons[i].sprite = selectable.Icon;

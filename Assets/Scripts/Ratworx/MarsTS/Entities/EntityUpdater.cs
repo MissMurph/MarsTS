@@ -48,15 +48,17 @@ namespace Ratworx.MarsTS.Entities {
         private void FixedUpdate() {
             if (!_isServer) return;
 
+            _isUpdatingPhysics = true;
+
             using IEnumerator<Entity> updateCache = _entityCache.GetEnumerator();
-            while (_isUpdating) {
+            while (_isUpdatingPhysics) {
                 try {
                     while (updateCache.MoveNext() && updateCache.Current is not null) {
                         Entity entity = updateCache.Current;
                         entity.PhysicsUpdate();
                     }
 
-                    _isUpdating = false;
+                    _isUpdatingPhysics = false;
                 }
                 catch (Exception exception) {
                     RatLogger.Error?.Log(exception);

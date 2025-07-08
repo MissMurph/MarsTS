@@ -165,7 +165,7 @@ namespace Ratworx.MarsTS.Commands
 
         /*	Executing Commands	*/
         private void ExecuteCommand(Commandlet order) {
-            if (!CanCommand(order.Command.Name)) return;
+            if (!CanCommand(order.Name)) return;
             _commandQueue.Clear();
 
             if (Current != null) {
@@ -190,7 +190,7 @@ namespace Ratworx.MarsTS.Commands
         /*	Enqueueing Commands	*/
 
         private void EnqueueCommand(Commandlet order) {
-            if (!CanCommand(order.Command.Name)) return;
+            if (!CanCommand(order.Name)) return;
             _commandQueue.Enqueue(order);
             OnCommandListChanged?.Invoke();
 

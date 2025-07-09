@@ -24,9 +24,21 @@ namespace Ratworx.MarsTS.Registry
         {
             _registeredPrefabs = new Dictionary<string, GameObject>();
 
-            foreach (GameObject prefab in _prefabsToRegister)
+            bool isRegistering = true;
+
+            using IEnumerator<GameObject> prefabCache = _prefabsToRegister.AsEnumerable().GetEnumerator();
+            while(isRegistering)
             {
-                RegisterPrefab(prefab.name, prefab);
+                try {
+                    while (prefabCache.MoveNext() && prefabCache.Current is not null) {
+                        RegisterPrefab(prefabCache.Current.name, prefabCache.Current);
+                    }
+
+                    isRegistering = false;
+                }
+                catch (Exception e) {
+                    RatLogger.Error?.Log(e);
+                }
             }
             
             OnRegistryLoaded?.Invoke($"{Key}:{Namespace}");

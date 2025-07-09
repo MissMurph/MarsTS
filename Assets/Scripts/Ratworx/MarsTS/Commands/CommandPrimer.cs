@@ -21,10 +21,11 @@ namespace Ratworx.MarsTS.Commands
             _registeredFactories = new Dictionary<string, CommandFactory>();
             _registeredInterfaces = new Dictionary<string, ICommandInterface>();
             
+            GameInit.OnSpawnSystems += SpawnCommandInterfaces;
+            
             if (!NetworkManager.Singleton.IsServer) return;
 
             GameInit.OnSpawnSystems += SpawnCommandFactories;
-            GameInit.OnSpawnSystems += SpawnCommandInterfaces;
         }
 
         public override void OnDestroy()
@@ -53,6 +54,11 @@ namespace Ratworx.MarsTS.Commands
             string key = commandInterface.CommandKey;
 
             if (instantiated.TryGetComponent<NetworkObject>(out NetworkObject networkObject)) {
+                if (NetworkManager.Singleton.IsClient) {
+                    Destroy(instantiated);
+                    return;
+                }
+                
                 networkObject.Spawn();
                 networkObject.TrySetParent(transform);
                 RegisterCommandInterfaceClientRpc(key, networkObject);

@@ -339,10 +339,10 @@ GameObject:
   - component: {fileID: 1188445015}
   - component: {fileID: 1188445020}
   - component: {fileID: 1188445024}
-  - component: {fileID: 1188445023}
   - component: {fileID: 1188445022}
   - component: {fileID: 1188445026}
   - component: {fileID: 1188445025}
+  - component: {fileID: 1188445027}
   m_Layer: 0
   m_Name: PrefabRegistry
   m_TagString: Untagged
@@ -445,29 +445,6 @@ MonoBehaviour:
   _prefabsToRegister:
   - {fileID: 7104668611416931317, guid: 364ab05988600ae43b4b6de60a8ac94b, type: 3}
   - {fileID: 5416129086686114800, guid: 7a5d6d2c04170114db84b35ea9452b40, type: 3}
---- !u!114 &1188445023
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1188445009}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb4c8c718f974cbf818ab14da3211a97, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _key: building
-  _namespace: ratworx
-  _prefabsToRegister:
-  - {fileID: 4205034278533087404, guid: a74a76811aee46440864dab0581fc88c, type: 3}
-  - {fileID: 5738845266810976779, guid: 99e1bf818329ce04c841228c3d27e06b, type: 3}
-  - {fileID: 5367866818507981616, guid: e2416d01d4b5eca45b50219bfa76d7ce, type: 3}
-  - {fileID: 3668977583793415411, guid: 90807326f2b3c0a4fb6ada1169a4e440, type: 3}
-  - {fileID: 4367344837201828623, guid: d7c5d84192531db42bf9768732143f5a, type: 3}
-  - {fileID: 4367344837201828623, guid: 48b87e07407faa94089badc723dbf8ae, type: 3}
-  - {fileID: 5083158052249461046, guid: 34cba66b0f62ed642af08277601e715c, type: 3}
-  - {fileID: 3134445194697897592, guid: 0c2199bc566e908418356c92bef8ac88, type: 3}
 --- !u!114 &1188445024
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -526,3 +503,26 @@ MonoBehaviour:
   _prefabsToRegister:
   - {fileID: 1170798382936629016, guid: 0d3dc3b5ff50c944f87f499e26467bb3, type: 3}
   - {fileID: 1170798382936629016, guid: 5349d9e8e5a61734b960a1a9d2dc0509, type: 3}
+--- !u!114 &1188445027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1188445009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19e281ca35aa438d9842bb19758eefd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _key: building
+  _namespace: ratworx
+  _prefabsToRegister:
+  - {fileID: 4205034278533087404, guid: a74a76811aee46440864dab0581fc88c, type: 3}
+  - {fileID: 5738845266810976779, guid: 99e1bf818329ce04c841228c3d27e06b, type: 3}
+  - {fileID: 5367866818507981616, guid: e2416d01d4b5eca45b50219bfa76d7ce, type: 3}
+  - {fileID: 3668977583793415411, guid: 90807326f2b3c0a4fb6ada1169a4e440, type: 3}
+  - {fileID: 4367344837201828623, guid: d7c5d84192531db42bf9768732143f5a, type: 3}
+  - {fileID: 4367344837201828623, guid: 48b87e07407faa94089badc723dbf8ae, type: 3}
+  - {fileID: 5083158052249461046, guid: 34cba66b0f62ed642af08277601e715c, type: 3}
+  - {fileID: 3134445194697897592, guid: 0c2199bc566e908418356c92bef8ac88, type: 3}

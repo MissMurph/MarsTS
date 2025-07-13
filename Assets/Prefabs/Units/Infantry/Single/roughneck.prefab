@@ -228,6 +228,7 @@ GameObject:
   - component: {fileID: 6891874222893375060}
   - component: {fileID: 1509384898468605732}
   - component: {fileID: 2524856215902946947}
+  - component: {fileID: 740919869836161276}
   m_Layer: 0
   m_Name: roughneck
   m_TagString: Infantry
@@ -260,6 +261,7 @@ Transform:
   - {fileID: 8527816045907397932}
   - {fileID: 1124567017833434032}
   - {fileID: 2139669894510675908}
+  - {fileID: 7467396215865499215}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -463,6 +465,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e7d163064694102a80443073aebc100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _owner: {fileID: 0}
 --- !u!114 &6891874222893375060
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -501,6 +504,72 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c55df0a2b23f4135831abac78659fdcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &740919869836161276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 974687869533868368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e107228fa214501a3ff7ec3d5e58a2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _pagesToLoad:
+  - PageKey: default
+    _commandKeys:
+    - move
+    - stop
+    - attack
+    - repair
+    - sneak
+--- !u!1 &1332411990546716418
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7467396215865499215}
+  - component: {fileID: 1323452240304429026}
+  m_Layer: 6
+  m_Name: SelectionCollider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7467396215865499215
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1332411990546716418}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 974687869533868369}
+  m_RootOrder: 13
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &1323452240304429026
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1332411990546716418}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 1.5
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1417443490299235445
 GameObject:
   m_ObjectHideFlags: 0
@@ -616,7 +685,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3dff4f88d0d74d17bdc30b99fe01b24f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _commandKey: 
+  _commandKey: move
   _evaluationPriority: 0
   _canInterrupt: 0
 --- !u!114 &250514044637211721
@@ -631,7 +700,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d76b127b7ad4e948b8adb95c458a10f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _commandKey: 
+  _commandKey: repair
   _evaluationPriority: 2
   _canInterrupt: 0
   _targetTrackRange: {fileID: 8642100218351608532}

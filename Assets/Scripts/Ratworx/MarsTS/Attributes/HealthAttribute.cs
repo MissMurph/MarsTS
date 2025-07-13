@@ -10,7 +10,10 @@ using Unity.Netcode;
 
 namespace Ratworx.MarsTS.Entities 
 {
-    public class HealthAttribute : EntityAttribute, IAttackable
+	// TODO: Make this USE an attribute and be a separate component, rather than inherit attribute
+    public class HealthAttribute : EntityAttribute, 
+								   IAttackable,
+								   IEntityComponent<IAttackable>
 	{
 		public int Health => Value;
 		public int MaxHealth => _maxHealth;
@@ -83,5 +86,7 @@ namespace Ratworx.MarsTS.Entities
 		public void SetMaxHealth(int newValue) {
 			_maxHealth = newValue;
 		}
-    }
+
+		public IAttackable Get() => this;
+	}
 }

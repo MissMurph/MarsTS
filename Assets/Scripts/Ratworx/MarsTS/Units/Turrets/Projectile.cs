@@ -32,6 +32,11 @@ namespace Ratworx.MarsTS.Units.Turrets {
 			_hitCallback = callback;
 		}
 
+		private void Update() {
+			UpdateServer();
+			UpdateClient();
+		}
+
 		public void UpdateServer() {
 			MoveProjectile();
 		}

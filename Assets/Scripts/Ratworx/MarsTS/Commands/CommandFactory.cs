@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ratworx.MarsTS.Entities;
@@ -13,17 +14,19 @@ namespace Ratworx.MarsTS.Commands
 	public abstract class CommandFactory<T> : CommandFactory
 	{
 		/// <remarks>Make sure <c>T</c> is NetworkSerializable or else you'll face runtime errors</remarks>
-		public void ConstructCommand(string commandKey, T target, Faction commander, ICollection<int> selection, bool enqueue) {
+		public virtual void ConstructCommand(string commandKey, T target, Faction commander, ICollection<int> selection, bool enqueue) {
 			if (NetworkManager.Singleton.IsServer)
 				ConstructCommandServer(commandKey, target, commander, selection.ToArray(), enqueue);
 			else
 				ConstructCommandServerRpc(commandKey, target, commander.Id, selection.ToArray(), enqueue);
 		}
 
-		/// <remarks>Make sure <c>T</c> is NetworkSerializable or else you'll face runtime errors</remarks>
+		/// <remarks>This needs explicit declarations of T so Netcode can generate the RPC code.</remarks>
 		[Rpc(SendTo.Server)]
-		private void ConstructCommandServerRpc(string commandKey, T target, int factionId, int[] selection, bool enqueue)
-			=> ConstructCommandServer(commandKey, target, TeamCache.Faction(factionId), selection, enqueue);
+		protected virtual void ConstructCommandServerRpc(string commandKey, T target, int factionId, int[] selection,
+			bool enqueue)
+			=> throw new NotImplementedException(
+				$"You must create an explicit implementation of this method on your factory!");
 		
 		//Only call this on the server
 		protected void ConstructCommandServer(string commandKey, T target, Faction commander, IEnumerable<int> selection, bool enqueue) {

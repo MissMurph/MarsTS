@@ -70,7 +70,7 @@ namespace Ratworx.MarsTS.Production
         public void CompleteCurrentOrder(bool isCancelled = false) => CompleteOrder(0, isCancelled);
 
         private void CompleteOrder(int queuePosition, bool isCancelled) {
-            var completedOrder = _productionQueue[queuePosition];
+            ProductionOrder completedOrder = _productionQueue[queuePosition];
             
             if (isCancelled) {
                 foreach (ResourceCost cost in completedOrder.Cost) {
@@ -84,7 +84,7 @@ namespace Ratworx.MarsTS.Production
             _productionQueue.RemoveAt(queuePosition);
             CompleteOrderClientRpc(queuePosition, isCancelled);
             
-            Destroy(completedOrder, 0.1f);
+            Destroy(completedOrder.gameObject, 0.1f);
         }
 
         [Rpc(SendTo.NotServer)]

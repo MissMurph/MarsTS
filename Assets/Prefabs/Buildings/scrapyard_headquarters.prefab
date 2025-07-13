@@ -330,7 +330,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1295136212
+  GlobalObjectIdHash: 950120036
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -408,7 +408,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 466f3e0bc98842bfa89aa870917ca516, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _orderPrefab: {fileID: 0}
+  _orderPrefab: {fileID: 5628565189625785393, guid: ed346247f42ae0945bcd57f2788db5b0,
+    type: 3}
 --- !u!114 &1893723434817422861
 MonoBehaviour:
   m_ObjectHideFlags: 0

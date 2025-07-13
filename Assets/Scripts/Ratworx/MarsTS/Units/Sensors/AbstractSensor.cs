@@ -100,7 +100,7 @@ namespace Ratworx.MarsTS.Units.Sensors
         }
 
         protected virtual void OnTriggerEnter(Collider other) {
-            if (other.transform.name == transform.name) return;
+            if (other.attachedRigidbody.transform.name == transform.name) return;
             
             if (!IsInitialized 
                 || Ownership == null 
@@ -110,18 +110,18 @@ namespace Ratworx.MarsTS.Units.Sensors
                 return;
             }
             
-            if (EntityCache.TryGetEntity(other.transform.name, out Entity entityComp)
+            if (EntityCache.TryGetEntity(other.attachedRigidbody.name, out Entity entityComp)
                 && entityComp.TryGetEntityComponent(out T target))
             {
                 EventAgent targetBus = entityComp.GetEntityComponent<EventAgent>("eventAgent");
                 targetBus.AddListener<UnitDeathEvent>(OnUnitDeath);
 
-                inRange[other.transform.name] = target;
-                GetHashedColliders(other.transform.name).Add(other.gameObject);
+                inRange[other.attachedRigidbody.name] = target;
+                GetHashedColliders(other.attachedRigidbody.name).Add(other.gameObject);
                 OnUnitInRange?.Invoke(target, true);
 
-                if (GameVision.IsVisible(other.transform.gameObject, Ownership.Owner.VisionMask)) {
-                    detected[other.transform.name] = target;
+                if (GameVision.IsVisible(other.attachedRigidbody.gameObject, Ownership.Owner.VisionMask)) {
+                    detected[other.attachedRigidbody.name] = target;
                     Bus.PostLocal(new SensorUpdateEvent<T>(target, true));
                     OnUnitDetected?.Invoke(target, true);
                 }
@@ -133,13 +133,13 @@ namespace Ratworx.MarsTS.Units.Sensors
         protected virtual void OnTriggerExit(Collider other) {
             if (!IsInitialized) return;
 
-            if (!_detectedColliders.TryGetValue(other.transform.name, out HashSet<GameObject> colliderTable)) 
+            if (!_detectedColliders.TryGetValue(other.attachedRigidbody.name, out HashSet<GameObject> colliderTable)) 
                 return;
             
             colliderTable.Remove(other.gameObject);
 
             if (colliderTable.Count <= 0)
-                OutOfRange(other.transform.name);
+                OutOfRange(other.attachedRigidbody.name);
         }
 
         protected virtual void OnVisionUpdate(VisionUpdateEvent evnt) {

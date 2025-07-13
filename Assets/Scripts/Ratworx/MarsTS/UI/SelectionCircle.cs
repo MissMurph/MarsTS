@@ -16,9 +16,10 @@ namespace Ratworx.MarsTS.UI
 
         private EventAgent _bus;
         private ISelectable _parent;
+        private UnitSelection _unitSelection;
 
-        private void Awake()
-        {
+        private void Awake() {
+            _unitSelection = GetComponentInParent<UnitSelection>();
             _circleRenderer = GetComponent<SpriteRenderer>();
             _bus = GetComponentInParent<EventAgent>();
             _mask = GetComponentInChildren<SpriteMask>();
@@ -31,27 +32,26 @@ namespace Ratworx.MarsTS.UI
             _bus.AddListener<UnitOwnerChangeEvent>(OnTeamChange);
         }
 
-        private void Start()
-        {
+        private void Start() {
             _circleRenderer.enabled = false;
             _mask.enabled = false;
         }
 
-        private void OnTeamChange(UnitOwnerChangeEvent _event)
-        {
+        private void OnTeamChange(UnitOwnerChangeEvent _event) {
             _circleRenderer.GetPropertyBlock(_matBlock);
             _matBlock.SetColor("_Color", _parent.GetRelationship(Player.Player.Commander).Colour());
             _circleRenderer.SetPropertyBlock(_matBlock);
         }
 
-        private void OnSelect(UnitSelectEvent _event)
-        {
+        private void OnSelect(UnitSelectEvent _event) {
             _circleRenderer.enabled = _event.Status;
             _mask.enabled = _event.Status;
         }
 
-        private void OnHover(UnitHoverEvent _event)
-        {
+        private void OnHover(UnitHoverEvent _event) {
+            if (_unitSelection.IsSelected)
+                return;
+
             _circleRenderer.enabled = _event.Status;
             _mask.enabled = _event.Status;
         }
@@ -63,8 +63,7 @@ namespace Ratworx.MarsTS.UI
             _mask.enabled = status;
         }
 
-        private void OnDisable()
-        {
+        private void OnDisable() {
             _circleRenderer.enabled = false;
             _mask.enabled = false;
         }

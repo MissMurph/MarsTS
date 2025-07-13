@@ -95,14 +95,18 @@ MonoBehaviour:
   _productionPerSecond: 1
   _orderPrefab: {fileID: 0}
   _productionOptions:
-  - ProductionRequired: 5
+  - OptionKey: 
+    ProductionRequired: 5
     ProductKey: unit:flattank
     ProductionType: production
     Cost: []
-  - ProductionRequired: 5
+    Description: 
+  - OptionKey: 
+    ProductionRequired: 5
     ProductKey: unit:mobile_artillery
     ProductionType: production
     Cost: []
+    Description: 
   _spawnPoint: {fileID: 7781072813767370551}
 --- !u!1 &4588617278332797325
 GameObject:
@@ -386,7 +390,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 438040718
+  GlobalObjectIdHash: 277251861
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -476,7 +480,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 466f3e0bc98842bfa89aa870917ca516, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _orderPrefab: {fileID: 0}
+  _orderPrefab: {fileID: 5628565189625785393, guid: ed346247f42ae0945bcd57f2788db5b0,
+    type: 3}
 --- !u!114 &4992764016840746043
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -506,6 +511,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e7d163064694102a80443073aebc100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _owner: {fileID: 0}
 --- !u!114 &7333708036118967525
 MonoBehaviour:
   m_ObjectHideFlags: 0

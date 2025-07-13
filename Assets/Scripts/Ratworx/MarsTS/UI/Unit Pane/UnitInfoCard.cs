@@ -52,7 +52,7 @@ namespace Ratworx.MarsTS.UI.Unit_Pane {
 		}
 
         private void OnEntityDeath (UnitDeathEvent _event) {
-			if (ReferenceEquals(_event.Entity, currentUnit.Entity)) {
+			if (ReferenceEquals(_event.Entity, currentUnit?.Entity)) {
 				currentUnit = null;
                 Deactivate();
 			}

@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS
 {
-    public class GameInit : MonoBehaviour
+    public class GameInit : NetworkBehaviour
     {
         public static event Action OnSpawnSystems
         {
@@ -142,11 +142,20 @@ namespace Ratworx.MarsTS
             TeamCache.Init(_players.ToArray());
             //Instantiate(commandRegistryPrefab, transform).Spawn();
             Instantiate(commandCachePrefab, transform).Spawn();
+            
+            SpawnSystems();
+        }
 
+        private void SpawnSystems() {
             // We set to true before firing the event, as some listeners will subscribe partway through
             _hasSystemSpawnEventFired = true;
             _onSpawnSystems?.Invoke();
+            
+            if (NetworkManager.Singleton.IsServer) SpawnSystemsClientRpc();
         }
+
+        [Rpc(SendTo.NotServer)]
+        private void SpawnSystemsClientRpc() => SpawnSystems();
 
         private void SpawnHeadquarters()
         {

@@ -112,7 +112,7 @@ namespace Ratworx.MarsTS.Commands.Cache
 
                 if (activeCommand.commandedUnits.Count > 0) continue;
                 
-                if (!_staleCommands.TryAdd(activeCommand.Id, activeCommand));
+                if (!_staleCommands.TryAdd(activeCommand.Id, activeCommand))
                     Debug.LogError($"Error marking command {activeCommand.Name}:{activeCommand.Id} as stale");
             }
             

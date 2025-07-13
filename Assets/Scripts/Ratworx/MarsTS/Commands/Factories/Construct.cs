@@ -1,7 +1,9 @@
 using System;
 using Ratworx.MarsTS.Player;
 using Ratworx.MarsTS.Production;
+using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands.Factories {
@@ -11,6 +13,10 @@ namespace Ratworx.MarsTS.Commands.Factories {
 		public override string Name => "construct";
 
 		// TODO: Revisit below (command pages)
+		
+		[Rpc(SendTo.Server)]
+		protected override void ConstructCommandServerRpc(string commandKey, ISelectable target, int factionId, int[] selection, bool enqueue)
+			=> ConstructCommandServer(commandKey, target, TeamCache.Faction(factionId), selection, enqueue);
 		
 		/*public override string Description => description;
 

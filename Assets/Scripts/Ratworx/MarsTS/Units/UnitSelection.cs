@@ -21,8 +21,10 @@ namespace Ratworx.MarsTS.Units
         public Sprite Icon => _icon;
         public GameObject GameObject => gameObject;
         public Entity Entity { get; private set; }
+        public bool IsSelected => _selected;
 
         [SerializeField] private Sprite _icon;
+        [SerializeField] private bool _selected;
 
         private EventAgent _eventAgent;
         private UnitOwnership _unitOwnership;
@@ -34,6 +36,7 @@ namespace Ratworx.MarsTS.Units
         }
 
         public void Select(bool status) {
+            _selected = status;
             OnUnitSelectionChange?.Invoke(status);
             _eventAgent.PostLocal(new UnitSelectEvent(status));
         }

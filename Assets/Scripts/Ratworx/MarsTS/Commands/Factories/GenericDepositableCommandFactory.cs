@@ -1,4 +1,6 @@
 using Ratworx.MarsTS.Buildings;
+using Ratworx.MarsTS.Teams;
+using Unity.Netcode;
 
 namespace Ratworx.MarsTS.Commands.Factories
 {
@@ -8,5 +10,9 @@ namespace Ratworx.MarsTS.Commands.Factories
     public class GenericDepositableCommandFactory : CommandFactory<IDepositable>
     {
         public override string Name => "deposit";
+        
+        [Rpc(SendTo.Server)]
+        protected override void ConstructCommandServerRpc(string commandKey, IDepositable target, int factionId, int[] selection, bool enqueue)
+            => ConstructCommandServer(commandKey, target, TeamCache.Faction(factionId), selection, enqueue);
     }
 }

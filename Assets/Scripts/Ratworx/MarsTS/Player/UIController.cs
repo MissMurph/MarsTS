@@ -21,11 +21,7 @@ namespace Ratworx.MarsTS.Player {
 
 		public static UIController instance;
 
-		public static CommandPanel Command {
-			get {
-				return instance.commandPanel;
-			}
-		}
+		public CommandPanel CommandPanel => commandPanel;
 
 		private CommandPanel commandPanel;
 

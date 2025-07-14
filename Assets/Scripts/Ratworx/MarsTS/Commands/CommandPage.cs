@@ -18,9 +18,7 @@ namespace Ratworx.MarsTS.Commands
         public event Action OnCommandPageUpdated;
         public (string key, ICommandReceiver receiver) this[int index] => (_commandKeys[index], _receivers[index]);
         public ICommandReceiver this[string key] => _commandKeysToReceivers[key];
-
         public int Length => _commandKeys.Length;
-
         public string[] CommandKeys => _commandKeys;
 
         // 0 = (1, 1)

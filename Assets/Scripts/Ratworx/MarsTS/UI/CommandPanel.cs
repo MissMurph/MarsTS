@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Ratworx.MarsTS.Commands;
+using Ratworx.MarsTS.Commands.Interfaces;
 using Ratworx.MarsTS.Commands.Receivers;
 using Ratworx.MarsTS.Extensions;
 using UnityEngine;
@@ -53,8 +54,10 @@ namespace Ratworx.MarsTS.UI {
 		public void Press (int index) {
 			if (string.IsNullOrEmpty(displayedCommands[index].key)) return;
 
-			if (!string.IsNullOrEmpty(_currentlyTargetingCommand.key)) 
-				CommandPrimer.GetInterface(_currentlyTargetingCommand.receiver.CommandKey).CancelSelection();
+			if (!string.IsNullOrEmpty(_currentlyTargetingCommand.key)
+				&& CommandPrimer.TryGetInterface(_currentlyTargetingCommand.receiver.CommandKey,
+					out ICommandInterface commandInterface))
+				commandInterface.CancelSelection();
 
 			_currentlyTargetingCommand = displayedCommands[index];
 			

@@ -330,7 +330,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 950120036
+  GlobalObjectIdHash: 1295136212
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -453,6 +453,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 21300000, guid: 4e0dc8ebe193b5241ab53cb683e802fa, type: 3}
+  _selected: 0
 --- !u!114 &7704616323938350887
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -470,6 +471,16 @@ MonoBehaviour:
     _commandKeys:
     - produce/roughneck
     - produce/scoutcar
+    - page/test
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+  - PageKey: test
+    _commandKeys:
+    - produce/roughneck
     - 
     - 
     - 
@@ -477,6 +488,12 @@ MonoBehaviour:
     - 
     - 
     - 
+    - 
+  _pageOptions:
+  - Name: Testing Wew
+    Icon: {fileID: 21300000, guid: d1ef978088a20d142a45fda8acf55029, type: 3}
+    Description: testing les gooooo
+    PageKey: test
 --- !u!1 &4367344837301277131
 GameObject:
   m_ObjectHideFlags: 0

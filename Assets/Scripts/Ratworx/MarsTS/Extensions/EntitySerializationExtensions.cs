@@ -49,7 +49,6 @@ namespace Ratworx.MarsTS.Extensions
         public static void WriteValueSafe(this FastBufferWriter writer, in IAttackable unit)
             => WriteValueSafe<IAttackable>(writer, unit);
         
-        
         public static void ReadValueSafe(this FastBufferReader reader, out ISelectable unit)
             => ReadValueSafe<ISelectable>(reader, out unit);
 
@@ -68,8 +67,6 @@ namespace Ratworx.MarsTS.Extensions
         public static void WriteValueSafe(this FastBufferWriter writer, in IHarvestable unit)
             => WriteValueSafe<IHarvestable>(writer, unit);
 
-
-
         public static void ReadValueSafe(this FastBufferReader reader, out ProductionOption option) {
             option = new ProductionOption();
             
@@ -86,6 +83,24 @@ namespace Ratworx.MarsTS.Extensions
             writer.WriteValueSafe(option.ProductionRequired);
             writer.WriteValueSafe(option.ProductKey);
             writer.WriteValueSafe(option.ProductionType);
+            writer.WriteValueSafe(option.Cost);
+            writer.WriteValueSafe(option.Description);
+        }
+        
+        public static void ReadValueSafe(this FastBufferReader reader, out ConstructionOption option) {
+            option = new ConstructionOption();
+            
+            reader.ReadValueSafe(out option.OptionKey);
+            reader.ReadValueSafe(out option.ConstructionRequired);
+            reader.ReadValueSafe(out option.BuildingKey);
+            reader.ReadValueSafe(out option.Cost);
+            reader.ReadValueSafe(out option.Description);
+        }
+
+        public static void WriteValueSafe(this FastBufferWriter writer, in ConstructionOption option) {
+            writer.WriteValueSafe(option.OptionKey);
+            writer.WriteValueSafe(option.ConstructionRequired);
+            writer.WriteValueSafe(option.BuildingKey);
             writer.WriteValueSafe(option.Cost);
             writer.WriteValueSafe(option.Description);
         }

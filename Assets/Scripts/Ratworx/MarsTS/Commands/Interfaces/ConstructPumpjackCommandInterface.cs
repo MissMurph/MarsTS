@@ -1,3 +1,5 @@
+using Ratworx.MarsTS.Buildings;
+using Ratworx.MarsTS.Extensions;
 using Ratworx.MarsTS.Pathfinding;
 using Ratworx.MarsTS.UI;
 using UnityEngine;
@@ -12,12 +14,12 @@ namespace Ratworx.MarsTS.Commands.Interfaces {
 		[SerializeField]
 		private GameObject snapPrefab;
 
-		public override void StartSelection () {
-			/*if (!CanFactionAfford(Player.Player.Commander)) 
-				return;*/
+		public override void StartArgSelection(ConstructionOption arg) {
+			if (!arg.CanFactionAfford(Player.Player.Commander)) 
+				return;
 			
-			base.StartSelection();
-
+			base.StartArgSelection(arg);
+			
 			_snapper = Instantiate(snapPrefab).GetComponent<PumpjackSnapping>();
 		}
 
@@ -37,23 +39,13 @@ namespace Ratworx.MarsTS.Commands.Interfaces {
 			if (!context.canceled) 
 				return;
 			
-			/*if (!CanFactionAfford(Player.Player.Commander) || !SelectionGhostComp.Legal) 
-				return;*/
+			if (!CurrentlyPlacingOption.CanFactionAfford(Player.Player.Commander) || !SelectionGhostComp.Legal) 
+				return;
 			
-			PlaceBuildingServerRpc(
-				GhostTransform.position,
-				Quaternion.Euler(Vector3.zero),
-				Player.Player.Commander.Id,
-				Player.Player.ListSelected.ToArray(),
-				Player.Player.Include
-			);
+			base.OnSelect(context);
 			
-			Destroy(GhostTransform.gameObject);
 			Destroy(_snapper.gameObject);
 			_snapper = null;
-			
-			Player.Player.Input.Release("Select");
-			Player.Player.Input.Release("Order");
 		}
 
 		protected override void OnOrder (InputAction.CallbackContext context) {

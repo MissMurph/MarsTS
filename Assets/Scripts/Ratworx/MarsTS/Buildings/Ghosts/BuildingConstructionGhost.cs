@@ -10,6 +10,7 @@ using Ratworx.MarsTS.Events.Selectable.Attackable;
 using Ratworx.MarsTS.Production;
 using Ratworx.MarsTS.Teams;
 using Ratworx.MarsTS.Units;
+using Ratworx.MarsTS.Vision;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -30,6 +31,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
         private ConstructionProgressAttribute _constructionAttribute;
         private ConstructionGhostSelection _ghostSelection;
         private UnitOwnership _ownership;
+        private UnitVision _ghostVision;
 
         private void Awake() {
             _bus = GetComponent<EventAgent>();
@@ -37,6 +39,8 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
             _healthAttribute = GetComponent<HealthAttribute>();
             _constructionAttribute = GetComponent<ConstructionProgressAttribute>();
             _ownership = GetComponent<UnitOwnership>();
+            _ghostSelection = GetComponent<ConstructionGhostSelection>();
+            _ghostVision = GetComponent<UnitVision>();
         }
 
         public virtual void InitializeGhost(string buildingKey, params ResourceCost[] constructionCost) {
@@ -59,6 +63,8 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
 
             _buildingBeingConstructed = buildingBeingConstructed;
             _constructionCost = constructionCost;
+            
+            _ghostSelection.SetBuildingOverride(registryKey);
         }
 
         [Rpc(SendTo.NotServer)]
@@ -103,6 +109,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
 
             foreach (GameObject visionObject in _visionObjects) {
                 visionObject.SetActive(false);
+                _ghostVision.SetObjectHideable(visionObject);
             }
         }
 

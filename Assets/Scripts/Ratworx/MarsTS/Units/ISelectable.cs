@@ -8,5 +8,6 @@ namespace Ratworx.MarsTS.Units {
 		void Hover (bool status);
 		Sprite Icon { get; }
 		Relationship GetRelationship(Faction other);
+		bool IsSelected { get; }
 	}
 }

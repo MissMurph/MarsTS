@@ -15,15 +15,15 @@ namespace Ratworx.MarsTS.UI
         private MaterialPropertyBlock _matBlock;
 
         private EventAgent _bus;
-        private ISelectable _parent;
-        private UnitSelection _unitSelection;
+        // private ISelectable _parent;
+        private ISelectable _unitSelection;
 
         private void Awake() {
-            _unitSelection = GetComponentInParent<UnitSelection>();
+            _unitSelection = GetComponentInParent<ISelectable>();
             _circleRenderer = GetComponent<SpriteRenderer>();
             _bus = GetComponentInParent<EventAgent>();
             _mask = GetComponentInChildren<SpriteMask>();
-            _parent = GetComponentInParent<ISelectable>();
+            // _parent = GetComponentInParent<ISelectable>();
             _matBlock = new MaterialPropertyBlock();
 
             //bus.AddListener<EntityInitEvent>(OnEntityInit);
@@ -39,7 +39,7 @@ namespace Ratworx.MarsTS.UI
 
         private void OnTeamChange(UnitOwnerChangeEvent _event) {
             _circleRenderer.GetPropertyBlock(_matBlock);
-            _matBlock.SetColor("_Color", _parent.GetRelationship(Player.Player.Commander).Colour());
+            _matBlock.SetColor("_Color", _unitSelection.GetRelationship(Player.Player.Commander).Colour());
             _circleRenderer.SetPropertyBlock(_matBlock);
         }
 
@@ -57,7 +57,7 @@ namespace Ratworx.MarsTS.UI
         }
 
         private void OnEnable() {
-            bool status = Player.Player.HasSelected(_parent);
+            bool status = Player.Player.HasSelected(_unitSelection);
 
             _circleRenderer.enabled = status;
             _mask.enabled = status;

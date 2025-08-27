@@ -23,12 +23,14 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
         public Sprite Icon => _buildingSelection.Icon;
         public GameObject GameObject => gameObject;
         public Entity Entity { get; private set; }
+        public bool IsSelected => _selected;
         
         private EventAgent _eventAgent;
         private UnitOwnership _unitOwnership;
 
         private Entity _buildingEntity;
         private ISelectable _buildingSelection;
+        [SerializeField] private bool _selected;
 
         private void Awake() {
             Entity = GetComponent<Entity>();
@@ -48,6 +50,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
         }
 
         public void Select(bool status) {
+            _selected = status;
             OnUnitSelectionChange?.Invoke(status);
             _eventAgent.PostLocal(new UnitSelectEvent(status));
         }

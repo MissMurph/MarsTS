@@ -492,6 +492,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 21300000, guid: f8d43440bd0a937419c871c849f90618, type: 3}
+  _selected: 0
 --- !u!114 &2524856215902946947
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -524,6 +525,15 @@ MonoBehaviour:
     - attack
     - repair
     - sneak
+    - page/buildings
+  - PageKey: buildings
+    _commandKeys:
+    - construct/barracks
+  _pageOptions:
+  - Name: Construction
+    Icon: {fileID: 21300000, guid: d1ef978088a20d142a45fda8acf55029, type: 3}
+    Description: 0w0 we constwucty wucty
+    PageKey: buildings
 --- !u!1 &1332411990546716418
 GameObject:
   m_ObjectHideFlags: 0
@@ -618,6 +628,7 @@ GameObject:
   - component: {fileID: 1011552426683776405}
   - component: {fileID: 6728191810204928645}
   - component: {fileID: 3355604603218917781}
+  - component: {fileID: 5917785141878159887}
   m_Layer: 0
   m_Name: CommandReceivers
   m_TagString: Untagged
@@ -758,6 +769,24 @@ MonoBehaviour:
   _depositRange: {fileID: 730346978493121408}
   _storage: {fileID: 8114010838116497852}
   _automaticallyReturn: 0
+--- !u!114 &5917785141878159887
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1861589127451919573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34b0b546a08248f180db77ea00e4f21b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _constructionOptions:
+  - OptionKey: barracks
+    ConstructionRequired: 0
+    BuildingKey: building:barracks
+    Cost: []
+    Description: Yeet Skeet
 --- !u!1 &2233568200111040170
 GameObject:
   m_ObjectHideFlags: 0

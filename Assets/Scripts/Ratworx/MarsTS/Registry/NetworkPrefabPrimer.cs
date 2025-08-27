@@ -20,10 +20,11 @@ namespace Ratworx.MarsTS.Registry
             while(isPriming) {
                 try {
                     while (networkPrefabs.MoveNext() && networkPrefabs.Current is not null) {
-                         if (!networkPrefabs.Current.TryGetComponent<NetworkObject>(out _)) ;
+                         if (!networkPrefabs.Current.TryGetComponent<NetworkObject>(out _)) 
+                             continue;
                         
-                        NetworkManager.Singleton.AddNetworkPrefab(networkPrefabs.Current);
-                        RatLogger.Verbose?.Log($"Registered {networkPrefabs.Current.name} as Network Prefab");
+                         NetworkManager.Singleton.AddNetworkPrefab(networkPrefabs.Current);
+                         RatLogger.Verbose?.Log($"Registered {networkPrefabs.Current.name} as Network Prefab");
                     }
 
                     isPriming = false;

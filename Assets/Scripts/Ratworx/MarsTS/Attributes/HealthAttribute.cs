@@ -12,18 +12,18 @@ namespace Ratworx.MarsTS.Entities
 {
 	// TODO: Make this USE an attribute and be a separate component, rather than inherit attribute
     public class HealthAttribute : EntityAttribute, 
-								   IAttackable,
-								   IEntityComponent<IAttackable>
+								   IAttackable
 	{
 		public int Health => Value;
 		public int MaxHealth => _maxHealth;
 		public Entity Entity { get; private set; }
+		public override string Key => "health";
 
 		private EventAgent _eventAgent;
 		private UnitOwnership _ownership;
 
 		private void Awake() {
-			_key = "health";
+			// _key = "health";
 			Entity = GetComponent<Entity>();
 			_eventAgent = GetComponent<EventAgent>();
 			_ownership = GetComponent<UnitOwnership>();
@@ -87,6 +87,6 @@ namespace Ratworx.MarsTS.Entities
 			_maxHealth = newValue;
 		}
 
-		public IAttackable Get() => this;
+		// public IAttackable Get() => this;
 	}
 }

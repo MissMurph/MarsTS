@@ -1037,6 +1037,7 @@ GameObject:
   - component: {fileID: 4451736441881571489}
   - component: {fileID: 730346978493121408}
   - component: {fileID: 8250131711303335996}
+  - component: {fileID: 3659096161848194126}
   m_Layer: 13
   m_Name: InteractRange
   m_TagString: Untagged
@@ -1124,6 +1125,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59d50c5376086d2468fc496a5f43756d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3659096161848194126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5033167321304226449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16a7392fe7400e844afd6a13be94cea4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _repairRate: 50
+  _barrel: {fileID: 1417443490299235445}
+  _repairAmount: 25
+  _cooldown: 0.1
 --- !u!1 &5324777579292228260
 GameObject:
   m_ObjectHideFlags: 0

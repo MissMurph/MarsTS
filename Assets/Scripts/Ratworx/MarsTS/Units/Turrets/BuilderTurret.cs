@@ -15,8 +15,8 @@ namespace Ratworx.MarsTS.Units.Turrets
 		[SerializeField] private int _repairRate;
 		[SerializeField] private GameObject _barrel;
 
-		private int _repairAmount;
-		private float _cooldown;
+		[SerializeField] private int _repairAmount;
+		[SerializeField] private float _cooldown;
 		private float _currentCooldown;
 		// TODO: Investigate if we can move a unit out of game bounds to trigger this to clear safely
 		private IAttackable _trackedTarget;
@@ -35,8 +35,8 @@ namespace Ratworx.MarsTS.Units.Turrets
 			_ownership = GetComponentInParent<UnitOwnership>();
 			_unitTargeting = GetComponentInParent<UnitTargetManager>();
 			
-			_cooldown = 1f / _repairRate;
-			_repairAmount = (int)(_repairRate * _cooldown);
+			// _cooldown = 1f / _repairRate;
+			// _repairAmount = (int)(_repairRate * _cooldown);
 
 			_startingBarrelRotation = _barrel.transform.localRotation;
 		}

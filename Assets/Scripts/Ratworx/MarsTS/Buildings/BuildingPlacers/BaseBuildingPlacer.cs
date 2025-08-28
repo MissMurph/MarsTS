@@ -41,8 +41,9 @@ namespace Ratworx.MarsTS.Buildings.BuildingPlacers
         public virtual void CancelPlacingBuilding() {
             if (GhostTransform is null) 
                 return;
-            
+
             Destroy(GhostTransform.gameObject);
+            GhostTransform = null;
 
             Player.Player.Input.Release("Select");
             Player.Player.Input.Release("Order");

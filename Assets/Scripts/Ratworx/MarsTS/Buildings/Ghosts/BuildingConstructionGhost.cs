@@ -65,6 +65,8 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
             _constructionCost = constructionCost;
             
             _ghostSelection.SetBuildingOverride(registryKey);
+            
+            _constructionAttribute.OnAttributeChange += OnConstructionProgressChanged;
         }
 
         [Rpc(SendTo.NotServer)]
@@ -84,7 +86,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
 
             var selectionCircle = Instantiate(_buildingBeingConstructed.transform.Find("SelectionCircle"), transform);
             var mapSquare = Instantiate(_buildingBeingConstructed.transform.Find("MapSquare"), transform);
-            var barOrientation = Instantiate(_buildingBeingConstructed.transform.Find("BarOrientation"), transform);
+            var barOrientation = transform.Find("UnitBarsOrientation");
             Instantiate(_buildingBeingConstructed.transform.Find("Collider"), transform);
             var selectionCollider =
                 Instantiate(_buildingBeingConstructed.transform.Find("SelectionCollider"), transform);
@@ -96,7 +98,7 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
             else {
                 _model.localScale = Vector3.one * 0.01f;
             }
-
+            
             _visionObjects = new[]
             {
                 _model.gameObject,
@@ -111,6 +113,13 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
                 visionObject.SetActive(false);
                 _ghostVision.SetObjectHideable(visionObject);
             }
+        }
+
+        private void OnConstructionProgressChanged(int oldValue, int newValue) {
+            float constructedProportion = (float)_constructionAttribute.Value / _healthAttribute.MaxHealth;
+            _model.localScale = Vector3.one * constructedProportion;
+
+            if (_constructionAttribute.Value >= _healthAttribute.MaxHealth) CompleteConstruction();
         }
 
         public void ReceiveCommand(BooleanCommandlet command) {

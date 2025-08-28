@@ -228,6 +228,10 @@ namespace Ratworx.MarsTS.Entities
         }
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Id);
+
+        /*public void RegisterNewComponent() {
+            
+        }*/
     }
 
     [Serializable]

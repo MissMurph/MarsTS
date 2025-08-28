@@ -20,10 +20,13 @@ namespace Ratworx.MarsTS.Units
         private IUnitInterface _unit;
 
         public void SetTarget(IUnitInterface unit) {
-            if (_unit == null)
-                return;
-
-            _unit.Entity.TryGetEntityComponent("eventAgent", out EventAgent agent);
+            if (_unit is not null) {
+                _unit.Entity.TryGetEntityComponent("eventAgent", out EventAgent oldAgent);
+                oldAgent.RemoveListener<UnitDeathEvent>(OnEntityDeath);
+                oldAgent.RemoveListener<EntityVisibleEvent>(OnEntityVisible);
+            }
+            
+            unit.Entity.TryGetEntityComponent("eventAgent", out EventAgent agent);
             agent.AddListener<UnitDeathEvent>(OnEntityDeath);
             agent.AddListener<EntityVisibleEvent>(OnEntityVisible);
 

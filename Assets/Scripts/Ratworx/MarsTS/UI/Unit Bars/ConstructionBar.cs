@@ -7,7 +7,9 @@ namespace Ratworx.MarsTS.UI.Unit_Bars
         private ConstructionProgressAttribute _constructionAttribute;
         private HealthAttribute _healthAttribute;
         
-        private void Awake() {
+        protected override void Awake() {
+            base.Awake();
+            
             _constructionAttribute = GetComponentInParent<ConstructionProgressAttribute>();
             _healthAttribute = GetComponentInParent<HealthAttribute>();
         }

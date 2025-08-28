@@ -22,7 +22,7 @@ namespace Ratworx.MarsTS.Entities {
         private NetworkVariable<int> _internalValue =
             new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
 
-        public string Key => "attribute:" + _key;
+        public virtual string Key => "attribute:" + _key;
 
         public EntityAttribute Get() => this;
 

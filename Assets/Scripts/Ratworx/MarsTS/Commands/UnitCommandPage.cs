@@ -8,7 +8,8 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands
 {
-    public class UnitCommandPage : MonoBehaviour, ICommandReceiver
+    public class UnitCommandPage : MonoBehaviour, 
+                                   ICommandReceiver
     {
         public event Action OnCommandsChanged;
         
@@ -105,6 +106,21 @@ namespace Ratworx.MarsTS.Commands
             foreach (PageOption option in _pageOptions) {
                 if (option.PageKey != argument) continue;
                 return option.Description;
+            }
+            
+            RatLogger.Error?.Log($"Command option {argument} not found!");
+            return string.Empty;
+        }
+
+        public string GetName(string argument = null) {
+            if (string.IsNullOrEmpty(argument)) {
+                RatLogger.Error?.Log($"Error loading command option name; argument is empty!");
+                return string.Empty;
+            }
+            
+            foreach (PageOption option in _pageOptions) {
+                if (option.PageKey != argument) continue;
+                return option.Name;
             }
             
             RatLogger.Error?.Log($"Command option {argument} not found!");

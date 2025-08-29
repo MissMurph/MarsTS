@@ -44,11 +44,16 @@ namespace Ratworx.MarsTS.UI {
 		}
 
 		private void UpdateSelectedCommands() {
-			CommandPage commands = Player.Player.Selection.PrimarySelection is not null
-				? Player.Player.Selection.PrimarySelection.GetCommands()
-				: CommandPage.Empty;
+			if (Player.Player.Selection.PrimarySelection is not null) {
+				CommandPage page = Player.Player.Selection.PrimarySelection.GetCommands();
+
+				if (page is not null) {
+					LoadCommandPage(page);
+					return;
+				}
+			}
 			
-			LoadCommandPage(commands);
+			LoadCommandPage(CommandPage.Empty);
 		}
 
 		public void Press (int index) {
@@ -68,8 +73,9 @@ namespace Ratworx.MarsTS.UI {
 		}
 
 		public void LoadCommandPage (CommandPage page) {
-			for (int i = 0; i < page.Length; i++) {
-				if (string.IsNullOrEmpty(page[i].key)) {
+			// arbitrary numbers are arbitrary
+			for (int i = 0; i < 9; i++) {
+				if (i >= page.Length || string.IsNullOrEmpty(page[i].key)) {
 					displayedCommands[i] = (string.Empty, null);
 					_registeredButtons[i].UpdateCommand("", null);
 					continue;

@@ -57,7 +57,10 @@ namespace Ratworx.MarsTS.UI
         }
 
         private void OnEnable() {
-            bool status = Player.Player.HasSelected(_unitSelection);
+            if (Player.Player.Main is null) 
+                return;
+            
+            bool status = Player.Player.IsUnitSelected(_unitSelection);
 
             _circleRenderer.enabled = status;
             _mask.enabled = status;

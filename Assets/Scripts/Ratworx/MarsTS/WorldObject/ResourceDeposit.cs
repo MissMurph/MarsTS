@@ -2,7 +2,9 @@ using System;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Harvesting;
+using Ratworx.MarsTS.Events.Selectable;
 using Ratworx.MarsTS.Events.Selectable.Attackable;
+using Ratworx.MarsTS.UI.Unit_Pane;
 using UnityEngine;
 
 namespace Ratworx.MarsTS.WorldObject
@@ -25,7 +27,7 @@ namespace Ratworx.MarsTS.WorldObject
         public int OriginalAmount { get; private set; }
 
         public int StoredAmount => Value;
-        public string Resource { get; }
+        public string Resource => _depositType;
 
         private EventAgent _eventAgent;
         private Entity _entity;

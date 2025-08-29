@@ -1,3 +1,4 @@
+using System;
 using Ratworx.MarsTS.Entities;
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Teams;
@@ -43,6 +44,10 @@ namespace Ratworx.MarsTS.Units.Turrets
 
 		private void Start() {
 			_sensor.OnUnitDetected += OnUnitDetected;
+		}
+
+		private void OnDestroy() {
+			_sensor.OnUnitDetected -= OnUnitDetected;
 		}
 
 		private void OnDisable() {

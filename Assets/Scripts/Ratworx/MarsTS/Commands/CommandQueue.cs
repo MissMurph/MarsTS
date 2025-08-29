@@ -16,6 +16,7 @@ using UnityEngine;
 
 namespace Ratworx.MarsTS.Commands
 {
+    [RequireComponent(typeof(UnitCommandPage))]
     public class CommandQueue : NetworkBehaviour,
                                 IEntityComponent<CommandQueue>,
                                 ICommandable,
@@ -317,9 +318,9 @@ namespace Ratworx.MarsTS.Commands
         }
         
         private int CompareReceiversByEvaluationPriority(ICommandReceiver a, ICommandReceiver b) {
-            if (a.EvaluationPriority > b.EvaluationPriority)
-                return 1;
             if (a.EvaluationPriority < b.EvaluationPriority)
+                return 1;
+            if (a.EvaluationPriority > b.EvaluationPriority)
                 return -1;
             return 0;
         }

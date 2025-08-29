@@ -34,7 +34,7 @@ namespace Ratworx.MarsTS.UI
             string argument = splitKey.Length >= 2 ? splitKey[1] : string.Empty;
 
             // TODO: Convert property to method & add argument to name
-            commandName.text = receiver.CommandKey;
+            commandName.text = receiver.GetName(argument);
             icon.sprite = receiver.GetIcon(argument);
             commandDescription.text = receiver.GetDescription(argument);
             commandDescription.ForceMeshUpdate(true, true);

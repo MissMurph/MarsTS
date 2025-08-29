@@ -127,11 +127,11 @@ namespace Ratworx.MarsTS.Player {
 			}
 		}
 
-		public static bool HasSelected (ISelectable unit) {
-			if (Selected.TryGetValue(unit.Entity.RegistryKey, out Roster typeRoster)) {
+		public static bool IsUnitSelected (ISelectable unit) {
+			if (Selection.Selected.TryGetValue(unit.Entity.RegistryKey, out Roster typeRoster)) {
 				return typeRoster.Contains(unit.Entity.Id);
 			}
-
+			
 			return false;
 		}
 

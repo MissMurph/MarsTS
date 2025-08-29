@@ -174,5 +174,6 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
         public Sprite GetIcon(string argument = null) => throw new NotImplementedException();
 
         public string GetDescription(string argument = null) => throw new NotImplementedException();
+        public string GetName(string argument = null) => throw new NotImplementedException();
     }
 }

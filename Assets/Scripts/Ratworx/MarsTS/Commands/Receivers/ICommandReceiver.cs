@@ -31,5 +31,6 @@ namespace Ratworx.MarsTS.Commands.Receivers
         void StartSelection(string argument = null);
         Sprite GetIcon(string argument = null);
         string GetDescription(string argument = null);
+        string GetName(string argument = null);
     }
 }

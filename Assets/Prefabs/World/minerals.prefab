@@ -140,12 +140,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7104668611416931318}
+  - component: {fileID: -944040897465334132}
   - component: {fileID: 7104668611416931313}
   - component: {fileID: 7104668611416931312}
-  - component: {fileID: -944040897465334132}
   - component: {fileID: 7104668611416931319}
-  - component: {fileID: 108060393720168797}
   - component: {fileID: 796086041458483785}
+  - component: {fileID: -5281290878749284459}
+  - component: {fileID: 2097223731587976706}
   m_Layer: 0
   m_Name: minerals
   m_TagString: Untagged
@@ -172,6 +173,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-944040897465334132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7104668611416931317}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 1912137090
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &7104668611416931313
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -184,8 +206,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce6fd5855c926d44cb75b6184cafaec7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _key: minerals
-  _icon: {fileID: 21300000, guid: 15ea3726cb10f8349a424bbb4043c745, type: 3}
+  _key: resource_unit
+  _startingValue: 1000
+  _internalValue:
+    m_InternalValue: 0
   _depositType: resource_unit
 --- !u!114 &7104668611416931312
 MonoBehaviour:
@@ -199,27 +223,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80e809a2901f3c24a914b37a7eb11e9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &-944040897465334132
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7104668611416931317}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2914608137
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
 --- !u!114 &7104668611416931319
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -235,22 +238,6 @@ MonoBehaviour:
   _registryKey: minerals
   _registryType: resource_node
   _toTag: []
---- !u!114 &108060393720168797
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7104668611416931317}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db75fe7896a566744b02bc8532aebeab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _key: 
-  _startingValue: 1000
-  _capacity: 1000
-  _resourceKey: resource_unit
 --- !u!54 &796086041458483785
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -267,6 +254,33 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &-5281290878749284459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7104668611416931317}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ec1b2a83c174b499ed5218f79064152, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _icon: {fileID: 21300000, guid: 15ea3726cb10f8349a424bbb4043c745, type: 3}
+  _selected: 0
+--- !u!114 &2097223731587976706
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7104668611416931317}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f30f738fbe34c15bf8b90edbcd22da2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _owner: {fileID: 0}
 --- !u!1 &7104668611713704221
 GameObject:
   m_ObjectHideFlags: 0
@@ -560,7 +574,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7733315656084499766}
-  - component: {fileID: 7733315656084499762}
+  - component: {fileID: 7379338010148086650}
   - component: {fileID: 7733315656084499760}
   - component: {fileID: 7733315656084499761}
   m_Layer: 0
@@ -585,7 +599,7 @@ Transform:
   m_Father: {fileID: 7733315655585994938}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7733315656084499762
+--- !u!114 &7379338010148086650
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -594,10 +608,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 7733315656084499767}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ffede7701679440479b740e4f6245f82, type: 3}
+  m_Script: {fileID: 11500000, guid: 68107930a5bd4c698174ced026721c15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _storage: {fileID: 108060393720168797}
+  _storage: {fileID: 7104668611416931313}
 --- !u!33 &7733315656084499760
 MeshFilter:
   m_ObjectHideFlags: 0

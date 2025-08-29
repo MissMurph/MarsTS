@@ -95,8 +95,8 @@ namespace Ratworx.MarsTS.Teams
         public Relationship GetRelationship(Faction other)
         {
             if (other == this) return Relationship.Owned;
-            if (TeamCache.Team(other).Id == 0) return Relationship.Neutral;
             if (TeamCache.Team(other).Id == Allegiance.Id) return Relationship.Friendly;
+            if (Id == 0 || TeamCache.Team(other).Id == 0) return Relationship.Neutral;
             return Relationship.Hostile;
         }
         

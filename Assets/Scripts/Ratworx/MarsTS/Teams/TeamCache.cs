@@ -51,6 +51,8 @@ namespace Ratworx.MarsTS.Teams {
 
 		public static Team Observer => _instance._teamMap[1];
 
+		public static Faction None => _instance._factions[0];
+
 		private void Awake () {
 			_instance = this;
 			
@@ -74,10 +76,10 @@ namespace Ratworx.MarsTS.Teams {
 			_bus.PostGlobal(@event);
 
 			Faction none = SpawnNewFaction(_dummyObserverPrefab, 0);
-			//_factions[0] = none;
+			_factions[0] = none;
 			
 			Faction observer = SpawnNewFaction(_dummyObserverPrefab, 1);
-			//_factions[1] = observer;
+			_factions[1] = observer;
 
 			foreach (ulong id in players) {
 				int factionId = Mathf.RoundToInt(Mathf.Pow(2, _instance._factions.Count));

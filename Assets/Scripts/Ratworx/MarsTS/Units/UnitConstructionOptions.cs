@@ -75,5 +75,21 @@ namespace Ratworx.MarsTS.Units
             RatLogger.Error?.Log($"Construction option with key {argument} not found!");
             return string.Empty;
         }
+
+        public string GetName(string argument = null) {
+            if (string.IsNullOrEmpty(argument)) {
+                RatLogger.Error?.Log($"Error getting {CommandKey} name, argument is empty!");
+                return string.Empty;
+            }
+
+            foreach (ConstructionOption option in _constructionOptions) {
+                if (option.OptionKey != argument) continue;
+                
+                return CommandPrimer.GetInterface<ConstructBuildingCommandInterface>(CommandKey).GetArgDescription(option);
+            }
+            
+            RatLogger.Error?.Log($"Construction option with key {argument} not found!");
+            return string.Empty;
+        }
     }
 }

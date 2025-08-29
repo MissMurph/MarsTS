@@ -554,6 +554,7 @@ GameObject:
   - component: {fileID: 6893930449361366935}
   - component: {fileID: 2753630562990242217}
   - component: {fileID: 8776979171235908102}
+  - component: {fileID: 5545934837371081401}
   m_Layer: 0
   m_Name: harvester
   m_TagString: Vehicle
@@ -594,8 +595,8 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3758000306492427157}
   serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 0
+  m_Mass: 5
+  m_Drag: 1
   m_AngularDrag: 0.05
   m_UseGravity: 1
   m_IsKinematic: 0
@@ -761,9 +762,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c641ab8bf2c4df7833643f9757d904f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _topSpeed: 500
+  _topSpeed: 10
   _currentTopSpeed: 0
-  _acceleration: 50
+  _acceleration: 500
   _turnSpeed: 35
   _angleTolerance: 25
 --- !u!114 &6481381510533953872
@@ -790,6 +791,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e7d163064694102a80443073aebc100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _owner: {fileID: 0}
 --- !u!114 &6893930449361366935
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -803,6 +805,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 21300000, guid: 0c7bd8e875a4117439f1e5714a518e0b, type: 3}
+  _selected: 0
 --- !u!114 &2753630562990242217
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -833,6 +836,25 @@ MonoBehaviour:
   _internalValue:
     m_InternalValue: 0
   _maxHealth: 250
+--- !u!114 &5545934837371081401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3758000306492427157}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e107228fa214501a3ff7ec3d5e58a2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _pagesToLoad:
+  - PageKey: default
+    _commandKeys:
+    - move
+    - stop
+    - harvest
+  _pageOptions: []
 --- !u!1 &3758000306654263273
 GameObject:
   m_ObjectHideFlags: 0
@@ -964,7 +986,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7787fb3d03f89164a8bedd9f06b468fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _sensor: {fileID: 0}
+  _sensor: {fileID: 8456507928426346925}
   _harvestRate: 20
 --- !u!135 &7936878566158919061
 SphereCollider:

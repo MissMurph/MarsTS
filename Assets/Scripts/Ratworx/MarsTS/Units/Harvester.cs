@@ -17,6 +17,7 @@ namespace Ratworx.MarsTS.Units.Turrets
         private int _harvestAmount;
         private float _cooldown;
         private float _currentCooldown;
+        private IHarvestable _trackedTarget;
 
         private ResourceStorage _localStorage;
         private UnitTargetManager _unitTargeting;
@@ -26,6 +27,7 @@ namespace Ratworx.MarsTS.Units.Turrets
         private void Awake() {
             _eventAgent = GetComponentInParent<EventAgent>();
             _entity = GetComponentInParent<Entity>();
+            _unitTargeting = GetComponentInParent<UnitTargetManager>();
 
             _localStorage = GetComponentInParent<ResourceStorage>();
             _localStorage.OnAttributeChange += OnStorageValueChange;
@@ -33,14 +35,48 @@ namespace Ratworx.MarsTS.Units.Turrets
             _cooldown = 1f / _harvestRate;
             _harvestAmount = (int)(_harvestRate * _cooldown);
         }
+        
+        private void Start() {
+            _sensor.OnUnitDetected += OnUnitDetected;
+        }
+
+        private void OnDestroy() {
+            _sensor.OnUnitDetected -= OnUnitDetected;
+        }
+
+        private void OnDisable() {
+            _trackedTarget = null;
+        }
+        
+        private void OnUnitDetected(IHarvestable unit, bool detected) {
+            if (!detected && _trackedTarget == unit) {
+                _trackedTarget = GetClosestDetected();
+                return;
+            }
+
+            if (_unitTargeting.TargetUnit is IAttackable && unit == _unitTargeting.TargetUnit) {
+                _trackedTarget = unit;
+                return;
+            }
+            
+            if (_trackedTarget != null) return;
+
+            if (detected) 
+                _trackedTarget = unit;
+        }
 
         public void UpdateServer() {
-            if (_unitTargeting.TargetUnit is not IHarvestable harvestable
-                || !_sensor.IsDetected(harvestable)) 
+            if (_currentCooldown > 0f) 
+                _currentCooldown -= Time.deltaTime;
+            
+            if (_trackedTarget == null) 
+                return;
+
+            if (_currentCooldown > 0f)
                 return;
             
-            _currentCooldown -= Time.deltaTime;
-            if (_currentCooldown <= 0) Harvest(harvestable);
+            Harvest(_trackedTarget);
+            _currentCooldown += _cooldown;
         }
 
         private void Harvest(IHarvestable harvestable)
@@ -58,6 +94,21 @@ namespace Ratworx.MarsTS.Units.Turrets
         {
             _eventAgent.PostGlobal(new ResourceHarvestedEvent(_entity, ResourceHarvestedEvent.Side.Harvester,
                 newValue - oldValue, _localStorage.Resource, _localStorage.Value, _localStorage.Capacity));
+        }
+        
+        private IHarvestable GetClosestDetected() {
+            float distance = _sensor.Range * _sensor.Range;
+            IHarvestable currentClosest = null;
+
+            foreach (IHarvestable unit in _sensor.Detected) {
+                float newDistance =
+                    Vector3.Distance(_sensor.GetDetectedCollider(unit.GameObject.name).transform.position, 
+                        transform.position);
+
+                if (newDistance < distance) currentClosest = unit;
+            }
+
+            return currentClosest;
         }
     }
 }

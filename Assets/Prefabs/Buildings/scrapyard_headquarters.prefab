@@ -111,6 +111,12 @@ MonoBehaviour:
     ProductionType: production
     Cost: []
     Description: 
+  - OptionKey: harvester
+    ProductionRequired: 5
+    ProductKey: unit:harvester
+    ProductionType: production
+    Cost: []
+    Description: 
   _spawnPoint: {fileID: 5843079719420424781}
 --- !u!1 &3877310407130595527
 GameObject:
@@ -471,18 +477,7 @@ MonoBehaviour:
     _commandKeys:
     - produce/roughneck
     - produce/scoutcar
-    - page/test
-    - 
-    - 
-    - 
-    - 
-    - 
-    - 
-  - PageKey: test
-    _commandKeys:
-    - produce/roughneck
-    - 
-    - 
+    - produce/harvester
     - 
     - 
     - 

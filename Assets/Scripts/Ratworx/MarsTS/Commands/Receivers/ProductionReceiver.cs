@@ -195,6 +195,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
             foreach (ProductionOption option in _productionOptions) {
                 if (option.OptionKey != argument) continue;
                 
+                // TODO: bruh we don't need to go the interface
                 return CommandPrimer.GetInterface<ProductionCommandInterface>(CommandKey).GetArgDescription(option);
             }
             
@@ -216,6 +217,22 @@ namespace Ratworx.MarsTS.Commands.Receivers
             
             RatLogger.Error?.Log($"Production option with key {argument} not found!");
             return Array.Empty<ResourceCost>();
+        }
+
+        public override string GetName(string argument = null) {
+            if (string.IsNullOrEmpty(argument)) {
+                RatLogger.Error?.Log($"Error getting {CommandKey} description, argument is empty!");
+                return string.Empty;
+            }
+
+            foreach (ProductionOption option in _productionOptions) {
+                if (option.OptionKey != argument) continue;
+                
+                return option.OptionKey;
+            }
+            
+            RatLogger.Error?.Log($"Production option with key {argument} not found!");
+            return string.Empty;
         }
     }
 }

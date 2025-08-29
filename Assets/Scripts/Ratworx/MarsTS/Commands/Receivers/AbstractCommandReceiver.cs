@@ -51,5 +51,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
             => CommandPrimer.GetInterface(CommandKey).GetIcon();
         public virtual string GetDescription(string argument = null) 
             => CommandPrimer.GetInterface(CommandKey).Description;
+        public virtual string GetName(string argument = null) 
+            => CommandPrimer.GetInterface(CommandKey).CommandKey;
     }
 }

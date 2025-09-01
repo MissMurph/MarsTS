@@ -1192,6 +1192,7 @@ GameObject:
   - component: {fileID: 1877667876651222632}
   - component: {fileID: 1919405356120994111}
   - component: {fileID: 1084711249133738656}
+  - component: {fileID: 4501986938110907289}
   m_Layer: 13
   m_Name: DepositRange
   m_TagString: Untagged
@@ -1255,6 +1256,23 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &4501986938110907289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4135051948671059569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2eab02e2a75487dafc33633a5e2bdce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _storage: {fileID: 5456957795722013601}
+  _sensor: {fileID: 1877667876651222632}
+  _depositRate: 20
+  _depositAmount: 20
+  _cooldown: 0
 --- !u!1 &4607774818172655257
 GameObject:
   m_ObjectHideFlags: 0
@@ -1380,7 +1398,7 @@ MonoBehaviour:
   _commandKey: deposit
   _evaluationPriority: 1
   _canInterrupt: 0
-  _depositRange: {fileID: 0}
+  _depositRange: {fileID: 1877667876651222632}
   _storage: {fileID: 5456957795722013601}
 --- !u!114 &3069985777057535460
 MonoBehaviour:

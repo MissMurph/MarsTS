@@ -48,13 +48,14 @@ namespace Ratworx.MarsTS.Units.Turrets
             _trackedTarget = null;
         }
         
+        // TODO: Investigate linking receiver so this only activates when intending so
         private void OnUnitDetected(IHarvestable unit, bool detected) {
             if (!detected && _trackedTarget == unit) {
                 _trackedTarget = GetClosestDetected();
                 return;
             }
 
-            if (_unitTargeting.TargetUnit is IAttackable && unit == _unitTargeting.TargetUnit) {
+            if (_unitTargeting.TargetUnit is IHarvestable && unit == _unitTargeting.TargetUnit) {
                 _trackedTarget = unit;
                 return;
             }
@@ -96,6 +97,7 @@ namespace Ratworx.MarsTS.Units.Turrets
                 newValue - oldValue, _localStorage.Resource, _localStorage.Value, _localStorage.Capacity));
         }
         
+        // TODO: Make function in sensor
         private IHarvestable GetClosestDetected() {
             float distance = _sensor.Range * _sensor.Range;
             IHarvestable currentClosest = null;

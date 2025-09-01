@@ -162,6 +162,8 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
         public bool IsActive => false;
         public bool CanInterrupt => false;
         public float Cooldown => 0f;
+        public bool InterruptQueue => true;
+
         public void ReceiveCommand(Commandlet command) {
             throw new NotImplementedException();
         }

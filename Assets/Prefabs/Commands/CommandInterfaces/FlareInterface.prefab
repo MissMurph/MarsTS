@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ccaec56d0fb40519ad51d323e3325e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _commandKey: Flare
+  _commandKey: flare
   _description: Fires a flare at the specified location to grant vision
   _icon: {fileID: 21300000, guid: b0068cae3c7664444a5b3e56aad5f27d, type: 3}
   _cursorSprite:

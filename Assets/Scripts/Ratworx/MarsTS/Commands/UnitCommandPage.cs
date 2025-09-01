@@ -55,7 +55,8 @@ namespace Ratworx.MarsTS.Commands
         public bool IsActive => false;
         public bool CanInterrupt => true;
         public float Cooldown => 0f;
-        
+        public bool InterruptQueue => false;
+
         public void ReceiveCommand(Commandlet command) {
             throw new NotImplementedException($"{nameof(UnitCommandPage)} cannot receive commands! This should never be reached!");
         }

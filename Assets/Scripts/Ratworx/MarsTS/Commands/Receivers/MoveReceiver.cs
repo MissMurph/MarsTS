@@ -10,7 +10,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
     {
         // TODO: Investigate checking move_speed attribute to determine if we can command (for mobile artillery)
         public override bool CanCommand => true;
-        public override bool IsActive => true;
+        public override bool IsActive => false;
         public override float Cooldown => 0f;
         
         private MoveCommandlet _moveCommand;

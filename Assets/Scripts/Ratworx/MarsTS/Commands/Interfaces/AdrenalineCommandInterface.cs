@@ -11,7 +11,7 @@ namespace Ratworx.MarsTS.Commands.Interfaces
             int totalUsing = 0;
 
             //Inspect all selected to make all units using this ability match up with others that are active using
-            foreach (Roster roster in Player.Player.Selected.Values) {
+            foreach (Roster roster in Player.Player.Selection.Selected.Values) {
                 if (!roster.GetCommandKeys().Contains(CommandKey)) continue;
 
                 foreach (ICommandable unit in roster.GetCommandables()) {

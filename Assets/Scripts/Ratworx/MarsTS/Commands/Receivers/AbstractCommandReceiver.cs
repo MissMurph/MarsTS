@@ -14,6 +14,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         public string CommandKey => _commandKey;
         public int EvaluationPriority => _evaluationPriority;
         public bool CanInterrupt => _canInterrupt;
+        public bool InterruptQueue => _interruptQueue;
 
         public abstract bool CanCommand { get; }
         public abstract bool IsActive { get; }
@@ -28,6 +29,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
         [SerializeField] private string _commandKey;
         [SerializeField] private int _evaluationPriority;
         [SerializeField] private bool _canInterrupt;
+        [SerializeField] private bool _interruptQueue = true;
         
         protected virtual void Awake() {
             UnitPathing = GetComponentInParent<UnitPathfinder>();

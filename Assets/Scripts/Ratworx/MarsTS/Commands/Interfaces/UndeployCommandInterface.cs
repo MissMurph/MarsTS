@@ -9,7 +9,7 @@ namespace Ratworx.MarsTS.Commands.Interfaces
         public override void StartSelection() {
             var toCommand = new List<int>();
 
-            foreach (Roster rollup in Player.Player.Selected.Values) {
+            foreach (Roster rollup in Player.Player.Selection.Selected.Values) {
                 if (!rollup.GetCommandKeys().Contains(CommandKey)) 
                     continue;
 				

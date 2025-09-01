@@ -785,8 +785,18 @@ MonoBehaviour:
   - OptionKey: barracks
     ConstructionRequired: 0
     BuildingKey: building:barracks
-    Cost: []
-    Description: Yeet Skeet
+    Cost:
+    - key: resource_unit
+      amount: 500
+    Description: A building to train infantry
+  - OptionKey: pumpjack
+    ConstructionRequired: 0
+    BuildingKey: building:pumpjack
+    Cost:
+    - key: resource_unit
+      amount: 250
+    Description: A building to harvest oil from oil slicks. Requires another unit
+      to collect the oil and deposit it.
 --- !u!1 &2233568200111040170
 GameObject:
   m_ObjectHideFlags: 0

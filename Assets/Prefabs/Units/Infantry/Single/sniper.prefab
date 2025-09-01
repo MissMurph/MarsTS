@@ -303,6 +303,7 @@ GameObject:
   - component: {fileID: 2772319142879867585}
   - component: {fileID: 7387719298294244711}
   - component: {fileID: 8067932628195831080}
+  - component: {fileID: 4245839910418387541}
   m_Layer: 0
   m_Name: sniper
   m_TagString: Infantry
@@ -537,6 +538,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e7d163064694102a80443073aebc100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _owner: {fileID: 0}
 --- !u!114 &2772319142879867585
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -563,6 +565,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 21300000, guid: 6f96e96736ebd7147bc61f4bd3c480f0, type: 3}
+  _selected: 0
 --- !u!114 &8067932628195831080
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -575,6 +578,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c55df0a2b23f4135831abac78659fdcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &4245839910418387541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4002054096274699913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e107228fa214501a3ff7ec3d5e58a2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _pagesToLoad:
+  - PageKey: default
+    _commandKeys:
+    - move
+    - attack
+    - stop
+    - 
+    - 
+    - 
+    - flare
+  _pageOptions: []
 --- !u!1 &4182981535670723650
 GameObject:
   m_ObjectHideFlags: 0
@@ -1236,6 +1262,7 @@ MonoBehaviour:
   _commandKey: attack
   _evaluationPriority: 1
   _canInterrupt: 0
+  _interruptQueue: 1
   _targetTrackRange: {fileID: 1452026616257125769}
 --- !u!114 &6120568121907680072
 MonoBehaviour:
@@ -1252,6 +1279,7 @@ MonoBehaviour:
   _commandKey: flare
   _evaluationPriority: 0
   _canInterrupt: 0
+  _interruptQueue: 1
   _cost:
   - key: resource_unit
     amount: 50
@@ -1274,6 +1302,7 @@ MonoBehaviour:
   _commandKey: move
   _evaluationPriority: 0
   _canInterrupt: 0
+  _interruptQueue: 1
 --- !u!114 &167643669917535792
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1289,6 +1318,7 @@ MonoBehaviour:
   _commandKey: sneak
   _evaluationPriority: 0
   _canInterrupt: 0
+  _interruptQueue: 0
   _moveSpeedAttribute: {fileID: 7949649143625880782}
   _weapon: {fileID: 1250324457750592571}
   _sneakingSpeedModifier: 1
@@ -1309,6 +1339,7 @@ MonoBehaviour:
   _commandKey: stop
   _evaluationPriority: 0
   _canInterrupt: 0
+  _interruptQueue: 1
 --- !u!1 &8131615845077966110
 GameObject:
   m_ObjectHideFlags: 0

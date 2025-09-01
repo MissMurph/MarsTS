@@ -21,6 +21,8 @@ namespace Ratworx.MarsTS.Commands.Receivers
         bool CanInterrupt { get; }
         /// <remarks>Will return <c>0</c> if no cooldown.</remarks>
         float Cooldown { get; }
+        /// <summary>If true, when this command is received, the queue will cancel the current command before executing this one.</summary>
+        bool InterruptQueue { get; }
         void ReceiveCommand(Commandlet command);
         /// <summary>Evaluates if a command can automatically be determined and constructed with the given
         /// <see cref="Entity"/> as a target.</summary>

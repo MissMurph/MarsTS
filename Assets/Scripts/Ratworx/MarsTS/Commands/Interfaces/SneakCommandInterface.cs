@@ -11,7 +11,7 @@ namespace Ratworx.MarsTS.Commands.Interfaces
             int totalSneakActive = 0;
 
             //Inspect all selected to make all units using this ability match up with others that are active using
-            foreach (Roster rollup in Player.Player.Selected.Values) {
+            foreach (Roster rollup in Player.Player.Selection.Selected.Values) {
                 if (rollup.GetCommandKeys().Contains(CommandKey)) {
                     totalWithSneak += rollup.Count;
 
@@ -25,9 +25,11 @@ namespace Ratworx.MarsTS.Commands.Interfaces
                 }
             }
 
+            // bool shouldSneak = totalSneakActive == 0;
+
             CommandPrimer.GetFactory<CommandFactory<bool>>().ConstructCommand(
                 CommandKey,
-                totalWithSneak > totalSneakActive,
+                totalSneakActive == 0 || totalWithSneak < totalSneakActive,
                 Player.Player.Commander,
                 Player.Player.ListSelected,
                 Player.Player.Include
@@ -35,7 +37,7 @@ namespace Ratworx.MarsTS.Commands.Interfaces
         }
 
         public override void CancelSelection() {
-            throw new System.NotImplementedException();
+            
         }
     }
 }

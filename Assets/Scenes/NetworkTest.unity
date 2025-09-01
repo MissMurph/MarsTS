@@ -2130,6 +2130,7 @@ GameObject:
   - component: {fileID: 836136704}
   - component: {fileID: 836136705}
   - component: {fileID: 836136706}
+  - component: {fileID: 836136707}
   m_Layer: 0
   m_Name: CommandSerializers
   m_TagString: Untagged
@@ -2281,6 +2282,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _commandKey: research
+--- !u!114 &836136707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 836136695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1dc5ae3b3ae9968439ee87e7def1df82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _commandKey: boolean
 --- !u!1 &854723095
 GameObject:
   m_ObjectHideFlags: 0

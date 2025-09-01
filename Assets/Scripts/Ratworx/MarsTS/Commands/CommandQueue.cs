@@ -34,7 +34,21 @@ namespace Ratworx.MarsTS.Commands
         public Commandlet[] Queue => _commandQueue.ToArray();
         private Queue<Commandlet> _commandQueue;
 
-        public List<ICommandReceiver> ActiveCommands => _activeCommands.Values.ToList();
+        public List<ICommandReceiver> ActiveCommands {
+            get {
+                List<ICommandReceiver> activeReceivers = _activeCommands.Values.ToList();
+
+
+                foreach (ICommandReceiver receiver in _commands.Values.Where(receiver
+                             => !activeReceivers.Contains(receiver)
+                                && receiver.IsActive)) {
+                    activeReceivers.Add(receiver);
+                }
+
+                return activeReceivers;
+            }
+        }
+
         private Dictionary<string, ICommandReceiver> _activeCommands;
 
         public List<Timer> Cooldowns => _activeCooldowns.Values.ToList();
@@ -168,14 +182,9 @@ namespace Ratworx.MarsTS.Commands
         private void ExecuteCommand(Commandlet order) {
             if (!CanCommand(order.Name)) return;
             _commandQueue.Clear();
-
-            if (Current != null) {
-                // if (!Current.CanInterrupt()) return;
-
-                Current.CompleteCommand(this, true);
-            }
             
-            // Current = null;
+            Current?.CompleteCommand(this, true);
+
             _commandQueue.Enqueue(order);
 
             if (NetworkManager.Singleton.IsServer) ExecuteClientRpc(order.gameObject);
@@ -284,7 +293,13 @@ namespace Ratworx.MarsTS.Commands
         }
 
         public virtual bool CanCommand(string commandKey) {
-            return !_activeCooldowns.ContainsKey(commandKey);
+            bool canCommand = !_activeCooldowns.ContainsKey(commandKey);
+
+            if (!canCommand) 
+                return false;
+            
+            return _commands.TryGetValue(commandKey, out ICommandReceiver receiver)
+                   && receiver.CanCommand;
         }
 
         public void Order(Commandlet order, bool inclusive) {

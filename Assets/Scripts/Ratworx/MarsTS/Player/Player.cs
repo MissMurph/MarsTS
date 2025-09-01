@@ -21,9 +21,6 @@ namespace Ratworx.MarsTS.Player {
 
 		public static Faction Commander => Main._commander;
 		private Faction _commander;
-
-		public static Dictionary<string, Roster> Selected => Main._selected;
-		private readonly Dictionary<string, Roster> _selected = new Dictionary<string, Roster>();
 		
 		public static List<int> ListSelected {
 			get {
@@ -170,7 +167,7 @@ namespace Ratworx.MarsTS.Player {
 		}
 
 		public void DeliverCommand(Commandlet packet, bool inclusive) {
-			foreach (KeyValuePair<string, Roster> entry in Selected) {
+			foreach (KeyValuePair<string, Roster> entry in Selection.Selected) {
 				foreach (Entity unit in entry.Value.List()) {
 					if (!unit.TryGetEntityComponent(out ICommandable commandable)) continue;
 
@@ -180,7 +177,7 @@ namespace Ratworx.MarsTS.Player {
 		}
 
 		public void DistributeCommand (Commandlet packet, bool inclusive) {
-			foreach (KeyValuePair<string, Roster> entry in Selected) {
+			foreach (KeyValuePair<string, Roster> entry in Selection.Selected) {
 				int lowestAmount = 999;
 				ICommandable lowestOrderable = null;
 
@@ -216,15 +213,15 @@ namespace Ratworx.MarsTS.Player {
 		private void OnEntityDeath (UnitDeathEvent evnt) {
 			string key = evnt.Entity.RegistryKey;
 
-			if (Selected.TryGetValue(key, out Roster unitRoster) && unitRoster.Contains(evnt.Entity.Id)) {
+			if (Selection.Selected.TryGetValue(key, out Roster unitRoster) && unitRoster.Contains(evnt.Entity.Id)) {
 				unitRoster.Remove(evnt.Entity.Id);
 
-				if (unitRoster.Count == 0) Selected.Remove(key);
+				if (unitRoster.Count == 0) Selection.Selected.Remove(key);
 
 				// TODO: Revisit this
 				//This isn't the best method to update selection, as when units die we don't want the 
 				//primary selected to be jumping around a lot, will have to come up with something better
-				EventBus.Post(new PlayerSelectEvent(Selected));
+				EventBus.Post(new PlayerSelectEvent(Selection.Selected));
 			}
 		}
 

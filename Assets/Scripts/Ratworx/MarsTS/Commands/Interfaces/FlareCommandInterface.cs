@@ -32,7 +32,7 @@ namespace Ratworx.MarsTS.Commands.Interfaces
                 if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.WalkableMask)) {
                     int selection = 0;
 
-                    foreach (Roster roster in Player.Player.Selected.Values) {
+                    foreach (Roster roster in Player.Player.Selection.Selected.Values) {
                         if (!roster.GetCommandKeys().Contains(CommandKey)) continue;
 
                         // TODO: Replace this with a check for which instance is closest

@@ -73,7 +73,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
                 CommandQueue.Cooldown(evnt.Command, _cooldown);
         }
 
-        public override (bool valid, ICommandInterface command) EvaluateCommand(Entity entity) => throw new System.NotImplementedException();
+        public override (bool valid, ICommandInterface command) EvaluateCommand(Entity entity) => (false, null);
 
         public ResourceCost[] GetCost(string argument = null) 
             => _cost.Append(new ResourceCost{ key = "time", amount = _cooldown}).ToArray();

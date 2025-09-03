@@ -131,20 +131,17 @@ namespace Ratworx.MarsTS.Commands
         /*	Dequeueing Commands	*/
 
         protected virtual void Dequeue() {
-            Commandlet order = _commandQueue.Dequeue();
+            Commandlet command = _commandQueue.Dequeue();
 
-            if (!_commands.TryGetValue(order.Name, out ICommandReceiver receiver)) {
-                RatLogger.Error?.Log($"Error sending command {order.Name} to receiver, no receiver with matching key found.");
+            if (!_commands.TryGetValue(command.Name, out ICommandReceiver _)) {
+                RatLogger.Error?.Log($"Error sending command {command.Name} to receiver, no receiver with matching key found.");
                 return;
             }
             
-            Current = order;
-            order.OnCommandComplete.AddListener(OnOrderComplete);
-
-            order.StartCommand(this);
-            receiver.ReceiveCommand(order);
-            // OnCommandListChanged?.Invoke();
-            OnCommandsStateChanged?.Invoke();
+            Current = command;
+            command.OnCommandComplete.AddListener(OnOrderComplete);
+            
+            StartCommand(command);
 
             if (NetworkManager.Singleton.IsServer) 
                 DequeueClientRpc();
@@ -154,6 +151,17 @@ namespace Ratworx.MarsTS.Commands
         private void DequeueClientRpc() {
             if (NetworkManager.IsHost) return;
             Dequeue();
+        }
+
+        private void StartCommand(Commandlet command) {
+            if (!_commands.TryGetValue(command.Name, out ICommandReceiver receiver)) {
+                RatLogger.Error?.Log($"Error starting command {command.Name} to receiver, no receiver with matching key found.");
+                return;
+            }
+            
+            command.StartCommand(this);
+            receiver.ReceiveCommand(command);
+            OnCommandsStateChanged?.Invoke();
         }
 
         /*	Completing Commands	*/
@@ -179,15 +187,23 @@ namespace Ratworx.MarsTS.Commands
         }
 
         /*	Executing Commands	*/
-        private void ExecuteCommand(Commandlet order) {
-            if (!CanCommand(order.Name)) return;
-            _commandQueue.Clear();
+        private void ExecuteCommand(Commandlet command) {
+            if (!_commands.TryGetValue(command.Name, out ICommandReceiver receiver)) {
+                RatLogger.Error?.Log($"Error executing command {command.Name} to receiver, no receiver with matching key found.");
+                return;
+            }
             
-            Current?.CompleteCommand(this, true);
+            if (!CanCommand(command.Name)) return;
 
-            _commandQueue.Enqueue(order);
+            if (receiver.InterruptQueue) {
+                _commandQueue.Clear();
+                Current?.CompleteCommand(this, true);
+                _commandQueue.Enqueue(command);
+            }
+            else
+                StartCommand(command);
 
-            if (NetworkManager.Singleton.IsServer) ExecuteClientRpc(order.gameObject);
+            if (NetworkManager.Singleton.IsServer) ExecuteClientRpc(command.gameObject);
         }
 
         [Rpc(SendTo.NotServer)]

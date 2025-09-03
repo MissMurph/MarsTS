@@ -666,6 +666,7 @@ MonoBehaviour:
   _commandKey: attack
   _evaluationPriority: 1
   _canInterrupt: 0
+  _interruptQueue: 1
   _targetTrackRange: {fileID: 3326555973673318992}
 --- !u!114 &4449373215668646295
 MonoBehaviour:
@@ -682,6 +683,7 @@ MonoBehaviour:
   _commandKey: deposit
   _evaluationPriority: 3
   _canInterrupt: 0
+  _interruptQueue: 1
   _depositRange: {fileID: 730346978493121408}
   _storage: {fileID: 8114010838116497852}
 --- !u!114 &1119155824936129758
@@ -699,6 +701,7 @@ MonoBehaviour:
   _commandKey: move
   _evaluationPriority: 0
   _canInterrupt: 0
+  _interruptQueue: 1
 --- !u!114 &250514044637211721
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -714,6 +717,7 @@ MonoBehaviour:
   _commandKey: repair
   _evaluationPriority: 2
   _canInterrupt: 0
+  _interruptQueue: 1
   _targetTrackRange: {fileID: 8642100218351608532}
 --- !u!114 &1011552426683776405
 MonoBehaviour:
@@ -730,6 +734,7 @@ MonoBehaviour:
   _commandKey: sneak
   _evaluationPriority: 0
   _canInterrupt: 0
+  _interruptQueue: 0
   _moveSpeedAttribute: {fileID: 9168986906083210834}
   _weapon: {fileID: 3122935125770214370}
   _sneakingSpeedModifier: 0.5
@@ -750,6 +755,7 @@ MonoBehaviour:
   _commandKey: stop
   _evaluationPriority: 0
   _canInterrupt: 0
+  _interruptQueue: 1
 --- !u!114 &3355604603218917781
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -765,6 +771,7 @@ MonoBehaviour:
   _commandKey: harvest
   _evaluationPriority: 4
   _canInterrupt: 0
+  _interruptQueue: 1
   _harvestRange: {fileID: 8250131711303335996}
   _depositRange: {fileID: 730346978493121408}
   _storage: {fileID: 8114010838116497852}

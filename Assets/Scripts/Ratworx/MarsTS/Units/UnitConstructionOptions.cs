@@ -70,7 +70,7 @@ namespace Ratworx.MarsTS.Units
             foreach (ConstructionOption option in _constructionOptions) {
                 if (option.OptionKey != argument) continue;
                 
-                return CommandPrimer.GetInterface<ConstructBuildingCommandInterface>(CommandKey).GetArgDescription(option);
+                return option.Description;
             }
             
             RatLogger.Error?.Log($"Construction option with key {argument} not found!");
@@ -86,7 +86,7 @@ namespace Ratworx.MarsTS.Units
             foreach (ConstructionOption option in _constructionOptions) {
                 if (option.OptionKey != argument) continue;
                 
-                return CommandPrimer.GetInterface<ConstructBuildingCommandInterface>(CommandKey).GetArgDescription(option);
+                return option.OptionKey;
             }
             
             RatLogger.Error?.Log($"Construction option with key {argument} not found!");

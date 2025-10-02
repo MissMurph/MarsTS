@@ -321,6 +321,7 @@ GameObject:
   - component: {fileID: 5970580384137516987}
   - component: {fileID: 5184788938094923634}
   - component: {fileID: 7328367384969995513}
+  - component: {fileID: 7483969405590462821}
   m_Layer: 0
   m_Name: mobile_artillery
   m_TagString: Vehicle
@@ -431,7 +432,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _visionRange: 15
-  _hideables: []
+  _hideables:
+  - {fileID: 1214473942957689298}
+  - {fileID: 1548256937297088197}
+  - {fileID: 1759595291747803630}
+  - {fileID: 3232551385975708767}
+  - {fileID: 4635363259685974116}
 --- !u!114 &5738421268432317307
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -527,6 +533,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e7d163064694102a80443073aebc100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _owner: {fileID: 0}
 --- !u!114 &2442424357283553827
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -553,6 +560,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 21300000, guid: db7c4a86328576146aaec74d7401b030, type: 3}
+  _selected: 0
 --- !u!114 &5970580384137516987
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -599,6 +607,20 @@ MonoBehaviour:
   _internalValue:
     m_InternalValue: 0
   _maxHealth: 500
+--- !u!114 &7483969405590462821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1214473942990757588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e107228fa214501a3ff7ec3d5e58a2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _pagesToLoad: []
+  _pageOptions: []
 --- !u!1 &1548256937297088197
 GameObject:
   m_ObjectHideFlags: 0
@@ -906,6 +928,7 @@ MonoBehaviour:
   _commandKey: attack
   _evaluationPriority: 1
   _canInterrupt: 0
+  _interruptQueue: 1
   _targetTrackRange: {fileID: 5321804829641003086}
 --- !u!114 &7526675919928929880
 MonoBehaviour:
@@ -922,6 +945,7 @@ MonoBehaviour:
   _commandKey: deploy
   _evaluationPriority: 0
   _canInterrupt: 0
+  _interruptQueue: 1
   _deployed: 0
   _deployTime: 5
   _undeployTime: 5
@@ -942,6 +966,7 @@ MonoBehaviour:
   _commandKey: move
   _evaluationPriority: 0
   _canInterrupt: 0
+  _interruptQueue: 1
 --- !u!114 &4581681604278199776
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -957,6 +982,7 @@ MonoBehaviour:
   _commandKey: stop
   _evaluationPriority: 0
   _canInterrupt: 0
+  _interruptQueue: 1
 --- !u!1 &3818215877355267761
 GameObject:
   m_ObjectHideFlags: 0
@@ -1687,6 +1713,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2a017be07c70bd643b352ad69f65cd3e, type: 3}
+--- !u!1 &1759595291747803630 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 705547712862037176, guid: 2a017be07c70bd643b352ad69f65cd3e,
+    type: 3}
+  m_PrefabInstance: {fileID: 1270522451958744406}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1759595291747803631 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 705547712862037177, guid: 2a017be07c70bd643b352ad69f65cd3e,
@@ -1772,6 +1804,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 25e6df0840ee3434eb5d4dcf622276e2, type: 3}
+--- !u!1 &3232551385975708767 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5512304058434871345, guid: 25e6df0840ee3434eb5d4dcf622276e2,
+    type: 3}
+  m_PrefabInstance: {fileID: 6963681089012579438}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8775462184749001041 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1831631696989345087, guid: 25e6df0840ee3434eb5d4dcf622276e2,
@@ -1857,6 +1895,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d85bb61c56b6e1c40b2f9c82c2b9b261, type: 3}
+--- !u!1 &4635363259685974116 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2565425467006218892, guid: d85bb61c56b6e1c40b2f9c82c2b9b261,
+    type: 3}
+  m_PrefabInstance: {fileID: 7191728045896483560}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8084414589232455687 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1441075677451281135, guid: d85bb61c56b6e1c40b2f9c82c2b9b261,

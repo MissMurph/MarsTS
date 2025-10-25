@@ -20,7 +20,7 @@ namespace Ratworx.MarsTS.Commands
 			else
 				ConstructCommandServerRpc(commandKey, target, commander.Id, selection.ToArray(), enqueue);
 		}
-
+		
 		/// <remarks>This needs explicit declarations of T so Netcode can generate the RPC code.</remarks>
 		[Rpc(SendTo.Server)]
 		protected virtual void ConstructCommandServerRpc(string commandKey, T target, int factionId, int[] selection,

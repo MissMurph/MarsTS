@@ -124,7 +124,7 @@ namespace Ratworx.MarsTS.Extensions
             string[] keys = costs.Select(cost => cost.key).ToArray();
             var resourceKeys = new NativeArray<FixedString32Bytes>(keys.Length, Allocator.Temp);
 
-            for (int i = 0; i < resourceKeys.Length - 1; i++) {
+            for (int i = 0; i < resourceKeys.Length; i++) {
                 resourceKeys[i] = keys[i];
             }
 

@@ -9,8 +9,9 @@ namespace Ratworx.MarsTS.Extensions
     {
         public static bool CanFactionAfford(this ProductionOption option, Faction faction)
             => !option.Cost.Any(entry => faction.GetResource(entry.key).Amount < entry.amount);
-        
-        public static bool CanFactionAfford(this IEnumerable<ResourceCost> costs, Faction faction)
-            => !costs.Any(entry => faction.GetResource(entry.key).Amount < entry.amount);
+
+        public static bool CanFactionAfford(this ResourceCost[] costs, Faction faction)
+            => !costs.Where(entry => entry.key != "time")
+                .Any(entry => faction.GetResource(entry.key).Amount < entry.amount);
     }
 }

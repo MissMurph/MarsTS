@@ -1,61 +1,57 @@
 using Ratworx.MarsTS.Events;
 using Ratworx.MarsTS.Events.Selectable;
 using Ratworx.MarsTS.Events.Selectable.Internal;
+using Ratworx.MarsTS.Units;
 using UnityEngine;
 
-namespace Ratworx.MarsTS.UI {
+namespace Ratworx.MarsTS.UI
+{
+    public class StealthCircle : MonoBehaviour
+    {
+        private SpriteMask _mask;
+        private bool _isSneaking;
 
-	public class StealthCircle : MonoBehaviour {
+        private SpriteRenderer _circleRenderer;
+        private EventAgent _bus;
+        private UnitSelection _unitSelection;
 
-		private SpriteRenderer circleRenderer;
-		private SpriteMask mask;
-		private bool isSneaking;
+        private void Awake() {
+            _circleRenderer = GetComponent<SpriteRenderer>();
+            _bus = GetComponentInParent<EventAgent>();
+            _mask = GetComponentInChildren<SpriteMask>();
+            _unitSelection = GetComponentInParent<UnitSelection>();
 
-		private EventAgent bus;
+            _isSneaking = false;
+        }
 
-		private void Awake () {
-			circleRenderer = GetComponent<SpriteRenderer>();
-			bus = GetComponentInParent<EventAgent>();
-			mask = GetComponentInChildren<SpriteMask>();
+        private void Start() {
+            _bus.AddListener<UnitSelectEvent>(OnSelect);
+            _bus.AddListener<UnitHoverEvent>(OnHover);
+            _bus.AddListener<SneakEvent>(OnSneak);
 
-			isSneaking = false;
-		}
+            SetRendering(false);
+        }
 
-		private void Start () {
-			bus.AddListener<UnitSelectEvent>(OnSelect);
-			bus.AddListener<UnitHoverEvent>(OnHover);
-			bus.AddListener<SneakEvent>(OnSneak);
+        private void OnSneak(SneakEvent evnt) {
+            _isSneaking = evnt.IsSneaking;
 
-			SetRendering(false);
-		}
+            if (!_unitSelection.IsSelected && _isSneaking) return;
+            
+            SetRendering(_isSneaking);
+        }
 
-		private void OnSneak (SneakEvent _event) {
-			isSneaking = _event.IsSneaking;
+        private void OnSelect(UnitSelectEvent evnt) => SetRendering(_isSneaking && evnt.Status);
 
-			SetRendering(isSneaking);
-		}
+        private void OnHover(UnitHoverEvent evnt) {
+            if (_unitSelection.IsSelected) 
+                return;
+            
+            SetRendering(_isSneaking && evnt.Status);
+        }
 
-		private void OnSelect (UnitSelectEvent _event) {
-			if (isSneaking && _event.Status) {
-				SetRendering(true);
-			}
-			else {
-				SetRendering(false);
-			}
-		}
-
-		private void OnHover (UnitHoverEvent _event) {
-			if (isSneaking && _event.Status) {
-				SetRendering(true);
-			}
-			else {
-				SetRendering(false);
-			}
-		}
-
-		private void SetRendering (bool status) {
-			circleRenderer.enabled = status;
-			mask.enabled = status;
-		}
-	}
+        private void SetRendering(bool status) {
+            _circleRenderer.enabled = status;
+            _mask.enabled = status;
+        }
+    }
 }

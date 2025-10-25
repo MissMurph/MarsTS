@@ -70,7 +70,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
                 }
             }
             else
-                CommandQueue.Cooldown(evnt.Command, _cooldown);
+                CommandQueue.Cooldown(CommandKey, _cooldown);
         }
 
         public override (bool valid, ICommandInterface command) EvaluateCommand(Entity entity) => (false, null);

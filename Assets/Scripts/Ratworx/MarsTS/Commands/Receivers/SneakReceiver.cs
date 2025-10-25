@@ -36,7 +36,7 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
         public override void ReceiveCommand(BooleanCommandlet command) {
             // TODO: Convert below into a cooldowns component maybe?
-            _commandQueue.Cooldown(command, command.Target ? _deactivateCooldown : _reactivateCooldown);
+            _commandQueue.Cooldown(CommandKey, command.Target ? _deactivateCooldown : _reactivateCooldown);
             _isSneaking = command.Target;
             _eventAgent.PostLocal(new SneakEvent(_entity, _isSneaking));
             command.CompleteCommand(_commandQueue);

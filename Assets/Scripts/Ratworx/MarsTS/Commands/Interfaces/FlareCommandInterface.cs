@@ -1,3 +1,4 @@
+using System;
 using Ratworx.MarsTS.Commands.Receivers;
 using Ratworx.MarsTS.Extensions;
 using Ratworx.MarsTS.Pathfinding;
@@ -25,41 +26,54 @@ namespace Ratworx.MarsTS.Commands.Interfaces
             Player.Player.Input.Hook("Order", OnOrder);
         }
 
-        private void OnSelect(InputAction.CallbackContext context) {
-            if (context.canceled) {
-                Ray ray = Player.Player.ViewPort.ScreenPointToRay(Player.Player.MousePos);
+        private void Update() {
+            if (_markerTransform is null) return;
+            
+            Ray ray = Player.Player.ViewPort.ScreenPointToRay(Player.Player.MousePos);
 
-                if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.WalkableMask)) {
-                    int selection = 0;
-
-                    foreach (Roster roster in Player.Player.Selection.Selected.Values) {
-                        if (!roster.GetCommandKeys().Contains(CommandKey)) continue;
-
-                        // TODO: Replace this with a check for which instance is closest
-                        selection = roster.GetCommandables()[0].Entity.Id;
-                        break;
-                    }
-                    
-                    ResourceCost[] cost = (Player.Player.Selection.PrimarySelection.GetCommandables()[0]
-                        .GetCommands()[CommandKey] as ICostingCommand)?.GetCost();
-
-                    CommandPrimer.GetFactory<CommandFactory<Vector3>>()
-                        .ConstructCommand(
-                            CommandKey,
-                            hit.point,
-                            Player.Player.Commander,
-                            new []{selection},
-                            Player.Player.Include
-                        );
-                    
-                    WithdrawResourcesFromFaction(cost, Player.Player.Commander);
-
-                    Destroy(_markerTransform.gameObject);
-
-                    Player.Player.Input.Release("Select");
-                    Player.Player.Input.Release("Order");
-                }
+            if (Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.WalkableMask)) {
+                _markerTransform.position = hit.point;
             }
+        }
+
+        private void OnSelect(InputAction.CallbackContext context) {
+            // Mouse up
+            if (!context.canceled) return;
+            
+            Ray ray = Player.Player.ViewPort.ScreenPointToRay(Player.Player.MousePos);
+
+            if (!Physics.Raycast(ray, out RaycastHit hit, 1000f, GameWorld.WalkableMask)) 
+                return;
+            
+            int selection = 0;
+
+            foreach (Roster roster in Player.Player.Selection.Selected.Values) {
+                if (!roster.GetCommandKeys().Contains(CommandKey)) continue;
+
+                // TODO: Replace this with a check for which instance is closest
+                selection = roster.GetCommandables()[0].Entity.Id;
+                break;
+            }
+                    
+            ResourceCost[] cost = (Player.Player.Selection.PrimarySelection.GetCommandables()[0]
+                .GetCommands()[CommandKey] as ICostingCommand)?.GetCost();
+
+            CommandPrimer.GetFactory<CommandFactory<Vector3>>()
+                .ConstructCommand(
+                    CommandKey,
+                    hit.point,
+                    Player.Player.Commander,
+                    new []{selection},
+                    Player.Player.Include
+                );
+                    
+            WithdrawResourcesFromFaction(cost, Player.Player.Commander);
+
+            Destroy(_markerTransform.gameObject, 0.1f);
+            _markerTransform = null;
+
+            Player.Player.Input.Release("Select");
+            Player.Player.Input.Release("Order");
         }
 
         private void OnOrder(InputAction.CallbackContext context) {

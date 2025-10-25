@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 4911814195451809184}
   - component: {fileID: 4728675594984344996}
   - component: {fileID: 8384947822200430118}
+  - component: {fileID: 969635530758342418}
   m_Layer: 0
   m_Name: flare
   m_TagString: Untagged
@@ -64,7 +65,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1453984428
+  GlobalObjectIdHash: 806716407
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -157,8 +158,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ec1b2a83c174b499ed5218f79064152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _icon: {fileID: 21300000, guid: 6f96e96736ebd7147bc61f4bd3c480f0, type: 3}
+  _icon: {fileID: 21300000, guid: b0068cae3c7664444a5b3e56aad5f27d, type: 3}
   _selected: 0
+--- !u!114 &969635530758342418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7609404958641463916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 058a3fd32fc7c154dbd314a15a1fc5ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _key: 
+  _startingValue: 100
+  _internalValue:
+    m_InternalValue: 0
+  _maxHealth: 100
 --- !u!1 &7609404959236546755
 GameObject:
   m_ObjectHideFlags: 0

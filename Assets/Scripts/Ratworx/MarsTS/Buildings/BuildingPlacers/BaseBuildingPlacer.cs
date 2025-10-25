@@ -148,8 +148,8 @@ namespace Ratworx.MarsTS.Buildings.BuildingPlacers
                         "repair",
                         ghostHealth,
                         Player.Player.Commander,
-                        Player.Player.ListSelected.ToArray(),
-                        Player.Player.Include
+                        selection,
+                        inclusive
                     );
                 }
             );

@@ -605,6 +605,7 @@ MonoBehaviour:
     - 
     - 
     - flare
+    - sneak
   _pageOptions: []
 --- !u!1 &4182981535670723650
 GameObject:

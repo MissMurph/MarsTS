@@ -55,7 +55,10 @@ namespace Ratworx.MarsTS.Player
         }
 
         public bool Withdraw(int amount) {
-            if (!NetworkManager.Singleton.IsServer) WithdrawServerRpc(amount);
+            if (!NetworkManager.Singleton.IsServer) {
+                WithdrawServerRpc(amount);
+                return false;
+            }
 
             if (Amount >= amount) {
                 Amount -= amount;

@@ -54,6 +54,12 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
             _bus.PostLocal(new UnitInitEvent(_entity));
         }
 
+        [Rpc(SendTo.NotServer)]
+        private void InitializeGhostClientRpc(string buildingKey) {
+            UpdatePropertiesClient(buildingKey);
+            InstantiateChildObjects();
+        }
+
         protected void UpdateProperties(string registryKey, params ResourceCost[] constructionCost) {
             Registry.Registry.TryGetPrefab($"{registryKey}", out GameObject buildingBeingConstructed);
 
@@ -69,16 +75,13 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
             _constructionAttribute.OnAttributeChange += OnConstructionProgressChanged;
         }
 
-        [Rpc(SendTo.NotServer)]
-        private void InitializeGhostClientRpc(string buildingKey) {
-            UpdatePropertiesClient(buildingKey);
-            InstantiateChildObjects();
-        }
-
         private void UpdatePropertiesClient(string buildingKey) {
             Registry.Registry.TryGetPrefab($"{buildingKey}", out GameObject buildingBeingConstructed);
 
             _buildingBeingConstructed = buildingBeingConstructed;
+            
+            _ghostSelection.SetBuildingOverride(buildingKey);
+            _constructionAttribute.OnAttributeChange += OnConstructionProgressChanged;
         }
 
         private void InstantiateChildObjects() {
@@ -118,6 +121,8 @@ namespace Ratworx.MarsTS.Buildings.Ghosts
         private void OnConstructionProgressChanged(int oldValue, int newValue) {
             float constructedProportion = (float)_constructionAttribute.Value / _healthAttribute.MaxHealth;
             _model.localScale = Vector3.one * constructedProportion;
+
+            if (!NetworkManager.Singleton.IsServer) return;
 
             if (_constructionAttribute.Value >= _healthAttribute.MaxHealth) CompleteConstruction();
         }

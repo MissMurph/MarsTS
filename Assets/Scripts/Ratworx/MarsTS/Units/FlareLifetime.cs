@@ -13,6 +13,8 @@ namespace Ratworx.MarsTS.Units
         private HealthAttribute _flareHealthAttribute;
 
         private void Awake() {
+            _flareHealthAttribute = GetComponent<HealthAttribute>();
+            
             _remainingLifeTime = _lifeTime;
         }
 

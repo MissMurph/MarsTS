@@ -15,9 +15,17 @@ namespace Ratworx.MarsTS.Entities
 								   IAttackable
 	{
 		public int Health => Value;
-		public int MaxHealth => _maxHealth;
+		// if 0, health is not initialized, is still in prefab mode
+		public int MaxHealth => _maxHealthNetVar.Value > 0 ? _maxHealthNetVar.Value : _maxHealth;
 		public Entity Entity { get; private set; }
 		public override string Key => "health";
+
+		[SerializeField]
+		private int _maxHealth;
+
+		// TODO: connect to an entity attribute
+		private NetworkVariable<int> _maxHealthNetVar =
+			new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Server);
 
 		private EventAgent _eventAgent;
 		private UnitOwnership _ownership;
@@ -35,6 +43,9 @@ namespace Ratworx.MarsTS.Entities
 
 		public override void OnNetworkSpawn() {
 			base.OnNetworkSpawn();
+
+			if (NetworkManager.Singleton.IsServer) 
+				_maxHealthNetVar.Value = _maxHealth;
 			
 			OnAttributeChange += OnHurt;
 		}
@@ -55,9 +66,6 @@ namespace Ratworx.MarsTS.Entities
 		}
 
 		public Relationship GetRelationship(Faction player) => _ownership.GetRelationship(player);
-		
-		[SerializeField]
-		private int _maxHealth;
 
 		public GameObject GameObject => gameObject;
 		
@@ -84,8 +92,17 @@ namespace Ratworx.MarsTS.Entities
 		}
 
 		public void SetMaxHealth(int newValue) {
-			_maxHealth = newValue;
+			if (!NetworkManager.Singleton.IsServer) {
+				_maxHealth = newValue;
+				SetMaxHealthServerRpc(newValue);
+				return;
+			}
+
+			_maxHealthNetVar.Value = newValue;
 		}
+
+		[Rpc(SendTo.Server)]
+		private void SetMaxHealthServerRpc(int newValue) => SetMaxHealth(newValue);
 
 		// public IAttackable Get() => this;
 	}

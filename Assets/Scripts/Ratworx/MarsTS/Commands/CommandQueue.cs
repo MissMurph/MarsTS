@@ -270,22 +270,15 @@ namespace Ratworx.MarsTS.Commands
 
         /*	Cooldowns	*/
 
-        public void Cooldown(Commandlet order, float time) {
-            _activeCooldowns[order.Name] = new Timer { commandName = order.Name, duration = time, timeRemaining = time };
+        public void Cooldown(string commandKey, float time) {
+            _activeCooldowns[commandKey] = new Timer { commandName = commandKey, duration = time, timeRemaining = time };
             OnCommandsStateChanged?.Invoke();
 
-            if (NetworkManager.Singleton.IsServer) CooldownClientRpc(order.Id, time);
+            // if (NetworkManager.Singleton.IsServer) CooldownClientRpc(commandKey, time);
         }
 
-        [Rpc(SendTo.NotServer)]
-        private void CooldownClientRpc(int id, float time) {
-            if (!CommandletsCache.TryGet(id, out Commandlet order)) {
-                RatLogger.Error?.Log($"Couldn't find Commandlet {id}, cannot start Cooldown");
-                return;
-            }
-
-            Cooldown(order, time);
-        }
+        /*[Rpc(SendTo.NotServer)]
+        private void CooldownClientRpc(string commandKey, float time) => Cooldown(commandKey, time);*/
 
         /*	Misc.	*/
 

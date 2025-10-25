@@ -15,10 +15,10 @@ namespace Ratworx.MarsTS.Production
     public class ProductionQueue : NetworkBehaviour,
                                    IEntityComponent<ProductionQueue>
     {
-        public Action OnQueueChanged;
-        public Action OnOrderEnqueued;
-        public Action OnOrderComplete;
-        public Action<ProductionOrder, int> OnProductionProgressIncreased;
+        public event Action OnQueueChanged;
+        public event Action OnOrderEnqueued;
+        public event Action OnOrderComplete;
+        public event Action<ProductionOrder, int> OnProductionProgressIncreased;
         
         [SerializeField] private ProductionOrder _orderPrefab;
         
@@ -53,8 +53,8 @@ namespace Ratworx.MarsTS.Production
             _productionQueue.Add(order);
             OnQueueChanged?.Invoke();
 
-            if (NetworkManager.Singleton.IsServer) 
-                EnqueueOrderClientRpc(order.ProductKey, order.ProductionRequired);
+            /*if (NetworkManager.Singleton.IsServer) 
+                EnqueueOrderClientRpc(order.ProductKey, order.ProductionRequired);*/
         }
 
         [Rpc(SendTo.NotServer)]
@@ -72,28 +72,24 @@ namespace Ratworx.MarsTS.Production
         private void CompleteOrder(int queuePosition, bool isCancelled) {
             ProductionOrder completedOrder = _productionQueue[queuePosition];
             
-            if (isCancelled) {
+            if (NetworkManager.Singleton.IsServer && isCancelled) {
                 foreach (ResourceCost cost in completedOrder.Cost) {
                     _ownership.Owner.GetResource(cost.key).Deposit(cost.amount);
                 }
             }
-            
+
+            _productionQueue.RemoveAt(queuePosition);
+            Destroy(completedOrder.gameObject, 0.1f);
             OnOrderComplete?.Invoke();
             OnQueueChanged?.Invoke();
-            
-            _productionQueue.RemoveAt(queuePosition);
-            CompleteOrderClientRpc(queuePosition, isCancelled);
-            
-            Destroy(completedOrder.gameObject, 0.1f);
+
+            if (NetworkManager.Singleton.IsServer)
+                CompleteOrderClientRpc(queuePosition, isCancelled);
         }
 
         [Rpc(SendTo.NotServer)]
-        private void CompleteOrderClientRpc(int queuePosition, bool isCancelled) {
-            var completedOrder = _productionQueue[queuePosition];
-            
-            OnOrderComplete?.Invoke();
-            OnQueueChanged?.Invoke();
-        }
+        private void CompleteOrderClientRpc(int queuePosition, bool isCancelled)
+            => CompleteOrder(queuePosition, isCancelled);
 
         public void CancelOrder(int position) => CompleteOrder(position, true);
 

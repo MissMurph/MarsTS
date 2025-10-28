@@ -27,6 +27,7 @@ namespace Ratworx.MarsTS.Entities {
 		private void Awake () {
 			_instance = this;
 			_instanceMap = new Dictionary<int, Entity>();
+			_count = 0;
 		}
 
 		private void Start () {
@@ -118,6 +119,7 @@ namespace Ratworx.MarsTS.Entities {
 
 		private void OnDestroy () {
 			_instance = null;
+			_instanceMap = null;
 		}
 
 		public IEnumerator<Entity> GetEnumerator() {

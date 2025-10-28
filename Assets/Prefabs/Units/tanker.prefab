@@ -78,7 +78,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7680554594384699939}
-  m_RootOrder: 9
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2077508322864818486
 MonoBehaviour:
@@ -129,7 +129,7 @@ MonoBehaviour:
   _canInterrupt: 0
   _interruptQueue: 1
   _depositRange: {fileID: 4953684813869772767}
-  _storage: {fileID: 5898315663182353006}
+  _storage: {fileID: 7867583061457245338}
 --- !u!114 &1114678200154769481
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -148,7 +148,7 @@ MonoBehaviour:
   _interruptQueue: 1
   _harvestRange: {fileID: 3780183992131938125}
   _depositRange: {fileID: 4953684813869772767}
-  _storage: {fileID: 5898315663182353006}
+  _storage: {fileID: 7867583061457245338}
   _automaticallyReturn: 0
 --- !u!1 &3253768112619618627
 GameObject:
@@ -245,6 +245,7 @@ GameObject:
   - component: {fileID: 3780183992131938125}
   - component: {fileID: 3780183992131938124}
   - component: {fileID: 3780183992131938163}
+  - component: {fileID: 2408102743518583467}
   m_Layer: 13
   m_Name: HarvestRange
   m_TagString: Untagged
@@ -308,6 +309,20 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &2408102743518583467
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3780183992131938161}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7787fb3d03f89164a8bedd9f06b468fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _sensor: {fileID: 3780183992131938125}
+  _harvestRate: 20
 --- !u!1 &3780183992835814465
 GameObject:
   m_ObjectHideFlags: 0
@@ -753,6 +768,7 @@ GameObject:
   - component: {fileID: 4953684813869772767}
   - component: {fileID: 4905211555027867784}
   - component: {fileID: 5889720717930246935}
+  - component: {fileID: 8408437328213696249}
   m_Layer: 13
   m_Name: DepositRange
   m_TagString: Untagged
@@ -816,6 +832,23 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &8408437328213696249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7481447913375297478}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2eab02e2a75487dafc33633a5e2bdce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _storage: {fileID: 7867583061457245338}
+  _sensor: {fileID: 4953684813869772767}
+  _depositRate: 20
+  _depositAmount: 20
+  _cooldown: 0
 --- !u!1 &7680554593815077628
 GameObject:
   m_ObjectHideFlags: 0
@@ -1119,6 +1152,7 @@ GameObject:
   - component: {fileID: 4277146916240357112}
   - component: {fileID: 5836129184061696678}
   - component: {fileID: 2388461754577856445}
+  - component: {fileID: 7867583061457245338}
   m_Layer: 0
   m_Name: tanker
   m_TagString: Vehicle
@@ -1146,7 +1180,6 @@ Transform:
   - {fileID: 6230927808407492083}
   - {fileID: 5553001105564627819}
   - {fileID: 218074959840201473}
-  - {fileID: 8285222244619941944}
   - {fileID: 3000278865175536782}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -1330,9 +1363,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c641ab8bf2c4df7833643f9757d904f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _topSpeed: 500
+  _topSpeed: 10
   _currentTopSpeed: 0
-  _acceleration: 50
+  _acceleration: 500
   _turnSpeed: 35
   _angleTolerance: 25
 --- !u!114 &8808968901937630245
@@ -1399,8 +1432,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e107228fa214501a3ff7ec3d5e58a2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _pagesToLoad: []
+  _pagesToLoad:
+  - PageKey: default
+    _commandKeys:
+    - move
+    - stop
+    - harvest
   _pageOptions: []
+--- !u!114 &7867583061457245338
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7680554594384699938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db75fe7896a566744b02bc8532aebeab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _key: 
+  _startingValue: 0
+  _internalValue:
+    m_InternalValue: 0
+  _capacity: 250
+  _resourceKey: oil
 --- !u!1 &7680554594623944569
 GameObject:
   m_ObjectHideFlags: 0
@@ -1498,56 +1554,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!1 &8192816679268361732
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8285222244619941944}
-  - component: {fileID: 5898315663182353006}
-  m_Layer: 0
-  m_Name: OilStorage
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8285222244619941944
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8192816679268361732}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7680554594384699939}
-  m_RootOrder: 8
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5898315663182353006
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8192816679268361732}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db75fe7896a566744b02bc8532aebeab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _key: 
-  _startingValue: 0
-  _internalValue:
-    m_InternalValue: 0
-  _capacity: 250
-  _resourceKey: oil
 --- !u!1 &8735700182639416531
 GameObject:
   m_ObjectHideFlags: 0
@@ -1594,7 +1600,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffede7701679440479b740e4f6245f82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _storage: {fileID: 0}
+  _storage: {fileID: 7867583061457245338}
 --- !u!33 &16144345823346436
 MeshFilter:
   m_ObjectHideFlags: 0

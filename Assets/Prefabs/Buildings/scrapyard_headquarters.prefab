@@ -105,19 +105,26 @@ MonoBehaviour:
     ProductKey: unit:roughneck
     ProductionType: production
     Cost: []
-    Description: cumucmcumcumcumcumcumc
+    Description: A native engineer of the land. Can traverse camoflauged for sabotage
+      operations.
   - OptionKey: scoutcar
     ProductionRequired: 5
     ProductKey: unit:scoutcar
     ProductionType: production
     Cost: []
-    Description: 
+    Description: A fast buggy used for scouting and traversing the land quickly.
   - OptionKey: harvester
     ProductionRequired: 5
     ProductKey: unit:harvester
     ProductionType: production
     Cost: []
-    Description: 
+    Description: A scrap harvester, shredding junk into useful resources
+  - OptionKey: tanker
+    ProductionRequired: 5
+    ProductKey: unit:tanker
+    ProductionType: production
+    Cost: []
+    Description: A fragile oil tanker, essential for collecting oil from pumpjacks
   _spawnPoint: {fileID: 5843079719420424781}
 --- !u!1 &3877310407130595527
 GameObject:
@@ -485,7 +492,7 @@ MonoBehaviour:
     - produce/roughneck
     - produce/scoutcar
     - produce/harvester
-    - 
+    - produce/tanker
     - 
     - 
     - 

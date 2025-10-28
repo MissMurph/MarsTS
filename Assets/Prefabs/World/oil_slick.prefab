@@ -519,12 +519,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5416129086686114803}
-  - component: {fileID: 2286530688346317263}
   - component: {fileID: 3852121183982828961}
-  - component: {fileID: -5872467056105390491}
+  - component: {fileID: 2286530688346317263}
   - component: {fileID: 5416129086686114802}
   - component: {fileID: 5416129086686114805}
   - component: {fileID: 2503274381758573132}
+  - component: {fileID: 5010523218049893761}
+  - component: {fileID: 2083621451082966904}
   m_Layer: 0
   m_Name: oil_slick
   m_TagString: Untagged
@@ -551,21 +552,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2286530688346317263
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5416129086686114800}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 369bb10e9393f9545849c4727e502bb4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _key: oil slick
-  _icon: {fileID: 21300000, guid: 357daeff9bc5e444f80c022a80831c0d, type: 3}
-  _depositType: oil
 --- !u!114 &3852121183982828961
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -578,7 +564,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2514538362
+  GlobalObjectIdHash: 215350074
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -587,7 +573,7 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &-5872467056105390491
+--- !u!114 &2286530688346317263
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -596,13 +582,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 5416129086686114800}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db75fe7896a566744b02bc8532aebeab, type: 3}
+  m_Script: {fileID: 11500000, guid: 369bb10e9393f9545849c4727e502bb4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _key: 
+  _key: oil_slick
   _startingValue: 1000
-  _capacity: 1000
-  _resourceKey: oil
+  _internalValue:
+    m_InternalValue: 0
+  _depositType: oil
 --- !u!114 &5416129086686114802
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -615,7 +602,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ddccf6297444d479b20f9344e72152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _registryKey: resourceDeposit
+  _registryKey: oil_slick
   _registryType: resource_node
   _toTag: []
 --- !u!114 &5416129086686114805
@@ -646,6 +633,33 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &5010523218049893761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5416129086686114800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ec1b2a83c174b499ed5218f79064152, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _icon: {fileID: 21300000, guid: 357daeff9bc5e444f80c022a80831c0d, type: 3}
+  _selected: 0
+--- !u!114 &2083621451082966904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5416129086686114800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f30f738fbe34c15bf8b90edbcd22da2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _owner: {fileID: 0}
 --- !u!1 &5816704875028616395
 GameObject:
   m_ObjectHideFlags: 0
@@ -655,7 +669,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7846108693464671537}
-  - component: {fileID: 6846571625059407097}
+  - component: {fileID: 1855004959433748279}
   - component: {fileID: 3721344520434847031}
   - component: {fileID: 3700495282679582420}
   m_Layer: 0
@@ -680,7 +694,7 @@ Transform:
   m_Father: {fileID: 288158923504071500}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6846571625059407097
+--- !u!114 &1855004959433748279
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -689,10 +703,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 5816704875028616395}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ffede7701679440479b740e4f6245f82, type: 3}
+  m_Script: {fileID: 11500000, guid: 68107930a5bd4c698174ced026721c15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _storage: {fileID: -5872467056105390491}
+  _storage: {fileID: 2286530688346317263}
 --- !u!33 &3721344520434847031
 MeshFilter:
   m_ObjectHideFlags: 0

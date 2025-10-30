@@ -25,8 +25,11 @@ namespace Ratworx.MarsTS.Commands.Receivers
 
         private HarvestableCommandlet _harvestCommand;
         private IDepositable _depositable;
+        private Entity _entity;
 
         public override void ReceiveCommand(HarvestableCommandlet command) {
+            _entity = GetComponentInParent<Entity>();
+            
             _harvestCommand = command;
             UnitTargeting.SetTarget(_harvestCommand.Target);
             
@@ -43,7 +46,8 @@ namespace Ratworx.MarsTS.Commands.Receivers
         public override (bool valid, ICommandInterface command) EvaluateCommand(Entity entity) {
             if (!entity.TryGetEntityComponent(out IHarvestable harvestable)
                 || _storage.Value >= _storage.Capacity
-                || harvestable.Resource != _storage.Resource)
+                || harvestable.Resource != _storage.Resource
+                || !harvestable.CanHarvest(_storage.Resource, _entity))
                 return (false, null);
 
             return (true, CommandPrimer.GetInterface(CommandKey));

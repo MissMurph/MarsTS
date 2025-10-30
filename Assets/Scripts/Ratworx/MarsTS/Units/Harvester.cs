@@ -50,12 +50,20 @@ namespace Ratworx.MarsTS.Units.Turrets
         
         // TODO: Investigate linking receiver so this only activates when intending so
         private void OnUnitDetected(IHarvestable unit, bool detected) {
+            if (unit is null
+                || !unit.CanHarvest(_localStorage.Resource, _entity))
+                return;
+            
+            // Switch units if losing detection of current target
             if (!detected && _trackedTarget == unit) {
                 _trackedTarget = GetClosestDetected();
                 return;
             }
 
-            if (_unitTargeting.TargetUnit is IHarvestable && unit == _unitTargeting.TargetUnit) {
+            // Prioritize what unitTargeting (from commands) is targeting
+            if (_unitTargeting?.TargetUnit is IHarvestable 
+                && unit == _unitTargeting?.TargetUnit
+                && unit.CanHarvest(_localStorage.Resource, _entity)) {
                 _trackedTarget = unit;
                 return;
             }

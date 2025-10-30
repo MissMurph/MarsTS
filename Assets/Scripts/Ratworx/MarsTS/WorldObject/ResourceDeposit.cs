@@ -33,14 +33,16 @@ namespace Ratworx.MarsTS.WorldObject
         private Entity _entity;
 
         protected virtual void Awake() {
-            _entity = GetComponent<Entity>();
-            _eventAgent = GetComponent<EventAgent>();
+            _entity = GetComponentInParent<Entity>();
+            _eventAgent = GetComponentInParent<EventAgent>();
         }
 
         private void Start() {
             OriginalAmount = Value;
             // EventBus.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
             OnAttributeChange += OnResourceExtracted;
+            
+            _eventAgent.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
         }
 
         private void OnResourceExtracted(int oldValue, int newValue) {
@@ -61,7 +63,7 @@ namespace Ratworx.MarsTS.WorldObject
             Destroy(gameObject, 0.01f);
         }
 
-        public bool CanHarvest(string resourceKey, Entity unit) => resourceKey == _depositType;
+        public virtual bool CanHarvest(string resourceKey, Entity unit) => resourceKey == _depositType;
 
         public virtual int Harvest(
             string resourceKey,
@@ -79,13 +81,9 @@ namespace Ratworx.MarsTS.WorldObject
             return finalAmount;
         }
 
-        /*private void OnUnitInfoDisplayed(UnitInfoEvent _event)
-        {
-            if (ReferenceEquals(_event.Unit, this))
-            {
-                UnitResourceStorageInfo info = _event.Info.Module<UnitResourceStorageInfo>("deposit");
-                info.SetStorage(_resourceStorage);
-            }
-        }*/
+        private void OnUnitInfoDisplayed(UnitInfoEvent _event) {
+            UnitResourceDepositInfo info = _event.Info.Module<UnitResourceDepositInfo>("deposit");
+            info.SetStorage(this);
+        }
     }
 }

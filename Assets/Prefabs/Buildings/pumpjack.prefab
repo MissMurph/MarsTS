@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _sensor: {fileID: 4256574079276605597}
-  _harvestRate: 0
+  _harvestRate: 5
 --- !u!135 &7415347471828581099
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -57,7 +57,7 @@ SphereCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1091123891568108303}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 1
@@ -232,7 +232,7 @@ GameObject:
   - component: {fileID: 3668977583793415410}
   - component: {fileID: 1114132544270880998}
   - component: {fileID: 3454774584343477042}
-  - component: {fileID: -1105662473589906674}
+  - component: {fileID: 200424771141731771}
   - component: {fileID: 6758037270192598248}
   - component: {fileID: 3112388064453925123}
   - component: {fileID: 3891764778936937387}
@@ -350,7 +350,7 @@ MonoBehaviour:
   - {fileID: 4305377559586832187}
   - {fileID: 3784520690582371395}
   - {fileID: 8725958431779697784}
---- !u!114 &-1105662473589906674
+--- !u!114 &200424771141731771
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -359,7 +359,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3668977583793415411}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db75fe7896a566744b02bc8532aebeab, type: 3}
+  m_Script: {fileID: 11500000, guid: d3909820900f4adf9f7c685c23161b30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _key: 
@@ -652,7 +652,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffede7701679440479b740e4f6245f82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _storage: {fileID: -1105662473589906674}
+  _storage: {fileID: 200424771141731771}
 --- !u!33 &6852110456137419960
 MeshFilter:
   m_ObjectHideFlags: 0

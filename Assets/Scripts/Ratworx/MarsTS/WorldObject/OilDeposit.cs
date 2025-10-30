@@ -1,3 +1,4 @@
+using Ratworx.MarsTS.Entities;
 using UnityEngine;
 
 namespace Ratworx.MarsTS.WorldObject
@@ -26,5 +27,8 @@ namespace Ratworx.MarsTS.WorldObject
             _selectionCollider = transform.Find("SelectionCollider").gameObject;
             _resourceBars = transform.Find("BarOrientation").gameObject;
         }
+
+        public override bool CanHarvest(string resourceKey, Entity unit)
+            => resourceKey == "oil" && unit.RegistryKey.Contains("pumpjack");
     }
 }

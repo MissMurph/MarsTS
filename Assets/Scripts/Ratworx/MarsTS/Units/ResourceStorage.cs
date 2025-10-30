@@ -1,4 +1,8 @@
+using System;
 using Ratworx.MarsTS.Entities;
+using Ratworx.MarsTS.Events;
+using Ratworx.MarsTS.Events.Selectable;
+using Ratworx.MarsTS.UI.Unit_Pane;
 using UnityEngine;
 
 namespace Ratworx.MarsTS.Units {
@@ -12,8 +16,19 @@ namespace Ratworx.MarsTS.Units {
         [SerializeField]
         private string _resourceKey;
 
-        private void Awake() {
+        private EventAgent _eventAgent; 
+        
+        protected Entity Entity;
+
+        protected virtual void Awake() {
+            Entity = GetComponentInParent<Entity>();
+            _eventAgent = GetComponentInParent<EventAgent>();
+            
             _key = "storage:" + _resourceKey;
+        }
+
+        private void Start() {
+            _eventAgent.AddListener<UnitInfoEvent>(OnUnitInfoDisplayed);
         }
 
         public int Submit(int amount) {
@@ -26,15 +41,9 @@ namespace Ratworx.MarsTS.Units {
             return difference;
         }
         
-        /*protected override void OnUnitInfoDisplayed(UnitInfoEvent _event)
-        {
-            base.OnUnitInfoDisplayed(_event);
-
-            if (ReferenceEquals(_event.Unit, this))
-            {
-                UnitResourceStorageInfo info = _event.Info.Module<UnitResourceStorageInfo>("storage");
-                info.SetStorage(_storageComp);
-            }
-        }*/
+        private void OnUnitInfoDisplayed(UnitInfoEvent _event) {
+            UnitResourceStorageInfo info = _event.Info.Module<UnitResourceStorageInfo>("storage");
+            info.SetStorage(this);
+        }
     }
 }
